@@ -11,6 +11,7 @@
   <property name="build-mpc" location="build/mpc"/>
   <property name="dist"  location="dist"/>
   <property name="sepia" location="sepia/dist/lib/sepia.jar"/>
+  <property name="sepia-dir" location="sepia"/>
   <target name="init">
         <!-- Create the time stamp -->
         <tstamp/>
@@ -18,14 +19,18 @@
         <mkdir dir="${build-daemon}"/>
         <mkdir dir="${build-mpc}"/>
   </target>
- 
-  <target name="compile-daemon" depends="init"
+  <target name="build-sepia">
+    <subant target="dist">
+       <fileset dir="${sepia-dir}" includes="build.xml" />
+    </subant>
+  </target>
+  <target name="compile-daemon" depends="init,build-sepia"
     description="compile the source " >
         <!-- Compile the java code from ${src} into ${build} -->
     <javac srcdir="${src-daemon}" destdir="${build-daemon}" classpath="${sepia}" />
   </target>
 
-  <target name="compile-mpc" depends="init"
+  <target name="compile-mpc" depends="init,build-sepia"
     description="compile the source " >
         <!-- Compile the java code from ${src} into ${build} -->
     <javac srcdir="${src-mpc}" destdir="${build-mpc}" classpath="${sepia}" />
@@ -46,8 +51,11 @@
   <target name="clean"
         description="clean up" >
  
+       <subant target="clean">
+          <fileset dir="${sepia-dir}" includes="build.xml" />
+       </subant>
         <!-- Delete the ${build} and ${dist} directory trees -->
         <delete dir="${build}"/>
-        <delete dir="${dist}"/>
+        <delete dir="${dist}/lib"/>
   </target>
 </project>
