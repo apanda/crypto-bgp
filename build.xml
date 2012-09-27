@@ -1,0 +1,53 @@
+<project name="crypto-bgp" default="dist" basedir=".">
+    <description>
+        Sepia
+    </description>
+ 
+  <!-- set global properties for this build -->
+  <property name="projectName" value="crypto-bgp"/>
+  <property name="src-daemon" location="src/daemon"/>
+  <property name="build-daemon" location="build/daemon"/>
+  <property name="src-mpc" location="src/mpc"/>
+  <property name="build-mpc" location="build/mpc"/>
+  <property name="dist"  location="dist"/>
+  <property name="sepia" location="sepia/dist/lib/sepia.jar"/>
+  <target name="init">
+        <!-- Create the time stamp -->
+        <tstamp/>
+        <!-- Create the build directory structure used by compile -->
+        <mkdir dir="${build-daemon}"/>
+        <mkdir dir="${build-mpc}"/>
+  </target>
+ 
+  <target name="compile-daemon" depends="init"
+    description="compile the source " >
+        <!-- Compile the java code from ${src} into ${build} -->
+    <javac srcdir="${src-daemon}" destdir="${build-daemon}" classpath="${sepia}" />
+  </target>
+
+  <target name="compile-mpc" depends="init"
+    description="compile the source " >
+        <!-- Compile the java code from ${src} into ${build} -->
+    <javac srcdir="${src-mpc}" destdir="${build-mpc}" classpath="${sepia}" />
+  </target>
+ 
+  <target name="dist" depends="compile-mpc,compile-daemon"
+    description="generate the distribution" >
+ 
+    <!-- Create the distribution directory -->
+        <mkdir dir="${dist}/lib"/>
+ 
+        <!-- Put everything in ${build} into the {$projectName}-${DSTAMP}.jar file -->
+        <jar jarfile="${dist}/lib/mpc.jar" basedir="${build-mpc}"/>
+        <jar jarfile="${dist}/lib/daemon.jar" basedir="${build-daemon}"/>
+        <copy file="${sepia}" todir="${dist}/lib" />
+  </target>
+ 
+  <target name="clean"
+        description="clean up" >
+ 
+        <!-- Delete the ${build} and ${dist} directory trees -->
+        <delete dir="${build}"/>
+        <delete dir="${dist}"/>
+  </target>
+</project>
