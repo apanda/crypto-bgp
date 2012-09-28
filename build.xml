@@ -13,9 +13,11 @@
   <property name="sepia" location="sepia/dist/lib/sepia.jar"/>
   <property name="sepia-dir" location="sepia"/>
   <property name="script-dir" location="scripts"/>
+  <property name="build" location="build"/>
   <target name="init">
         <!-- Create the time stamp -->
         <tstamp/>
+        <mkdir dir="${build}"/>
         <!-- Create the build directory structure used by compile -->
         <mkdir dir="${build-daemon}"/>
         <mkdir dir="${build-mpc}"/>
