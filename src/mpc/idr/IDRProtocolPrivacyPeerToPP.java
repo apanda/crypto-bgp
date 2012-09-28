@@ -163,7 +163,7 @@ public class IDRProtocolPrivacyPeerToPP extends IDRProtocol {
 			logger.severe("Error");
 			return false;
 		}
-		*/
+		 */
 		ppThreadsBarrier.await();
 
 		return true;
@@ -189,7 +189,7 @@ public class IDRProtocolPrivacyPeerToPP extends IDRProtocol {
 			 * all threads enter doOperations() and process the operations in
 			 * parallel.
 			 */	
-			
+
 			/*
 			 * Generate random number generator if necessary
 			 */
@@ -224,8 +224,8 @@ public class IDRProtocolPrivacyPeerToPP extends IDRProtocol {
 				}
 				ppThreadsBarrier.await();
 			}
-			
-			
+
+
 			/*
 			 * Phase 1, runStep on V1 20 times
 			 */
@@ -251,17 +251,17 @@ public class IDRProtocolPrivacyPeerToPP extends IDRProtocol {
 			// Reconstruct the Final Results
 			// ---------------------------
 
-			if (ppThreadsBarrier.await() == 0) {
-				// Finish last step by copying next hops
-				//privacyPeer.setAllNextHops();
+			if (privacyPeer.goAhead(true) || privacyPeer.goAhead(false)) {
+				if (ppThreadsBarrier.await() == 0) {
 
-				privacyPeer.scheduleFinalResultReconstruction();
-				logger.log(Level.INFO, Services.getFilterPassingLogPrefix() + "Reconstructing final result...");
-			}
-			ppThreadsBarrier.await();
-			if (!doOperations()) {
-				logger.severe("Final Result reconstruction failed. returning!");
-				return;
+					privacyPeer.scheduleFinalResultReconstruction();
+					logger.log(Level.INFO, Services.getFilterPassingLogPrefix() + "Reconstructing final result...");
+				}
+				ppThreadsBarrier.await();
+				if (!doOperations()) {
+					logger.severe("Final Result reconstruction failed. returning!");
+					return;
+				}
 			}
 
 			if (ppThreadsBarrier.await() == 0) {
