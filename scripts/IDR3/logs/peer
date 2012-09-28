@@ -1,0 +1,25 @@
+
+sepia: Security through Private Information Aggregation
+
+Arguments: 
+-p
+0
+-c
+config.peer01.properties
+
+Config file: config.peer01.properties
+Logging in non-verbose mode...
+Starting INPUT PEER...
+
+Sep 27, 2012 6:00:49 PM connections.ConnectionManager waitForConnections
+INFO: [LOG] Waiting for more connections. (Connected input peers: 0/0, connected privacy peers: 0/3)
+Sep 27, 2012 6:00:51 PM connections.ConnectionManager waitForConnections
+INFO: [LOG] Waiting for more connections. (Connected input peers: 0/0, connected privacy peers: 3/3)
+Sep 27, 2012 6:00:53 PM connections.ConnectionManager waitForConnections
+INFO: [LOG] Waiting for more connections. (Connected input peers: 0/0, connected privacy peers: 3/3)
+Sep 27, 2012 6:00:55 PM connections.ConnectionManager waitForConnections
+INFO: [LOG] Waiting for more connections. (Connected input peers: 0/0, connected privacy peers: 3/3)
+Sep 27, 2012 6:00:57 PM connections.ConnectionManager waitForConnections
+INFO: [LOG] Waiting for more connections. (Connected input peers: 0/0, connected privacy peers: 3/3)
+Sep 27, 2012 6:00:59 PM connections.ConnectionManager waitForConnections
+INFO: [LOG] Enough connections found and timout occurred. (Connected input peers: 0, connected privacy peers: 3)

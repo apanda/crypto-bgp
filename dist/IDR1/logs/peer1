@@ -1,0 +1,44 @@
+
+sepia: Security through Private Information Aggregation
+
+Arguments: 
+-p
+0
+-c
+config.peer01.properties
+
+Config file: config.peer01.properties
+Logging in non-verbose mode...
+Starting INPUT PEER...
+
+Sep 27, 2012 6:00:45 PM connections.ConnectionManager waitForConnections
+INFO: [LOG] Waiting for more connections. (Connected input peers: 0/0, connected privacy peers: 0/3)
+Sep 27, 2012 6:00:47 PM connections.ConnectionManager waitForConnections
+INFO: [LOG] Waiting for more connections. (Connected input peers: 0/0, connected privacy peers: 3/3)
+Sep 27, 2012 6:00:49 PM connections.ConnectionManager waitForConnections
+INFO: [LOG] Waiting for more connections. (Connected input peers: 0/0, connected privacy peers: 3/3)
+Sep 27, 2012 6:00:51 PM connections.ConnectionManager waitForConnections
+INFO: [LOG] Waiting for more connections. (Connected input peers: 0/0, connected privacy peers: 3/3)
+Sep 27, 2012 6:00:53 PM connections.ConnectionManager waitForConnections
+INFO: [LOG] Waiting for more connections. (Connected input peers: 0/0, connected privacy peers: 3/3)
+Sep 27, 2012 6:00:55 PM connections.ConnectionManager waitForConnections
+INFO: [LOG] Enough connections found and timout occurred. (Connected input peers: 0, connected privacy peers: 3)
+Sep 27, 2012 6:00:58 PM mpc.idr.IDRPeer notificationReceived
+INFO: [LOG] Received all final results. Notifying observers...
+Sep 27, 2012 6:00:58 PM startup.PeerStarter processMpcEvent
+INFO: [LOG] Round was successful: true
+Sep 27, 2012 6:00:58 PM startup.PeerStarter processMpcEvent
+INFO: [LOG] ConnectionManager statistics: 
+--- Total      : MR=9, MS=9, BR=1599, UBR=0, BS=7515, UBS=0
+--- This round : MR=9, MS=9, BR=1599, UBR=0, BS=7515, UBS=0
+--- Avg. round : MR=9, MS=9, BR=1599, UBR=0, BS=7515, UBS=0
+
+Sep 27, 2012 6:00:58 PM startup.PeerStarter processMpcEvent
+INFO: [LOG] --> Running time of round (including connection discovery!): 13.924 seconds.
+Sep 27, 2012 6:00:58 PM startup.PeerStarter processMpcEvent
+INFO: [LOG] Time slots to do: 0
+Sep 27, 2012 6:00:58 PM startup.PeerStarter processMpcEvent
+INFO: [LOG] Secret Sharing done for all time slots...
+Sep 27, 2012 6:00:58 PM startup.PeerStarter stopProcessing
+INFO: [LOG] Shutting down SEPIA...
+NextHop: [J@7471dc3d

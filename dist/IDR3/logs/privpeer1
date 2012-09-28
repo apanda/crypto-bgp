@@ -1,0 +1,15 @@
+
+sepia: Security through Private Information Aggregation
+
+Arguments: 
+-p
+1
+-c
+config.privacypeer01.properties
+
+Config file: config.privacypeer01.properties
+Logging in non-verbose mode...
+Starting PRIVACY PEER...
+
+Sep 27, 2012 6:00:47 PM connections.ConnectionAcceptor run
+SEVERE: Could not open server socket. Details: Address already in use

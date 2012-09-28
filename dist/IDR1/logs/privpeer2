@@ -1,0 +1,467 @@
+
+sepia: Security through Private Information Aggregation
+
+Arguments: 
+-p
+1
+-c
+config.privacypeer02.properties
+
+Config file: config.privacypeer02.properties
+Logging in non-verbose mode...
+Starting PRIVACY PEER...
+
+Sep 27, 2012 6:00:42 PM mpc.idr.IDRPrivacyPeer initProperties
+WARNING: Not connecting to daemon; results will be incorrect
+Sep 27, 2012 6:00:43 PM connections.ConnectionManager waitForConnections
+INFO: [LOG] Waiting for more connections. (Connected input peers: 0/1, connected privacy peers: 0/2)
+Sep 27, 2012 6:00:45 PM connections.ConnectionManager waitForConnections
+INFO: [LOG] Waiting for more connections. (Connected input peers: 0/1, connected privacy peers: 2/2)
+Sep 27, 2012 6:00:47 PM connections.ConnectionManager waitForConnections
+INFO: [LOG] Waiting for more connections. (Connected input peers: 0/1, connected privacy peers: 2/2)
+Sep 27, 2012 6:00:49 PM connections.ConnectionManager waitForConnections
+INFO: [LOG] Waiting for more connections. (Connected input peers: 1/1, connected privacy peers: 2/2)
+Sep 27, 2012 6:00:51 PM connections.ConnectionManager waitForConnections
+INFO: [LOG] Waiting for more connections. (Connected input peers: 1/1, connected privacy peers: 2/2)
+Sep 27, 2012 6:00:53 PM connections.ConnectionManager waitForConnections
+INFO: [LOG] Waiting for more connections. (Connected input peers: 1/1, connected privacy peers: 2/2)
+Sep 27, 2012 6:00:55 PM connections.ConnectionManager waitForConnections
+INFO: [LOG] Waiting for more connections. (Connected input peers: 1/1, connected privacy peers: 2/2)
+Sep 27, 2012 6:00:57 PM connections.ConnectionManager waitForConnections
+INFO: [LOG] Enough connections found and timout occurred. (Connected input peers: 1, connected privacy peers: 2)
+Sep 27, 2012 6:00:57 PM mpc.idr.IDRProtocolPrivacyPeerToPP run
+INFO: [LOG] Running phase 1
+Sep 27, 2012 6:00:57 PM mpc.idr.IDRProtocolPrivacyPeerToPP run
+INFO: [LOG] Running phase 1
+Sep 27, 2012 6:00:57 PM mpc.idr.IDRPrivacyPeer runStep2
+INFO: [LOG] Step 1 took 158 ms
+Sep 27, 2012 6:00:57 PM mpc.idr.IDRPrivacyPeer runStep3
+INFO: [LOG] Step 2 took 3 ms
+Sep 27, 2012 6:00:57 PM mpc.idr.IDRPrivacyPeer runStep4
+INFO: [LOG] Step 3 took 0 ms
+Sep 27, 2012 6:00:57 PM mpc.idr.IDRPrivacyPeer runStep5
+INFO: [LOG] Step 4 took 3 ms
+Sep 27, 2012 6:00:57 PM mpc.idr.IDRPrivacyPeer runStep6
+INFO: [LOG] Step 5 took 6 ms
+Sep 27, 2012 6:00:57 PM mpc.idr.IDRPrivacyPeer runStep7
+INFO: [LOG] Step 6 took 3 ms
+Sep 27, 2012 6:00:57 PM mpc.idr.IDRPrivacyPeer setAllNextHops
+INFO: [LOG] Step 7 took 0 ms
+Sep 27, 2012 6:00:57 PM mpc.idr.IDRPrivacyPeer setAllNextHops
+INFO: [LOG] This round took 173 ms
+Sep 27, 2012 6:00:57 PM mpc.idr.IDRProtocolPrivacyPeerToPP run
+INFO: [LOG] Running phase 2
+Sep 27, 2012 6:00:57 PM mpc.idr.IDRProtocolPrivacyPeerToPP run
+INFO: [LOG] Running phase 2
+Sep 27, 2012 6:00:57 PM mpc.idr.IDRPrivacyPeer runStep2
+INFO: [LOG] Step 1 took 117 ms
+Sep 27, 2012 6:00:57 PM mpc.idr.IDRPrivacyPeer runStep3
+INFO: [LOG] Step 2 took 2 ms
+Sep 27, 2012 6:00:57 PM mpc.idr.IDRPrivacyPeer runStep4
+INFO: [LOG] Step 3 took 0 ms
+Sep 27, 2012 6:00:57 PM mpc.idr.IDRPrivacyPeer runStep5
+INFO: [LOG] Step 4 took 3 ms
+Sep 27, 2012 6:00:57 PM mpc.idr.IDRPrivacyPeer runStep6
+INFO: [LOG] Step 5 took 4 ms
+Sep 27, 2012 6:00:57 PM mpc.idr.IDRPrivacyPeer runStep7
+INFO: [LOG] Step 6 took 2 ms
+Sep 27, 2012 6:00:57 PM mpc.idr.IDRPrivacyPeer setAllNextHops
+INFO: [LOG] Step 7 took 0 ms
+Sep 27, 2012 6:00:57 PM mpc.idr.IDRPrivacyPeer setAllNextHops
+INFO: [LOG] This round took 129 ms
+Sep 27, 2012 6:00:57 PM mpc.idr.IDRProtocolPrivacyPeerToPP run
+INFO: [LOG] Running phase 3
+Sep 27, 2012 6:00:57 PM mpc.idr.IDRProtocolPrivacyPeerToPP run
+INFO: [LOG] Running phase 3
+Sep 27, 2012 6:00:57 PM mpc.idr.IDRPrivacyPeer runStep2
+INFO: [LOG] Step 1 took 75 ms
+Sep 27, 2012 6:00:57 PM mpc.idr.IDRPrivacyPeer runStep3
+INFO: [LOG] Step 2 took 2 ms
+Sep 27, 2012 6:00:57 PM mpc.idr.IDRPrivacyPeer runStep4
+INFO: [LOG] Step 3 took 0 ms
+Sep 27, 2012 6:00:57 PM mpc.idr.IDRPrivacyPeer runStep5
+INFO: [LOG] Step 4 took 2 ms
+Sep 27, 2012 6:00:57 PM mpc.idr.IDRPrivacyPeer runStep6
+INFO: [LOG] Step 5 took 4 ms
+Sep 27, 2012 6:00:57 PM mpc.idr.IDRPrivacyPeer runStep7
+INFO: [LOG] Step 6 took 2 ms
+Sep 27, 2012 6:00:57 PM mpc.idr.IDRPrivacyPeer setAllNextHops
+INFO: [LOG] Step 7 took 0 ms
+Sep 27, 2012 6:00:57 PM mpc.idr.IDRPrivacyPeer setAllNextHops
+INFO: [LOG] This round took 86 ms
+Sep 27, 2012 6:00:57 PM mpc.idr.IDRProtocolPrivacyPeerToPP run
+INFO: [LOG] Running phase 4
+Sep 27, 2012 6:00:57 PM mpc.idr.IDRProtocolPrivacyPeerToPP run
+INFO: [LOG] Running phase 4
+Sep 27, 2012 6:00:57 PM mpc.idr.IDRPrivacyPeer runStep2
+INFO: [LOG] Step 1 took 102 ms
+Sep 27, 2012 6:00:57 PM mpc.idr.IDRPrivacyPeer runStep3
+INFO: [LOG] Step 2 took 2 ms
+Sep 27, 2012 6:00:57 PM mpc.idr.IDRPrivacyPeer runStep4
+INFO: [LOG] Step 3 took 0 ms
+Sep 27, 2012 6:00:57 PM mpc.idr.IDRPrivacyPeer runStep5
+INFO: [LOG] Step 4 took 1 ms
+Sep 27, 2012 6:00:57 PM mpc.idr.IDRPrivacyPeer runStep6
+INFO: [LOG] Step 5 took 3 ms
+Sep 27, 2012 6:00:57 PM mpc.idr.IDRPrivacyPeer runStep7
+INFO: [LOG] Step 6 took 1 ms
+Sep 27, 2012 6:00:57 PM mpc.idr.IDRPrivacyPeer setAllNextHops
+INFO: [LOG] Step 7 took 0 ms
+Sep 27, 2012 6:00:57 PM mpc.idr.IDRPrivacyPeer setAllNextHops
+INFO: [LOG] This round took 113 ms
+Sep 27, 2012 6:00:57 PM mpc.idr.IDRProtocolPrivacyPeerToPP run
+INFO: [LOG] Running phase 5
+Sep 27, 2012 6:00:57 PM mpc.idr.IDRProtocolPrivacyPeerToPP run
+INFO: [LOG] Running phase 5
+Sep 27, 2012 6:00:57 PM mpc.idr.IDRPrivacyPeer runStep2
+INFO: [LOG] Step 1 took 65 ms
+Sep 27, 2012 6:00:57 PM mpc.idr.IDRPrivacyPeer runStep3
+INFO: [LOG] Step 2 took 2 ms
+Sep 27, 2012 6:00:57 PM mpc.idr.IDRPrivacyPeer runStep4
+INFO: [LOG] Step 3 took 0 ms
+Sep 27, 2012 6:00:57 PM mpc.idr.IDRPrivacyPeer runStep5
+INFO: [LOG] Step 4 took 2 ms
+Sep 27, 2012 6:00:57 PM mpc.idr.IDRPrivacyPeer runStep6
+INFO: [LOG] Step 5 took 4 ms
+Sep 27, 2012 6:00:57 PM mpc.idr.IDRPrivacyPeer runStep7
+INFO: [LOG] Step 6 took 2 ms
+Sep 27, 2012 6:00:57 PM mpc.idr.IDRPrivacyPeer setAllNextHops
+INFO: [LOG] Step 7 took 0 ms
+Sep 27, 2012 6:00:57 PM mpc.idr.IDRPrivacyPeer setAllNextHops
+INFO: [LOG] This round took 76 ms
+Sep 27, 2012 6:00:57 PM mpc.idr.IDRProtocolPrivacyPeerToPP run
+INFO: [LOG] Running phase 6
+Sep 27, 2012 6:00:57 PM mpc.idr.IDRProtocolPrivacyPeerToPP run
+INFO: [LOG] Running phase 6
+Sep 27, 2012 6:00:58 PM mpc.idr.IDRPrivacyPeer runStep2
+INFO: [LOG] Step 1 took 72 ms
+Sep 27, 2012 6:00:58 PM mpc.idr.IDRPrivacyPeer runStep3
+INFO: [LOG] Step 2 took 2 ms
+Sep 27, 2012 6:00:58 PM mpc.idr.IDRPrivacyPeer runStep4
+INFO: [LOG] Step 3 took 0 ms
+Sep 27, 2012 6:00:58 PM mpc.idr.IDRPrivacyPeer runStep5
+INFO: [LOG] Step 4 took 2 ms
+Sep 27, 2012 6:00:58 PM mpc.idr.IDRPrivacyPeer runStep6
+INFO: [LOG] Step 5 took 4 ms
+Sep 27, 2012 6:00:58 PM mpc.idr.IDRPrivacyPeer runStep7
+INFO: [LOG] Step 6 took 2 ms
+Sep 27, 2012 6:00:58 PM mpc.idr.IDRPrivacyPeer setAllNextHops
+INFO: [LOG] Step 7 took 1 ms
+Sep 27, 2012 6:00:58 PM mpc.idr.IDRPrivacyPeer setAllNextHops
+INFO: [LOG] This round took 83 ms
+Sep 27, 2012 6:00:58 PM mpc.idr.IDRProtocolPrivacyPeerToPP run
+INFO: [LOG] Running phase 7
+Sep 27, 2012 6:00:58 PM mpc.idr.IDRProtocolPrivacyPeerToPP run
+INFO: [LOG] Running phase 7
+Sep 27, 2012 6:00:58 PM mpc.idr.IDRPrivacyPeer runStep2
+INFO: [LOG] Step 1 took 81 ms
+Sep 27, 2012 6:00:58 PM mpc.idr.IDRPrivacyPeer runStep3
+INFO: [LOG] Step 2 took 2 ms
+Sep 27, 2012 6:00:58 PM mpc.idr.IDRPrivacyPeer runStep4
+INFO: [LOG] Step 3 took 1 ms
+Sep 27, 2012 6:00:58 PM mpc.idr.IDRPrivacyPeer runStep5
+INFO: [LOG] Step 4 took 3 ms
+Sep 27, 2012 6:00:58 PM mpc.idr.IDRPrivacyPeer runStep6
+INFO: [LOG] Step 5 took 8 ms
+Sep 27, 2012 6:00:58 PM mpc.idr.IDRPrivacyPeer runStep7
+INFO: [LOG] Step 6 took 2 ms
+Sep 27, 2012 6:00:58 PM mpc.idr.IDRPrivacyPeer setAllNextHops
+INFO: [LOG] Step 7 took 1 ms
+Sep 27, 2012 6:00:58 PM mpc.idr.IDRPrivacyPeer setAllNextHops
+INFO: [LOG] This round took 99 ms
+Sep 27, 2012 6:00:58 PM mpc.idr.IDRProtocolPrivacyPeerToPP run
+INFO: [LOG] Running phase 8
+Sep 27, 2012 6:00:58 PM mpc.idr.IDRProtocolPrivacyPeerToPP run
+INFO: [LOG] Running phase 8
+Sep 27, 2012 6:00:58 PM mpc.idr.IDRPrivacyPeer runStep2
+INFO: [LOG] Step 1 took 62 ms
+Sep 27, 2012 6:00:58 PM mpc.idr.IDRPrivacyPeer runStep3
+INFO: [LOG] Step 2 took 4 ms
+Sep 27, 2012 6:00:58 PM mpc.idr.IDRPrivacyPeer runStep4
+INFO: [LOG] Step 3 took 0 ms
+Sep 27, 2012 6:00:58 PM mpc.idr.IDRPrivacyPeer runStep5
+INFO: [LOG] Step 4 took 3 ms
+Sep 27, 2012 6:00:58 PM mpc.idr.IDRPrivacyPeer runStep6
+INFO: [LOG] Step 5 took 4 ms
+Sep 27, 2012 6:00:58 PM mpc.idr.IDRPrivacyPeer runStep7
+INFO: [LOG] Step 6 took 1 ms
+Sep 27, 2012 6:00:58 PM mpc.idr.IDRPrivacyPeer setAllNextHops
+INFO: [LOG] Step 7 took 1 ms
+Sep 27, 2012 6:00:58 PM mpc.idr.IDRPrivacyPeer setAllNextHops
+INFO: [LOG] This round took 77 ms
+Sep 27, 2012 6:00:58 PM mpc.idr.IDRProtocolPrivacyPeerToPP run
+INFO: [LOG] Running phase 9
+Sep 27, 2012 6:00:58 PM mpc.idr.IDRProtocolPrivacyPeerToPP run
+INFO: [LOG] Running phase 9
+Sep 27, 2012 6:00:58 PM mpc.idr.IDRPrivacyPeer runStep2
+INFO: [LOG] Step 1 took 64 ms
+Sep 27, 2012 6:00:58 PM mpc.idr.IDRPrivacyPeer runStep3
+INFO: [LOG] Step 2 took 6 ms
+Sep 27, 2012 6:00:58 PM mpc.idr.IDRPrivacyPeer runStep4
+INFO: [LOG] Step 3 took 2 ms
+Sep 27, 2012 6:00:58 PM mpc.idr.IDRPrivacyPeer runStep5
+INFO: [LOG] Step 4 took 3 ms
+Sep 27, 2012 6:00:58 PM mpc.idr.IDRPrivacyPeer runStep6
+INFO: [LOG] Step 5 took 8 ms
+Sep 27, 2012 6:00:58 PM mpc.idr.IDRPrivacyPeer runStep7
+INFO: [LOG] Step 6 took 2 ms
+Sep 27, 2012 6:00:58 PM mpc.idr.IDRPrivacyPeer setAllNextHops
+INFO: [LOG] Step 7 took 1 ms
+Sep 27, 2012 6:00:58 PM mpc.idr.IDRPrivacyPeer setAllNextHops
+INFO: [LOG] This round took 88 ms
+Sep 27, 2012 6:00:58 PM mpc.idr.IDRProtocolPrivacyPeerToPP run
+INFO: [LOG] Running phase 10
+Sep 27, 2012 6:00:58 PM mpc.idr.IDRProtocolPrivacyPeerToPP run
+INFO: [LOG] Running phase 10
+Sep 27, 2012 6:00:58 PM mpc.idr.IDRPrivacyPeer runStep2
+INFO: [LOG] Step 1 took 53 ms
+Sep 27, 2012 6:00:58 PM mpc.idr.IDRPrivacyPeer runStep3
+INFO: [LOG] Step 2 took 1 ms
+Sep 27, 2012 6:00:58 PM mpc.idr.IDRPrivacyPeer runStep4
+INFO: [LOG] Step 3 took 0 ms
+Sep 27, 2012 6:00:58 PM mpc.idr.IDRPrivacyPeer runStep5
+INFO: [LOG] Step 4 took 2 ms
+Sep 27, 2012 6:00:58 PM mpc.idr.IDRPrivacyPeer runStep6
+INFO: [LOG] Step 5 took 3 ms
+Sep 27, 2012 6:00:58 PM mpc.idr.IDRPrivacyPeer runStep7
+INFO: [LOG] Step 6 took 2 ms
+Sep 27, 2012 6:00:58 PM mpc.idr.IDRPrivacyPeer setAllNextHops
+INFO: [LOG] Step 7 took 0 ms
+Sep 27, 2012 6:00:58 PM mpc.idr.IDRPrivacyPeer setAllNextHops
+INFO: [LOG] This round took 64 ms
+Sep 27, 2012 6:00:58 PM mpc.idr.IDRProtocolPrivacyPeerToPP run
+INFO: [LOG] Running phase 11
+Sep 27, 2012 6:00:58 PM mpc.idr.IDRProtocolPrivacyPeerToPP run
+INFO: [LOG] Running phase 11
+Sep 27, 2012 6:00:58 PM mpc.idr.IDRPrivacyPeer runStep2
+INFO: [LOG] Step 1 took 49 ms
+Sep 27, 2012 6:00:58 PM mpc.idr.IDRPrivacyPeer runStep3
+INFO: [LOG] Step 2 took 1 ms
+Sep 27, 2012 6:00:58 PM mpc.idr.IDRPrivacyPeer runStep4
+INFO: [LOG] Step 3 took 0 ms
+Sep 27, 2012 6:00:58 PM mpc.idr.IDRPrivacyPeer runStep5
+INFO: [LOG] Step 4 took 2 ms
+Sep 27, 2012 6:00:58 PM mpc.idr.IDRPrivacyPeer runStep6
+INFO: [LOG] Step 5 took 3 ms
+Sep 27, 2012 6:00:58 PM mpc.idr.IDRPrivacyPeer runStep7
+INFO: [LOG] Step 6 took 2 ms
+Sep 27, 2012 6:00:58 PM mpc.idr.IDRPrivacyPeer setAllNextHops
+INFO: [LOG] Step 7 took 0 ms
+Sep 27, 2012 6:00:58 PM mpc.idr.IDRPrivacyPeer setAllNextHops
+INFO: [LOG] This round took 59 ms
+Sep 27, 2012 6:00:58 PM mpc.idr.IDRProtocolPrivacyPeerToPP run
+INFO: [LOG] Running phase 12
+Sep 27, 2012 6:00:58 PM mpc.idr.IDRProtocolPrivacyPeerToPP run
+INFO: [LOG] Running phase 12
+Sep 27, 2012 6:00:58 PM mpc.idr.IDRPrivacyPeer runStep2
+INFO: [LOG] Step 1 took 44 ms
+Sep 27, 2012 6:00:58 PM mpc.idr.IDRPrivacyPeer runStep3
+INFO: [LOG] Step 2 took 1 ms
+Sep 27, 2012 6:00:58 PM mpc.idr.IDRPrivacyPeer runStep4
+INFO: [LOG] Step 3 took 1 ms
+Sep 27, 2012 6:00:58 PM mpc.idr.IDRPrivacyPeer runStep5
+INFO: [LOG] Step 4 took 1 ms
+Sep 27, 2012 6:00:58 PM mpc.idr.IDRPrivacyPeer runStep6
+INFO: [LOG] Step 5 took 4 ms
+Sep 27, 2012 6:00:58 PM mpc.idr.IDRPrivacyPeer runStep7
+INFO: [LOG] Step 6 took 2 ms
+Sep 27, 2012 6:00:58 PM mpc.idr.IDRPrivacyPeer setAllNextHops
+INFO: [LOG] Step 7 took 0 ms
+Sep 27, 2012 6:00:58 PM mpc.idr.IDRPrivacyPeer setAllNextHops
+INFO: [LOG] This round took 55 ms
+Sep 27, 2012 6:00:58 PM mpc.idr.IDRProtocolPrivacyPeerToPP run
+INFO: [LOG] Running phase 13
+Sep 27, 2012 6:00:58 PM mpc.idr.IDRProtocolPrivacyPeerToPP run
+INFO: [LOG] Running phase 13
+Sep 27, 2012 6:00:58 PM mpc.idr.IDRPrivacyPeer runStep2
+INFO: [LOG] Step 1 took 46 ms
+Sep 27, 2012 6:00:58 PM mpc.idr.IDRPrivacyPeer runStep3
+INFO: [LOG] Step 2 took 2 ms
+Sep 27, 2012 6:00:58 PM mpc.idr.IDRPrivacyPeer runStep4
+INFO: [LOG] Step 3 took 0 ms
+Sep 27, 2012 6:00:58 PM mpc.idr.IDRPrivacyPeer runStep5
+INFO: [LOG] Step 4 took 2 ms
+Sep 27, 2012 6:00:58 PM mpc.idr.IDRPrivacyPeer runStep6
+INFO: [LOG] Step 5 took 3 ms
+Sep 27, 2012 6:00:58 PM mpc.idr.IDRPrivacyPeer runStep7
+INFO: [LOG] Step 6 took 1 ms
+Sep 27, 2012 6:00:58 PM mpc.idr.IDRPrivacyPeer setAllNextHops
+INFO: [LOG] Step 7 took 0 ms
+Sep 27, 2012 6:00:58 PM mpc.idr.IDRPrivacyPeer setAllNextHops
+INFO: [LOG] This round took 57 ms
+Sep 27, 2012 6:00:58 PM mpc.idr.IDRProtocolPrivacyPeerToPP run
+INFO: [LOG] Running phase 14
+Sep 27, 2012 6:00:58 PM mpc.idr.IDRProtocolPrivacyPeerToPP run
+INFO: [LOG] Running phase 14
+Sep 27, 2012 6:00:58 PM mpc.idr.IDRPrivacyPeer runStep2
+INFO: [LOG] Step 1 took 85 ms
+Sep 27, 2012 6:00:58 PM mpc.idr.IDRPrivacyPeer runStep3
+INFO: [LOG] Step 2 took 1 ms
+Sep 27, 2012 6:00:58 PM mpc.idr.IDRPrivacyPeer runStep4
+INFO: [LOG] Step 3 took 0 ms
+Sep 27, 2012 6:00:58 PM mpc.idr.IDRPrivacyPeer runStep5
+INFO: [LOG] Step 4 took 2 ms
+Sep 27, 2012 6:00:58 PM mpc.idr.IDRPrivacyPeer runStep6
+INFO: [LOG] Step 5 took 3 ms
+Sep 27, 2012 6:00:58 PM mpc.idr.IDRPrivacyPeer runStep7
+INFO: [LOG] Step 6 took 2 ms
+Sep 27, 2012 6:00:58 PM mpc.idr.IDRPrivacyPeer setAllNextHops
+INFO: [LOG] Step 7 took 0 ms
+Sep 27, 2012 6:00:58 PM mpc.idr.IDRPrivacyPeer setAllNextHops
+INFO: [LOG] This round took 95 ms
+Sep 27, 2012 6:00:58 PM mpc.idr.IDRProtocolPrivacyPeerToPP run
+INFO: [LOG] Running phase 15
+Sep 27, 2012 6:00:58 PM mpc.idr.IDRProtocolPrivacyPeerToPP run
+INFO: [LOG] Running phase 15
+Sep 27, 2012 6:00:58 PM mpc.idr.IDRPrivacyPeer runStep2
+INFO: [LOG] Step 1 took 46 ms
+Sep 27, 2012 6:00:58 PM mpc.idr.IDRPrivacyPeer runStep3
+INFO: [LOG] Step 2 took 1 ms
+Sep 27, 2012 6:00:58 PM mpc.idr.IDRPrivacyPeer runStep4
+INFO: [LOG] Step 3 took 0 ms
+Sep 27, 2012 6:00:58 PM mpc.idr.IDRPrivacyPeer runStep5
+INFO: [LOG] Step 4 took 1 ms
+Sep 27, 2012 6:00:58 PM mpc.idr.IDRPrivacyPeer runStep6
+INFO: [LOG] Step 5 took 2 ms
+Sep 27, 2012 6:00:58 PM mpc.idr.IDRPrivacyPeer runStep7
+INFO: [LOG] Step 6 took 1 ms
+Sep 27, 2012 6:00:58 PM mpc.idr.IDRPrivacyPeer setAllNextHops
+INFO: [LOG] Step 7 took 0 ms
+Sep 27, 2012 6:00:58 PM mpc.idr.IDRPrivacyPeer setAllNextHops
+INFO: [LOG] This round took 53 ms
+Sep 27, 2012 6:00:58 PM mpc.idr.IDRProtocolPrivacyPeerToPP run
+INFO: [LOG] Running phase 16
+Sep 27, 2012 6:00:58 PM mpc.idr.IDRProtocolPrivacyPeerToPP run
+INFO: [LOG] Running phase 16
+Sep 27, 2012 6:00:58 PM mpc.idr.IDRPrivacyPeer runStep2
+INFO: [LOG] Step 1 took 44 ms
+Sep 27, 2012 6:00:58 PM mpc.idr.IDRPrivacyPeer runStep3
+INFO: [LOG] Step 2 took 1 ms
+Sep 27, 2012 6:00:58 PM mpc.idr.IDRPrivacyPeer runStep4
+INFO: [LOG] Step 3 took 0 ms
+Sep 27, 2012 6:00:58 PM mpc.idr.IDRPrivacyPeer runStep5
+INFO: [LOG] Step 4 took 1 ms
+Sep 27, 2012 6:00:58 PM mpc.idr.IDRPrivacyPeer runStep6
+INFO: [LOG] Step 5 took 2 ms
+Sep 27, 2012 6:00:58 PM mpc.idr.IDRPrivacyPeer runStep7
+INFO: [LOG] Step 6 took 1 ms
+Sep 27, 2012 6:00:58 PM mpc.idr.IDRPrivacyPeer setAllNextHops
+INFO: [LOG] Step 7 took 1 ms
+Sep 27, 2012 6:00:58 PM mpc.idr.IDRPrivacyPeer setAllNextHops
+INFO: [LOG] This round took 52 ms
+Sep 27, 2012 6:00:58 PM mpc.idr.IDRProtocolPrivacyPeerToPP run
+INFO: [LOG] Running phase 17
+Sep 27, 2012 6:00:58 PM mpc.idr.IDRProtocolPrivacyPeerToPP run
+INFO: [LOG] Running phase 17
+Sep 27, 2012 6:00:58 PM mpc.idr.IDRPrivacyPeer runStep2
+INFO: [LOG] Step 1 took 38 ms
+Sep 27, 2012 6:00:58 PM mpc.idr.IDRPrivacyPeer runStep3
+INFO: [LOG] Step 2 took 2 ms
+Sep 27, 2012 6:00:58 PM mpc.idr.IDRPrivacyPeer runStep4
+INFO: [LOG] Step 3 took 0 ms
+Sep 27, 2012 6:00:58 PM mpc.idr.IDRPrivacyPeer runStep5
+INFO: [LOG] Step 4 took 2 ms
+Sep 27, 2012 6:00:58 PM mpc.idr.IDRPrivacyPeer runStep6
+INFO: [LOG] Step 5 took 2 ms
+Sep 27, 2012 6:00:58 PM mpc.idr.IDRPrivacyPeer runStep7
+INFO: [LOG] Step 6 took 1 ms
+Sep 27, 2012 6:00:58 PM mpc.idr.IDRPrivacyPeer setAllNextHops
+INFO: [LOG] Step 7 took 0 ms
+Sep 27, 2012 6:00:58 PM mpc.idr.IDRPrivacyPeer setAllNextHops
+INFO: [LOG] This round took 46 ms
+Sep 27, 2012 6:00:58 PM mpc.idr.IDRProtocolPrivacyPeerToPP run
+INFO: [LOG] Running phase 18
+Sep 27, 2012 6:00:58 PM mpc.idr.IDRProtocolPrivacyPeerToPP run
+INFO: [LOG] Running phase 18
+Sep 27, 2012 6:00:58 PM mpc.idr.IDRPrivacyPeer runStep2
+INFO: [LOG] Step 1 took 39 ms
+Sep 27, 2012 6:00:58 PM mpc.idr.IDRPrivacyPeer runStep3
+INFO: [LOG] Step 2 took 1 ms
+Sep 27, 2012 6:00:58 PM mpc.idr.IDRPrivacyPeer runStep4
+INFO: [LOG] Step 3 took 0 ms
+Sep 27, 2012 6:00:58 PM mpc.idr.IDRPrivacyPeer runStep5
+INFO: [LOG] Step 4 took 2 ms
+Sep 27, 2012 6:00:58 PM mpc.idr.IDRPrivacyPeer runStep6
+INFO: [LOG] Step 5 took 2 ms
+Sep 27, 2012 6:00:58 PM mpc.idr.IDRPrivacyPeer runStep7
+INFO: [LOG] Step 6 took 2 ms
+Sep 27, 2012 6:00:58 PM mpc.idr.IDRPrivacyPeer setAllNextHops
+INFO: [LOG] Step 7 took 0 ms
+Sep 27, 2012 6:00:58 PM mpc.idr.IDRPrivacyPeer setAllNextHops
+INFO: [LOG] This round took 47 ms
+Sep 27, 2012 6:00:58 PM mpc.idr.IDRProtocolPrivacyPeerToPP run
+INFO: [LOG] Running phase 19
+Sep 27, 2012 6:00:58 PM mpc.idr.IDRProtocolPrivacyPeerToPP run
+INFO: [LOG] Running phase 19
+Sep 27, 2012 6:00:58 PM mpc.idr.IDRPrivacyPeer runStep2
+INFO: [LOG] Step 1 took 41 ms
+Sep 27, 2012 6:00:58 PM mpc.idr.IDRPrivacyPeer runStep3
+INFO: [LOG] Step 2 took 2 ms
+Sep 27, 2012 6:00:58 PM mpc.idr.IDRPrivacyPeer runStep4
+INFO: [LOG] Step 3 took 0 ms
+Sep 27, 2012 6:00:58 PM mpc.idr.IDRPrivacyPeer runStep5
+INFO: [LOG] Step 4 took 2 ms
+Sep 27, 2012 6:00:58 PM mpc.idr.IDRPrivacyPeer runStep6
+INFO: [LOG] Step 5 took 2 ms
+Sep 27, 2012 6:00:58 PM mpc.idr.IDRPrivacyPeer runStep7
+INFO: [LOG] Step 6 took 1 ms
+Sep 27, 2012 6:00:58 PM mpc.idr.IDRPrivacyPeer setAllNextHops
+INFO: [LOG] Step 7 took 0 ms
+Sep 27, 2012 6:00:58 PM mpc.idr.IDRPrivacyPeer setAllNextHops
+INFO: [LOG] This round took 49 ms
+Sep 27, 2012 6:00:58 PM mpc.idr.IDRProtocolPrivacyPeerToPP run
+INFO: [LOG] Running phase 20
+Sep 27, 2012 6:00:58 PM mpc.idr.IDRProtocolPrivacyPeerToPP run
+INFO: [LOG] Running phase 20
+Sep 27, 2012 6:00:58 PM mpc.idr.IDRPrivacyPeer runStep2
+INFO: [LOG] Step 1 took 37 ms
+Sep 27, 2012 6:00:58 PM mpc.idr.IDRPrivacyPeer runStep3
+INFO: [LOG] Step 2 took 1 ms
+Sep 27, 2012 6:00:58 PM mpc.idr.IDRPrivacyPeer runStep4
+INFO: [LOG] Step 3 took 1 ms
+Sep 27, 2012 6:00:58 PM mpc.idr.IDRPrivacyPeer runStep5
+INFO: [LOG] Step 4 took 1 ms
+Sep 27, 2012 6:00:58 PM mpc.idr.IDRPrivacyPeer runStep6
+INFO: [LOG] Step 5 took 2 ms
+Sep 27, 2012 6:00:58 PM mpc.idr.IDRPrivacyPeer runStep7
+INFO: [LOG] Step 6 took 1 ms
+Sep 27, 2012 6:00:58 PM mpc.idr.IDRPrivacyPeer setAllNextHops
+INFO: [LOG] Step 7 took 0 ms
+Sep 27, 2012 6:00:58 PM mpc.idr.IDRPrivacyPeer setAllNextHops
+INFO: [LOG] This round took 44 ms
+Sep 27, 2012 6:00:58 PM mpc.idr.IDRProtocolPrivacyPeerToPP run
+INFO: [LOG] Running phase V2
+Sep 27, 2012 6:00:58 PM mpc.idr.IDRProtocolPrivacyPeerToPP run
+INFO: [LOG] Running phase V2
+Sep 27, 2012 6:00:58 PM mpc.idr.IDRPrivacyPeer scheduleFinalResultReconstruction
+INFO: [LOG] Total time for 20 rounds: 1545 ms
+Sep 27, 2012 6:00:58 PM mpc.idr.IDRPrivacyPeer scheduleFinalResultReconstruction
+INFO: [LOG] Average round time (all rounds): 77.25 ms
+Sep 27, 2012 6:00:58 PM mpc.idr.IDRPrivacyPeer scheduleFinalResultReconstruction
+INFO: [LOG] Average round time (excluding first): 72.21052631578948 ms
+Sep 27, 2012 6:00:58 PM mpc.idr.IDRProtocolPrivacyPeerToPP run
+INFO: [LOG] Reconstructing final result...
+Sep 27, 2012 6:00:58 PM mpc.idr.IDRPrivacyPeer finalResultIsSent
+INFO: [LOG] Sent all final results. Notifying observers...
+Sep 27, 2012 6:00:58 PM startup.PeerStarter processMpcEvent
+INFO: [LOG] Round was successful: true
+Sep 27, 2012 6:00:58 PM startup.PeerStarter processMpcEvent
+INFO: [LOG] ConnectionManager statistics: 
+--- Total      : MR=3044, MS=3045, BR=795436, UBR=0, BS=793995, UBS=0
+--- This round : MR=3044, MS=3045, BR=795436, UBR=0, BS=793995, UBS=0
+--- Avg. round : MR=3044, MS=3045, BR=795436, UBR=0, BS=793995, UBS=0
+
+Sep 27, 2012 6:00:58 PM startup.PeerStarter processMpcEvent
+INFO: [LOG] PrimitivesEnabledProtocol statistics [seconds]: 
+--- Total      : Computation: 0.31, Communication: 1.163
+--- This round : Computation: 0.31, Communication: 1.163
+--- Avg. round : Computation: 0.155,  Communication: 0.5815 (78.95451459606245%) 
+
+Sep 27, 2012 6:00:58 PM startup.PeerStarter processMpcEvent
+INFO: [LOG] --> Running time of round (including connection discovery!): 16.014 seconds.
+Sep 27, 2012 6:00:58 PM startup.PeerStarter processMpcEvent
+INFO: [LOG] Time slots to do: 0
+Sep 27, 2012 6:00:58 PM startup.PeerStarter processMpcEvent
+INFO: [LOG] Secret Sharing done for all time slots...
+Sep 27, 2012 6:00:58 PM startup.PeerStarter stopProcessing
+INFO: [LOG] Shutting down SEPIA...
