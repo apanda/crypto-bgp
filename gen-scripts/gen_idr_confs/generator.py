@@ -17,7 +17,7 @@ ppeer3_conf = ppeer3_conf_file.read()
 
 for n in xrange(1, domains + 1):
     subprocess.call(str.format("cp -R IDR IDR{0}", n), shell=True)
-    args = {'node_id': n, 'pp1_port':base_port, 'pp2_port':base_port+1, 'pp3_port':base_port+2}
+    args = {'node_id': n, 'pp1_port':base_port, 'pp2_port':base_port+1, 'pp3_port':base_port+2, 'node_count':domains}
     base_port = base_port + 3
     peer1_file = open(str.format('IDR{0}/peer01/config.peer01.properties', n), 'w') 
     peer1_file.write(str.format(peer_conf, **args))

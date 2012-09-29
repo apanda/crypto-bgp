@@ -176,7 +176,7 @@ public class IDRPrivacyPeer extends IDRBase {
 	/**
 	 * Initializes a new round of computation.
 	 */
-	protected void initializeNewRound() {
+	protected void initializeNewRound()  {
 		connectionManager.waitForConnections();
 		connectionManager.activateTemporaryConnections();
 		PrimitivesEnabledProtocol.newStatisticsRound();
@@ -292,12 +292,15 @@ public class IDRPrivacyPeer extends IDRBase {
 			properties.load(in);
 			in.close();
 			int nItems = Integer.parseInt(properties.getProperty(PROP_N_ITEMS));
-            int numNodes = 0;
+            /* int numNodes = 0;
 			while (nItems > numNodes) {
 				nodeInfos.add(null);
 				topology.add(new long[]{});
                 numNodes++;
-			}
+			} */
+            if (nItems != numberOfNodes) {
+                return false;
+            }
 			for (int i = 0; i < nItems; i++) {
 				String nodeName = (i+1) + "";
 				String[] neighborStrings = properties.getProperty(nodeName,"").split("\\D");
@@ -348,7 +351,7 @@ public class IDRPrivacyPeer extends IDRBase {
 				// Add all nodes sent by this peer to nodeInfos
 				for (IDRNodeInfo node : msg.getNodeInfos()) {
 					long id = node.getID();
-					if (id > numberOfNodes + 1) {
+					if (id > numberOfNodes) {
 						logger.warning("IDRPrivacyPeer got a NodeInfo with an out-of-bounds id; ignoring");
 						continue;
 					} else if (getNodeByID(id) != null) {
