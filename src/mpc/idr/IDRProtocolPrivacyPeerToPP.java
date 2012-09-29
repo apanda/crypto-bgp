@@ -251,12 +251,9 @@ public class IDRProtocolPrivacyPeerToPP extends IDRProtocol {
 			// Reconstruct the Final Results
 			// ---------------------------
 
+		    privacyPeer.scheduleFinalResultReconstruction();
 			if (privacyPeer.goAhead(true) || privacyPeer.goAhead(false)) {
-				if (ppThreadsBarrier.await() == 0) {
-
-					privacyPeer.scheduleFinalResultReconstruction();
-					logger.log(Level.INFO, Services.getFilterPassingLogPrefix() + "Reconstructing final result...");
-				}
+				logger.log(Level.INFO, Services.getFilterPassingLogPrefix() + "Reconstructing final result...");
 				ppThreadsBarrier.await();
 				if (!doOperations()) {
 					logger.severe("Final Result reconstruction failed. returning!");
