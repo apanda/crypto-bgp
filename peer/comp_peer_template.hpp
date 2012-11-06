@@ -3,8 +3,7 @@
 #define COMP_PEER_TEMPLATE_HPP_
 
 #include <peer/comp_peer.hpp>
-
-
+#include <boost/thread/locks.hpp>
 
 template<const size_t Num>
 Comp_peer<Num>::Comp_peer(size_t id, shared_ptr<Input_peer> input_peer) :
@@ -42,9 +41,9 @@ void Comp_peer<Num>::execute(vector<string> circut) {
   typedef array<shared_ptr<comp_peer_t>, Num> peer_array_t;
   typedef array<shared_ptr<RPCClient>, Num> peer_array__t;
 
-  //new boost::thread(&Comp_peer::distribute_secret<peer_array_t>, this, key, result, all_peers_);
-  new boost::thread(&Comp_peer::distribute_secret<peer_array__t>, this, key, result, all_peers__);
-  //distribute_secret(key, result, all_peers__);
+  barrier_mutex_.lock();
+
+  distribute_secret(key, result, net_peers_);
   recombine(circut);
 }
 
@@ -53,7 +52,8 @@ void Comp_peer<Num>::execute(vector<string> circut) {
 template<const size_t Num>
 void Comp_peer<Num>::recombine(vector<string> circut) {
 
-  condition_.wait(lock_);
+  barrier_mutex_.lock();
+  barrier_mutex_.unlock();
 
   shared_ptr<gsl_vector> ds( gsl_vector_alloc(3) );
 

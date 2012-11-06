@@ -12,7 +12,7 @@
 #include <boost/thread/condition.hpp>
 
 #include <tbb/concurrent_unordered_map.h>
-
+#include <tbb/mutex.h>
 
 typedef int plaintext_t;
 typedef string symbol_t;
@@ -22,6 +22,7 @@ class RPCServer;
 class Peer {
 public:
   Peer(const short port);
+  ~Peer();
 
   template<class PeerSeq>
   void distribute_secret(
@@ -43,15 +44,14 @@ public:
   RPCServer* server_;
 
   std::atomic<int> counter_;
-
-  boost::mutex mutex_;
-  boost::unique_lock<boost::mutex> lock_;
-  boost::condition_variable condition_;
+  tbb::mutex barrier_mutex_;
 
   std::string recombination_key_;
 
   inter_map_t intermediary_;
   value_map_t values_;
+
+  boost::thread_group tg_;
 
   static log4cxx::LoggerPtr logger_;
 };

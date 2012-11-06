@@ -11,7 +11,8 @@ typedef Secret<plaintext_t, COMP_PEER_NUM> secret_t;
 
 template<size_t Num>
 void Input_peer::result() {
-  condition_.wait(lock_);
+
+  barrier_mutex_.lock();
 
   double x[Num], y[Num], d[Num];
 

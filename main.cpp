@@ -37,10 +37,8 @@ int main() {
   Comp_peer_factory factory;
   comp_peer_seq = factory.generate<COMP_PEER_NUM>(input_peer);
 
-
   Input_peer::distribute_secrets(input_peer->plaintext_map_, comp_peer_seq);
   vector<string> circut = {"*", "C", "*", "C", "*", "B", "A"};
-
 
   auto t1 = clock_t::now();
 
@@ -55,4 +53,9 @@ int main() {
   std::cout << "The execution took " <<
   std::chrono::duration_cast<std::chrono::microseconds>(t2 - t1).count() <<
   " microseconds." << std::endl;
+
+  io.stop();
+
+  worker_threads.interrupt_all();
+  result_thread.interrupt();
 }

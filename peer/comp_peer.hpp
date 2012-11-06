@@ -31,8 +31,12 @@ public:
 
   size_t id_;
 
-  array<shared_ptr<Comp_peer<Num> >, Num> all_peers_;
-  array<shared_ptr<RPCClient>, Num> all_peers__;
+  typedef array<shared_ptr<Comp_peer<Num> >, Num> localPeersImpl;
+  typedef array<shared_ptr<RPCClient>, Num> netPeersImpl;
+
+  //localPeersImpl local_peers_;
+  netPeersImpl net_peers_;
+
   shared_ptr<Input_peer> input_peer_;
   shared_ptr<const gsl_vector> recombination_vercor_;
 };

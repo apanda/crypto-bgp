@@ -38,7 +38,7 @@ void Session::handle_read(
          sizeof(int32_t));
 
 
-     LOG4CXX_TRACE(peer_->logger_, "Received value: " << key << ": " << value);
+     //LOG4CXX_INFO(peer_->logger_, "Received value: " << key << ": " << value);
      peer_->publish(key, value);
 
      boost::asio::async_read(socket_, boost::asio::buffer(data, length_),
