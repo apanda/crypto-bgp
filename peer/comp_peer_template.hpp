@@ -2,7 +2,7 @@
 #ifndef COMP_PEER_TEMPLATE_HPP_
 #define COMP_PEER_TEMPLATE_HPP_
 
-#include "comp_peer.hpp"
+#include <peer/comp_peer.hpp>
 
 
 

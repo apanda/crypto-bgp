@@ -1,6 +1,6 @@
 #include <boost/array.hpp>
 
-#include "poly.hpp"
+#include <secret_sharing/poly.hpp>
 
 #ifndef SECRET_H_
 #define SECRET_H_
@@ -25,4 +25,4 @@ private:
 
 #endif
 
-#include "secret_template.hpp"
+#include <secret_sharing/secret_template.hpp>

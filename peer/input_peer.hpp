@@ -8,8 +8,8 @@
 #ifndef INPUT_PEER_HPP_
 #define INPUT_PEER_HPP_
 
-#include "common.hpp"
-#include "peer.hpp"
+#include <common.hpp>
+#include <peer/peer.hpp>
 
 using std::map;
 

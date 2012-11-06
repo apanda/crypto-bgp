@@ -1,8 +1,8 @@
 #ifndef COMP_PEER_FACTORY_HPP_
 #define COMP_PEER_FACTORY_HPP_
 
-#include "common.hpp"
-#include "comp_peer.hpp"
+#include <common.hpp>
+#include <peer/comp_peer.hpp>
 
 class Comp_peer_factory {
 public:
@@ -15,6 +15,6 @@ public:
 
 };
 
-#include "comp_peer_factory_template.hpp"
+#include <peer/comp_peer_factory_template.hpp>
 
 #endif /* COMP_PEER_FACTORY_HPP_ */

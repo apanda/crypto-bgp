@@ -1,5 +1,5 @@
 
-#include "poly.hpp"
+#include <secret_sharing/poly.hpp>
 
 
 Poly::Poly(int degree, double y0) :

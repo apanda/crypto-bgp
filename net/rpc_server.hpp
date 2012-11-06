@@ -8,8 +8,8 @@
 #ifndef RPC_SERVER_HPP_
 #define RPC_SERVER_HPP_
 
-#include "common.hpp"
-#include "session.hpp"
+#include <common.hpp>
+#include <net/session.hpp>
 
 #include <boost/asio.hpp>
 #include <boost/bind.hpp>

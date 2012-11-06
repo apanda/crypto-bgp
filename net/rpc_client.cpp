@@ -5,7 +5,7 @@
  *      Author: vjeko
  */
 
-#include "rpc_client.hpp"
+#include <net/rpc_client.hpp>
 
 
 LoggerPtr RPCClient::logger_(Logger::getLogger("RPC Client"));

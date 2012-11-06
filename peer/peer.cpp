@@ -1,4 +1,4 @@
-#include "peer.hpp"
+#include <peer/peer.hpp>
 
 
 LoggerPtr Peer::logger_(Logger::getLogger("Peer"));

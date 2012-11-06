@@ -13,9 +13,9 @@
 
 #include <gsl/gsl_blas.h>
 
-#include "peer.hpp"
-#include "input_peer.hpp"
-#include "common.hpp"
+#include <peer/peer.hpp>
+#include <peer/input_peer.hpp>
+#include <common.hpp>
 
 
 

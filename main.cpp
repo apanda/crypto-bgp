@@ -1,11 +1,11 @@
 
-#include "secret_sharing/secret.hpp"
+#include <secret_sharing/secret.hpp>
 
-#include "peer/input_peer.hpp"
-#include "peer/comp_peer.hpp"
-#include "peer/comp_peer_factory.hpp"
+#include <peer/input_peer.hpp>
+#include <peer/comp_peer.hpp>
+#include <peer/comp_peer_factory.hpp>
 
-#include "common.hpp"
+#include <common.hpp>
 
 #include <chrono>
 

@@ -23,7 +23,7 @@
 
 const size_t COMP_PEER_NUM = 3;
 
-#include "secret_sharing/secret.hpp"
+#include <secret_sharing/secret.hpp>
 
 using std::string;
 using std::vector;

@@ -1,4 +1,4 @@
-#include "input_peer.hpp"
+#include <peer/input_peer.hpp>
 
 #include <gsl/gsl_interp.h>
 #include <gsl/gsl_poly.h>

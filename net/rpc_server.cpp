@@ -5,7 +5,7 @@
  *      Author: vjeko
  */
 
-#include "rpc_server.hpp"
+#include <net/rpc_server.hpp>
 
 RPCServer::RPCServer(
     boost::asio::io_service& io_service,

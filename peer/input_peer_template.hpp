@@ -2,8 +2,8 @@
 #define INPUT_PEER_TEMPLATE_HPP_
 
 
-#include "common.hpp"
-#include "input_peer.hpp"
+#include <common.hpp>
+#include <peer/input_peer.hpp>
 
 
 typedef Secret<plaintext_t, COMP_PEER_NUM> secret_t;

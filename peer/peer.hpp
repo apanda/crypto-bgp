@@ -1,9 +1,9 @@
 #ifndef PEER_HPP_
 #define PEER_HPP_
 
-#include "common.hpp"
-#include "net/rpc_client.hpp"
-#include "net/rpc_server.hpp"
+#include <common.hpp>
+#include <net/rpc_client.hpp>
+#include <net/rpc_server.hpp>
 
 #include <atomic>
 
