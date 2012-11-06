@@ -2,8 +2,8 @@
 #define PEER_HPP_
 
 #include "common.hpp"
-#include "rpc_client.hpp"
-#include "rpc_server.hpp"
+#include "net/rpc_client.hpp"
+#include "net/rpc_server.hpp"
 
 #include <atomic>
 

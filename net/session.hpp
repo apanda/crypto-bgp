@@ -3,7 +3,7 @@
 
 #include "common.hpp"
 
-#include "peer.hpp"
+#include "peer/peer.hpp"
 
 class Peer;
 

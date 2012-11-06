@@ -1,8 +1,9 @@
-#include "comp_peer.hpp"
-#include "comp_peer_factory.hpp"
-#include "poly.hpp"
-#include "secret.hpp"
-#include "input_peer.hpp"
+
+#include "secret_sharing/secret.hpp"
+
+#include "peer/input_peer.hpp"
+#include "peer/comp_peer.hpp"
+#include "peer/comp_peer_factory.hpp"
 
 #include "common.hpp"
 
