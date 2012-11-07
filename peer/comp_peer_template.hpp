@@ -34,17 +34,51 @@ void Comp_peer<Num>::execute(vector<string> circut) {
   auto operation = circut.back();
   circut.pop_back();
 
-  recombination_key_ = first_operand + "_" + second_operand;
-  const string key = recombination_key_ + boost::lexical_cast<string>(id_);
-  const int result = values_[first_operand] * values_[second_operand];
+  recombination_key_ = first_operand + operation + second_operand;
 
-  typedef array<shared_ptr<comp_peer_t>, Num> peer_array_t;
-  typedef array<shared_ptr<RPCClient>, Num> peer_array__t;
+  if (operation == "*") {
 
-  barrier_mutex_.lock();
+    const string key = recombination_key_ + boost::lexical_cast<string>(id_);
+    const int result = values_[first_operand] * values_[second_operand];
 
-  distribute_secret(key, result, net_peers_);
-  recombine(circut);
+    typedef array<shared_ptr<comp_peer_t>, Num> peer_array_t;
+    typedef array<shared_ptr<RPCClient>, Num> peer_array__t;
+
+    barrier_mutex_.lock();
+
+    distribute_secret(key, result, net_peers_);
+    recombine(circut);
+
+  } else if (operation == "+") {
+
+    const string key = recombination_key_ + boost::lexical_cast<string>(id_);
+    const int result = values_[first_operand] + values_[second_operand];
+
+    continue_or_not(circut, key, result);
+
+  } else {
+    BOOST_ASSERT_MSG(false, "Operation not supported!");
+  }
+
+}
+
+
+
+
+template<const size_t Num>
+void Comp_peer<Num>::continue_or_not(
+    vector<string> circut,
+    const string key,
+    const int result) {
+
+  if(circut.empty()) {
+    input_peer_->recombination_key_ = recombination_key_;
+    input_peer_->publish(key, result);
+  } else {
+    circut.push_back(recombination_key_);
+    execute(circut);
+  }
+
 }
 
 
@@ -62,20 +96,14 @@ void Comp_peer<Num>::recombine(vector<string> circut) {
   gsl_vector_set(ds.get(), 2, values_[recombination_key_ + "3"]);
 
   shared_ptr<const gsl_vector> ds_const = ds;
-  shared_ptr<double> result( new double );
+  double result;
 
-  gsl_blas_ddot(ds_const.get(), recombination_vercor_.get(), result.get());
+  gsl_blas_ddot(ds_const.get(), recombination_vercor_.get(), &result);
 
-  values_[recombination_key_] = *result;
+  values_[recombination_key_] = result;
+  const string key = recombination_key_ + boost::lexical_cast<string>(id_);
 
-  if(circut.empty()) {
-    const string key = recombination_key_ + boost::lexical_cast<string>(id_);
-    input_peer_->recombination_key_ = recombination_key_;
-    input_peer_->publish(key, *result);
-  } else {
-    circut.push_back(recombination_key_);
-    execute(circut);
-  }
+  continue_or_not(circut, key, result);
 
 }
 

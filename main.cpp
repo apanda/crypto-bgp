@@ -38,7 +38,7 @@ int main() {
   comp_peer_seq = factory.generate<COMP_PEER_NUM>(input_peer);
 
   Input_peer::distribute_secrets(input_peer->plaintext_map_, comp_peer_seq);
-  vector<string> circut = {"*", "C", "*", "C", "*", "B", "A"};
+  vector<string> circut = {"+", "C", "*", "C", "*", "B", "A"};
 
   auto t1 = clock_t::now();
 

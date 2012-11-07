@@ -14,6 +14,8 @@ Peer::Peer(const short port) :
   tg_.add_thread( new boost::thread(bind(&io_service::run, &io_service_)) );
 }
 
+
+
 Peer::~Peer() {
   io_service_.stop();
   tg_.interrupt_all();
@@ -23,7 +25,6 @@ Peer::~Peer() {
 
 void Peer::publish(std::string key, int value) {
 
-
   values_[key] = value;
   bool done = (++counter_ == 3);
 
@@ -31,10 +32,6 @@ void Peer::publish(std::string key, int value) {
     counter_ = 0;
     barrier_mutex_.unlock();
   }
-
-
-
-
 
 }
 

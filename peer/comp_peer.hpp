@@ -26,15 +26,16 @@ public:
   Comp_peer(size_t id, shared_ptr<Input_peer> input_peer);
 
   void execute(vector<string> circut);
+  void continue_or_not(vector<string> circut, const string key, const int result);
   void recombine(vector<string> circut);
   void publish_all(symbol_t key, int value);
+
 
   size_t id_;
 
   typedef array<shared_ptr<Comp_peer<Num> >, Num> localPeersImpl;
   typedef array<shared_ptr<RPCClient>, Num> netPeersImpl;
 
-  //localPeersImpl local_peers_;
   netPeersImpl net_peers_;
 
   shared_ptr<Input_peer> input_peer_;
