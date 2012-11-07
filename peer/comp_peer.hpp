@@ -26,7 +26,9 @@ public:
   Comp_peer(size_t id, shared_ptr<Input_peer> input_peer);
 
   void execute(vector<string> circut);
-  void continue_or_not(vector<string> circut, const string key, const int result);
+  void continue_or_not(vector<string> circut,
+      const string key,
+      const int result);
   void recombine(vector<string> circut);
   void publish_all(symbol_t key, int value);
 

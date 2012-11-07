@@ -16,7 +16,7 @@ RPCClient::RPCClient(io_service& io_service, string hostname, int port) :
 
   const string service = lexical_cast<string>(port);
 
-  //LOG4CXX_INFO(logger_, "Connecting to: " << service);
+  LOG4CXX_TRACE(logger_, "Connecting to: " << service);
 
   tcp::resolver::query query(tcp::v4(), hostname, service);
   tcp::resolver::iterator iterator = resolver_.resolve(query);
@@ -41,7 +41,7 @@ void RPCClient::publish(string key, int value) {
       sizeof(int32_t));
 
 
-  //LOG4CXX_INFO(logger_, "Sending value: " << key << ": " << value);
+  LOG4CXX_TRACE(logger_, "Sending value: " << key << ": " << value);
 
   boost::asio::async_write(socket_, boost::asio::buffer(data, length_),
       boost::bind(&RPCClient::handle_write, this,

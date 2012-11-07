@@ -25,13 +25,13 @@ Comp_peer<Num>::Comp_peer(size_t id, shared_ptr<Input_peer> input_peer) :
 template<const size_t Num>
 void Comp_peer<Num>::execute(vector<string> circut) {
 
-  auto first_operand = circut.back();
+  string first_operand = circut.back();
   circut.pop_back();
 
-  auto second_operand = circut.back();
+  string second_operand = circut.back();
   circut.pop_back();
 
-  auto operation = circut.back();
+  string operation = circut.back();
   circut.pop_back();
 
   recombination_key_ = first_operand + operation + second_operand;
@@ -54,6 +54,7 @@ void Comp_peer<Num>::execute(vector<string> circut) {
     const string key = recombination_key_ + boost::lexical_cast<string>(id_);
     const int result = values_[first_operand] + values_[second_operand];
 
+    values_[recombination_key_] = result;
     continue_or_not(circut, key, result);
 
   } else {

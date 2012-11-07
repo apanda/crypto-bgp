@@ -19,9 +19,9 @@ int main() {
   shared_ptr<Input_peer> input_peer(new Input_peer());
 
   input_peer->plaintext_map_ = {
-      {"A", 4},
-      {"B", 4},
-      {"C", 2}
+      {"A", 2},
+      {"B", 3},
+      {"C", 4}
   };
 
   boost::thread result_thread(&Input_peer::result<COMP_PEER_NUM>, input_peer);
@@ -38,7 +38,7 @@ int main() {
   comp_peer_seq = factory.generate<COMP_PEER_NUM>(input_peer);
 
   Input_peer::distribute_secrets(input_peer->plaintext_map_, comp_peer_seq);
-  vector<string> circut = {"+", "C", "*", "C", "*", "B", "A"};
+  vector<string> circut = {"+", "C", "*", "C", "+", "B", "A"};
 
   auto t1 = clock_t::now();
 
