@@ -23,6 +23,32 @@ Comp_peer<Num>::Comp_peer(size_t id, shared_ptr<Input_peer> input_peer) :
 
 
 template<const size_t Num>
+void Comp_peer<Num>::generate_random_num() {
+  boost::random::uniform_int_distribution<> dist(0, PRIME - 1);
+  const auto coefficient = dist(rng_);
+
+  const string key = "RAND";
+  distribute_secret(key + lexical_cast<string>(id_), coefficient, net_peers_);
+
+  barrier_mutex_.lock();
+  barrier_mutex_.unlock();
+
+  shared_ptr<gsl_vector> ds( gsl_vector_alloc(3) );
+
+  gsl_vector_set(ds.get(), 0, values_[key + "1"]);
+  gsl_vector_set(ds.get(), 1, values_[key + "2"]);
+  gsl_vector_set(ds.get(), 2, values_[key + "3"]);
+
+  shared_ptr<const gsl_vector> ds_const = ds;
+  const double recombine = gsl_blas_dasum(ds_const.get());
+
+  LOG4CXX_INFO(logger_, "Random: " << coefficient);
+  values_[key] = recombine;
+}
+
+
+
+template<const size_t Num>
 void Comp_peer<Num>::execute(vector<string> circut) {
 
   string first_operand = circut.back();

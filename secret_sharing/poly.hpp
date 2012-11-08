@@ -29,12 +29,13 @@ public:
 
   double eval(double value);
 
-private:
 
   /*
    * We need to use a strong, non-pseudo random generator.
    */
   boost::random::random_device rng_;
+
+private:
   /*
    * A random polynomial used in the secret sharing scheme.
    */

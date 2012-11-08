@@ -26,6 +26,8 @@ public:
   Comp_peer(size_t id, shared_ptr<Input_peer> input_peer);
 
   void execute(vector<string> circut);
+
+  void generate_random_num();
   void continue_or_not(vector<string> circut,
       const string key,
       const int result);
@@ -42,6 +44,8 @@ public:
 
   shared_ptr<Input_peer> input_peer_;
   shared_ptr<const gsl_vector> recombination_vercor_;
+
+  boost::random::random_device rng_;
 };
 
 typedef Comp_peer<COMP_PEER_NUM> comp_peer_t;
