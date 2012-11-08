@@ -39,7 +39,8 @@ void Comp_peer<Num>::execute(vector<string> circut) {
   if (operation == "*") {
 
     const string key = recombination_key_ + boost::lexical_cast<string>(id_);
-    const int result = values_[first_operand] * values_[second_operand];
+    int result = values_[first_operand] * values_[second_operand];
+    result = mod(result, PRIME);
 
     typedef array<shared_ptr<comp_peer_t>, Num> peer_array_t;
     typedef array<shared_ptr<RPCClient>, Num> peer_array__t;
@@ -52,7 +53,8 @@ void Comp_peer<Num>::execute(vector<string> circut) {
   } else if (operation == "+") {
 
     const string key = recombination_key_ + boost::lexical_cast<string>(id_);
-    const int result = values_[first_operand] + values_[second_operand];
+    int result = values_[first_operand] + values_[second_operand];
+    result = mod(result, PRIME);
 
     values_[recombination_key_] = result;
     continue_or_not(circut, key, result);
@@ -97,9 +99,11 @@ void Comp_peer<Num>::recombine(vector<string> circut) {
   gsl_vector_set(ds.get(), 2, values_[recombination_key_ + "3"]);
 
   shared_ptr<const gsl_vector> ds_const = ds;
-  double result;
+  double recombine;
 
-  gsl_blas_ddot(ds_const.get(), recombination_vercor_.get(), &result);
+  gsl_blas_ddot(ds_const.get(), recombination_vercor_.get(), &recombine);
+  const int result = mod(recombine, PRIME);
+
 
   values_[recombination_key_] = result;
   const string key = recombination_key_ + boost::lexical_cast<string>(id_);

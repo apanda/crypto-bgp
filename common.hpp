@@ -22,6 +22,7 @@
 #include <boost/phoenix/bind.hpp>
 
 const size_t COMP_PEER_NUM = 3;
+const int PRIME = 7919;
 
 #include <secret_sharing/secret.hpp>
 
@@ -40,5 +41,7 @@ using boost::phoenix::bind;
 
 using boost::asio::ip::tcp;
 using boost::asio::io_service;
+
+int mod(int x, int m);
 
 #endif /* COMMON_H_ */

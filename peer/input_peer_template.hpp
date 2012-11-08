@@ -8,7 +8,6 @@
 
 typedef Secret<plaintext_t, COMP_PEER_NUM> secret_t;
 
-
 template<size_t Num>
 void Input_peer::result() {
 
@@ -35,10 +34,14 @@ void Input_peer::result() {
     y[_index] = _y;
   }
 
-  gsl_poly_dd_init( d, x, y, 3 );
-  auto aa = gsl_poly_dd_eval( d, x, 3, 0);
 
-  LOG4CXX_INFO(logger_, "Result: " << aa);
+
+  gsl_poly_dd_init( d, x, y, 3 );
+  const double interpol = gsl_poly_dd_eval( d, x, 3, 0);
+  const int result = mod(interpol, PRIME);
+
+  LOG4CXX_INFO(logger_, "Result: " << interpol);
+  LOG4CXX_INFO(logger_, "Result: " << result);
 }
 
 
