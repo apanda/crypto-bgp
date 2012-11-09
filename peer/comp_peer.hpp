@@ -28,6 +28,7 @@ public:
   void execute(vector<string> circut);
 
   void generate_random_num();
+  void generate_random_bit();
   void continue_or_not(vector<string> circut,
       const string key,
       const int result);

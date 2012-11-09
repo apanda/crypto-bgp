@@ -25,6 +25,7 @@ void Peer::distribute_shares(
     const auto share = values[i];
     comp_peers[i]->publish(key, share);
   }
+
 }
 
 

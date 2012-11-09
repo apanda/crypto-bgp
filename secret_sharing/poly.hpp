@@ -15,6 +15,9 @@
 #include <boost/random/uniform_int_distribution.hpp>
 #include <boost/scoped_ptr.hpp>
 
+#include <log4cxx/logger.h>
+#include "log4cxx/basicconfigurator.h"
+
 using boost::scoped_ptr;
 
 class Poly {
@@ -34,6 +37,7 @@ public:
    * We need to use a strong, non-pseudo random generator.
    */
   boost::random::random_device rng_;
+  static log4cxx::LoggerPtr logger_;
 
 private:
   /*

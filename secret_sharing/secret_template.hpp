@@ -9,8 +9,9 @@
 #define SECRET_TEMPLATE_HPP_
 
 #include <iostream>
-
 #include <boost/assert.hpp>
+
+#include <common.hpp>
 
 template <typename SecretT, size_t NumParties>
 Secret<SecretT, NumParties>::Secret(SecretT secret) :

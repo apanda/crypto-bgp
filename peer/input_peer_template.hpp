@@ -18,11 +18,9 @@ void Input_peer::result() {
   print_values();
 
   for(auto i = 0; i < Num; i++) {
-
     std::string key = recombination_key_ + boost::lexical_cast<std::string>(i + 1);
     const auto value = values_[key];
     intermediary_[i + 1] = value;
-
   }
 
   for(auto it = intermediary_.begin(); it != intermediary_.end(); ++it) {
@@ -38,10 +36,9 @@ void Input_peer::result() {
 
   gsl_poly_dd_init( d, x, y, 3 );
   const double interpol = gsl_poly_dd_eval( d, x, 3, 0);
-  const int result = mod(interpol, PRIME);
 
   LOG4CXX_INFO(logger_, "Result: " << interpol);
-  LOG4CXX_INFO(logger_, "Result: " << result);
+  LOG4CXX_INFO(logger_, "Result: " << mod(interpol, PRIME) );
 }
 
 

@@ -24,26 +24,60 @@ Comp_peer<Num>::Comp_peer(size_t id, shared_ptr<Input_peer> input_peer) :
 
 template<const size_t Num>
 void Comp_peer<Num>::generate_random_num() {
-  boost::random::uniform_int_distribution<> dist(0, PRIME - 1);
-  const auto coefficient = dist(rng_);
+  boost::random::uniform_int_distribution<> dist(0, PRIME/3);
+  const auto random = dist(rng_);
+
+  LOG4CXX_INFO( logger_, "Random seed ("
+      << lexical_cast<string>(id_) << ") : " << random);
+
 
   const string key = "RAND";
-  distribute_secret(key + lexical_cast<string>(id_), coefficient, net_peers_);
+  distribute_secret(key + lexical_cast<string>(id_), random, net_peers_);
 
   barrier_mutex_.lock();
-  barrier_mutex_.unlock();
 
-  shared_ptr<gsl_vector> ds( gsl_vector_alloc(3) );
+  int sum = 0;
+  for(auto i = 1; i <= Num; i++) {
+    auto value = values_[key + lexical_cast<string>(i)];
+    sum += value;
+    sum = mod(sum, PRIME);
+  }
 
-  gsl_vector_set(ds.get(), 0, values_[key + "1"]);
-  gsl_vector_set(ds.get(), 1, values_[key + "2"]);
-  gsl_vector_set(ds.get(), 2, values_[key + "3"]);
+  values_[key] = sum;
+}
 
-  shared_ptr<const gsl_vector> ds_const = ds;
-  const double recombine = gsl_blas_dasum(ds_const.get());
 
-  LOG4CXX_INFO(logger_, "Random: " << coefficient);
-  values_[key] = recombine;
+
+template<const size_t Num>
+void Comp_peer<Num>::generate_random_bit() {
+  generate_random_num();
+
+  string key = "RAND";
+  const int rand = values_[key];
+
+  key = "RR";
+
+  for(int i = 0; i < COMP_PEER_NUM; i++) {
+    net_peers_[i]->publish(key + lexical_cast<string>(id_), rand);
+  }
+
+  barrier_mutex_.lock();
+
+  double x[Num], y[Num], d[Num];
+
+  for(int i = 1; i <= Num; i++) {
+    const size_t index = i - 1;
+    x[index] = i;
+    y[index] = values_[key + lexical_cast<string>(i)];
+  }
+
+  gsl_poly_dd_init( d, x, y, 3 );
+  double interpol = gsl_poly_dd_eval( d, x, 3, 0);
+  interpol = mod(interpol, PRIME);
+
+
+  LOG4CXX_INFO( logger_, "Random bit" << lexical_cast<string>(id_) << ": " << interpol);
+
 }
 
 

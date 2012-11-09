@@ -43,12 +43,16 @@ int main() {
   auto t1 = clock_t::now();
 
   for (auto& cp : comp_peer_seq) {
-    //cp->barrier_mutex_.lock();
-    //io.post(bind(&comp_peer_t::generate_random_num, cp.get() ));
+    cp->barrier_mutex_.lock();
+  }
+
+
+  for (auto& cp : comp_peer_seq) {
+    io.post(bind(&comp_peer_t::generate_random_bit, cp.get() ));
   }
 
   for (auto& cp : comp_peer_seq) {
-    io.post(bind(&comp_peer_t::execute, cp.get(), circut));
+    //io.post(bind(&comp_peer_t::execute, cp.get(), circut));
   }
 
   result_thread.join();
