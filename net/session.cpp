@@ -30,12 +30,12 @@ void Session::handle_read(
    if (!error) {
 
      char* key = data ;
-     int32_t value;
+     int64_t value;
 
      memcpy(
          &value,
-         data + (length_ - sizeof(int32_t)),
-         sizeof(int32_t));
+         data + (length_ - sizeof(int64_t)),
+         sizeof(int64_t));
 
 
      LOG4CXX_TRACE(peer_->logger_, "Received value: " << key << ": " << value);

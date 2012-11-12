@@ -11,9 +11,9 @@ class RPCClient {
 
 public:
 
-  RPCClient(io_service& io_service, string hostname, int port);
+  RPCClient(io_service& io_service, string hostname,  int64_t port);
 
-  void publish(string key, int value);
+  void publish(string key,  int64_t value);
 
   void handle_write(
       const boost::system::error_code& error,

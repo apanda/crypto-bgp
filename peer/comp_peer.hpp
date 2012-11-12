@@ -34,9 +34,9 @@ public:
   void generate_random_bit();
   void continue_or_not(vector<string> circut,
       const string key,
-      const int result);
+      const  int64_t result);
   void recombine();
-  void publish_all(symbol_t key, int value);
+  void publish_all(symbol_t key,  int64_t value);
 
 
   size_t id_;

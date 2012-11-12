@@ -23,7 +23,7 @@ Peer::~Peer() {
 
 
 
-void Peer::publish(std::string key, int value) {
+void Peer::publish(std::string key, int64_t value) {
 
   values_[key] = value;
   bool done = (++counter_ == 3);

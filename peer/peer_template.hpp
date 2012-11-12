@@ -6,7 +6,7 @@
 
 template<class PeerSeq>
 void Peer::distribute_secret(
-    const symbol_t key, const int value,
+    const symbol_t key, const  int64_t value,
     PeerSeq comp_peers) {
 
   Secret<plaintext_t, COMP_PEER_NUM> secret(value);
@@ -21,8 +21,9 @@ void Peer::distribute_shares(
     const symbol_t key, const Values values,
     PeerSeq comp_peers) {
 
-  for(int i = 0; i < COMP_PEER_NUM; i++) {
+  for(int64_t i = 0; i < COMP_PEER_NUM; i++) {
     const auto share = values[i];
+    LOG4CXX_INFO( logger_, "Share: " << share);
     comp_peers[i]->publish(key, share);
   }
 

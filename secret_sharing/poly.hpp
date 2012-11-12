@@ -24,7 +24,7 @@ class Poly {
 
 public:
 
-  Poly(int degree, double y0);
+  Poly( int64_t degree, double y0);
 
   void init(double y0);
 
@@ -47,7 +47,7 @@ private:
   /*
    * A degree of the above polynomial.
    */
-  int degree_;
+   int64_t degree_;
   /*
    * The point where the polynomial intersect the x-axis.
    */

@@ -24,10 +24,8 @@ Comp_peer<Num>::Comp_peer(size_t id, shared_ptr<Input_peer> input_peer) :
 
 template<const size_t Num>
 void Comp_peer<Num>::generate_random_num() {
-  //boost::random::uniform_int_distribution<> dist(0, PRIME/Num);
-  boost::random::uniform_int_distribution<> dist(0, 256);
+  boost::random::uniform_int_distribution<> dist(-256, 256);
   const auto random = dist(rng_);
-  //const auto random = id_;
 
   LOG4CXX_INFO( logger_, "Random seed ("
       << lexical_cast<string>(id_) << ") : " << random);
@@ -39,13 +37,15 @@ void Comp_peer<Num>::generate_random_num() {
   barrier_mutex_.lock();
   barrier_mutex_.unlock();
 
-  int sum = 0;
+  int64_t sum = 0;
   for(auto i = 1; i <= Num; i++) {
-    auto value = values_[key + lexical_cast<string>(i)];
+    int64_t value = values_[key + lexical_cast<string>(i)];
+    LOG4CXX_INFO( logger_, "Value: " << value);
     sum += value;
   }
 
-  sum = mod(sum, PRIME);
+  LOG4CXX_INFO( logger_, "Sum: " << sum);
+
 
   values_[key] = sum;
 }
@@ -59,7 +59,6 @@ void Comp_peer<Num>::generate_random_bit() {
 
   string key = "RAND";
   const double rand = values_[key];
-  LOG4CXX_INFO( logger_, "Random generation done: " << rand);
 
   recombination_key_ = "RAND*RAND";
 
@@ -71,7 +70,7 @@ void Comp_peer<Num>::generate_random_bit() {
 
   barrier_mutex_.lock();
 
-  for(int i = 0; i < COMP_PEER_NUM; i++) {
+  for( int64_t i = 0; i < COMP_PEER_NUM; i++) {
     net_peers_[i]->publish(key + lexical_cast<string>(id_), result);
   }
 
@@ -80,7 +79,7 @@ void Comp_peer<Num>::generate_random_bit() {
 
   double x[Num], y[Num], d[Num];
 
-  for(int i = 1; i <= Num; i++) {
+  for( int64_t i = 1; i <= Num; i++) {
     const size_t index = i - 1;
     x[index] = i;
     y[index] = values_[recombination_key_ + lexical_cast<string>(i)];
@@ -125,7 +124,7 @@ void Comp_peer<Num>::execute(vector<string> circut) {
     BOOST_ASSERT_MSG(false, "Operation not supported!");
   }
 
-  const int result = values_[recombination_key_];
+  const  int64_t result = values_[recombination_key_];
   const string key = recombination_key_ + boost::lexical_cast<string>(id_);
   continue_or_not(circut, key, result);
 }
@@ -137,7 +136,7 @@ void Comp_peer<Num>::add(
     string first,
     string second) {
 
-  int result = values_[first] + values_[second];
+   int64_t result = values_[first] + values_[second];
   result = mod(result, PRIME);
 
   const string key = recombination_key_ + lexical_cast<string>(id_);
@@ -150,7 +149,7 @@ template<const size_t Num>
 void Comp_peer<Num>::continue_or_not(
     vector<string> circut,
     const string key,
-    const int result) {
+    const  int64_t result) {
 
   if(circut.empty()) {
     input_peer_->recombination_key_ = recombination_key_;
@@ -170,9 +169,9 @@ void Comp_peer<Num>::multiply(
     string second) {
 
   const string key = recombination_key_ + boost::lexical_cast<string>(id_);
-  int result = values_[first] * values_[second];
-  LOG4CXX_TRACE( logger_, "Mul: " << result);
-  result = mod(result, PRIME);
+  int64_t result = values_[first] * values_[second];
+  LOG4CXX_INFO( logger_, "Mul " << values_[first] << " * " << values_[second] << " = " << result);
+  //result = mod(result, PRIME);
 
   barrier_mutex_.lock();
 
@@ -198,8 +197,7 @@ void Comp_peer<Num>::recombine() {
   double recombine;
 
   gsl_blas_ddot(ds_const.get(), recombination_vercor_.get(), &recombine);
-  const int result = mod(recombine, PRIME);
-  values_[recombination_key_] = result;
+  values_[recombination_key_] = recombine;
 }
 
 #endif

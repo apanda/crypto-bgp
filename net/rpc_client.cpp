@@ -11,7 +11,7 @@
 LoggerPtr RPCClient::logger_(Logger::getLogger("RPC Client"));
 
 
-RPCClient::RPCClient(io_service& io_service, string hostname, int port) :
+RPCClient::RPCClient(io_service& io_service, string hostname,  int64_t port) :
   socket_(io_service), resolver_(io_service) {
 
   const string service = lexical_cast<string>(port);
@@ -26,19 +26,19 @@ RPCClient::RPCClient(io_service& io_service, string hostname, int port) :
 
 
 
-void RPCClient::publish(string key, int value) {
+void RPCClient::publish(string key,  int64_t value) {
 
   char* data = new char[length_];
 
   memcpy(
       data,
       key.c_str(),
-      length_ - sizeof(int32_t));
+      length_ - sizeof(int64_t));
 
   memcpy(
-      data + (length_ - sizeof(int32_t)),
+      data + (length_ - sizeof(int64_t)),
       &value,
-      sizeof(int32_t));
+      sizeof(int64_t));
 
 
   LOG4CXX_TRACE(logger_, "Sending value: " << key << ": " << value);

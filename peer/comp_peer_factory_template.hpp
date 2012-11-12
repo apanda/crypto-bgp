@@ -16,7 +16,7 @@ Comp_peer_factory::generate(shared_ptr<Input_peer> input_peer) {
 
   array<shared_ptr<comp_peer_t>, Num> comp_peer_seq;
 
-  int id = 0;
+   int64_t id = 0;
   for (auto& cp : comp_peer_seq) {
     id++;
     cp = shared_ptr<comp_peer_t>(new comp_peer_t(id, input_peer));

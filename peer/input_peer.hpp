@@ -13,7 +13,7 @@
 
 using std::map;
 
-typedef int plaintext_t;
+typedef int64_t plaintext_t;
 typedef string symbol_t;
 typedef map<symbol_t, plaintext_t> plaintext_map_t;
 

@@ -6,7 +6,7 @@
 log4cxx::LoggerPtr Poly::logger_(log4cxx::Logger::getLogger("Peer"));
 
 
-Poly::Poly(int degree, double y0) :
+Poly::Poly( int64_t degree, double y0) :
     degree_(degree),
     y0_(y0),
     poly_(gsl_vector_alloc(degree)) {
@@ -27,11 +27,11 @@ void Poly::init(double y0) {
 
   set_y0(y0);
   //boost::random::uniform_int_distribution<> dist(0, PRIME - 1);
-  boost::random::uniform_int_distribution<> dist(0, 8);
+  boost::random::uniform_int_distribution<> dist(0, 4);
 
   for (auto i = 1; i < degree_; i++) {
 
-    auto coefficient = dist(rng_);
+    int coefficient = dist(rng_);
     gsl_vector_set(poly_.get(), i, coefficient);
   }
 
@@ -40,7 +40,7 @@ void Poly::init(double y0) {
 
 
 double Poly::eval(double value) {
-  int inter = gsl_poly_eval(poly_->data, degree_, value);
-  return mod(inter, PRIME);
-  //return inter;
+  int64_t inter = gsl_poly_eval(poly_->data, degree_, value);
+  //return mod(inter, PRIME);
+  return inter;
 }
