@@ -26,7 +26,9 @@ void Poly::set_y0(double y0) {
 void Poly::init(double y0) {
 
   set_y0(y0);
-  boost::random::uniform_int_distribution<> dist(0, PRIME - 1);
+  //boost::random::uniform_int_distribution<> dist(0, PRIME - 1);
+  boost::random::uniform_int_distribution<> dist(0, 8);
+
   for (auto i = 1; i < degree_; i++) {
 
     auto coefficient = dist(rng_);

@@ -43,7 +43,6 @@ int main() {
   auto t1 = clock_t::now();
 
   for (auto& cp : comp_peer_seq) {
-    cp->barrier_mutex_.lock();
   }
 
 

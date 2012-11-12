@@ -27,12 +27,15 @@ public:
 
   void execute(vector<string> circut);
 
+  void add(string first, string second);
+  void multiply(string first, string second);
+
   void generate_random_num();
   void generate_random_bit();
   void continue_or_not(vector<string> circut,
       const string key,
       const int result);
-  void recombine(vector<string> circut);
+  void recombine();
   void publish_all(symbol_t key, int value);
 
 
