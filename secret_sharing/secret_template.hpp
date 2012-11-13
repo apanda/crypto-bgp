@@ -46,5 +46,4 @@ Secret<SecretT, NumParties>::share(SecretT secret) {
 }
 
 
-
 #endif /* SECRET_TEMPLATE_HPP_ */

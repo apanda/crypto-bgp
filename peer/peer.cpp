@@ -25,13 +25,15 @@ Peer::~Peer() {
 
 void Peer::publish(std::string key, int64_t value) {
 
-  values_[key] = value;
+  values_.insert(make_pair(key, value));
   bool done = (++counter_ == 3);
 
+  __mutex.lock();
   if (done) {
     counter_ = 0;
     barrier_mutex_.unlock();
   }
+  __mutex.unlock();
 
 }
 

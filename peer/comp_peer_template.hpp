@@ -21,6 +21,8 @@ Comp_peer<Num>::Comp_peer(size_t id, shared_ptr<Input_peer> input_peer) :
 }
 
 
+#include <iostream>
+#include <sstream>
 
 template<const size_t Num>
 void Comp_peer<Num>::generate_random_num() {
@@ -37,15 +39,18 @@ void Comp_peer<Num>::generate_random_num() {
   barrier_mutex_.lock();
   barrier_mutex_.unlock();
 
+
+  std::stringstream ss;
   int64_t sum = 0;
   for(auto i = 1; i <= Num; i++) {
     int64_t value = values_[key + lexical_cast<string>(i)];
-    LOG4CXX_INFO( logger_, "Value: " << value);
+    ss << lexical_cast<string>(value)  << " ";
     sum += value;
   }
 
-  LOG4CXX_INFO( logger_, "Sum: " << sum);
+  ss << "= " << sum;
 
+  LOG4CXX_INFO( logger_, "Sum " << id_ << ": " << ss.str());
 
   values_[key] = sum;
 }
@@ -64,9 +69,9 @@ void Comp_peer<Num>::generate_random_bit() {
 
   multiply(key, key);
 
-  key = "RAND*RAND";
+  key = "RAND*RAND_";
 
-  const auto result = values_[recombination_key_];
+  const auto result = values_[key];
 
   barrier_mutex_.lock();
 
@@ -82,20 +87,23 @@ void Comp_peer<Num>::generate_random_bit() {
   for( int64_t i = 1; i <= Num; i++) {
     const size_t index = i - 1;
     x[index] = i;
-    y[index] = values_[recombination_key_ + lexical_cast<string>(i)];
-    LOG4CXX_INFO( logger_, id_ << ": " << x[index] << ", " << y[index]);
+    y[index] = values_[key + lexical_cast<string>(i)];
+    LOG4CXX_INFO( logger_, "(" << id_ << ": " << x[index] << ", " << y[index] << ")");
   }
 
   gsl_poly_dd_init( d, x, y, 3 );
   double interpol = gsl_poly_dd_eval( d, x, 3, 0);
+
+  LOG4CXX_INFO( logger_, "Pow: " << lexical_cast<string>(id_) << ": " << interpol);
   interpol = sqrt(interpol);
   //interpol = mod(interpol, PRIME);
 
   double bit = (rand/interpol + 1)/2;
   bool t = interpol < (PRIME / 2);
 
-  LOG4CXX_INFO( logger_, "Bool: " << lexical_cast<string>(id_) << ": " << t);
   LOG4CXX_INFO( logger_, "Square: " << lexical_cast<string>(id_) << ": " << interpol);
+
+  LOG4CXX_INFO( logger_, "Bool: " << lexical_cast<string>(id_) << ": " << t);
   LOG4CXX_INFO( logger_, "Random bit: " << lexical_cast<string>(id_) << ": " << bit);
 
 }
@@ -124,7 +132,7 @@ void Comp_peer<Num>::execute(vector<string> circut) {
     BOOST_ASSERT_MSG(false, "Operation not supported!");
   }
 
-  const  int64_t result = values_[recombination_key_];
+  const int64_t result = values_[recombination_key_];
   const string key = recombination_key_ + boost::lexical_cast<string>(id_);
   continue_or_not(circut, key, result);
 }
@@ -136,7 +144,7 @@ void Comp_peer<Num>::add(
     string first,
     string second) {
 
-   int64_t result = values_[first] + values_[second];
+  int64_t result = values_[first] + values_[second];
   result = mod(result, PRIME);
 
   const string key = recombination_key_ + lexical_cast<string>(id_);
@@ -170,7 +178,7 @@ void Comp_peer<Num>::multiply(
 
   const string key = recombination_key_ + boost::lexical_cast<string>(id_);
   int64_t result = values_[first] * values_[second];
-  LOG4CXX_INFO( logger_, "Mul " << values_[first] << " * " << values_[second] << " = " << result);
+  LOG4CXX_INFO( logger_,id_ << ": Mul " << values_[first] << " * " << values_[second] << " = " << result);
   //result = mod(result, PRIME);
 
   barrier_mutex_.lock();
@@ -180,6 +188,7 @@ void Comp_peer<Num>::multiply(
 }
 
 
+#include <numeric>
 
 template<const size_t Num>
 void Comp_peer<Num>::recombine() {
@@ -189,15 +198,22 @@ void Comp_peer<Num>::recombine() {
 
   shared_ptr<gsl_vector> ds( gsl_vector_alloc(3) );
 
-  gsl_vector_set(ds.get(), 0, values_[recombination_key_ + "1"]);
-  gsl_vector_set(ds.get(), 1, values_[recombination_key_ + "2"]);
-  gsl_vector_set(ds.get(), 2, values_[recombination_key_ + "3"]);
+  std::stringstream ss;
+  ss << id_ << ": ";
+  for(size_t i = 0; i < Num; i++) {
+    gsl_vector_set(ds.get(), i, values_[recombination_key_ + lexical_cast<string>(i + 1)]);
+    ss << values_[recombination_key_ + lexical_cast<string>(i + 1)] << " ";
+  }
 
   shared_ptr<const gsl_vector> ds_const = ds;
   double recombine;
 
+  //gsl_vector_mul(ds.get(), recombination_vercor_.get());
+  //recombine = std::accumulate( ds.get()->data, ds.get()->data + 3, 0 );
   gsl_blas_ddot(ds_const.get(), recombination_vercor_.get(), &recombine);
-  values_[recombination_key_] = recombine;
+  values_[recombination_key_ + "_"] = recombine;
+  ss << "= " << recombine;
+  LOG4CXX_INFO( logger_, ss.str());
 }
 
 #endif

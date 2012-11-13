@@ -55,7 +55,7 @@ void Input_peer::distribute_secrets(
 
     secret_t secret(value);
     auto shares = secret.share();
-    distribute_shares(symbol, shares, comp_peers);
+    distribute_shares(symbol, shares, value, comp_peers);
   }
 
 }

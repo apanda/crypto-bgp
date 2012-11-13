@@ -22,7 +22,7 @@
 #include <boost/phoenix/bind.hpp>
 
 const size_t COMP_PEER_NUM = 3;
-const  int64_t PRIME = 99990001;
+const  int64_t PRIME = 2147483647;
 
 #include <secret_sharing/secret.hpp>
 

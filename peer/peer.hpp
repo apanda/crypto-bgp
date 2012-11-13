@@ -31,7 +31,7 @@ public:
 
   template<class Values, class PeerSeq>
   static void distribute_shares(
-      const symbol_t key, const Values values,
+      const symbol_t key, const Values values, const int64_t secret,
       PeerSeq comp_peers);
 
   void publish(std::string key,  int64_t value);
@@ -45,6 +45,8 @@ public:
 
   std::atomic<int> counter_;
   tbb::mutex barrier_mutex_;
+
+  tbb::mutex __mutex;
 
   std::string recombination_key_;
 
