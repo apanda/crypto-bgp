@@ -28,14 +28,14 @@ public:
   void execute(vector<string> circut);
 
   void add(string first, string second);
-  void multiply(string first, string second);
+  void multiply(string first, string second, string recombination_key);
 
-  void generate_random_num();
-  void generate_random_bit();
+  void generate_random_num(string key);
+  void generate_random_bit(string key);
   void continue_or_not(vector<string> circut,
       const string key,
       const  int64_t result);
-  void recombine();
+  void recombine(string recombination_key);
   void publish_all(symbol_t key,  int64_t value);
 
 

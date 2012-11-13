@@ -9,7 +9,13 @@
 
 #include <chrono>
 
+LoggerPtr mainLogger(Logger::getLogger("main"));
+
+
 int main() {
+
+  using std::chrono::duration_cast;
+  using std::chrono::microseconds;
 
   log4cxx::BasicConfigurator::configure();
 
@@ -40,27 +46,22 @@ int main() {
   Input_peer::distribute_secrets(input_peer->plaintext_map_, comp_peer_seq);
   vector<string> circut = {"+", "C", "*", "C", "+", "B", "A"};
 
-  auto t1 = clock_t::now();
+  const auto t1 = clock_t::now();
 
   for (auto& cp : comp_peer_seq) {
-  }
-
-
-  for (auto& cp : comp_peer_seq) {
-    io.post(bind(&comp_peer_t::generate_random_bit, cp.get() ));
+    //io.post(bind(&comp_peer_t::generate_random_bit, cp.get(), "RAND" ));
   }
 
   for (auto& cp : comp_peer_seq) {
-    //io.post(bind(&comp_peer_t::execute, cp.get(), circut));
+    io.post(bind(&comp_peer_t::execute, cp.get(), circut));
   }
 
   result_thread.join();
 
-  auto t2 = clock_t::now();
+  const auto t2 = clock_t::now();
 
-  std::cout << "The execution took " <<
-  std::chrono::duration_cast<std::chrono::microseconds>(t2 - t1).count() <<
-  " microseconds." << std::endl;
+  const auto duration = duration_cast<microseconds>(t2 - t1).count();
+  LOG4CXX_INFO(mainLogger, "The execution took " << duration << " microseconds.")
 
   io.stop();
 

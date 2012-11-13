@@ -2,6 +2,11 @@
 #ifndef COMP_PEER_TEMPLATE_HPP_
 #define COMP_PEER_TEMPLATE_HPP_
 
+
+#include <numeric>
+#include <iostream>
+#include <sstream>
+
 #include <peer/comp_peer.hpp>
 #include <boost/thread/locks.hpp>
 
@@ -21,36 +26,32 @@ Comp_peer<Num>::Comp_peer(size_t id, shared_ptr<Input_peer> input_peer) :
 }
 
 
-#include <iostream>
-#include <sstream>
 
 template<const size_t Num>
-void Comp_peer<Num>::generate_random_num() {
+void Comp_peer<Num>::generate_random_num(string key) {
   boost::random::uniform_int_distribution<> dist(-256, 256);
   const auto random = dist(rng_);
 
-  LOG4CXX_INFO( logger_, "Random seed ("
-      << lexical_cast<string>(id_) << ") : " << random);
-
-  const string key = "RAND";
+  const string id_string = lexical_cast<string>(id_);
+  LOG4CXX_INFO( logger_, "Random seed (" << id_string << ") : " << random);
 
   barrier_mutex_.lock();
-  distribute_secret(key + lexical_cast<string>(id_), random, net_peers_);
+  distribute_secret(key + id_string, random, net_peers_);
   barrier_mutex_.lock();
   barrier_mutex_.unlock();
 
 
-  std::stringstream ss;
+  std::stringstream stream;
   int64_t sum = 0;
   for(auto i = 1; i <= Num; i++) {
-    int64_t value = values_[key + lexical_cast<string>(i)];
-    ss << lexical_cast<string>(value)  << " ";
+    const int64_t value = values_[key + lexical_cast<string>(i)];
     sum += value;
+
+    stream << value << " ";
   }
 
-  ss << "= " << sum;
-
-  LOG4CXX_INFO( logger_, "Sum " << id_ << ": " << ss.str());
+  stream << " = " << sum;
+  LOG4CXX_INFO( logger_,  id_ << ": sum " << " = " << stream.str());
 
   values_[key] = sum;
 }
@@ -58,25 +59,21 @@ void Comp_peer<Num>::generate_random_num() {
 
 
 template<const size_t Num>
-void Comp_peer<Num>::generate_random_bit() {
+void Comp_peer<Num>::generate_random_bit(string key) {
 
-  generate_random_num();
-
-  string key = "RAND";
+  generate_random_num(key);
   const double rand = values_[key];
 
-  recombination_key_ = "RAND*RAND";
+  string recombination_key = key + "*" + key;
 
-  multiply(key, key);
+  multiply(key, key, recombination_key);
 
-  key = "RAND*RAND_";
-
-  const auto result = values_[key];
+  const auto result = values_[recombination_key];
 
   barrier_mutex_.lock();
 
   for( int64_t i = 0; i < COMP_PEER_NUM; i++) {
-    net_peers_[i]->publish(key + lexical_cast<string>(id_), result);
+    net_peers_[i]->publish(recombination_key + lexical_cast<string>(id_), result);
   }
 
   barrier_mutex_.lock();
@@ -87,25 +84,25 @@ void Comp_peer<Num>::generate_random_bit() {
   for( int64_t i = 1; i <= Num; i++) {
     const size_t index = i - 1;
     x[index] = i;
-    y[index] = values_[key + lexical_cast<string>(i)];
-    LOG4CXX_INFO( logger_, "(" << id_ << ": " << x[index] << ", " << y[index] << ")");
+    y[index] = values_[recombination_key + lexical_cast<string>(i)];
+    LOG4CXX_INFO( logger_, id_ << ": (" << x[index] << ", " << y[index] << ")");
   }
 
   gsl_poly_dd_init( d, x, y, 3 );
   double interpol = gsl_poly_dd_eval( d, x, 3, 0);
 
-  LOG4CXX_INFO( logger_, "Pow: " << lexical_cast<string>(id_) << ": " << interpol);
+  BOOST_ASSERT_MSG(interpol != 0, "pow(r, 2) != 0");
+  LOG4CXX_INFO( logger_, id_ << ": pow(r, 2)" << " = " << interpol);
+
   interpol = sqrt(interpol);
-  //interpol = mod(interpol, PRIME);
 
-  double bit = (rand/interpol + 1)/2;
-  bool t = interpol < (PRIME / 2);
+  BOOST_ASSERT_MSG(interpol > 0, "0 < r < p/2");
+  BOOST_ASSERT_MSG(interpol < PRIME/2, "0 < r < p/2");
 
-  LOG4CXX_INFO( logger_, "Square: " << lexical_cast<string>(id_) << ": " << interpol);
+  const double bit = (rand/interpol + 1)/2;
 
-  LOG4CXX_INFO( logger_, "Bool: " << lexical_cast<string>(id_) << ": " << t);
-  LOG4CXX_INFO( logger_, "Random bit: " << lexical_cast<string>(id_) << ": " << bit);
-
+  LOG4CXX_INFO( logger_, id_ << ": square" << " = " << interpol);
+  LOG4CXX_INFO( logger_, id_ << ": random bit" << " = " << bit);
 }
 
 
@@ -125,7 +122,7 @@ void Comp_peer<Num>::execute(vector<string> circut) {
   recombination_key_ = first_operand + operation + second_operand;
 
   if (operation == "*") {
-    multiply(first_operand, second_operand);
+    multiply(first_operand, second_operand, recombination_key_);
   } else if (operation == "+") {
     add(first_operand, second_operand);
   } else {
@@ -174,9 +171,10 @@ void Comp_peer<Num>::continue_or_not(
 template<const size_t Num>
 void Comp_peer<Num>::multiply(
     string first,
-    string second) {
+    string second,
+    string recombine_key) {
 
-  const string key = recombination_key_ + boost::lexical_cast<string>(id_);
+  string key = recombine_key + "_" + boost::lexical_cast<string>(id_);
   int64_t result = values_[first] * values_[second];
   LOG4CXX_INFO( logger_,id_ << ": Mul " << values_[first] << " * " << values_[second] << " = " << result);
   //result = mod(result, PRIME);
@@ -184,14 +182,13 @@ void Comp_peer<Num>::multiply(
   barrier_mutex_.lock();
 
   distribute_secret(key, result, net_peers_);
-  recombine();
+  recombine(recombine_key);
 }
 
 
-#include <numeric>
 
 template<const size_t Num>
-void Comp_peer<Num>::recombine() {
+void Comp_peer<Num>::recombine(string recombination_key) {
 
   barrier_mutex_.lock();
   barrier_mutex_.unlock();
@@ -201,19 +198,18 @@ void Comp_peer<Num>::recombine() {
   std::stringstream ss;
   ss << id_ << ": ";
   for(size_t i = 0; i < Num; i++) {
-    gsl_vector_set(ds.get(), i, values_[recombination_key_ + lexical_cast<string>(i + 1)]);
-    ss << values_[recombination_key_ + lexical_cast<string>(i + 1)] << " ";
+    const string key = recombination_key + "_" + lexical_cast<string>(i + 1);
+    gsl_vector_set(ds.get(), i, values_[key] );
+    ss << values_[key] << " ";
   }
 
   shared_ptr<const gsl_vector> ds_const = ds;
   double recombine;
 
-  //gsl_vector_mul(ds.get(), recombination_vercor_.get());
-  //recombine = std::accumulate( ds.get()->data, ds.get()->data + 3, 0 );
   gsl_blas_ddot(ds_const.get(), recombination_vercor_.get(), &recombine);
-  values_[recombination_key_ + "_"] = recombine;
+  values_[recombination_key] = recombine;
   ss << "= " << recombine;
-  LOG4CXX_INFO( logger_, ss.str());
+  LOG4CXX_INFO(logger_, ss.str());
 }
 
 #endif
