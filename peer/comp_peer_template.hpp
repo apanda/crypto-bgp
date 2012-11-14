@@ -37,10 +37,10 @@ void Comp_peer<Num>::generate_random_num(string key) {
   const string id_string = lexical_cast<string>(id_);
   LOG4CXX_INFO( logger_, "Random seed (" << id_string << ") : " << random);
 
-  barrier_mutex_.lock();
+  //barrier_mutex_.lock_shared();
   distribute_secret(key + id_string, random, net_peers_);
-  barrier_mutex_.lock();
-  barrier_mutex_.unlock();
+  barrier_mutex_.lock_shared();
+  barrier_mutex_.unlock_shared();
 
 
   std::stringstream stream;
@@ -72,14 +72,12 @@ void Comp_peer<Num>::generate_random_bit(string key) {
 
   const auto result = values_[recombination_key];
 
-  barrier_mutex_.lock();
-
   for( int64_t i = 0; i < COMP_PEER_NUM; i++) {
     net_peers_[i]->publish(recombination_key + lexical_cast<string>(id_), result);
   }
 
-  barrier_mutex_.lock();
-  barrier_mutex_.unlock();
+  barrier_mutex_.lock_shared();
+  barrier_mutex_.unlock_shared();
 
   double x[Num], y[Num], d[Num];
 
@@ -179,9 +177,8 @@ void Comp_peer<Num>::multiply(
   string key = recombine_key + "_" + boost::lexical_cast<string>(id_);
   int64_t result = values_[first] * values_[second];
   LOG4CXX_INFO( logger_,id_ << ": Mul " << values_[first] << " * " << values_[second] << " = " << result);
-  //result = mod(result, PRIME);
 
-  barrier_mutex_.lock();
+  barrier_mutex_.lock_shared();
 
   distribute_secret(key, result, net_peers_);
   recombine(recombine_key);
@@ -192,8 +189,7 @@ void Comp_peer<Num>::multiply(
 template<const size_t Num>
 void Comp_peer<Num>::recombine(string recombination_key) {
 
-  barrier_mutex_.lock();
-  barrier_mutex_.unlock();
+  barrier_mutex_.lock_shared();
 
   shared_ptr<gsl_vector> ds( gsl_vector_alloc(3) );
 

@@ -24,6 +24,12 @@ public:
   template<size_t Num>
   void result();
 
+  template<class CompPeerSeq>
+  static void bitwise_share(
+      string key,
+      int64_t value,
+      CompPeerSeq& comp_peers);
+
   template<class PlaintextMap, class CompPeerSeq>
   static void distribute_secrets(
       const PlaintextMap& secret_map,

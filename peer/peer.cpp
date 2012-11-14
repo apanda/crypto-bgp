@@ -32,7 +32,8 @@ void Peer::publish(std::string key, int64_t value) {
 
   if (done) {
     counter_ = 0;
-    barrier_mutex_.unlock();
+    LOG4CXX_INFO(logger_, "Unlocking mutex!");
+    barrier_mutex_.unlock_shared();
   }
 
 }

@@ -5,8 +5,15 @@
 #include <common.hpp>
 #include <peer/input_peer.hpp>
 
+#include <gsl/gsl_interp.h>
+#include <gsl/gsl_poly.h>
+
+#include <bitset>
+#include <boost/dynamic_bitset.hpp>
 
 typedef Secret<plaintext_t, COMP_PEER_NUM> secret_t;
+
+
 
 template<size_t Num>
 void Input_peer::result() {
@@ -60,6 +67,33 @@ void Input_peer::distribute_secrets(
 
 }
 
+
+
+template<class CompPeerSeq>
+void Input_peer::bitwise_share(string key, int64_t value, CompPeerSeq& comp_peers) {
+
+  size_t size = 64;
+  boost::dynamic_bitset<> bs(size, value);
+
+  string bits;
+  for(auto i = 0; i < size; i++) {
+    bits += lexical_cast<string>( bs[i] );
+  }
+
+  LOG4CXX_INFO(logger_, "Sharing bitset: " << bits);
+
+  for(auto i = 0; i < size; i++) {
+    LOG4CXX_INFO(logger_, "Sharing bit " << i << ": ");
+
+    const string symbol = key + "b" + lexical_cast<string>(i);
+    const auto bit = bs[i];
+
+    secret_t secret(bit);
+    auto shares = secret.share();
+    distribute_shares(symbol, shares, bit, comp_peers);
+  }
+
+}
 
 
 #endif /* INPUT_PEER_TEMPLATE_HPP_ */

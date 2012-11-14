@@ -43,6 +43,7 @@ int main() {
   Comp_peer_factory factory;
   comp_peer_seq = factory.generate<COMP_PEER_NUM>(input_peer);
 
+  Input_peer::bitwise_share("C", 1212, comp_peer_seq);
   Input_peer::distribute_secrets(input_peer->plaintext_map_, comp_peer_seq);
   vector<string> circut = {"+", "C", "*", "C", "+", "B", "A"};
 

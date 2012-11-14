@@ -4,9 +4,10 @@ Here is the current TODO list (ordered based on priority).
 ✔ Multiplication.
 ✔ Joint Random Number Sharing.
 ✔ Joint Random Bit Sharing.
+✔ Joint Bitwise-Sharing.
 ✘ Joint Random Number Bitwise-Sharing.
 ✘ Bitwise Less-Than.
-✘ Bitwise Sum.
+✘ Prefix Or.
 ✘ Least Significant Bit.
 ✘ Benchmarks.
 ✘ Loop Detection.

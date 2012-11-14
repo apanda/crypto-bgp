@@ -6,6 +6,7 @@
 #include <net/rpc_server.hpp>
 
 #include <atomic>
+#include <unordered_map>
 
 #include <boost/thread/mutex.hpp>
 #include <boost/thread/recursive_mutex.hpp>
@@ -38,13 +39,13 @@ public:
   void print_values();
 
   typedef tbb::concurrent_unordered_map<int, int64_t> inter_map_t;
-  typedef tbb::concurrent_unordered_map <symbol_t, int64_t> value_map_t;
+  typedef std::unordered_map<symbol_t, int64_t> value_map_t;
 
   io_service io_service_;
   RPCServer* server_;
 
   std::atomic<int> counter_;
-  tbb::mutex barrier_mutex_;
+  boost::shared_mutex barrier_mutex_;
 
   tbb::mutex __mutex;
 
