@@ -14,6 +14,7 @@
 
 #include <tbb/concurrent_unordered_map.h>
 #include <tbb/mutex.h>
+#include <boost/thread/locks.hpp>
 
 typedef  int64_t plaintext_t;
 typedef string symbol_t;
@@ -39,15 +40,19 @@ public:
   void print_values();
 
   typedef tbb::concurrent_unordered_map<int, int64_t> inter_map_t;
-  typedef std::unordered_map<symbol_t, int64_t> value_map_t;
+  typedef tbb::concurrent_unordered_map<symbol_t, int64_t> value_map_t;
 
   io_service io_service_;
   RPCServer* server_;
 
   std::atomic<int> counter_;
-  boost::shared_mutex barrier_mutex_;
+  boost::mutex barrier_mutex_;
 
   tbb::mutex __mutex;
+
+  boost::mutex cond_mutex_;
+  boost::unique_lock<boost::mutex> lock_;
+  boost::condition_variable cv_;
 
   std::string recombination_key_;
 

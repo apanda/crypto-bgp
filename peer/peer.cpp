@@ -5,10 +5,11 @@ LoggerPtr Peer::logger_(Logger::getLogger("Peer"));
 
 
 Peer::Peer(const short port) :
-    server_(new RPCServer(io_service_, port, this))
+    counter_(0),
+    server_(new RPCServer(io_service_, port, this)),
+    lock_(cond_mutex_)
 {
 
-  counter_ = 0;
   barrier_mutex_.lock();
 
   tg_.add_thread( new boost::thread(bind(&io_service::run, &io_service_)) );
@@ -28,12 +29,18 @@ void Peer::publish(std::string key, int64_t value) {
   tbb::mutex::scoped_lock lock(__mutex);
 
   values_.insert(make_pair(key, value));
-  bool done = (++counter_ == 3);
+  counter_++;
+  bool done = (counter_ == 3);
+
+  LOG4CXX_TRACE(logger_,counter_);
 
   if (done) {
     counter_ = 0;
-    LOG4CXX_INFO(logger_, "Unlocking mutex!");
-    barrier_mutex_.unlock_shared();
+
+    barrier_mutex_.unlock();
+    //cv_.notify_all();
+
+    LOG4CXX_TRACE(logger_, "Unlocking mutex!");
   }
 
 }
