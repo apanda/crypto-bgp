@@ -9,6 +9,7 @@
 
 #include <peer/comp_peer.hpp>
 #include <boost/thread/locks.hpp>
+#include <boost/assign.hpp>
 
 template<const size_t Num>
 Comp_peer<Num>::Comp_peer(size_t id, shared_ptr<Input_peer> input_peer) :
@@ -16,13 +17,14 @@ Comp_peer<Num>::Comp_peer(size_t id, shared_ptr<Input_peer> input_peer) :
     id_(id),
     input_peer_(input_peer) {
 
-  shared_ptr<gsl_vector> x( gsl_vector_alloc(Num) );
+  using boost::assign::list_of;
 
-  gsl_vector_set(x.get(), 0, 3);
-  gsl_vector_set(x.get(), 1, -3);
-  gsl_vector_set(x.get(), 2, 1);
+  recombination_array_ = (list_of(3), -3, 1);
+  _gsl_vector_view view = gsl_vector_view_array(recombination_array_.begin(), Num);
+  shared_ptr<gsl_vector> tmp_vector( gsl_vector_alloc(Num) );
+  *tmp_vector = view.vector;
 
-  recombination_vercor_ = x;
+  recombination_vercor_ = tmp_vector;
 }
 
 

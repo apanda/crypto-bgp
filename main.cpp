@@ -49,18 +49,18 @@ int main() {
   const auto t1 = clock_t::now();
 
   for (auto& cp : comp_peer_seq) {
-    //io.post(bind(&comp_peer_t::generate_random_bit, cp.get(), "RAND" ));
+    io.post(bind(&comp_peer_t::generate_random_bit, cp.get(), "RAND" ));
   }
 
   for (auto& cp : comp_peer_seq) {
-    io.post(bind(&comp_peer_t::execute, cp.get(), circut));
+    //io.post(bind(&comp_peer_t::execute, cp.get(), circut));
   }
 
   result_thread.join();
 
   const auto t2 = clock_t::now();
-
   const auto duration = duration_cast<microseconds>(t2 - t1).count();
+
   LOG4CXX_INFO(mainLogger, "The execution took " << duration << " microseconds.")
 
   io.stop();

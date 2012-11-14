@@ -28,16 +28,19 @@ public:
   void execute(vector<string> circut);
 
   void add(string first, string second);
+
   void multiply(string first, string second, string recombination_key);
+  void recombine(string recombination_key);
 
   void generate_random_num(string key);
   void generate_random_bit(string key);
   void continue_or_not(vector<string> circut,
       const string key,
       const  int64_t result);
-  void recombine(string recombination_key);
+
   void publish_all(symbol_t key,  int64_t value);
 
+  boost::random::random_device rng_;
 
   size_t id_;
 
@@ -45,11 +48,10 @@ public:
   typedef array<shared_ptr<RPCClient>, Num> netPeersImpl;
 
   netPeersImpl net_peers_;
-
   shared_ptr<Input_peer> input_peer_;
-  shared_ptr<const gsl_vector> recombination_vercor_;
 
-  boost::random::random_device rng_;
+  shared_ptr<const gsl_vector> recombination_vercor_;
+  array<double, Num> recombination_array_;
 };
 
 typedef Comp_peer<COMP_PEER_NUM> comp_peer_t;
