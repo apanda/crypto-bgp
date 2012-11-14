@@ -22,7 +22,7 @@ public:
 
   tcp::socket socket_;
   tcp::resolver resolver_;
-  enum { length_ = 20 };
+  enum { length_ = 32 };
 
   static log4cxx::LoggerPtr logger_;
 };

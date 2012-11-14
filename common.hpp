@@ -21,8 +21,12 @@
 #include <boost/asio.hpp>
 #include <boost/phoenix/bind.hpp>
 
+typedef int64_t share_t;
+const size_t SHARE_SIZE = sizeof(share_t);
+const size_t SHARE_BIT_SIZE = SHARE_SIZE * 8;
+
 const size_t COMP_PEER_NUM = 3;
-const  int64_t PRIME = 2147483647;
+const int64_t PRIME = 2147483647;
 
 #include <secret_sharing/secret.hpp>
 

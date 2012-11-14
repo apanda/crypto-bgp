@@ -35,7 +35,7 @@ void Comp_peer<Num>::generate_random_num(string key) {
   const auto random = dist(rng_);
 
   const string id_string = lexical_cast<string>(id_);
-  LOG4CXX_INFO( logger_, "Random seed (" << id_string << ") : " << random);
+  LOG4CXX_DEBUG( logger_, "Random seed (" << id_string << ") : " << random);
 
 
   barrier_mutex_.lock();
@@ -56,11 +56,22 @@ void Comp_peer<Num>::generate_random_num(string key) {
   }
 
   stream << " = " << sum;
-  LOG4CXX_INFO( logger_,  id_ << ": " << stream.str());
+  LOG4CXX_DEBUG( logger_,  id_ << ": " << stream.str());
 
   values_[key] = sum;
 }
 
+
+template<const size_t Num>
+void Comp_peer<Num>::generate_random_bitwise_num(string key) {
+
+  for(auto i = 0; i < SHARE_BIT_SIZE; i++) {
+    const string bit_key = key + "b" + lexical_cast<string>(i);
+    generate_random_bit(bit_key);
+    counter_ = 0;
+  }
+
+}
 
 
 
@@ -73,7 +84,7 @@ void Comp_peer<Num>::multiply(
   string key = recombine_key + "_" + boost::lexical_cast<string>(id_);
   int64_t result = values_[first] * values_[second];
 
-  LOG4CXX_INFO( logger_,id_ << ": Mul " << values_[first] << " * " << values_[second] << " = " << result);
+  LOG4CXX_DEBUG(logger_,id_ << ": Mul " << values_[first] << " * " << values_[second] << " = " << result);
 
   barrier_mutex_.lock();
 
@@ -106,7 +117,7 @@ void Comp_peer<Num>::recombine(string recombination_key) {
   gsl_blas_ddot(ds_const.get(), recombination_vercor_.get(), &recombine);
   values_[recombination_key] = recombine;
   ss << "= " << recombine;
-  LOG4CXX_INFO(logger_, id_ << ": recombine: " << ss.str());
+  LOG4CXX_DEBUG(logger_, id_ << ": recombine: " << ss.str());
 }
 
 
@@ -139,7 +150,6 @@ void Comp_peer<Num>::generate_random_bit(string key) {
     const size_t index = i - 1;
     x[index] = i;
     y[index] = values_[recombination_key + lexical_cast<string>(i)];
-    LOG4CXX_TRACE( logger_, id_ << ": (" << x[index] << ", " << y[index] << ")");
   }
 
   gsl_poly_dd_init( d, x, y, 3 );
@@ -155,8 +165,8 @@ void Comp_peer<Num>::generate_random_bit(string key) {
 
   const double bit = (rand/interpol + 1)/2;
 
-  LOG4CXX_INFO( logger_, id_ << ": square" << " = " << interpol);
-  LOG4CXX_INFO( logger_, id_ << ": random bit" << " = " << bit);
+  LOG4CXX_DEBUG( logger_, id_ << ": square" << " = " << interpol);
+  LOG4CXX_INFO( logger_, id_ << ": " << key << ": random bit" << " = " << bit);
 }
 
 

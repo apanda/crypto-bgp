@@ -5,19 +5,25 @@
 #include <peer/comp_peer.hpp>
 #include <peer/comp_peer_factory.hpp>
 
+#include <log4cxx/patternlayout.h>
+
 #include <common.hpp>
 
 #include <chrono>
 
-LoggerPtr mainLogger(Logger::getLogger("main"));
+LoggerPtr mainLogger(Logger::getLogger("all"));
 
 
 int main() {
+
+  mainLogger->setLevel(log4cxx::Level::getInfo());
 
   using std::chrono::duration_cast;
   using std::chrono::microseconds;
 
   log4cxx::BasicConfigurator::configure();
+  log4cxx::PatternLayoutPtr patternLayout = new log4cxx::PatternLayout();
+  patternLayout->setConversionPattern("%m%n");
 
   typedef std::chrono::high_resolution_clock clock_t;
 
@@ -54,7 +60,8 @@ int main() {
   const auto t1 = clock_t::now();
 
   for (auto& cp : comp_peer_seq) {
-    io.post(bind(&comp_peer_t::generate_random_bit, cp.get(), "RAND" ));
+    //io.post(bind(&comp_peer_t::generate_random_bit, cp.get(), "R" ));
+    io.post(bind(&comp_peer_t::generate_random_bitwise_num, cp.get(), "BR" ));
   }
 
   for (auto& cp : comp_peer_seq) {

@@ -1,7 +1,7 @@
 #include <peer/peer.hpp>
 
 
-LoggerPtr Peer::logger_(Logger::getLogger("Peer"));
+LoggerPtr Peer::logger_(Logger::getLogger("all.peer"));
 
 
 Peer::Peer(const short port) :

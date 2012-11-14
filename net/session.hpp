@@ -27,7 +27,7 @@ public:
   tcp::socket& socket();
 
   tcp::socket socket_;
-  enum { length_ = 20 };
+  enum { length_ = 32 };
   Peer* peer_;
 
 };

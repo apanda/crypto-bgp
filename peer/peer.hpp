@@ -46,7 +46,7 @@ public:
   RPCServer* server_;
 
   std::atomic<int> counter_;
-  boost::mutex barrier_mutex_;
+  tbb::mutex barrier_mutex_;
 
   tbb::mutex __mutex;
 

@@ -34,6 +34,8 @@ public:
 
   void generate_random_num(string key);
   void generate_random_bit(string key);
+  void generate_random_bitwise_num(string key);
+
   void continue_or_not(vector<string> circut,
       const string key,
       const  int64_t result);
