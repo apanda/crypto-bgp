@@ -4,14 +4,14 @@
 #include <common.hpp>
 #include <peer/comp_peer.hpp>
 
-class Comp_peer_factory {
+class CompPeer_factory {
 public:
 
-  Comp_peer_factory();
+  CompPeer_factory();
 
   template<size_t Num>
   array<shared_ptr<comp_peer_t>, Num>
-  generate(shared_ptr<Input_peer> input_peer);
+  generate(shared_ptr<InputPeer> input_peer);
 
 };
 

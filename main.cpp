@@ -28,7 +28,7 @@ int main() {
   typedef std::chrono::high_resolution_clock clock_t;
 
   array<shared_ptr<comp_peer_t>, COMP_PEER_NUM> comp_peer_seq;
-  shared_ptr<Input_peer> input_peer(new Input_peer());
+  shared_ptr<InputPeer> input_peer(new InputPeer());
 
   input_peer->plaintext_map_ = {
       {"A", 2},
@@ -36,7 +36,7 @@ int main() {
       {"C", 4}
   };
 
-  boost::thread result_thread(&Input_peer::result<COMP_PEER_NUM>, input_peer);
+  boost::thread result_thread(&InputPeer::result<COMP_PEER_NUM>, input_peer);
   boost::thread_group worker_threads;
 
   io_service io;
@@ -46,15 +46,15 @@ int main() {
   worker_threads.add_thread( new boost::thread(bind(&io_service::run, &io)) );
   worker_threads.add_thread( new boost::thread(bind(&io_service::run, &io)) );
 
-  Comp_peer_factory factory;
+  CompPeer_factory factory;
   comp_peer_seq = factory.generate<COMP_PEER_NUM>(input_peer);
 
-  Input_peer::bitwise_share("C", 1212, comp_peer_seq);
+  InputPeer::bitwise_share("C", 1212, comp_peer_seq);
   for (auto& cp : comp_peer_seq) {
     cp->counter_ = 0;
   }
 
-  Input_peer::distribute_secrets(input_peer->plaintext_map_, comp_peer_seq);
+  InputPeer::distribute_secrets(input_peer->plaintext_map_, comp_peer_seq);
   vector<string> circut = {"+", "C", "*", "C", "+", "B", "A"};
 
   const auto t1 = clock_t::now();

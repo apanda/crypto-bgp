@@ -17,9 +17,9 @@ typedef int64_t plaintext_t;
 typedef string symbol_t;
 typedef map<symbol_t, plaintext_t> plaintext_map_t;
 
-class Input_peer : public Peer {
+class InputPeer : public Peer {
 public:
-  Input_peer();
+  InputPeer();
 
   template<size_t Num>
   void result();

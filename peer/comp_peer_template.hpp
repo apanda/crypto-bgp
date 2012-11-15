@@ -12,7 +12,7 @@
 #include <boost/assign.hpp>
 
 template<const size_t Num>
-Comp_peer<Num>::Comp_peer(size_t id, shared_ptr<Input_peer> input_peer) :
+CompPeer<Num>::CompPeer(size_t id, shared_ptr<InputPeer> input_peer) :
     Peer(id + 10000),
     id_(id),
     input_peer_(input_peer) {
@@ -30,7 +30,7 @@ Comp_peer<Num>::Comp_peer(size_t id, shared_ptr<Input_peer> input_peer) :
 
 
 template<const size_t Num>
-void Comp_peer<Num>::generate_random_num(string key) {
+void CompPeer<Num>::generate_random_num(string key) {
   boost::random::uniform_int_distribution<> dist(-256, 256);
   const auto random = dist(rng_);
 
@@ -63,7 +63,7 @@ void Comp_peer<Num>::generate_random_num(string key) {
 
 
 template<const size_t Num>
-void Comp_peer<Num>::generate_random_bitwise_num(string key) {
+void CompPeer<Num>::generate_random_bitwise_num(string key) {
 
   for(auto i = 0; i < SHARE_BIT_SIZE; i++) {
     const string bit_key = key + "b" + lexical_cast<string>(i);
@@ -76,7 +76,7 @@ void Comp_peer<Num>::generate_random_bitwise_num(string key) {
 
 
 template<const size_t Num>
-void Comp_peer<Num>::multiply(
+void CompPeer<Num>::multiply(
     string first,
     string second,
     string recombine_key) {
@@ -99,7 +99,7 @@ void Comp_peer<Num>::multiply(
 
 
 template<const size_t Num>
-void Comp_peer<Num>::recombine(string recombination_key) {
+void CompPeer<Num>::recombine(string recombination_key) {
 
   shared_ptr<gsl_vector> ds( gsl_vector_alloc(3) );
 
@@ -123,7 +123,7 @@ void Comp_peer<Num>::recombine(string recombination_key) {
 
 
 template<const size_t Num>
-void Comp_peer<Num>::generate_random_bit(string key) {
+void CompPeer<Num>::generate_random_bit(string key) {
 
   generate_random_num(key);
   const double rand = values_[key];
@@ -172,7 +172,7 @@ void Comp_peer<Num>::generate_random_bit(string key) {
 
 
 template<const size_t Num>
-void Comp_peer<Num>::execute(vector<string> circut) {
+void CompPeer<Num>::execute(vector<string> circut) {
 
   string first_operand = circut.back();
   circut.pop_back();
@@ -201,7 +201,7 @@ void Comp_peer<Num>::execute(vector<string> circut) {
 
 
 template<const size_t Num>
-void Comp_peer<Num>::add(
+void CompPeer<Num>::add(
     string first,
     string second) {
 
@@ -215,7 +215,7 @@ void Comp_peer<Num>::add(
 
 
 template<const size_t Num>
-void Comp_peer<Num>::continue_or_not(
+void CompPeer<Num>::continue_or_not(
     vector<string> circut,
     const string key,
     const  int64_t result) {
@@ -227,6 +227,11 @@ void Comp_peer<Num>::continue_or_not(
     circut.push_back(recombination_key_);
     execute(circut);
   }
+
+}
+
+template<const size_t Num>
+void CompPeer<Num>::prefix_or() {
 
 }
 

@@ -20,10 +20,10 @@
 
 
 template<const size_t Num>
-class Comp_peer : public Peer {
+class CompPeer : public Peer {
 public:
 
-  Comp_peer(size_t id, shared_ptr<Input_peer> input_peer);
+  CompPeer(size_t id, shared_ptr<InputPeer> input_peer);
 
   void execute(vector<string> circut);
 
@@ -36,6 +36,8 @@ public:
   void generate_random_bit(string key);
   void generate_random_bitwise_num(string key);
 
+  void prefix_or();
+
   void continue_or_not(vector<string> circut,
       const string key,
       const  int64_t result);
@@ -46,17 +48,17 @@ public:
 
   size_t id_;
 
-  typedef array<shared_ptr<Comp_peer<Num> >, Num> localPeersImpl;
+  typedef array<shared_ptr<CompPeer<Num> >, Num> localPeersImpl;
   typedef array<shared_ptr<RPCClient>, Num> netPeersImpl;
 
   netPeersImpl net_peers_;
-  shared_ptr<Input_peer> input_peer_;
+  shared_ptr<InputPeer> input_peer_;
 
   shared_ptr<const gsl_vector> recombination_vercor_;
   array<double, Num> recombination_array_;
 };
 
-typedef Comp_peer<COMP_PEER_NUM> comp_peer_t;
+typedef CompPeer<COMP_PEER_NUM> comp_peer_t;
 
 #include "comp_peer_template.hpp"
 

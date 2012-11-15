@@ -16,7 +16,7 @@ typedef Secret<plaintext_t, COMP_PEER_NUM> secret_t;
 
 
 template<size_t Num>
-void Input_peer::result() {
+void InputPeer::result() {
 
   barrier_mutex_.lock();
 
@@ -51,7 +51,7 @@ void Input_peer::result() {
 
 
 template<class PlaintextMap, class CompPeerSeq>
-void Input_peer::distribute_secrets(
+void InputPeer::distribute_secrets(
     const PlaintextMap& secret_map,
     CompPeerSeq& comp_peers) {
 
@@ -70,7 +70,7 @@ void Input_peer::distribute_secrets(
 
 
 template<class CompPeerSeq>
-void Input_peer::bitwise_share(string key, int64_t value, CompPeerSeq& comp_peers) {
+void InputPeer::bitwise_share(string key, int64_t value, CompPeerSeq& comp_peers) {
 
   size_t size = 64;
   boost::dynamic_bitset<> bs(size, value);
