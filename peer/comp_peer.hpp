@@ -27,7 +27,8 @@ public:
 
   void execute(vector<string> circut);
 
-  void add(string first, string second);
+  void add(string first, string second,
+      string recombination_key);
 
   void multiply(string first, string second, string recombination_key);
   void recombine(string recombination_key);
@@ -36,11 +37,15 @@ public:
   void generate_random_bit(string key);
   void generate_random_bitwise_num(string key);
 
+  void compare(string key1, string key2);
+
+  void unbounded_fan_in_or();
   void prefix_or();
 
   void continue_or_not(vector<string> circut,
       const string key,
-      const  int64_t result);
+      const int64_t result,
+      string recombination_key);
 
   void publish_all(symbol_t key,  int64_t value);
 

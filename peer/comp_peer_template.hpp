@@ -29,6 +29,39 @@ CompPeer<Num>::CompPeer(size_t id, shared_ptr<InputPeer> input_peer) :
 
 
 
+
+
+
+template<const size_t Num>
+void CompPeer<Num>::execute(vector<string> circut) {
+
+  string first_operand = circut.back();
+  circut.pop_back();
+
+  string second_operand = circut.back();
+  circut.pop_back();
+
+  string operation = circut.back();
+  circut.pop_back();
+
+  string recombination_key = first_operand + operation + second_operand;
+
+  if (operation == "*") {
+    multiply(first_operand, second_operand, recombination_key);
+  } else if (operation == "+") {
+    add(first_operand, second_operand, recombination_key);
+  } else {
+    BOOST_ASSERT_MSG(false, "Operation not supported!");
+  }
+
+  const int64_t result = values_[recombination_key];
+  const string key = recombination_key + boost::lexical_cast<string>(id_);
+  continue_or_not(circut, key, result, recombination_key);
+}
+
+
+
+
 template<const size_t Num>
 void CompPeer<Num>::generate_random_num(string key) {
   boost::random::uniform_int_distribution<> dist(-256, 256);
@@ -60,6 +93,27 @@ void CompPeer<Num>::generate_random_num(string key) {
 
   values_[key] = sum;
 }
+
+
+
+template<const size_t Num>
+void CompPeer<Num>::compare(string key1, string key2) {
+
+  string w = "." + lexical_cast<string>(2) + key1;
+  string x = "." + lexical_cast<string>(2) + key2;
+  string y = "." + lexical_cast<string>(2) + key1 + "-" + key2;
+  string z = key1 + "<" + key2;
+
+  vector<string> c1 = {"*", "w", "x"};
+  vector<string> c2 = {"*", "w", "y"};
+  vector<string> c3 = {"*", "y", "*", "w", "x"};
+  vector<string> c4 = {"*", "y", "*", "w", "x"};
+  vector<string> c5 = {"*", "x", "y"};
+
+  // wx + wy − 2xwy + 1 − y − x + xy
+}
+
+
 
 
 template<const size_t Num>
@@ -165,37 +219,8 @@ void CompPeer<Num>::generate_random_bit(string key) {
 
   const double bit = (rand/interpol + 1)/2;
 
-  LOG4CXX_DEBUG( logger_, id_ << ": square" << " = " << interpol);
-  LOG4CXX_INFO( logger_, id_ << ": " << key << ": random bit" << " = " << bit);
-}
-
-
-
-template<const size_t Num>
-void CompPeer<Num>::execute(vector<string> circut) {
-
-  string first_operand = circut.back();
-  circut.pop_back();
-
-  string second_operand = circut.back();
-  circut.pop_back();
-
-  string operation = circut.back();
-  circut.pop_back();
-
-  recombination_key_ = first_operand + operation + second_operand;
-
-  if (operation == "*") {
-    multiply(first_operand, second_operand, recombination_key_);
-  } else if (operation == "+") {
-    add(first_operand, second_operand);
-  } else {
-    BOOST_ASSERT_MSG(false, "Operation not supported!");
-  }
-
-  const int64_t result = values_[recombination_key_];
-  const string key = recombination_key_ + boost::lexical_cast<string>(id_);
-  continue_or_not(circut, key, result);
+  LOG4CXX_DEBUG(logger_, id_ << ": square" << " = " << interpol);
+  LOG4CXX_INFO(logger_, id_ << ": " << key << ": random bit" << " = " << bit);
 }
 
 
@@ -203,13 +228,14 @@ void CompPeer<Num>::execute(vector<string> circut) {
 template<const size_t Num>
 void CompPeer<Num>::add(
     string first,
-    string second) {
+    string second,
+    string recombination_key) {
 
   int64_t result = values_[first] + values_[second];
   result = mod(result, PRIME);
 
-  const string key = recombination_key_ + lexical_cast<string>(id_);
-  values_[recombination_key_] = result;
+  const string key = recombination_key + lexical_cast<string>(id_);
+  values_[recombination_key] = result;
 }
 
 
@@ -218,17 +244,27 @@ template<const size_t Num>
 void CompPeer<Num>::continue_or_not(
     vector<string> circut,
     const string key,
-    const  int64_t result) {
+    const int64_t result,
+    string recombination_key) {
 
   if(circut.empty()) {
-    input_peer_->recombination_key_ = recombination_key_;
+    input_peer_->recombination_key_ = recombination_key;
     input_peer_->publish(key, result);
   } else {
-    circut.push_back(recombination_key_);
+    circut.push_back(recombination_key);
     execute(circut);
   }
 
 }
+
+
+
+template<const size_t Num>
+void CompPeer<Num>::unbounded_fan_in_or() {
+
+}
+
+
 
 template<const size_t Num>
 void CompPeer<Num>::prefix_or() {

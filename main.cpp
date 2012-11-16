@@ -16,7 +16,7 @@ LoggerPtr mainLogger(Logger::getLogger("all"));
 
 int main() {
 
-  mainLogger->setLevel(log4cxx::Level::getInfo());
+  mainLogger->setLevel(log4cxx::Level::getTrace());
 
   using std::chrono::duration_cast;
   using std::chrono::microseconds;
@@ -49,6 +49,10 @@ int main() {
   CompPeer_factory factory;
   comp_peer_seq = factory.generate<COMP_PEER_NUM>(input_peer);
 
+  for(std::pair<string, int> pair: input_peer->plaintext_map_) {
+    InputPeer::lsb(pair.first, pair.second, comp_peer_seq);
+  }
+
   InputPeer::bitwise_share("C", 1212, comp_peer_seq);
   for (auto& cp : comp_peer_seq) {
     cp->counter_ = 0;
@@ -61,11 +65,11 @@ int main() {
 
   for (auto& cp : comp_peer_seq) {
     //io.post(bind(&comp_peer_t::generate_random_bit, cp.get(), "R" ));
-    io.post(bind(&comp_peer_t::generate_random_bitwise_num, cp.get(), "BR" ));
+    //io.post(bind(&comp_peer_t::generate_random_bitwise_num, cp.get(), "BR" ));
   }
 
   for (auto& cp : comp_peer_seq) {
-    //io.post(bind(&comp_peer_t::execute, cp.get(), circut));
+    io.post(bind(&comp_peer_t::execute, cp.get(), circut));
   }
 
   result_thread.join();

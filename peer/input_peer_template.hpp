@@ -50,19 +50,26 @@ void InputPeer::result() {
 
 
 
+template<class CompPeerSeq>
+void InputPeer::distribute_secret(
+    symbol_t key, plaintext_t value,
+    CompPeerSeq& comp_peers) {
+
+  secret_t secret(value);
+  auto shares = secret.share();
+  distribute_shares(key, shares, value, comp_peers);
+
+}
+
+
+
 template<class PlaintextMap, class CompPeerSeq>
 void InputPeer::distribute_secrets(
     const PlaintextMap& secret_map,
     CompPeerSeq& comp_peers) {
 
-  for(auto secret_pair : secret_map) {
-
-    const symbol_t symbol = secret_pair.first;
-    const plaintext_t value = secret_pair.second;
-
-    secret_t secret(value);
-    auto shares = secret.share();
-    distribute_shares(symbol, shares, value, comp_peers);
+  for(auto pair : secret_map) {
+    distribute_secret(pair.first, pair.second, comp_peers);
   }
 
 }
@@ -92,6 +99,24 @@ void InputPeer::bitwise_share(string key, int64_t value, CompPeerSeq& comp_peers
     auto shares = secret.share();
     distribute_shares(symbol, shares, bit, comp_peers);
   }
+
+}
+
+
+template<class CompPeerSeq>
+void InputPeer::lsb(
+    string key,
+    int64_t value,
+    CompPeerSeq& comp_peers) {
+
+  key = "." + key;
+
+  auto result = mod(value, PRIME);
+  result = result % 2;
+
+  LOG4CXX_INFO(logger_, "LSB(" << key << ", " << value << ") = " << result);
+  distribute_secret(key, result, comp_peers);
+
 
 }
 

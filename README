@@ -1,14 +1,13 @@
 Here is the current TODO list (ordered based on priority).
 
-✔ Addition.
-✔ Multiplication.
+✔ Secure Addition.
+✔ Secure Multiplication.
 ✔ Joint Random Number Sharing.
 ✔ Joint Random Bit Sharing.
 ✔ Joint Bitwise-Sharing.
 ✔ Joint Random Number Bitwise-Sharing.
-✘ Prefix Or.
-✘ Bitwise Less-Than.
-✘ Least Significant Bit.
+✔ Input Peer Least Significant Bit.
+✘ Secure Comparison.
 ✘ Benchmarks.
 ✘ Loop Detection.
 ✘ Topology Generator.
