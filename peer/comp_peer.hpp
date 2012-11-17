@@ -25,24 +25,24 @@ public:
 
   CompPeer(size_t id, shared_ptr<InputPeer> input_peer);
 
-  void execute(vector<string> circut);
+  void evaluate(vector<string> circut);
 
-  void add(string first, string second,
-      string recombination_key);
+  symbol_t execute(vector<string> circut);
 
-  void multiply(string first, string second, string recombination_key);
-  void recombine(string recombination_key);
+  symbol_t add(string first, string second, string recombination_key);
+  symbol_t multiply(string first, string second, string recombination_key);
+  symbol_t recombine(string recombination_key);
 
-  void generate_random_num(string key);
-  void generate_random_bit(string key);
-  void generate_random_bitwise_num(string key);
+  symbol_t generate_random_num(string key);
+  symbol_t generate_random_bit(string key);
+  symbol_t generate_random_bitwise_num(string key);
 
   void compare(string key1, string key2);
 
   void unbounded_fan_in_or();
   void prefix_or();
 
-  void continue_or_not(vector<string> circut,
+  symbol_t continue_or_not(vector<string> circut,
       const string key,
       const int64_t result,
       string recombination_key);

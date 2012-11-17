@@ -32,6 +32,7 @@ const int64_t PRIME = 2147483647;
 
 using std::string;
 using std::vector;
+using std::stringstream;
 
 using log4cxx::Logger;
 using log4cxx::LoggerPtr;

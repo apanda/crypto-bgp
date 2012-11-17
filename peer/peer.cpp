@@ -32,7 +32,7 @@ void Peer::publish(std::string key, int64_t value) {
   counter_++;
   bool done = (counter_ == 3);
 
-  LOG4CXX_TRACE(logger_,counter_);
+  //LOG4CXX_TRACE(logger_,counter_);
 
   if (done) {
     counter_ = 0;
@@ -50,7 +50,7 @@ void Peer::publish(std::string key, int64_t value) {
 void Peer::print_values() {
 
   for (auto pair: values_) {
-    LOG4CXX_INFO(logger_, "\t" << pair.first << ": " << pair.second );
+    LOG4CXX_DEBUG(logger_, "Value: " << pair.first << ": " << pair.second );
   }
 
 }

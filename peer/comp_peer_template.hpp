@@ -29,22 +29,32 @@ CompPeer<Num>::CompPeer(size_t id, shared_ptr<InputPeer> input_peer) :
 
 
 
+template<const size_t Num>
+void CompPeer<Num>::evaluate(vector<string> circut) {
+
+  const symbol_t recombination_key = execute(circut);
+  const int64_t result = values_[recombination_key];
+  LOG4CXX_INFO( logger_, "Return value: " << recombination_key);
+
+  input_peer_->recombination_key_ = recombination_key;
+  input_peer_->publish(recombination_key + lexical_cast<string>(id_), result);
+}
 
 
 
 template<const size_t Num>
-void CompPeer<Num>::execute(vector<string> circut) {
+symbol_t CompPeer<Num>::execute(vector<string> circut) {
 
-  string first_operand = circut.back();
+  const string first_operand = circut.back();
   circut.pop_back();
 
-  string second_operand = circut.back();
+  const string second_operand = circut.back();
   circut.pop_back();
 
-  string operation = circut.back();
+  const string operation = circut.back();
   circut.pop_back();
 
-  string recombination_key = first_operand + operation + second_operand;
+  const string recombination_key = first_operand + operation + second_operand;
 
   if (operation == "*") {
     multiply(first_operand, second_operand, recombination_key);
@@ -56,42 +66,55 @@ void CompPeer<Num>::execute(vector<string> circut) {
 
   const int64_t result = values_[recombination_key];
   const string key = recombination_key + boost::lexical_cast<string>(id_);
-  continue_or_not(circut, key, result, recombination_key);
+
+  return continue_or_not(circut, key, result, recombination_key);
 }
 
 
 
+template<const size_t Num>
+symbol_t CompPeer<Num>::add(
+    string first,
+    string second,
+    string recombination_key) {
+
+  int64_t result = values_[first] + values_[second];
+  result = mod(result, PRIME);
+
+
+  const string key = recombination_key + lexical_cast<string>(id_);
+  values_[recombination_key] = result;
+  return recombination_key;
+}
+
+
 
 template<const size_t Num>
-void CompPeer<Num>::generate_random_num(string key) {
+symbol_t CompPeer<Num>::generate_random_num(string key) {
+
   boost::random::uniform_int_distribution<> dist(-256, 256);
   const auto random = dist(rng_);
 
   const string id_string = lexical_cast<string>(id_);
-  LOG4CXX_DEBUG( logger_, "Random seed (" << id_string << ") : " << random);
-
+  LOG4CXX_DEBUG( logger_, id_string << ": random seed: " << random);
 
   barrier_mutex_.lock();
 
   distribute_secret(key + id_string, random, net_peers_);
 
-  //cv_.wait(lock_);
   barrier_mutex_.lock();
   barrier_mutex_.unlock();
 
-  std::stringstream stream;
   int64_t sum = 0;
   for(auto i = 1; i <= Num; i++) {
     const int64_t value = values_[key + lexical_cast<string>(i)];
     sum += value;
-
-    stream << value << " ";
   }
 
-  stream << " = " << sum;
-  LOG4CXX_DEBUG( logger_,  id_ << ": " << stream.str());
+  LOG4CXX_DEBUG( logger_,  id_ << "Sum: " << sum);
 
   values_[key] = sum;
+  return key;
 }
 
 
@@ -117,7 +140,7 @@ void CompPeer<Num>::compare(string key1, string key2) {
 
 
 template<const size_t Num>
-void CompPeer<Num>::generate_random_bitwise_num(string key) {
+symbol_t CompPeer<Num>::generate_random_bitwise_num(string key) {
 
   for(auto i = 0; i < SHARE_BIT_SIZE; i++) {
     const string bit_key = key + "b" + lexical_cast<string>(i);
@@ -125,44 +148,48 @@ void CompPeer<Num>::generate_random_bitwise_num(string key) {
     counter_ = 0;
   }
 
+  return key;
 }
 
 
 
 template<const size_t Num>
-void CompPeer<Num>::multiply(
+symbol_t CompPeer<Num>::multiply(
     string first,
     string second,
-    string recombine_key) {
+    string recombination_key) {
 
-  string key = recombine_key + "_" + boost::lexical_cast<string>(id_);
-  int64_t result = values_[first] * values_[second];
+  stringstream debug_stream;
 
-  LOG4CXX_DEBUG(logger_,id_ << ": Mul " << values_[first] << " * " << values_[second] << " = " << result);
+  const string key = recombination_key + "_" + boost::lexical_cast<string>(id_);
+  const int64_t result = values_[first] * values_[second];
+  debug_stream << values_[first] << " " << values_[second] << ": " << result;
+
+  LOG4CXX_DEBUG(logger_,id_ << ": multiply: " << debug_stream.str());
 
   barrier_mutex_.lock();
 
   distribute_secret(key, result, net_peers_);
-  //cv_.wait(lock_);
 
   barrier_mutex_.lock();
   barrier_mutex_.unlock();
 
-  recombine(recombine_key);
+  return recombine(recombination_key);
 }
 
 
 template<const size_t Num>
-void CompPeer<Num>::recombine(string recombination_key) {
+symbol_t CompPeer<Num>::recombine(string recombination_key) {
 
   shared_ptr<gsl_vector> ds( gsl_vector_alloc(3) );
 
-  std::stringstream ss;
-  ss << id_ << ": ";
+  std::stringstream debug_stream;
   for(size_t i = 0; i < Num; i++) {
     const string key = recombination_key + "_" + lexical_cast<string>(i + 1);
-    gsl_vector_set(ds.get(), i, values_[key] );
-    ss << values_[key] << " ";
+    const int64_t value = values_[key];
+
+    gsl_vector_set(ds.get(), i,  value);
+    debug_stream <<  " " << value;
   }
 
   shared_ptr<const gsl_vector> ds_const = ds;
@@ -170,14 +197,16 @@ void CompPeer<Num>::recombine(string recombination_key) {
 
   gsl_blas_ddot(ds_const.get(), recombination_vercor_.get(), &recombine);
   values_[recombination_key] = recombine;
-  ss << "= " << recombine;
-  LOG4CXX_DEBUG(logger_, id_ << ": recombine: " << ss.str());
+  debug_stream << ": " << recombine;
+  LOG4CXX_DEBUG(logger_, id_ << ": recombine:" << debug_stream.str());
+
+  return recombination_key;
 }
 
 
 
 template<const size_t Num>
-void CompPeer<Num>::generate_random_bit(string key) {
+symbol_t CompPeer<Num>::generate_random_bit(string key) {
 
   generate_random_num(key);
   const double rand = values_[key];
@@ -209,8 +238,9 @@ void CompPeer<Num>::generate_random_bit(string key) {
   gsl_poly_dd_init( d, x, y, 3 );
   double interpol = gsl_poly_dd_eval( d, x, 3, 0);
 
-  BOOST_ASSERT_MSG(interpol != 0, "pow(r, 2) != 0");
   LOG4CXX_TRACE( logger_, id_ << ": pow(r, 2)" << " = " << interpol);
+
+  BOOST_ASSERT_MSG(interpol != 0, "pow(r, 2) != 0");
 
   interpol = sqrt(interpol);
 
@@ -219,40 +249,26 @@ void CompPeer<Num>::generate_random_bit(string key) {
 
   const double bit = (rand/interpol + 1)/2;
 
-  LOG4CXX_DEBUG(logger_, id_ << ": square" << " = " << interpol);
-  LOG4CXX_INFO(logger_, id_ << ": " << key << ": random bit" << " = " << bit);
+  LOG4CXX_DEBUG(logger_, id_ << ": r" << ": " << interpol);
+  LOG4CXX_INFO(logger_, id_ << ": " << key << ": random bit" << ": " << bit);
+
+  return key;
 }
 
 
 
 template<const size_t Num>
-void CompPeer<Num>::add(
-    string first,
-    string second,
-    string recombination_key) {
-
-  int64_t result = values_[first] + values_[second];
-  result = mod(result, PRIME);
-
-  const string key = recombination_key + lexical_cast<string>(id_);
-  values_[recombination_key] = result;
-}
-
-
-
-template<const size_t Num>
-void CompPeer<Num>::continue_or_not(
+symbol_t CompPeer<Num>::continue_or_not(
     vector<string> circut,
     const string key,
     const int64_t result,
     string recombination_key) {
 
   if(circut.empty()) {
-    input_peer_->recombination_key_ = recombination_key;
-    input_peer_->publish(key, result);
+    return recombination_key;
   } else {
     circut.push_back(recombination_key);
-    execute(circut);
+    return execute(circut);
   }
 
 }
