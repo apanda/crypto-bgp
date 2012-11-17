@@ -7,7 +7,7 @@ Here is the current TODO list (ordered based on priority).
 ✔ Joint Bitwise-Sharing.
 ✔ Joint Random Number Bitwise-Sharing.
 ✔ Input Peer Least Significant Bit.
-✘ Secure Comparison.
+✔ Secure Comparison.
 ✘ Benchmarks.
 ✘ Loop Detection.
 ✘ Topology Generator.

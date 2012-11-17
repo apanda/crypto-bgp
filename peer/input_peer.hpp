@@ -46,6 +46,11 @@ public:
       const PlaintextMap& secret_map,
       CompPeerSeq& comp_peers);
 
+  template<class PlaintextMap, class CompPeerSeq>
+  static void distribute_lsb(
+      const PlaintextMap& secret_map,
+      CompPeerSeq& comp_peers);
+
   plaintext_map_t plaintext_map_;
 };
 

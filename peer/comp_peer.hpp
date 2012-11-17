@@ -30,17 +30,16 @@ public:
   symbol_t execute(vector<string> circut);
 
   symbol_t add(string first, string second, string recombination_key);
+  symbol_t sub(string first, string second, string recombination_key);
   symbol_t multiply(string first, string second, string recombination_key);
+  symbol_t multiply_const(string first, int64_t second, string recombination_key);
   symbol_t recombine(string recombination_key);
 
   symbol_t generate_random_num(string key);
   symbol_t generate_random_bit(string key);
   symbol_t generate_random_bitwise_num(string key);
 
-  void compare(string key1, string key2);
-
-  void unbounded_fan_in_or();
-  void prefix_or();
+  symbol_t compare(string key1, string key2);
 
   symbol_t continue_or_not(vector<string> circut,
       const string key,

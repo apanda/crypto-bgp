@@ -54,12 +54,21 @@ symbol_t CompPeer<Num>::execute(vector<string> circut) {
   const string operation = circut.back();
   circut.pop_back();
 
-  const string recombination_key = first_operand + operation + second_operand;
+  const string recombination_key = second_operand + operation + first_operand;
 
   if (operation == "*") {
-    multiply(first_operand, second_operand, recombination_key);
+
+    try {
+      const int64_t number = lexical_cast<int>(second_operand);
+      multiply_const(first_operand, number, recombination_key);
+    } catch(boost::bad_lexical_cast& e) {
+      multiply(first_operand, second_operand, recombination_key);
+    }
+
   } else if (operation == "+") {
     add(first_operand, second_operand, recombination_key);
+  } else if (operation == "-") {
+    sub(first_operand, second_operand, recombination_key);
   } else {
     BOOST_ASSERT_MSG(false, "Operation not supported!");
   }
@@ -78,14 +87,31 @@ symbol_t CompPeer<Num>::add(
     string second,
     string recombination_key) {
 
-  int64_t result = values_[first] + values_[second];
+  int64_t result = values_[second] + values_[first];
   result = mod(result, PRIME);
-
 
   const string key = recombination_key + lexical_cast<string>(id_);
   values_[recombination_key] = result;
   return recombination_key;
 }
+
+
+
+template<const size_t Num>
+symbol_t CompPeer<Num>::sub(
+    string first,
+    string second,
+    string recombination_key) {
+
+  int64_t result = values_[second] - values_[first];
+  result = mod(result, PRIME);
+
+  const string key = recombination_key + lexical_cast<string>(id_);
+  values_[recombination_key] = result;
+  return recombination_key;
+}
+
+
 
 
 
@@ -120,20 +146,51 @@ symbol_t CompPeer<Num>::generate_random_num(string key) {
 
 
 template<const size_t Num>
-void CompPeer<Num>::compare(string key1, string key2) {
+symbol_t CompPeer<Num>::compare(string key1, string key2) {
 
   string w = "." + lexical_cast<string>(2) + key1;
   string x = "." + lexical_cast<string>(2) + key2;
   string y = "." + lexical_cast<string>(2) + key1 + "-" + key2;
-  string z = key1 + "<" + key2;
 
-  vector<string> c1 = {"*", "w", "x"};
-  vector<string> c2 = {"*", "w", "y"};
-  vector<string> c3 = {"*", "y", "*", "w", "x"};
-  vector<string> c4 = {"*", "y", "*", "w", "x"};
-  vector<string> c5 = {"*", "x", "y"};
+  vector<string> c1 = {"*", w, x};
+  string c1s = execute(c1);
+  LOG4CXX_INFO( logger_,  id_ << ": c1: " << c1s << ": " << values_[c1s]);
 
-  // wx + wy − 2xwy + 1 − y − x + xy
+  sleep(1);
+
+  vector<string> c2 = {"*", w, y};
+  string c2s = execute(c2);
+  LOG4CXX_INFO( logger_,  id_ << ": c2: " << c2s << ": " << values_[c2s]);
+
+  sleep(1);
+
+  vector<string> c3 = {"*", "2", "*", y, "*", w, x};
+  string c3s = execute(c3);
+  LOG4CXX_INFO( logger_,  id_ << ": c3: " << c3s << ": " << values_[c3s]);
+
+  sleep(1);
+
+  vector<string> c4 = {"*", x, y};
+  string c4s = execute(c4);
+  LOG4CXX_INFO( logger_,  id_ << ": c4: " << c4s << ": " << values_[c4s]);
+
+  sleep(1);
+
+  vector<string> final = {"+", c1s, "-", c2s, "-", c3s, "-", y, "+", x, c4s};
+
+  // wx + wy − 2xwy − y − x + xy         +1
+  string result = execute(final);
+
+  sleep(1);
+
+  LOG4CXX_INFO( logger_,  id_ << ": result: " << result << ": " << mod(values_[result], PRIME));
+
+  // wx + wy − 2xwy − y − x + xy         +1
+  result = execute(final);
+
+  input_peer_->recombination_key_ = result;
+  input_peer_->publish(result + lexical_cast<string>(id_), values_[result]);
+
 }
 
 
@@ -149,6 +206,19 @@ symbol_t CompPeer<Num>::generate_random_bitwise_num(string key) {
   }
 
   return key;
+}
+
+
+template<const size_t Num>
+symbol_t CompPeer<Num>::multiply_const(
+    string first,
+    int64_t second,
+    string recombination_key) {
+
+  const value_map_t::mapped_type result = values_[first] * second;
+  values_.insert( make_pair(recombination_key, result) );
+
+  return recombination_key;
 }
 
 
@@ -270,20 +340,6 @@ symbol_t CompPeer<Num>::continue_or_not(
     circut.push_back(recombination_key);
     return execute(circut);
   }
-
-}
-
-
-
-template<const size_t Num>
-void CompPeer<Num>::unbounded_fan_in_or() {
-
-}
-
-
-
-template<const size_t Num>
-void CompPeer<Num>::prefix_or() {
 
 }
 
