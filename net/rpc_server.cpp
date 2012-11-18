@@ -23,8 +23,15 @@ RPCServer::RPCServer(
 }
 
 
+
+RPCServer::~RPCServer() {};
+
+
+
 void RPCServer::start_accept() {
+
   Session* new_session = new Session(io_service_, peer_);
+
   acceptor_.async_accept(new_session->socket(),
       boost::bind(&RPCServer::handle_accept, this, new_session,
         boost::asio::placeholders::error));

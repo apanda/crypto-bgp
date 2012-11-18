@@ -24,7 +24,9 @@ class Poly {
 
 public:
 
-  Poly( int64_t degree, double y0);
+  Poly( int degree, double y0);
+
+  ~Poly();
 
   void init(double y0);
 
@@ -43,11 +45,11 @@ private:
   /*
    * A random polynomial used in the secret sharing scheme.
    */
-  scoped_ptr<gsl_vector> poly_;
+  gsl_vector* poly_;
   /*
    * A degree of the above polynomial.
    */
-   int64_t degree_;
+   int degree_;
   /*
    * The point where the polynomial intersect the x-axis.
    */

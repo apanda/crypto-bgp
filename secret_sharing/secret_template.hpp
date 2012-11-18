@@ -28,7 +28,7 @@ Secret<SecretT, NumParties>::share() {
 
   boost::array<SecretT, NumParties> shares;
 
-  for(auto i = 0; i < NumParties; i++) {
+  for(size_t i = 0; i < NumParties; i++) {
     shares[i] = poly_.eval(i + 1);
   }
 

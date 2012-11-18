@@ -5,8 +5,8 @@ LoggerPtr Peer::logger_(Logger::getLogger("all.peer"));
 
 
 Peer::Peer(const short port) :
-    counter_(0),
     server_(new RPCServer(io_service_, port, this)),
+    counter_(0),
     lock_(cond_mutex_)
 {
 
@@ -20,6 +20,8 @@ Peer::Peer(const short port) :
 Peer::~Peer() {
   io_service_.stop();
   tg_.interrupt_all();
+
+  delete server_;
 }
 
 

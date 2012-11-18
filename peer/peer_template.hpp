@@ -21,7 +21,7 @@ void Peer::distribute_shares(
     const symbol_t key, const Values values, const int64_t secret,
     PeerSeq comp_peers) {
 
-  for(int64_t i = 0; i < COMP_PEER_NUM; i++) {
+  for(size_t i = 0; i < COMP_PEER_NUM; i++) {
     const auto share = values[i];
     LOG4CXX_TRACE( logger_, "Share (" << secret << ") " << i + 1 << ": " << share);
     comp_peers[i]->publish(key, share);

@@ -23,11 +23,7 @@ CompPeer_factory::generate(shared_ptr<InputPeer> input_peer) {
   }
 
   for(shared_ptr<comp_peer_t>& cp: comp_peer_seq) {
-    //cp->local_peers_ = comp_peer_seq;
-  }
-
-  for(shared_ptr<comp_peer_t>& cp: comp_peer_seq) {
-    for(auto i = 0; i < Num; i++) {
+    for(size_t i = 0; i < Num; i++) {
       cp->net_peers_[i] = shared_ptr<RPCClient>(
           new RPCClient(cp->io_service_, "localhost", i + 1 + 10000));
     }

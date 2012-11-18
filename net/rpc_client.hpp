@@ -16,13 +16,14 @@ public:
   void publish(string key, int64_t value);
 
   void handle_write(
+      char* data,
       const boost::system::error_code& error,
       size_t bytes_transferred);
 
 
   tcp::socket socket_;
   tcp::resolver resolver_;
-  enum { length_ = 128 };
+  enum { length_ = 256 + 8 };
 
   static log4cxx::LoggerPtr logger_;
 };

@@ -24,7 +24,7 @@ void InputPeer::result() {
 
   print_values();
 
-  for(auto i = 0; i < Num; i++) {
+  for(size_t i = 0; i < Num; i++) {
     std::string key = recombination_key_  + boost::lexical_cast<std::string>(i + 1);
     const auto value = values_[key];
     intermediary_[i + 1] = value;

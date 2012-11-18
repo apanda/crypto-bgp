@@ -14,8 +14,7 @@ void Session::start()  {
   char* data = new char[length_];
 
   boost::asio::async_read(socket_, boost::asio::buffer(data, length_),
-      boost::bind(&Session::handle_read, this,
-          data,
+      boost::bind(&Session::handle_read, this, data,
           boost::asio::placeholders::error,
           boost::asio::placeholders::bytes_transferred));
 }
@@ -29,7 +28,6 @@ void Session::handle_read(
 
    if (!error) {
 
-     char* key = data ;
      int64_t value;
 
      memcpy(
@@ -38,16 +36,17 @@ void Session::handle_read(
          sizeof(int64_t));
 
 
-     LOG4CXX_TRACE(peer_->logger_, "Received value: " << key << ": " << value);
-     peer_->publish(key, value);
-
-     boost::asio::async_read(socket_, boost::asio::buffer(data, length_),
-         boost::bind(&Session::handle_read, this,
-             data,
-             boost::asio::placeholders::error,
-             boost::asio::placeholders::bytes_transferred));
+     LOG4CXX_TRACE(peer_->logger_, "Received value: " << data << ": " << value);
+     peer_->publish(data, value);
    }
 
+   //delete data;
+   //char* new_data = new char[length_];
+
+   boost::asio::async_read(socket_, boost::asio::buffer(data, length_),
+       boost::bind(&Session::handle_read, this, data,
+           boost::asio::placeholders::error,
+           boost::asio::placeholders::bytes_transferred));
 }
 
 

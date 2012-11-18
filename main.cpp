@@ -20,6 +20,7 @@ int main() {
 
   using std::chrono::duration_cast;
   using std::chrono::microseconds;
+  using std::chrono::milliseconds;
 
   log4cxx::BasicConfigurator::configure();
   log4cxx::PatternLayoutPtr patternLayout = new log4cxx::PatternLayout();
@@ -65,25 +66,20 @@ int main() {
   const auto t1 = clock_t::now();
 
   for (auto& cp : comp_peer_seq) {
-    io.post(bind(&comp_peer_t::evaluate, cp.get(), "B", "C" ));
+    io.post(bind(&comp_peer_t::evaluate, cp.get(), "C", "B" ));
     //io.post(bind(&comp_peer_t::generate_random_bit, cp.get(), "R" ));
     //io.post(bind(&comp_peer_t::generate_random_bitwise_num, cp.get(), "BR" ));
-  }
-
-  for (auto& cp : comp_peer_seq) {
     //io.post(bind(&comp_peer_t::evaluate, cp.get(), circut));
+
   }
 
   result_thread.join();
 
   const auto t2 = clock_t::now();
-  const auto duration = duration_cast<microseconds>(t2 - t1).count();
+  const auto duration = duration_cast<milliseconds>(t2 - t1).count();
 
   LOG4CXX_INFO(mainLogger, "The execution took " << duration << " microseconds.")
 
-
   io.stop();
-
-  worker_threads.interrupt_all();
-  result_thread.interrupt();
+  worker_threads.join_all();
 }

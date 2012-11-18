@@ -24,6 +24,8 @@ class CompPeer : public Peer {
 public:
 
   CompPeer(size_t id, shared_ptr<InputPeer> input_peer);
+  ~CompPeer();
+
 
   void evaluate(vector<string> circut);
   void evaluate(string a, string b);
@@ -59,7 +61,7 @@ public:
   netPeersImpl net_peers_;
   shared_ptr<InputPeer> input_peer_;
 
-  shared_ptr<const gsl_vector> recombination_vercor_;
+  gsl_vector* recombination_vercor_;
   array<double, Num> recombination_array_;
 };
 

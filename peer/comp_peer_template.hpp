@@ -21,7 +21,7 @@ CompPeer<Num>::CompPeer(size_t id, shared_ptr<InputPeer> input_peer) :
 
   recombination_array_ = (list_of(3), -3, 1);
   _gsl_vector_view view = gsl_vector_view_array(recombination_array_.begin(), Num);
-  shared_ptr<gsl_vector> tmp_vector( gsl_vector_alloc(Num) );
+  gsl_vector* tmp_vector( gsl_vector_alloc(Num) );
   *tmp_vector = view.vector;
 
   recombination_vercor_ = tmp_vector;
@@ -30,9 +30,16 @@ CompPeer<Num>::CompPeer(size_t id, shared_ptr<InputPeer> input_peer) :
 
 
 template<const size_t Num>
+CompPeer<Num>::~CompPeer() {
+  gsl_vector_free(recombination_vercor_);
+}
+
+
+
+template<const size_t Num>
 void CompPeer<Num>::evaluate(string a, string b) {
 
-  string comp = compare(a, b);
+  const string comp = compare(a, b);
 
 }
 
@@ -156,43 +163,51 @@ symbol_t CompPeer<Num>::generate_random_num(string key) {
 template<const size_t Num>
 symbol_t CompPeer<Num>::compare(string key1, string key2) {
 
-  string w = "." + lexical_cast<string>(2) + key1;
-  string x = "." + lexical_cast<string>(2) + key2;
-  string y = "." + lexical_cast<string>(2) + key1 + "-" + key2;
+  string result;
 
-  LOG4CXX_TRACE( logger_, id_ << ": w: " << values_[w]);
-  LOG4CXX_TRACE( logger_, id_ << ": x: " << values_[x]);
-  LOG4CXX_TRACE( logger_, id_ << ": y: " << values_[y]);
+  for(auto i = 0; i < 1000; i ++) {
 
-  vector<string> wx_cricut = {"*", w, x};
-  const string wx = execute(wx_cricut);
-  LOG4CXX_TRACE( logger_,  id_ << ": wx: " << wx << ": " << values_[wx]);
+    string w = "." + lexical_cast<string>(2) + key1;
+    string x = "." + lexical_cast<string>(2) + key2;
+    string y = "." + lexical_cast<string>(2) + key1 + "-" + key2;
 
-  vector<string> wy_cricut = {"*", w, y};
-  const string wy = execute(wy_cricut);
-  LOG4CXX_TRACE( logger_,  id_ << ": wy: " << wy << ": " << values_[wy]);
+    LOG4CXX_TRACE( logger_, id_ << ": w: " << values_[w]);
+    LOG4CXX_TRACE( logger_, id_ << ": x: " << values_[x]);
+    LOG4CXX_TRACE( logger_, id_ << ": y: " << values_[y]);
 
-  vector<string> wxy2_cricut = {"*", "2", "*", y, "*", w, x};
-  const string wxy2 = execute(wxy2_cricut);
-  LOG4CXX_TRACE( logger_,  id_ << ": 2wxy: " << wxy2 << ": " << values_[wxy2]);
+    vector<string> wx_cricut = {"*", w, x};
+    const string wx = execute(wx_cricut);
+    LOG4CXX_TRACE( logger_,  id_ << ": wx: " << wx << ": " << values_[wx]);
 
-  vector<string> xy_cricut = {"*", x, y};
-  const string xy = execute(xy_cricut);
-  LOG4CXX_TRACE( logger_,  id_ << ": xy: " << xy << ": " << values_[xy]);
+    vector<string> wy_cricut = {"*", w, y};
+    const string wy = execute(wy_cricut);
+    LOG4CXX_TRACE( logger_,  id_ << ": wy: " << wy << ": " << values_[wy]);
 
-  vector<string> final = {
-     "+", xy, "-", x, "-", y, "-", wxy2, "+", wy, wx
-  };
+    vector<string> wxy2_cricut = {"*", "2", "*", y, "*", w, x};
+    const string wxy2 = execute(wxy2_cricut);
+    LOG4CXX_TRACE( logger_,  id_ << ": 2wxy: " << wxy2 << ": " << values_[wxy2]);
 
-  const string result = execute(final);
+    vector<string> xy_cricut = {"*", x, y};
+    const string xy = execute(xy_cricut);
+    LOG4CXX_TRACE( logger_,  id_ << ": xy: " << xy << ": " << values_[xy]);
+
+    vector<string> final = {
+       "+", xy, "-", x, "-", y, "-", wxy2, "+", wy, wx
+    };
+
+    result = execute(final);
+  }
+
+  auto value = values_[result] + 1;
+  value = mod(value, PRIME);
 
   LOG4CXX_INFO(logger_,  id_ << ": result: " << ": " << mod(values_[result] + 1, PRIME));
 
   input_peer_->recombination_key_ = result;
-  input_peer_->publish(result + lexical_cast<string>(id_), values_[result]);
+  input_peer_->publish(result + lexical_cast<string>(id_), value);
 
+  return result;
 }
-
 
 
 
@@ -215,7 +230,7 @@ symbol_t CompPeer<Num>::multiply_const(
     int64_t second,
     string recombination_key) {
 
-  const value_map_t::mapped_type result = values_[first] * second;
+  const auto result = values_[first] * second;
   values_.insert( make_pair(recombination_key, result) );
 
   return recombination_key;
@@ -229,13 +244,13 @@ symbol_t CompPeer<Num>::multiply(
     string second,
     string recombination_key) {
 
-  stringstream debug_stream;
+  //stringstream debug_stream;
 
   const string key = recombination_key + "_" + boost::lexical_cast<string>(id_);
   const int64_t result = values_[first] * values_[second];
-  debug_stream << values_[first] << " " << values_[second] << ": " << result;
+  //debug_stream << values_[first] << " " << values_[second] << ": " << result;
 
-  LOG4CXX_DEBUG(logger_,id_ << ": multiply: " << debug_stream.str());
+  //LOG4CXX_DEBUG(logger_,id_ << ": multiply: " << debug_stream.str());
 
   barrier_mutex_.lock();
 
@@ -251,24 +266,25 @@ symbol_t CompPeer<Num>::multiply(
 template<const size_t Num>
 symbol_t CompPeer<Num>::recombine(string recombination_key) {
 
-  shared_ptr<gsl_vector> ds( gsl_vector_alloc(3) );
+  gsl_vector* ds = gsl_vector_alloc(3);
 
   std::stringstream debug_stream;
   for(size_t i = 0; i < Num; i++) {
     const string key = recombination_key + "_" + lexical_cast<string>(i + 1);
     const int64_t value = values_[key];
 
-    gsl_vector_set(ds.get(), i,  value);
+    gsl_vector_set(ds, i,  value);
     debug_stream <<  " " << value;
   }
 
-  shared_ptr<const gsl_vector> ds_const = ds;
   double recombine;
 
-  gsl_blas_ddot(ds_const.get(), recombination_vercor_.get(), &recombine);
+  gsl_blas_ddot(ds, recombination_vercor_, &recombine);
   values_[recombination_key] = recombine;
   debug_stream << ": " << recombine;
   LOG4CXX_DEBUG(logger_, id_ << ": recombine:" << debug_stream.str());
+
+  gsl_vector_free(ds);
 
   return recombination_key;
 }

@@ -44,7 +44,7 @@ void RPCClient::publish(string key,  int64_t value) {
   LOG4CXX_TRACE(logger_, "Sending value: " << key << ": " << value);
 
   boost::asio::async_write(socket_, boost::asio::buffer(data, length_),
-      boost::bind(&RPCClient::handle_write, this,
+      boost::bind(&RPCClient::handle_write, this, data,
           boost::asio::placeholders::error,
           boost::asio::placeholders::bytes_transferred));
 }
@@ -52,6 +52,10 @@ void RPCClient::publish(string key,  int64_t value) {
 
 
 void RPCClient::handle_write(
+      char* data,
       const boost::system::error_code& error,
       size_t bytes_transferred) {
+
+  delete data;
+
 }

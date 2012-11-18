@@ -25,6 +25,8 @@ public:
       const uint16_t port,
       Peer* peer);
 
+  ~RPCServer();
+
 private:
 
   void start_accept();
