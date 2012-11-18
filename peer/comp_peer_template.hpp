@@ -30,6 +30,14 @@ CompPeer<Num>::CompPeer(size_t id, shared_ptr<InputPeer> input_peer) :
 
 
 template<const size_t Num>
+void CompPeer<Num>::evaluate(string a, string b) {
+
+  string comp = compare(a, b);
+
+}
+
+
+template<const size_t Num>
 void CompPeer<Num>::evaluate(vector<string> circut) {
 
   const symbol_t recombination_key = execute(circut);
@@ -54,7 +62,7 @@ symbol_t CompPeer<Num>::execute(vector<string> circut) {
   const string operation = circut.back();
   circut.pop_back();
 
-  const string recombination_key = second_operand + operation + first_operand;
+  const string recombination_key = first_operand + operation + second_operand;
 
   if (operation == "*") {
 
@@ -103,7 +111,7 @@ symbol_t CompPeer<Num>::sub(
     string second,
     string recombination_key) {
 
-  int64_t result = values_[second] - values_[first];
+  int64_t result = values_[first] - values_[second];
   result = mod(result, PRIME);
 
   const string key = recombination_key + lexical_cast<string>(id_);
@@ -152,41 +160,33 @@ symbol_t CompPeer<Num>::compare(string key1, string key2) {
   string x = "." + lexical_cast<string>(2) + key2;
   string y = "." + lexical_cast<string>(2) + key1 + "-" + key2;
 
-  vector<string> c1 = {"*", w, x};
-  string c1s = execute(c1);
-  LOG4CXX_INFO( logger_,  id_ << ": c1: " << c1s << ": " << values_[c1s]);
+  LOG4CXX_TRACE( logger_, id_ << ": w: " << values_[w]);
+  LOG4CXX_TRACE( logger_, id_ << ": x: " << values_[x]);
+  LOG4CXX_TRACE( logger_, id_ << ": y: " << values_[y]);
 
-  sleep(1);
+  vector<string> wx_cricut = {"*", w, x};
+  const string wx = execute(wx_cricut);
+  LOG4CXX_TRACE( logger_,  id_ << ": wx: " << wx << ": " << values_[wx]);
 
-  vector<string> c2 = {"*", w, y};
-  string c2s = execute(c2);
-  LOG4CXX_INFO( logger_,  id_ << ": c2: " << c2s << ": " << values_[c2s]);
+  vector<string> wy_cricut = {"*", w, y};
+  const string wy = execute(wy_cricut);
+  LOG4CXX_TRACE( logger_,  id_ << ": wy: " << wy << ": " << values_[wy]);
 
-  sleep(1);
+  vector<string> wxy2_cricut = {"*", "2", "*", y, "*", w, x};
+  const string wxy2 = execute(wxy2_cricut);
+  LOG4CXX_TRACE( logger_,  id_ << ": 2wxy: " << wxy2 << ": " << values_[wxy2]);
 
-  vector<string> c3 = {"*", "2", "*", y, "*", w, x};
-  string c3s = execute(c3);
-  LOG4CXX_INFO( logger_,  id_ << ": c3: " << c3s << ": " << values_[c3s]);
+  vector<string> xy_cricut = {"*", x, y};
+  const string xy = execute(xy_cricut);
+  LOG4CXX_TRACE( logger_,  id_ << ": xy: " << xy << ": " << values_[xy]);
 
-  sleep(1);
+  vector<string> final = {
+     "+", xy, "-", x, "-", y, "-", wxy2, "+", wy, wx
+  };
 
-  vector<string> c4 = {"*", x, y};
-  string c4s = execute(c4);
-  LOG4CXX_INFO( logger_,  id_ << ": c4: " << c4s << ": " << values_[c4s]);
+  const string result = execute(final);
 
-  sleep(1);
-
-  vector<string> final = {"+", c1s, "-", c2s, "-", c3s, "-", y, "+", x, c4s};
-
-  // wx + wy − 2xwy − y − x + xy         +1
-  string result = execute(final);
-
-  sleep(1);
-
-  LOG4CXX_INFO( logger_,  id_ << ": result: " << result << ": " << mod(values_[result], PRIME));
-
-  // wx + wy − 2xwy − y − x + xy         +1
-  result = execute(final);
+  LOG4CXX_INFO(logger_,  id_ << ": result: " << ": " << mod(values_[result] + 1, PRIME));
 
   input_peer_->recombination_key_ = result;
   input_peer_->publish(result + lexical_cast<string>(id_), values_[result]);

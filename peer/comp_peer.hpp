@@ -26,6 +26,7 @@ public:
   CompPeer(size_t id, shared_ptr<InputPeer> input_peer);
 
   void evaluate(vector<string> circut);
+  void evaluate(string a, string b);
 
   symbol_t execute(vector<string> circut);
 

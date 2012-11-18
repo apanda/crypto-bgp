@@ -16,7 +16,7 @@ LoggerPtr mainLogger(Logger::getLogger("all"));
 
 int main() {
 
-  mainLogger->setLevel(log4cxx::Level::getDebug());
+  mainLogger->setLevel(log4cxx::Level::getInfo());
 
   using std::chrono::duration_cast;
   using std::chrono::microseconds;
@@ -53,11 +53,9 @@ int main() {
     //InputPeer::lsb(pair.first, pair.second, comp_peer_seq);
   }
 
-
-  //InputPeer::bitwise_share("C", 1212, comp_peer_seq);
-
   InputPeer::distribute_lsb(input_peer->plaintext_map_, comp_peer_seq);
   InputPeer::distribute_secrets(input_peer->plaintext_map_, comp_peer_seq);
+
   vector<string> circut = {"*", "C","*", "C", "+", "2", "A"};
 
   for (auto& cp : comp_peer_seq) {
@@ -67,7 +65,7 @@ int main() {
   const auto t1 = clock_t::now();
 
   for (auto& cp : comp_peer_seq) {
-    io.post(bind(&comp_peer_t::compare, cp.get(), "B", "C" ));
+    io.post(bind(&comp_peer_t::evaluate, cp.get(), "B", "C" ));
     //io.post(bind(&comp_peer_t::generate_random_bit, cp.get(), "R" ));
     //io.post(bind(&comp_peer_t::generate_random_bitwise_num, cp.get(), "BR" ));
   }
@@ -75,9 +73,6 @@ int main() {
   for (auto& cp : comp_peer_seq) {
     //io.post(bind(&comp_peer_t::evaluate, cp.get(), circut));
   }
-
-
-  sleep(2);
 
   result_thread.join();
 

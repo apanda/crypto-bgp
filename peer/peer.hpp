@@ -45,7 +45,7 @@ public:
   io_service io_service_;
   RPCServer* server_;
 
-  std::atomic<int> counter_;
+  int counter_;
   tbb::mutex barrier_mutex_;
 
   tbb::mutex __mutex;
