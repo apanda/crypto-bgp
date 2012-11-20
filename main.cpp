@@ -76,7 +76,7 @@ int main() {
   result_thread.join();
 
   const auto t2 = clock_t::now();
-  const auto duration = duration_cast<milliseconds>(t2 - t1).count();
+  const auto duration = duration_cast<microseconds>(t2 - t1).count();
 
   LOG4CXX_INFO(mainLogger, "The execution took " << duration << " microseconds.")
 

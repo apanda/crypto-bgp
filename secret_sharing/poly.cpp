@@ -17,9 +17,7 @@ Poly::Poly(int degree, double y0) :
 
 
 Poly::~Poly() {
-
   gsl_vector_free(poly_);
-
 }
 
 
