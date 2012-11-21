@@ -10,8 +10,11 @@ def generate_graph(path):
     degree = int(random.gammavariate(alpha = 3.0, beta = 2.0))
     z.append(degree)
 
+  print(z)
+
   G = networkx.configuration_model( z )
-  AG = networkx.to_agraph(G)
+  G = networkx.Graph(G)
+  G.remove_edges_from(G.selfloop_edges())
 
   for node in G.nodes(data = True):
     node[1]['node_id'] = node[0]

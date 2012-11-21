@@ -3,9 +3,9 @@
 #include <boost/graph/graphviz.hpp>
 
 #include <iostream>
+#include <vector>
 
-#include "vertex.hpp"
-#include "edge.hpp"
+#include "common.hpp"
 
 using boost::adjacency_list;
 using boost::graph_traits;
@@ -17,20 +17,11 @@ using boost::property;
 using boost::dynamic_properties;
 using boost::vertex_name_t;
 
+using boost::adjacent_vertices;
+
 using boost::get;
 
 int main() {
-
- typedef adjacency_list<
-      boost::vecS,
-      boost::vecS,
-      boost::undirectedS,
-      Vertex,
-      Edge
-      > graph_t;
-
-  typedef graph_traits<graph_t>::vertex_descriptor vertex_t;
-  typedef graph_traits<graph_t>::edge_descriptor edge_t;
 
   graph_t graph;
   dynamic_properties dp;
@@ -39,19 +30,26 @@ int main() {
   dp.property("type", get(&Vertex::type_, graph));
   dp.property("key", get(&Edge::key_, graph));
 
-  std::istringstream
-    gvgraph("graph G { 0 [node_id=0, type=99]; 1 [node_id=1, type=99] }");
-
   std::ifstream file("../scripts/dot.dot");
 
   bool status = read_graphviz(file ,graph,dp,"node_id");
 
   for (auto vp = vertices(graph); vp.first != vp.second; ++vp.first) {
     const auto& vertex = (*vp.first);
-    const Vertex& property = graph[vertex];
+    Vertex& property = graph[vertex];
 
-    std::cout << "ID: " << property.id_ << std::endl;
-    std::cout << "Type: " << property.type_ << std::endl;
+    const auto range = adjacent_vertices(vertex, graph);
+    property.neigh_ = std::vector<vertex_t>(range.first, range.second);
+    property.set_preference();
+
+    std::cout << "-----------------------------------\n";
+    std::cout << "ID: \t\t" << property.id_ << std::endl;
+    std::cout << "Type: \t\t" << property.type_ << std::endl;
+    for(auto pair: property.preference_) {
+      std::cout << "Neigh: " << pair.first << " ";
+      std::cout << "Preference: " << pair.second << std::endl;;
+    }
+    std::cout << "-----------------------------------\n";
   }
 
   return 0;
