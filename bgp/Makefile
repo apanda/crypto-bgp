@@ -1,2 +1,2 @@
 all:
-	g++ -std=c++11 *.cpp  -lboost_graph
+	g++ -g -std=c++11 *.cpp  -lboost_graph

@@ -3,18 +3,31 @@
 
 #include "common.hpp"
 
-#include <unordered_map>
+#include <limits>
+#include <queue>
+#include <set>
+
+using std::set;
+using std::queue;
+
+static vertex_t UNDEFINED  = 9999999;
 
 class Vertex {
 public:
+
+  friend std::ostream& operator<<(std::ostream& os, const Vertex& vertex);
+
   Vertex();
   void set_preference();
 
-  int id_;
-  int type_;
+  vertex_t id_;
 
-  std::vector<vertex_t> neigh_;
-  std::unordered_map<vertex_t, size_t> preference_;
+  vertex_t next_hop_;
+  queue<vertex_t> as_path_;
+  set<vertex_t> as_path_set_;
+
+  vector<vertex_t> neigh_;
+  unordered_map<vertex_t, size_t> preference_;
 };
 
 #endif /* VERTEX_HPP_ */

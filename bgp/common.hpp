@@ -7,11 +7,20 @@
 
 #include <iostream>
 #include <vector>
+#include <string>
+#include <set>
+#include <unordered_map>
 
 
 
 using boost::adjacency_list;
 using boost::graph_traits;
+
+using std::string;
+using std::vector;
+using std::unordered_map;
+using std::ostream;
+using std::set;
 
 class Vertex;
 class Edge;

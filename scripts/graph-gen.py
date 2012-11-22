@@ -18,7 +18,6 @@ def generate_graph(path):
 
   for node in G.nodes(data = True):
     node[1]['node_id'] = node[0]
-    node[1]['type'] = 99
 
   networkx.draw( G )
   networkx.write_dot(G, path)
