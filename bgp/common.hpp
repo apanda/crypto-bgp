@@ -22,6 +22,19 @@ using std::unordered_map;
 using std::ostream;
 using std::set;
 
+using boost::adjacency_list;
+using boost::graph_traits;
+using boost::add_vertex;
+using boost::add_edge;
+
+using boost::property;
+using boost::dynamic_properties;
+using boost::vertex_name_t;
+
+using boost::adjacent_vertices;
+
+using boost::get;
+
 class Vertex;
 class Edge;
 

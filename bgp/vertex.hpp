@@ -17,6 +17,7 @@ public:
 
   Vertex();
   void set_preference();
+  void set_neighbors(graph_t& graph);
   void set_next_hop(graph_t& graph, vertex_t vertex);
   bool in_as_path(graph_t& graph, vertex_t vertex);
   size_t current_next_hop_preference(graph_t graph);

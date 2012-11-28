@@ -6,6 +6,17 @@ const vertex_t Vertex::UNDEFINED  = 9999999;
 Vertex::Vertex() :
 id_(0), next_hop_(UNDEFINED) {}
 
+
+
+void Vertex::set_neighbors(graph_t& graph) {
+
+  const auto range = adjacent_vertices(id_, graph);
+  neigh_ = vector<vertex_t>(range.first, range.second);
+
+}
+
+
+
 void Vertex::set_preference() {
 
   size_t preference = 1;
