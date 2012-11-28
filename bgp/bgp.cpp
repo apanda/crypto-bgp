@@ -71,6 +71,40 @@ void print_state(
 
 
 
+void process_neighbors(
+    const vertex_t affected_vertex,
+    graph_t& graph,
+    set<vertex_t>& changed_set,
+    set<vertex_t>& new_changed_set) {
+
+  Vertex& affected = graph[affected_vertex];
+  auto neighbors = adjacent_vertices(affected_vertex, graph);
+
+  for(; neighbors.first != neighbors.second; ++neighbors.first) {
+    const vertex_t& neigh_vertex = *(neighbors.first);
+    std::cout << "\tNeighbor: " << neigh_vertex << std::endl;
+
+    if(changed_set.find(neigh_vertex) != changed_set.end()) {
+      Vertex& neigh = graph[neigh_vertex];
+
+      const auto current_preference = affected.current_next_hop_preference(graph);
+      const auto offered_preference = affected.preference_[neigh_vertex];
+      std::cout << "\tCurrent preference: " << current_preference << std::endl;
+      std::cout << "\tOffered preference: " << offered_preference << std::endl;
+
+      if ( offered_preference <= current_preference ) continue;
+      if ( neigh.in_as_path(graph, affected_vertex) ) continue;
+
+      affected.set_next_hop(graph, neigh_vertex);
+      new_changed_set.insert(affected_vertex);
+    }
+
+  }
+
+}
+
+
+
 void next_iteration(
     graph_t& graph,
     set<vertex_t>& affected_set,
@@ -83,38 +117,14 @@ void next_iteration(
 
   for(const vertex_t affected_vertex: affected_set) {
     std::cout << "Current vertex: " << affected_vertex << std::endl;
-
     if(affected_vertex == 0) continue;
-    Vertex& affected = graph[affected_vertex];
-
-    auto neighbors = adjacent_vertices(affected_vertex, graph);
-
-    for(; neighbors.first != neighbors.second; ++neighbors.first) {
-      const vertex_t& neigh_vertex = *(neighbors.first);
-      std::cout << "\tNeighbor: " << neigh_vertex << std::endl;
-
-      if(changed_set.find(neigh_vertex) != changed_set.end()) {
-        Vertex& neigh = graph[neigh_vertex];
-
-        const auto current_preference = affected.current_next_hop_preference(graph);
-        const auto offered_preference = affected.preference_[neigh_vertex];
-        std::cout << "\tCurrent preference: " << current_preference << std::endl;
-        std::cout << "\tOffered preference: " << offered_preference << std::endl;
-
-        if ( offered_preference <= current_preference ) continue;
-        if ( neigh.in_as_path(graph, affected_vertex) ) continue;
-
-        affected.set_next_hop(graph, neigh_vertex);
-
-        neighbors = adjacent_vertices(affected_vertex, graph);
-        new_changed_set.insert(affected_vertex);
-        new_affected_set.insert(neighbors.first, neighbors.second);
-      }
-
-    }
-
+    process_neighbors(affected_vertex, graph, changed_set, new_changed_set);
   }
 
+  for(const vertex_t vertex: new_changed_set) {
+    auto neighbors = adjacent_vertices(vertex, graph);
+    new_affected_set.insert(neighbors.first, neighbors.second);
+  }
 
   if( !new_changed_set.empty() ) {
     print_state(graph, new_affected_set, new_changed_set);

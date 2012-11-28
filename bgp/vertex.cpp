@@ -24,6 +24,7 @@ size_t Vertex::current_next_hop_preference(graph_t graph) {
 }
 
 
+
 bool Vertex::in_as_path(graph_t& graph, vertex_t vertex) {
 
   return (as_path_set_.find(vertex) != as_path_set_.end());
