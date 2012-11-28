@@ -1,5 +1,5 @@
-#ifndef COMMON_HPP_
-#define COMMON_HPP_
+#ifndef BGP_COMMON_HPP_
+#define BGP_COMMON_HPP_
 
 #include <boost/graph/graph_traits.hpp>
 #include <boost/graph/adjacency_list.hpp>

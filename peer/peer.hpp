@@ -4,6 +4,7 @@
 #include <common.hpp>
 #include <net/rpc_client.hpp>
 #include <net/rpc_server.hpp>
+#include <bgp/bgp.hpp>
 
 #include <atomic>
 #include <unordered_map>
@@ -11,10 +12,10 @@
 #include <boost/thread/mutex.hpp>
 #include <boost/thread/recursive_mutex.hpp>
 #include <boost/thread/condition.hpp>
+#include <boost/thread/locks.hpp>
 
 #include <tbb/concurrent_unordered_map.h>
 #include <tbb/mutex.h>
-#include <boost/thread/locks.hpp>
 
 typedef  int64_t plaintext_t;
 typedef string symbol_t;
@@ -49,11 +50,6 @@ public:
   tbb::mutex barrier_mutex_;
 
   tbb::mutex __mutex;
-
-  boost::mutex cond_mutex_;
-  boost::unique_lock<boost::mutex> lock_;
-  boost::condition_variable cv_;
-
   std::string recombination_key_;
 
   inter_map_t intermediary_;
@@ -62,6 +58,7 @@ public:
   boost::thread_group tg_;
 
   static log4cxx::LoggerPtr logger_;
+  BGPProcess bgp_;
 };
 
 #include "peer_template.hpp"

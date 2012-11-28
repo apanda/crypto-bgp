@@ -1,20 +1,8 @@
 #include <bgp/bgp.hpp>
 
 
-int main() {
-
-  graph_t graph;
-  BGPProcess bgp;
-
-  bgp.load_graph("../scripts/dot.dot", graph);
-
-  bgp.init(graph);
-  bgp.start(graph);
-
-  bgp.print_state(graph);
-
-  return 0;
-
+BGPProcess::BGPProcess(string path) {
+  load_graph(path, graph_);
 }
 
 
@@ -130,7 +118,7 @@ void BGPProcess::load_graph(string path, graph_t& graph) {
   dp.property("node_id", get(&Vertex::id_, graph));
   dp.property("key", get(&Edge::key_, graph));
 
-  bool status = read_graphviz(file ,graph, dp,"node_id");
+  read_graphviz(file ,graph, dp,"node_id");
 }
 
 
@@ -158,12 +146,13 @@ void BGPProcess::print_state(
   for(auto a: affected_set) {
     std::cout << a << " ";
   }
+
   std::cout << std::endl;;
 
   std::cout << "Affected: ";
   for(auto a: changed_set) {
     std::cout << a << " ";
   }
-  std::cout << std::endl;;
 
+  std::cout << std::endl;
 }

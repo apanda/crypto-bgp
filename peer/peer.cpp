@@ -7,7 +7,7 @@ LoggerPtr Peer::logger_(Logger::getLogger("all.peer"));
 Peer::Peer(const short port) :
     server_(new RPCServer(io_service_, port, this)),
     counter_(0),
-    lock_(cond_mutex_)
+    bgp_("scripts/dot.dot")
 {
 
   barrier_mutex_.lock();

@@ -8,6 +8,8 @@
 #ifndef BGP_HPP_
 #define BGP_HPP_
 
+#include <bgp/common.hpp>
+
 #include <boost/graph/graph_traits.hpp>
 #include <boost/graph/adjacency_list.hpp>
 #include <boost/graph/graphviz.hpp>
@@ -15,12 +17,13 @@
 #include <iostream>
 #include <vector>
 
-#include <bgp/common.hpp>
 
 
 
 class BGPProcess {
 public:
+
+  BGPProcess(string path);
 
   void load_graph(std::string path, graph_t& graph);
   void init(graph_t& graph);
@@ -45,6 +48,8 @@ public:
 
 
   void print_state(graph_t& graph);
+
+  graph_t graph_;
 };
 
 #endif /* BGP_HPP_ */
