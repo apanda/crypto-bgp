@@ -49,65 +49,66 @@ void init(graph_t& graph) {
 
 
 
+
+void print_state(
+    graph_t& graph,
+    set<vertex_t>& affected_set,
+    set<vertex_t>& changed_set) {
+
+  std::cout << "Changed: ";
+  for(auto a: affected_set) {
+    std::cout << a << " ";
+  }
+  std::cout << std::endl;;
+
+  std::cout << "Affected: ";
+  for(auto a: changed_set) {
+    std::cout << a << " ";
+  }
+  std::cout << std::endl;;
+
+}
+
+
+
 void next_iteration(
     graph_t& graph,
-    set<vertex_t>& affected,
-    set<vertex_t>& changed) {
+    set<vertex_t>& affected_set,
+    set<vertex_t>& changed_set) {
 
   std::cout << "Next itteration..." << std::endl;
 
-  set<vertex_t> new_affected;
-  set<vertex_t> new_changed;
+  set<vertex_t> new_affected_set;
+  set<vertex_t> new_changed_set;
 
-  for(const vertex_t current: affected) {
-    //std::cout << "Current vertex: " << current << std::endl;
+  for(const vertex_t affected_vertex: affected_set) {
+    std::cout << "Current vertex: " << affected_vertex << std::endl;
 
-    if(current == 0) continue;
-    Vertex& a = graph[current];
+    if(affected_vertex == 0) continue;
+    Vertex& affected = graph[affected_vertex];
 
-    auto neighbors = adjacent_vertices(current, graph);
+    auto neighbors = adjacent_vertices(affected_vertex, graph);
 
     for(; neighbors.first != neighbors.second; ++neighbors.first) {
-      const vertex_t& neigh = *(neighbors.first);
-      //std::cout << "\tNeighbor: " << neigh << std::endl;
+      const vertex_t& neigh_vertex = *(neighbors.first);
+      std::cout << "\tNeighbor: " << neigh_vertex << std::endl;
 
-      if(changed.find(neigh) != changed.end()) {
-        Vertex& v = graph[neigh];
+      if(changed_set.find(neigh_vertex) != changed_set.end()) {
+        Vertex& neigh = graph[neigh_vertex];
 
-        if(a.next_hop_ != UNDEFINED) {
+        const auto current_preference = affected.current_next_hop_preference(graph);
+        const auto offered_preference = affected.preference_[neigh_vertex];
+        std::cout << "\tCurrent preference: " << current_preference << std::endl;
+        std::cout << "\tOffered preference: " << offered_preference << std::endl;
 
-          if(a.preference_[neigh] > a.preference_[graph[a.next_hop_].id_]) {
-            a.next_hop_ = neigh;
+        if ( offered_preference <= current_preference ) continue;
+        if ( neigh.in_as_path(graph, affected_vertex) ) continue;
 
-            a.as_path_ = v.as_path_;
-            a.as_path_.push(neigh);
+        affected.set_next_hop(graph, neigh_vertex);
 
-            a.as_path_set_ = v.as_path_set_;
-            a.as_path_set_.insert(neigh);
-
-            neighbors = adjacent_vertices(current, graph);
-            new_changed.insert(current);
-            new_affected.insert(neighbors.first, neighbors.second);
-          }
-
-        } else {
-
-          if(v.as_path_set_.find(current) == v  .as_path_set_.end()) {
-            a.next_hop_ = neigh;
-
-            a.as_path_ = v.as_path_;
-            a.as_path_.push(neigh);
-
-            a.as_path_set_ = v.as_path_set_;
-            a.as_path_set_.insert(neigh);
-
-            neighbors = adjacent_vertices(current, graph);
-            new_changed.insert(current);
-            new_affected.insert(neighbors.first, neighbors.second);
-          }
-
-        }
-
+        neighbors = adjacent_vertices(affected_vertex, graph);
+        new_changed_set.insert(affected_vertex);
+        new_affected_set.insert(neighbors.first, neighbors.second);
       }
 
     }
@@ -115,22 +116,9 @@ void next_iteration(
   }
 
 
-  if( !new_changed.empty() ) {
-
-
-    std::cout << "Changed: ";
-    for(auto a: new_changed) {
-      std::cout << a << " ";
-    }
-    std::cout << std::endl;;
-
-    std::cout << "Affected: ";
-    for(auto a: new_affected) {
-      std::cout << a << " ";
-    }
-    std::cout << std::endl;;
-
-    next_iteration(graph, new_affected, new_changed);
+  if( !new_changed_set.empty() ) {
+    print_state(graph, new_affected_set, new_changed_set);
+    next_iteration(graph, new_affected_set, new_changed_set);
   }
 
 }

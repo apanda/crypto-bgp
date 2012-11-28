@@ -10,8 +10,6 @@
 using std::set;
 using std::queue;
 
-static vertex_t UNDEFINED  = 9999999;
-
 class Vertex {
 public:
 
@@ -19,6 +17,9 @@ public:
 
   Vertex();
   void set_preference();
+  void set_next_hop(graph_t& graph, vertex_t vertex);
+  bool in_as_path(graph_t& graph, vertex_t vertex);
+  size_t current_next_hop_preference(graph_t graph);
 
   vertex_t id_;
 
@@ -28,6 +29,8 @@ public:
 
   vector<vertex_t> neigh_;
   unordered_map<vertex_t, size_t> preference_;
+
+  static const vertex_t UNDEFINED;
 };
 
 #endif /* VERTEX_HPP_ */
