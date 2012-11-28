@@ -1,4 +1,4 @@
-#include "vertex.hpp"
+#include <bgp/vertex.hpp>
 
 
 const vertex_t Vertex::UNDEFINED  = 9999999;

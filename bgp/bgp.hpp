@@ -15,39 +15,36 @@
 #include <iostream>
 #include <vector>
 
-#include "common.hpp"
+#include <bgp/common.hpp>
 
 
 
+class BGPProcess {
+public:
 
-void read_graphviz(std::string path, graph_t& graph);
+  void load_graph(std::string path, graph_t& graph);
+  void init(graph_t& graph);
+  void start(graph_t& graph);
 
+  void process_neighbors(
+      const vertex_t affected_vertex,
+      graph_t& graph,
+      set<vertex_t>& changed_set,
+      set<vertex_t>& new_changed_set);
 
-void init(graph_t& graph);
+  void next_iteration(
+      vertex_t dst,
+      graph_t& graph,
+      set<vertex_t>& affected_set,
+      set<vertex_t>& changed_set);
 
-
-void start(graph_t& graph);
-
-
-void process_neighbors(
-    const vertex_t affected_vertex,
-    graph_t& graph,
-    set<vertex_t>& changed_set,
-    set<vertex_t>& new_changed_set);
-
-
-void next_iteration(
-    graph_t& graph,
-    set<vertex_t>& affected_set,
-    set<vertex_t>& changed_set);
-
-
-void print_state(
-    graph_t& graph,
-    set<vertex_t>& affected_set,
-    set<vertex_t>& changed_set);
+  void print_state(
+      graph_t& graph,
+      set<vertex_t>& affected_set,
+      set<vertex_t>& changed_set);
 
 
-void print_state(graph_t& graph);
+  void print_state(graph_t& graph);
+};
 
 #endif /* BGP_HPP_ */

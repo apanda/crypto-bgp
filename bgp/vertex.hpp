@@ -1,7 +1,7 @@
 #ifndef VERTEX_HPP_
 #define VERTEX_HPP_
 
-#include "common.hpp"
+#include <bgp/common.hpp>
 
 #include <limits>
 #include <queue>

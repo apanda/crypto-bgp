@@ -1,17 +1,17 @@
-#include "bgp.hpp"
-
+#include <bgp/bgp.hpp>
 
 
 int main() {
 
   graph_t graph;
+  BGPProcess bgp;
 
-  read_graphviz("../scripts/dot.dot", graph);
+  bgp.load_graph("../scripts/dot.dot", graph);
 
-  init(graph);
-  start(graph);
+  bgp.init(graph);
+  bgp.start(graph);
 
-  print_state(graph);
+  bgp.print_state(graph);
 
   return 0;
 
@@ -19,7 +19,7 @@ int main() {
 
 
 
-void start(graph_t& graph) {
+void BGPProcess::start(graph_t& graph) {
 
   Vertex& dst = graph[0];
 
@@ -35,13 +35,13 @@ void start(graph_t& graph) {
     affected.insert(vertex);
   }
 
-  next_iteration(graph, affected, changed);
+  next_iteration(0, graph, affected, changed);
 
 }
 
 
 
-void init(graph_t& graph) {
+void BGPProcess::init(graph_t& graph) {
 
   auto iter = vertices(graph);
   auto last = iter.second;
@@ -59,7 +59,8 @@ void init(graph_t& graph) {
 
 
 
-void next_iteration(
+void BGPProcess::next_iteration(
+    const vertex_t dst_vertex,
     graph_t& graph,
     set<vertex_t>& affected_set,
     set<vertex_t>& changed_set) {
@@ -71,7 +72,7 @@ void next_iteration(
 
   for(const vertex_t affected_vertex: affected_set) {
     std::cout << "Current vertex: " << affected_vertex << std::endl;
-    if(affected_vertex == 0) continue;
+    if(affected_vertex == dst_vertex) continue;
     process_neighbors(affected_vertex, graph, changed_set, new_changed_set);
   }
 
@@ -82,14 +83,14 @@ void next_iteration(
 
   if( !new_changed_set.empty() ) {
     print_state(graph, new_affected_set, new_changed_set);
-    next_iteration(graph, new_affected_set, new_changed_set);
+    next_iteration(dst_vertex, graph, new_affected_set, new_changed_set);
   }
 
 }
 
 
 
-void process_neighbors(
+void BGPProcess::process_neighbors(
     const vertex_t affected_vertex,
     graph_t& graph,
     set<vertex_t>& changed_set,
@@ -121,7 +122,7 @@ void process_neighbors(
 
 
 
-void read_graphviz(std::string path, graph_t& graph) {
+void BGPProcess::load_graph(string path, graph_t& graph) {
 
   dynamic_properties dp;
   std::ifstream file(path);
@@ -134,7 +135,7 @@ void read_graphviz(std::string path, graph_t& graph) {
 
 
 
-void print_state(graph_t& graph) {
+void BGPProcess::print_state(graph_t& graph) {
   auto iter = vertices(graph);
   auto last = iter.second;
   auto current = iter.first;
@@ -148,7 +149,7 @@ void print_state(graph_t& graph) {
 
 
 
-void print_state(
+void BGPProcess::print_state(
     graph_t& graph,
     set<vertex_t>& affected_set,
     set<vertex_t>& changed_set) {
