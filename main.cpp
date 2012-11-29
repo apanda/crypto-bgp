@@ -29,6 +29,9 @@ void run_test2() {
   array<shared_ptr<comp_peer_t>, COMP_PEER_NUM> comp_peer_seq;
   shared_ptr<InputPeer> input_peer(new InputPeer());
 
+  CompPeer_factory factory;
+  comp_peer_seq = factory.generate<COMP_PEER_NUM>(input_peer);
+
   input_peer->disseminate_bgp(comp_peer_seq);
 
 }

@@ -1,7 +1,11 @@
 #include <bgp/bgp.hpp>
+#include <peer/comp_peer.hpp>
 
 
-BGPProcess::BGPProcess(string path) {
+
+
+BGPProcess::BGPProcess(string path, CompPeer<3>* comp_peer):
+    comp_peer_(comp_peer) {
   load_graph(path, graph_);
   init(graph_);
 }
@@ -108,6 +112,47 @@ void BGPProcess::process_neighbors(
     }
   }
 }
+
+
+
+
+void BGPProcess::process_neighbors_mpc(
+    const vertex_t affected_vertex,
+    graph_t& graph,
+    set<vertex_t>& changed_set,
+    set<vertex_t>& new_changed_set) {
+
+  Vertex& affected = graph[affected_vertex];
+  auto neighbors = adjacent_vertices(affected_vertex, graph);
+
+  for(; neighbors.first != neighbors.second; ++neighbors.first) {
+    const vertex_t& neigh_vertex = *(neighbors.first);
+    std::cout << "\tNeighbor: " << neigh_vertex << std::endl;
+
+    if(changed_set.find(neigh_vertex) != changed_set.end()) {
+      Vertex& neigh = graph[neigh_vertex];
+
+      comp_peer_->values_ = affected.values_;
+
+      const auto current_preference = affected.next_hop_;
+      const auto offered_preference = neigh_vertex;
+
+      comp_peer_->compare(
+          lexical_cast<string>(current_preference),
+          lexical_cast<string>(offered_preference));
+
+      if (current_preference < offered_preference) {
+        continue;
+      }
+
+      if ( neigh.in_as_path(graph, affected_vertex) ) continue;
+
+      affected.set_next_hop(graph, neigh_vertex);
+      new_changed_set.insert(affected_vertex);
+    }
+  }
+}
+
 
 
 

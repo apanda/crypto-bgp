@@ -15,11 +15,11 @@
 
 #include <gsl/gsl_blas.h>
 
+#include <bgp/bgp.hpp>
 #include <peer/peer.hpp>
 #include <peer/input_peer.hpp>
 
-
-
+class InputPeer;
 
 template<const size_t Num>
 class CompPeer : public Peer {
@@ -44,7 +44,7 @@ public:
   symbol_t generate_random_bit(string key);
   symbol_t generate_random_bitwise_num(string key);
 
-  symbol_t compare(string key1, string key2, value_map_t value_map);
+  symbol_t compare(string key1, string key2);
 
   symbol_t continue_or_not(vector<string> circut,
       const string key,
@@ -62,6 +62,7 @@ public:
 
   netPeersImpl net_peers_;
   shared_ptr<InputPeer> input_peer_;
+  shared_ptr<BGPProcess> bgp_;
 
   gsl_vector* recombination_vercor_;
   array<double, Num> recombination_array_;
@@ -69,6 +70,7 @@ public:
 
 typedef CompPeer<COMP_PEER_NUM> comp_peer_t;
 
-#include "comp_peer_template.hpp"
+
+#include <peer/comp_peer_template.hpp>
 
 #endif /* COMPPEER_HPP_ */

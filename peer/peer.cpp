@@ -1,13 +1,11 @@
 #include <peer/peer.hpp>
 
-
 LoggerPtr Peer::logger_(Logger::getLogger("all.peer"));
 
 
 Peer::Peer(const short port) :
     server_(new RPCServer(io_service_, port, this)),
-    counter_(0),
-    bgp_("scripts/dot.dot")
+    counter_(0)
 {
 
   barrier_mutex_.lock();

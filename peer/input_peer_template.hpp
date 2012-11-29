@@ -1,17 +1,18 @@
 #ifndef INPUT_PEER_TEMPLATE_HPP_
 #define INPUT_PEER_TEMPLATE_HPP_
 
-
 #include <common.hpp>
+#include <bgp/bgp.hpp>
+
+#include <bitset>
 
 #include <gsl/gsl_interp.h>
 #include <gsl/gsl_poly.h>
 
-#include <bitset>
 #include <boost/dynamic_bitset.hpp>
 
-typedef Secret<plaintext_t, COMP_PEER_NUM> secret_t;
 
+typedef Secret<plaintext_t, COMP_PEER_NUM> secret_t;
 
 
 template<size_t Num>
@@ -150,7 +151,7 @@ void InputPeer::lsb(
     int64_t value,
     CompPeerSeq& comp_peers) {
 
-  key = string(".2") + key;
+  key = ".2" + key;
   value = 2 * value;
 
   int result = mod(value, PRIME);
@@ -166,9 +167,9 @@ void InputPeer::lsb(
 template<class CompPeerSeq>
 void InputPeer::disseminate_bgp(CompPeerSeq& comp_peers) {
 
-  //array<BGPProcess, COMP_PEER_NUM> data_shares;
+  BGPProcess bgp("scripts/dot.dot", NULL);
 
-  graph_t& input_graph = bgp_.graph_;
+  graph_t& input_graph = bgp.graph_;
 
   auto iter = vertices(input_graph);
   auto last = iter.second;
@@ -188,7 +189,7 @@ void InputPeer::disseminate_bgp(CompPeerSeq& comp_peers) {
       auto shares = secret.share();
 
       for(size_t i = 0; i < COMP_PEER_NUM; i++) {
-        Vertex& tmp_vertex = comp_peers[i]->bgp_.graph_[current_vertex];
+        Vertex& tmp_vertex = comp_peers[i]->bgp_->graph_[current_vertex];
 
         string mpc_key;
         int64_t mpc_value;
@@ -197,7 +198,7 @@ void InputPeer::disseminate_bgp(CompPeerSeq& comp_peers) {
         mpc_value = shares[i];
         tmp_vertex.values_[mpc_key] = mpc_value;
 
-        mpc_key = string(".2") + lexical_cast<string>(key);
+        mpc_key = ".2" + lexical_cast<string>(key);
         mpc_value = compute_lsb(2 * value);
         tmp_vertex.values_[mpc_key] = mpc_value;
 
@@ -205,8 +206,7 @@ void InputPeer::disseminate_bgp(CompPeerSeq& comp_peers) {
           const auto other_key = pair.first;
           const auto other_value = pair.second;
 
-          mpc_key = string(".2") +
-              lexical_cast<string>(key) + "-" + lexical_cast<string>(other_key);
+          mpc_key = ".2" + lexical_cast<string>(key) + "-" + lexical_cast<string>(other_key);
           mpc_value = compute_lsb(2 * (value - other_value));
           tmp_vertex.values_[mpc_key] = mpc_value;
         }
@@ -215,6 +215,7 @@ void InputPeer::disseminate_bgp(CompPeerSeq& comp_peers) {
     }
 
   }
+
 
 }
 

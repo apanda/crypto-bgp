@@ -60,6 +60,6 @@ public:
   plaintext_map_t plaintext_map_;
 };
 
-#include "input_peer_template.hpp"
+#include <peer/input_peer_template.hpp>
 
 #endif /* INPUT_PEER_HPP_ */

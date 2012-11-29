@@ -4,7 +4,6 @@
 #include <common.hpp>
 #include <net/rpc_client.hpp>
 #include <net/rpc_server.hpp>
-#include <bgp/bgp.hpp>
 
 #include <atomic>
 #include <unordered_map>
@@ -17,7 +16,7 @@
 #include <tbb/concurrent_unordered_map.h>
 #include <tbb/mutex.h>
 
-typedef  int64_t plaintext_t;
+typedef int64_t plaintext_t;
 typedef string symbol_t;
 
 class RPCServer;
@@ -44,6 +43,7 @@ public:
   typedef tbb::concurrent_unordered_map<symbol_t, int64_t> value_map_t;
 
   io_service io_service_;
+
   RPCServer* server_;
 
   int counter_;
@@ -58,9 +58,10 @@ public:
   boost::thread_group tg_;
 
   static log4cxx::LoggerPtr logger_;
-  BGPProcess bgp_;
 };
 
-#include "peer_template.hpp"
+
+
+#include <peer/peer_template.hpp>
 
 #endif /* PEER_HPP_ */
