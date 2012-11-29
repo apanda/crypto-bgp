@@ -1,6 +1,8 @@
 #ifndef COMP_PEER_HPP_
 #define COMP_PEER_HPP_
 
+#include <common.hpp>
+
 #include <map>
 #include <deque>
 #include <atomic>
@@ -15,7 +17,7 @@
 
 #include <peer/peer.hpp>
 #include <peer/input_peer.hpp>
-#include <common.hpp>
+
 
 
 
@@ -42,7 +44,7 @@ public:
   symbol_t generate_random_bit(string key);
   symbol_t generate_random_bitwise_num(string key);
 
-  symbol_t compare(string key1, string key2);
+  symbol_t compare(string key1, string key2, value_map_t value_map);
 
   symbol_t continue_or_not(vector<string> circut,
       const string key,

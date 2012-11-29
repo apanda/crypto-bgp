@@ -28,7 +28,7 @@ void Vertex::set_preference() {
 
 
 
-size_t Vertex::current_next_hop_preference(graph_t graph) {
+int64_t Vertex::current_next_hop_preference(graph_t graph) {
 
   if (next_hop_ == UNDEFINED) return 0;
   return preference_[graph[next_hop_].id_];

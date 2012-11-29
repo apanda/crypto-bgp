@@ -1,9 +1,8 @@
-  #ifndef INPUT_PEER_TEMPLATE_HPP_
+#ifndef INPUT_PEER_TEMPLATE_HPP_
 #define INPUT_PEER_TEMPLATE_HPP_
 
 
 #include <common.hpp>
-#include <peer/input_peer.hpp>
 
 #include <gsl/gsl_interp.h>
 #include <gsl/gsl_poly.h>
@@ -154,13 +153,71 @@ void InputPeer::lsb(
   key = string(".2") + key;
   value = 2 * value;
 
-  auto result = mod(value, PRIME);
+  int result = mod(value, PRIME);
   result = result % 2;
 
   LOG4CXX_INFO(logger_, "LSB (" << key << "): " << result);
 
   distribute_secret(key, result, comp_peers);
 }
+
+
+
+template<class CompPeerSeq>
+void InputPeer::disseminate_bgp(CompPeerSeq& comp_peers) {
+
+  //array<BGPProcess, COMP_PEER_NUM> data_shares;
+
+  graph_t& input_graph = bgp_.graph_;
+
+  auto iter = vertices(input_graph);
+  auto last = iter.second;
+  auto current = iter.first;
+
+  for (; current != last; ++current) {
+    const auto& current_vertex = *current;
+    Vertex& vertex = input_graph[current_vertex];
+
+
+
+    for(const auto pair: vertex.preference_) {
+      const auto key = pair.first;
+      const auto value = pair.second;
+
+      secret_t secret(value);
+      auto shares = secret.share();
+
+      for(size_t i = 0; i < COMP_PEER_NUM; i++) {
+        Vertex& tmp_vertex = comp_peers[i]->bgp_.graph_[current_vertex];
+
+        string mpc_key;
+        int64_t mpc_value;
+
+        mpc_key = lexical_cast<string>(key);
+        mpc_value = shares[i];
+        tmp_vertex.values_[mpc_key] = mpc_value;
+
+        mpc_key = string(".2") + lexical_cast<string>(key);
+        mpc_value = compute_lsb(2 * value);
+        tmp_vertex.values_[mpc_key] = mpc_value;
+
+        for(const auto pair: vertex.preference_) {
+          const auto other_key = pair.first;
+          const auto other_value = pair.second;
+
+          mpc_key = string(".2") +
+              lexical_cast<string>(key) + "-" + lexical_cast<string>(other_key);
+          mpc_value = compute_lsb(2 * (value - other_value));
+          tmp_vertex.values_[mpc_key] = mpc_value;
+        }
+      }
+
+    }
+
+  }
+
+}
+
 
 
 #endif /* INPUT_PEER_TEMPLATE_HPP_ */

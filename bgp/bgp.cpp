@@ -3,6 +3,7 @@
 
 BGPProcess::BGPProcess(string path) {
   load_graph(path, graph_);
+  init(graph_);
 }
 
 

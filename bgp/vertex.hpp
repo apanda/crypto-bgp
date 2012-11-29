@@ -3,6 +3,8 @@
 
 #include <bgp/common.hpp>
 
+#include <tbb/concurrent_unordered_map.h>
+
 #include <limits>
 #include <queue>
 #include <set>
@@ -20,7 +22,7 @@ public:
   void set_neighbors(graph_t& graph);
   void set_next_hop(graph_t& graph, vertex_t vertex);
   bool in_as_path(graph_t& graph, vertex_t vertex);
-  size_t current_next_hop_preference(graph_t graph);
+  int64_t current_next_hop_preference(graph_t graph);
 
   vertex_t id_;
 
@@ -29,7 +31,11 @@ public:
   set<vertex_t> as_path_set_;
 
   vector<vertex_t> neigh_;
-  unordered_map<vertex_t, size_t> preference_;
+  unordered_map<vertex_t, int64_t> preference_;
+
+  typedef tbb::concurrent_unordered_map<string, int64_t> value_map_t;
+
+  value_map_t values_;
 
   static const vertex_t UNDEFINED;
 };

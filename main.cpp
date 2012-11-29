@@ -13,23 +13,35 @@
 
 LoggerPtr mainLogger(Logger::getLogger("all"));
 
+using std::chrono::duration_cast;
+using std::chrono::microseconds;
+using std::chrono::milliseconds;
 
-int main() {
 
-  mainLogger->setLevel(log4cxx::Level::getInfo());
 
-  using std::chrono::duration_cast;
-  using std::chrono::microseconds;
-  using std::chrono::milliseconds;
 
-  log4cxx::BasicConfigurator::configure();
-  log4cxx::PatternLayoutPtr patternLayout = new log4cxx::PatternLayout();
-  patternLayout->setConversionPattern("%m%n");
+
+
+void run_test2() {
 
   typedef std::chrono::high_resolution_clock clock_t;
 
   array<shared_ptr<comp_peer_t>, COMP_PEER_NUM> comp_peer_seq;
   shared_ptr<InputPeer> input_peer(new InputPeer());
+
+  input_peer->disseminate_bgp(comp_peer_seq);
+
+}
+
+
+void run_test1() {
+
+  typedef std::chrono::high_resolution_clock clock_t;
+
+  array<shared_ptr<comp_peer_t>, COMP_PEER_NUM> comp_peer_seq;
+  shared_ptr<InputPeer> input_peer(new InputPeer());
+
+  input_peer->disseminate_bgp(comp_peer_seq);
 
   input_peer->plaintext_map_ = {
       {"A", 2},
@@ -82,4 +94,17 @@ int main() {
 
   io.stop();
   worker_threads.join_all();
+
+}
+
+
+int main() {
+
+  mainLogger->setLevel(log4cxx::Level::getInfo());
+
+  log4cxx::BasicConfigurator::configure();
+  log4cxx::PatternLayoutPtr patternLayout = new log4cxx::PatternLayout();
+  patternLayout->setConversionPattern("%m%n");
+
+  run_test2();
 }

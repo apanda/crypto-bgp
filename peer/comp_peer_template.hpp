@@ -2,12 +2,12 @@
 #ifndef COMP_PEER_TEMPLATE_HPP_
 #define COMP_PEER_TEMPLATE_HPP_
 
+#include <peer/comp_peer.hpp>
 
 #include <numeric>
 #include <iostream>
 #include <sstream>
 
-#include <peer/comp_peer.hpp>
 #include <boost/thread/locks.hpp>
 #include <boost/assign.hpp>
 
@@ -39,7 +39,7 @@ CompPeer<Num>::~CompPeer() {
 template<const size_t Num>
 void CompPeer<Num>::evaluate(string a, string b) {
 
-  const string comp = compare(a, b);
+  const string comp = compare(a, b, values_);
 
 }
 
@@ -161,7 +161,7 @@ symbol_t CompPeer<Num>::generate_random_num(string key) {
 
 
 template<const size_t Num>
-symbol_t CompPeer<Num>::compare(string key1, string key2) {
+symbol_t CompPeer<Num>::compare(string key1, string key2, value_map_t value_map) {
 
   string result;
 
@@ -171,25 +171,25 @@ symbol_t CompPeer<Num>::compare(string key1, string key2) {
     string x = "." + lexical_cast<string>(2) + key2;
     string y = "." + lexical_cast<string>(2) + key1 + "-" + key2;
 
-    LOG4CXX_TRACE( logger_, id_ << ": w: " << values_[w]);
-    LOG4CXX_TRACE( logger_, id_ << ": x: " << values_[x]);
-    LOG4CXX_TRACE( logger_, id_ << ": y: " << values_[y]);
+    LOG4CXX_TRACE( logger_, id_ << ": w: " << value_map[w]);
+    LOG4CXX_TRACE( logger_, id_ << ": x: " << value_map[x]);
+    LOG4CXX_TRACE( logger_, id_ << ": y: " << value_map[y]);
 
     vector<string> wx_cricut = {"*", w, x};
     const string wx = execute(wx_cricut);
-    LOG4CXX_TRACE( logger_,  id_ << ": wx: " << wx << ": " << values_[wx]);
+    LOG4CXX_TRACE( logger_,  id_ << ": wx: " << wx << ": " << value_map[wx]);
 
     vector<string> wy_cricut = {"*", w, y};
     const string wy = execute(wy_cricut);
-    LOG4CXX_TRACE( logger_,  id_ << ": wy: " << wy << ": " << values_[wy]);
+    LOG4CXX_TRACE( logger_,  id_ << ": wy: " << wy << ": " << value_map[wy]);
 
     vector<string> wxy2_cricut = {"*", "2", "*", y, "*", w, x};
     const string wxy2 = execute(wxy2_cricut);
-    LOG4CXX_TRACE( logger_,  id_ << ": 2wxy: " << wxy2 << ": " << values_[wxy2]);
+    LOG4CXX_TRACE( logger_,  id_ << ": 2wxy: " << wxy2 << ": " << value_map[wxy2]);
 
     vector<string> xy_cricut = {"*", x, y};
     const string xy = execute(xy_cricut);
-    LOG4CXX_TRACE( logger_,  id_ << ": xy: " << xy << ": " << values_[xy]);
+    LOG4CXX_TRACE( logger_,  id_ << ": xy: " << xy << ": " << value_map[xy]);
 
     vector<string> final = {
        "+", xy, "-", x, "-", y, "-", wxy2, "+", wy, wx
@@ -198,10 +198,10 @@ symbol_t CompPeer<Num>::compare(string key1, string key2) {
     result = execute(final);
   }
 
-  auto value = values_[result] + 1;
+  auto value = value_map[result] + 1;
   value = mod(value, PRIME);
 
-  LOG4CXX_INFO(logger_,  id_ << ": result: " << ": " << mod(values_[result] + 1, PRIME));
+  LOG4CXX_INFO(logger_,  id_ << ": result: " << ": " << mod(value_map[result] + 1, PRIME));
 
   input_peer_->recombination_key_ = result;
   input_peer_->publish(result + lexical_cast<string>(id_), value);

@@ -8,6 +8,7 @@
 #ifndef BGP_HPP_
 #define BGP_HPP_
 
+
 #include <bgp/common.hpp>
 
 #include <boost/graph/graph_traits.hpp>
@@ -16,9 +17,6 @@
 
 #include <iostream>
 #include <vector>
-
-
-
 
 class BGPProcess {
 public:
@@ -50,6 +48,7 @@ public:
   void print_state(graph_t& graph);
 
   graph_t graph_;
+  //CompPeer* comp_peer_;
 };
 
 #endif /* BGP_HPP_ */

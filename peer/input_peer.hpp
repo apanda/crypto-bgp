@@ -25,6 +25,8 @@ public:
   template<size_t Num>
   void result();
 
+  int compute_lsb(int64_t value);
+
   template<class CompPeerSeq>
   static void lsb(
       string key,
@@ -41,6 +43,9 @@ public:
   static void distribute_secret(
       symbol_t key, plaintext_t value,
       CompPeerSeq& comp_peers);
+
+  template<class CompPeerSeq>
+  void disseminate_bgp(CompPeerSeq& comp_peers);
 
   template<class PlaintextMap, class CompPeerSeq>
   static void distribute_secrets(
