@@ -20,6 +20,7 @@
 #include <boost/thread.hpp>
 #include <boost/asio.hpp>
 #include <boost/phoenix/bind.hpp>
+#include <boost/function.hpp>
 
 typedef int64_t share_t;
 const size_t SHARE_SIZE = sizeof(share_t);
@@ -37,6 +38,7 @@ using std::stringstream;
 using log4cxx::Logger;
 using log4cxx::LoggerPtr;
 
+using boost::function;
 using boost::array;
 using boost::shared_ptr;
 using boost::shared_array;

@@ -58,15 +58,15 @@ void BGPProcess::next_iteration(
     set<vertex_t>& affected_set,
     set<vertex_t>& changed_set) {
 
-  std::cout << "Next itteration..." << std::endl;
+  std::cout << "Next iteration..." << std::endl;
 
   set<vertex_t> new_affected_set;
   set<vertex_t> new_changed_set;
 
   for(const vertex_t affected_vertex: affected_set) {
-    std::cout << "Current vertex: " << affected_vertex << std::endl;
+    //std::cout << "Current vertex: " << affected_vertex << std::endl;
     if(affected_vertex == dst_vertex) continue;
-    process_neighbors(affected_vertex, graph, changed_set, new_changed_set);
+    process_neighbors_mpc(affected_vertex, graph, changed_set, new_changed_set);
   }
 
   for(const vertex_t vertex: new_changed_set) {
@@ -75,7 +75,7 @@ void BGPProcess::next_iteration(
   }
 
   if( !new_changed_set.empty() ) {
-    print_state(graph, new_affected_set, new_changed_set);
+    //print_state(graph, new_affected_set, new_changed_set);
     next_iteration(dst_vertex, graph, new_affected_set, new_changed_set);
   }
 
@@ -94,15 +94,15 @@ void BGPProcess::process_neighbors(
 
   for(; neighbors.first != neighbors.second; ++neighbors.first) {
     const vertex_t& neigh_vertex = *(neighbors.first);
-    std::cout << "\tNeighbor: " << neigh_vertex << std::endl;
+    //std::cout << "\tNeighbor: " << neigh_vertex << std::endl;
 
     if(changed_set.find(neigh_vertex) != changed_set.end()) {
       Vertex& neigh = graph[neigh_vertex];
 
       const auto current_preference = affected.current_next_hop_preference(graph);
       const auto offered_preference = affected.preference_[neigh_vertex];
-      std::cout << "\tCurrent preference: " << current_preference << std::endl;
-      std::cout << "\tOffered preference: " << offered_preference << std::endl;
+      //std::cout << "\tCurrent preference: " << current_preference << std::endl;
+      //std::cout << "\tOffered preference: " << offered_preference << std::endl;
 
       if ( offered_preference <= current_preference ) continue;
       if ( neigh.in_as_path(graph, affected_vertex) ) continue;
@@ -127,7 +127,7 @@ void BGPProcess::process_neighbors_mpc(
 
   for(; neighbors.first != neighbors.second; ++neighbors.first) {
     const vertex_t& neigh_vertex = *(neighbors.first);
-    std::cout << "\tNeighbor: " << neigh_vertex << std::endl;
+    //std::cout << "\tNeighbor: " << neigh_vertex << std::endl;
 
     if(changed_set.find(neigh_vertex) != changed_set.end()) {
       Vertex& neigh = graph[neigh_vertex];

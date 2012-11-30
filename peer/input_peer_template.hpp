@@ -141,8 +141,8 @@ void InputPeer::bitwise_share(string key, int64_t value, CompPeerSeq& comp_peers
     auto shares = secret.share();
     distribute_shares(symbol, shares, bit, comp_peers);
   }
-
 }
+
 
 
 template<class CompPeerSeq>
@@ -178,8 +178,6 @@ void InputPeer::disseminate_bgp(CompPeerSeq& comp_peers) {
   for (; current != last; ++current) {
     const auto& current_vertex = *current;
     Vertex& vertex = input_graph[current_vertex];
-
-
 
     for(const auto pair: vertex.preference_) {
       const auto key = pair.first;

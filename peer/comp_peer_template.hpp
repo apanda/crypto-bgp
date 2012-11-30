@@ -93,7 +93,9 @@ symbol_t CompPeer<Num>::execute(vector<string> circut) {
   const int64_t result = values_[recombination_key];
   const string key = recombination_key + boost::lexical_cast<string>(id_);
 
-  return continue_or_not(circut, key, result, recombination_key);
+  std::string final = continue_or_not(circut, key, result, recombination_key);
+  std::cout << final.size() << std::endl;
+  return final;
 }
 
 
@@ -167,7 +169,7 @@ symbol_t CompPeer<Num>::compare(string key1, string key2) {
 
   string result;
 
-  for(auto i = 0; i < 1000; i ++) {
+  for(auto i = 0; i < 1; i ++) {
 
     string w = ".2" + key1;
     string x = ".2" + key2;
@@ -178,19 +180,19 @@ symbol_t CompPeer<Num>::compare(string key1, string key2) {
     LOG4CXX_TRACE( logger_, id_ << ": y: " << values_[y]);
 
     vector<string> wx_cricut = {"*", w, x};
-    const string wx = execute(wx_cricut);
+    const string wx( execute(wx_cricut) );
     LOG4CXX_TRACE( logger_,  id_ << ": wx: " << wx << ": " << values_[wx]);
 
     vector<string> wy_cricut = {"*", w, y};
-    const string wy = execute(wy_cricut);
+    const string wy( execute(wy_cricut) );
     LOG4CXX_TRACE( logger_,  id_ << ": wy: " << wy << ": " << values_[wy]);
 
     vector<string> wxy2_cricut = {"*", "2", "*", y, "*", w, x};
-    const string wxy2 = execute(wxy2_cricut);
+    const string wxy2( execute(wxy2_cricut) );
     LOG4CXX_TRACE( logger_,  id_ << ": 2wxy: " << wxy2 << ": " << values_[wxy2]);
 
     vector<string> xy_cricut = {"*", x, y};
-    const string xy = execute(xy_cricut);
+    const string xy( execute(xy_cricut) );
     LOG4CXX_TRACE( logger_,  id_ << ": xy: " << xy << ": " << values_[xy]);
 
     vector<string> final = {
@@ -226,6 +228,7 @@ symbol_t CompPeer<Num>::generate_random_bitwise_num(string key) {
 }
 
 
+
 template<const size_t Num>
 symbol_t CompPeer<Num>::multiply_const(
     string first,
@@ -246,13 +249,10 @@ symbol_t CompPeer<Num>::multiply(
     string second,
     string recombination_key) {
 
-  //stringstream debug_stream;
+  //LOG4CXX_TRACE( logger_, "CompPeer<Num>::multiply");
 
   const string key = recombination_key + "_" + boost::lexical_cast<string>(id_);
   const int64_t result = values_[first] * values_[second];
-  //debug_stream << values_[first] << " " << values_[second] << ": " << result;
-
-  //LOG4CXX_DEBUG(logger_,id_ << ": multiply: " << debug_stream.str());
 
   barrier_mutex_.lock();
 
@@ -265,9 +265,11 @@ symbol_t CompPeer<Num>::multiply(
 }
 
 
+
 template<const size_t Num>
 symbol_t CompPeer<Num>::recombine(string recombination_key) {
 
+  //LOG4CXX_TRACE( logger_, "CompPeer<Num>::recombin");
   gsl_vector* ds = gsl_vector_alloc(3);
 
   std::stringstream debug_stream;

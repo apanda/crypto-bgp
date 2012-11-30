@@ -17,9 +17,7 @@ using std::chrono::duration_cast;
 using std::chrono::microseconds;
 using std::chrono::milliseconds;
 
-
-
-
+using boost::function;
 
 
 void run_test2() {
@@ -33,6 +31,42 @@ void run_test2() {
   comp_peer_seq = factory.generate<COMP_PEER_NUM>(input_peer);
 
   input_peer->disseminate_bgp(comp_peer_seq);
+
+  boost::thread_group worker_threads;
+
+  io_service io;
+  io_service::work work(io);
+
+  worker_threads.add_thread( new boost::thread(bind(&io_service::run, &io)) );
+  worker_threads.add_thread( new boost::thread(bind(&io_service::run, &io)) );
+  worker_threads.add_thread( new boost::thread(bind(&io_service::run, &io)) );
+
+  boost::barrier* b = new boost::barrier(4);
+  typedef function<bool()> Functor;
+  Functor f = boost::bind(&boost::barrier::wait, b);
+
+  for (auto& cp : comp_peer_seq) {
+    cp->counter_ = 0;
+    cp->barrier_mutex_.unlock();
+  }
+
+
+  const auto t1 = clock_t::now();
+
+  for (auto& cp : comp_peer_seq) {
+    BGPProcess* bgp = cp->bgp_.get();
+    io.post(boost::phoenix::bind(&BGPProcess::startX, bgp, bgp->graph_, f));
+  }
+
+  b->wait();
+
+  const auto t2 = clock_t::now();
+  const auto duration = duration_cast<microseconds>(t2 - t1).count();
+  std::cout << "The execution took " << duration << " microseconds." << std::endl;
+
+
+  io.stop();
+  worker_threads.join_all();
 
 }
 
@@ -103,7 +137,7 @@ void run_test1() {
 
 int main() {
 
-  mainLogger->setLevel(log4cxx::Level::getInfo());
+  mainLogger->setLevel(log4cxx::Level::getOff());
 
   log4cxx::BasicConfigurator::configure();
   log4cxx::PatternLayoutPtr patternLayout = new log4cxx::PatternLayout();

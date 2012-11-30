@@ -34,6 +34,15 @@ public:
   void init(graph_t& graph);
   void start(graph_t& graph);
 
+
+  void startX(graph_t& graph, function<bool()> f) {
+
+    start(graph);
+    //print_state(graph);
+    f();
+
+  }
+
   void process_neighbors(
       const vertex_t affected_vertex,
       graph_t& graph,
