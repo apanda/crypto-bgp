@@ -53,7 +53,7 @@ public:
   std::string recombination_key_;
 
   inter_map_t intermediary_;
-  value_map_t values_;
+  value_map_t* values_;
 
   boost::thread_group tg_;
 

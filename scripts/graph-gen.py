@@ -1,13 +1,15 @@
+#!/usr/bin/python
+
 import random 
 import networkx
 import pylab
 
-GRAPH_SIZE = 100
+GRAPH_SIZE = 20
 
 def generate_graph(path):
   z = []
   for index in range(GRAPH_SIZE):
-    degree = int(random.gammavariate(alpha = 3.0, beta = 2.0))
+    degree = int(random.gammavariate(alpha = 4.0, beta = 2.0))
     z.append(degree)
 
   print(z)

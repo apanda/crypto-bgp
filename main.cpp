@@ -78,8 +78,6 @@ void run_test1() {
   array<shared_ptr<comp_peer_t>, COMP_PEER_NUM> comp_peer_seq;
   shared_ptr<InputPeer> input_peer(new InputPeer());
 
-  input_peer->disseminate_bgp(comp_peer_seq);
-
   input_peer->plaintext_map_ = {
       {"A", 2},
       {"B", 3},
@@ -92,6 +90,8 @@ void run_test1() {
   io_service io;
   io_service::work work(io);
 
+  worker_threads.add_thread( new boost::thread(bind(&io_service::run, &io)) );
+  worker_threads.add_thread( new boost::thread(bind(&io_service::run, &io)) );
   worker_threads.add_thread( new boost::thread(bind(&io_service::run, &io)) );
   worker_threads.add_thread( new boost::thread(bind(&io_service::run, &io)) );
   worker_threads.add_thread( new boost::thread(bind(&io_service::run, &io)) );

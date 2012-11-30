@@ -50,7 +50,7 @@ template<const size_t Num>
 void CompPeer<Num>::evaluate(vector<string> circut) {
 
   const symbol_t recombination_key = execute(circut);
-  const int64_t result = values_[recombination_key];
+  const int64_t result = (*values_)[recombination_key];
   LOG4CXX_INFO( logger_, "Return value: " << recombination_key);
 
   input_peer_->recombination_key_ = recombination_key;
@@ -90,7 +90,7 @@ symbol_t CompPeer<Num>::execute(vector<string> circut) {
     BOOST_ASSERT_MSG(false, "Operation not supported!");
   }
 
-  const int64_t result = values_[recombination_key];
+  const int64_t result = (*values_)[recombination_key];
   const string key = recombination_key + boost::lexical_cast<string>(id_);
 
   std::string final = continue_or_not(circut, key, result, recombination_key);
@@ -106,11 +106,11 @@ symbol_t CompPeer<Num>::add(
     string second,
     string recombination_key) {
 
-  int64_t result = values_[second] + values_[first];
+  int64_t result = (*values_)[second] + (*values_)[first];
   result = mod(result, PRIME);
 
   const string key = recombination_key + lexical_cast<string>(id_);
-  values_[recombination_key] = result;
+  (*values_)[recombination_key] = result;
   return recombination_key;
 }
 
@@ -122,11 +122,11 @@ symbol_t CompPeer<Num>::sub(
     string second,
     string recombination_key) {
 
-  int64_t result = values_[first] - values_[second];
+  int64_t result = (*values_)[first] - (*values_)[second];
   result = mod(result, PRIME);
 
   const string key = recombination_key + lexical_cast<string>(id_);
-  values_[recombination_key] = result;
+  (*values_)[recombination_key] = result;
   return recombination_key;
 }
 
@@ -152,13 +152,13 @@ symbol_t CompPeer<Num>::generate_random_num(string key) {
 
   int64_t sum = 0;
   for(auto i = 1; i <= Num; i++) {
-    const int64_t value = values_[key + lexical_cast<string>(i)];
+    const int64_t value = (*values_)[key + lexical_cast<string>(i)];
     sum += value;
   }
 
   LOG4CXX_DEBUG( logger_,  id_ << "Sum: " << sum);
 
-  values_[key] = sum;
+  (*values_)[key] = sum;
   return key;
 }
 
@@ -169,31 +169,31 @@ symbol_t CompPeer<Num>::compare(string key1, string key2) {
 
   string result;
 
-  for(auto i = 0; i < 1; i ++) {
+  for(auto i = 0; i < 10  ; i ++) {
 
     string w = ".2" + key1;
     string x = ".2" + key2;
     string y = ".2" + key1 + "-" + key2;
 
-    LOG4CXX_TRACE( logger_, id_ << ": w: " << values_[w]);
-    LOG4CXX_TRACE( logger_, id_ << ": x: " << values_[x]);
-    LOG4CXX_TRACE( logger_, id_ << ": y: " << values_[y]);
+    LOG4CXX_TRACE( logger_, id_ << ": w: " << (*values_)[w]);
+    LOG4CXX_TRACE( logger_, id_ << ": x: " << (*values_)[x]);
+    LOG4CXX_TRACE( logger_, id_ << ": y: " << (*values_)[y]);
 
     vector<string> wx_cricut = {"*", w, x};
     const string wx( execute(wx_cricut) );
-    LOG4CXX_TRACE( logger_,  id_ << ": wx: " << wx << ": " << values_[wx]);
+    LOG4CXX_TRACE( logger_,  id_ << ": wx: " << wx << ": " << (*values_)[wx]);
 
     vector<string> wy_cricut = {"*", w, y};
     const string wy( execute(wy_cricut) );
-    LOG4CXX_TRACE( logger_,  id_ << ": wy: " << wy << ": " << values_[wy]);
+    LOG4CXX_TRACE( logger_,  id_ << ": wy: " << wy << ": " << (*values_)[wy]);
 
     vector<string> wxy2_cricut = {"*", "2", "*", y, "*", w, x};
     const string wxy2( execute(wxy2_cricut) );
-    LOG4CXX_TRACE( logger_,  id_ << ": 2wxy: " << wxy2 << ": " << values_[wxy2]);
+    LOG4CXX_TRACE( logger_,  id_ << ": 2wxy: " << wxy2 << ": " << (*values_)[wxy2]);
 
     vector<string> xy_cricut = {"*", x, y};
     const string xy( execute(xy_cricut) );
-    LOG4CXX_TRACE( logger_,  id_ << ": xy: " << xy << ": " << values_[xy]);
+    LOG4CXX_TRACE( logger_,  id_ << ": xy: " << xy << ": " << (*values_)[xy]);
 
     vector<string> final = {
        "+", xy, "-", x, "-", y, "-", wxy2, "+", wy, wx
@@ -202,10 +202,10 @@ symbol_t CompPeer<Num>::compare(string key1, string key2) {
     result = execute(final);
   }
 
-  auto value = values_[result] + 1;
+  auto value = (*values_)[result] + 1;
   value = mod(value, PRIME);
 
-  //LOG4CXX_INFO(logger_,  id_ << ": result: " << ": " << mod(values_[result] + 1, PRIME));
+  //LOG4CXX_INFO(logger_,  id_ << ": result: " << ": " << mod((*values_)[result] + 1, PRIME));
 
   //input_peer_->recombination_key_ = result;
   //input_peer_->publish(result + lexical_cast<string>(id_), value);
@@ -235,8 +235,8 @@ symbol_t CompPeer<Num>::multiply_const(
     int64_t second,
     string recombination_key) {
 
-  const auto result = values_[first] * second;
-  values_.insert( make_pair(recombination_key, result) );
+  const auto result = (*values_)[first] * second;
+  values_->insert( make_pair(recombination_key, result) );
 
   return recombination_key;
 }
@@ -252,7 +252,7 @@ symbol_t CompPeer<Num>::multiply(
   //LOG4CXX_TRACE( logger_, "CompPeer<Num>::multiply");
 
   const string key = recombination_key + "_" + boost::lexical_cast<string>(id_);
-  const int64_t result = values_[first] * values_[second];
+  const int64_t result = (*values_)[first] * (*values_)[second];
 
   barrier_mutex_.lock();
 
@@ -275,7 +275,7 @@ symbol_t CompPeer<Num>::recombine(string recombination_key) {
   std::stringstream debug_stream;
   for(size_t i = 0; i < Num; i++) {
     const string key = recombination_key + "_" + lexical_cast<string>(i + 1);
-    const int64_t value = values_[key];
+    const int64_t value = (*values_)[key];
 
     gsl_vector_set(ds, i,  value);
     debug_stream <<  " " << value;
@@ -284,7 +284,7 @@ symbol_t CompPeer<Num>::recombine(string recombination_key) {
   double recombine;
 
   gsl_blas_ddot(ds, recombination_vercor_, &recombine);
-  values_[recombination_key] = recombine;
+  (*values_)[recombination_key] = recombine;
   debug_stream << ": " << recombine;
   LOG4CXX_DEBUG(logger_, id_ << ": recombine:" << debug_stream.str());
 
@@ -299,13 +299,13 @@ template<const size_t Num>
 symbol_t CompPeer<Num>::generate_random_bit(string key) {
 
   generate_random_num(key);
-  const double rand = values_[key];
+  const double rand = (*values_)[key];
 
   string recombination_key = key + "*" + key;
 
   multiply(key, key, recombination_key);
 
-  const auto result = values_[recombination_key];
+  const auto result = (*values_)[recombination_key];
 
   barrier_mutex_.lock();
 
@@ -322,7 +322,7 @@ symbol_t CompPeer<Num>::generate_random_bit(string key) {
   for( int64_t i = 1; i <= Num; i++) {
     const size_t index = i - 1;
     x[index] = i;
-    y[index] = values_[recombination_key + lexical_cast<string>(i)];
+    y[index] = (*values_)[recombination_key + lexical_cast<string>(i)];
   }
 
   gsl_poly_dd_init( d, x, y, 3 );

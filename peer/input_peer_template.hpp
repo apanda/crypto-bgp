@@ -26,7 +26,7 @@ void InputPeer::result() {
 
   for(size_t i = 0; i < Num; i++) {
     std::string key = recombination_key_  + boost::lexical_cast<std::string>(i + 1);
-    const auto value = values_[key];
+    const auto value = (*values_)[key];
     intermediary_[i + 1] = value;
   }
 
@@ -194,11 +194,12 @@ void InputPeer::disseminate_bgp(CompPeerSeq& comp_peers) {
 
         mpc_key = lexical_cast<string>(key);
         mpc_value = shares[i];
-        tmp_vertex.values_[mpc_key] = mpc_value;
+        value_map_t& vm = *(tmp_vertex.values_);
+        vm[mpc_key] = mpc_value;
 
         mpc_key = ".2" + lexical_cast<string>(key);
         mpc_value = compute_lsb(2 * value);
-        tmp_vertex.values_[mpc_key] = mpc_value;
+        vm[mpc_key] = mpc_value;
 
         for(const auto pair: vertex.preference_) {
           const auto other_key = pair.first;
@@ -206,7 +207,7 @@ void InputPeer::disseminate_bgp(CompPeerSeq& comp_peers) {
 
           mpc_key = ".2" + lexical_cast<string>(key) + "-" + lexical_cast<string>(other_key);
           mpc_value = compute_lsb(2 * (value - other_value));
-          tmp_vertex.values_[mpc_key] = mpc_value;
+          vm[mpc_key] = mpc_value;
         }
       }
 

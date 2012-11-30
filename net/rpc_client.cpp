@@ -22,6 +22,7 @@ RPCClient::RPCClient(io_service& io_service, string hostname,  int64_t port) :
   tcp::resolver::iterator iterator = resolver_.resolve(query);
 
   boost::asio::connect(socket_, iterator);
+  socket_.set_option(tcp::no_delay(true));
 }
 
 

@@ -35,7 +35,7 @@ public:
 
   typedef tbb::concurrent_unordered_map<string, int64_t> value_map_t;
 
-  value_map_t values_;
+  value_map_t* values_;
 
   static const vertex_t UNDEFINED;
 };

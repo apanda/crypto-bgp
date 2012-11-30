@@ -58,7 +58,7 @@ void BGPProcess::next_iteration(
     set<vertex_t>& affected_set,
     set<vertex_t>& changed_set) {
 
-  std::cout << "Next iteration..." << std::endl;
+  std::cout << "Next iteration... " << changed_set.size() << " " << affected_set.size() << std::endl;
 
   set<vertex_t> new_affected_set;
   set<vertex_t> new_changed_set;

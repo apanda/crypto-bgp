@@ -13,6 +13,8 @@ void Session::start()  {
 
   char* data = new char[length_];
 
+  socket_.set_option(tcp::no_delay(true));
+
   boost::asio::async_read(socket_, boost::asio::buffer(data, length_),
       boost::bind(&Session::handle_read, this, data,
           boost::asio::placeholders::error,

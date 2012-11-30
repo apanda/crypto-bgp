@@ -4,7 +4,8 @@
 const vertex_t Vertex::UNDEFINED  = 9999999;
 
 Vertex::Vertex() :
-id_(0), next_hop_(UNDEFINED) {}
+id_(0), next_hop_(UNDEFINED),
+values_(new value_map_t){}
 
 
 
