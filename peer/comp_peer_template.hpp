@@ -94,7 +94,7 @@ symbol_t CompPeer<Num>::execute(vector<string> circut) {
   const string key = recombination_key + boost::lexical_cast<string>(id_);
 
   std::string final = continue_or_not(circut, key, result, recombination_key);
-  std::cout << final.size() << std::endl;
+  //std::cout << final.size() << std::endl;
   return final;
 }
 
@@ -205,10 +205,10 @@ symbol_t CompPeer<Num>::compare(string key1, string key2) {
   auto value = values_[result] + 1;
   value = mod(value, PRIME);
 
-  LOG4CXX_INFO(logger_,  id_ << ": result: " << ": " << mod(values_[result] + 1, PRIME));
+  //LOG4CXX_INFO(logger_,  id_ << ": result: " << ": " << mod(values_[result] + 1, PRIME));
 
-  input_peer_->recombination_key_ = result;
-  input_peer_->publish(result + lexical_cast<string>(id_), value);
+  //input_peer_->recombination_key_ = result;
+  //input_peer_->publish(result + lexical_cast<string>(id_), value);
 
   return result;
 }

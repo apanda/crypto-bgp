@@ -137,7 +137,7 @@ void BGPProcess::process_neighbors_mpc(
       const auto current_preference = affected.next_hop_;
       const auto offered_preference = neigh_vertex;
 
-      comp_peer_->compare(
+      comp_peer_->evaluate(
           lexical_cast<string>(current_preference),
           lexical_cast<string>(offered_preference));
 
