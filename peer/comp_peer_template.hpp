@@ -164,7 +164,7 @@ symbol_t CompPeer<Num>::generate_random_num(string key) {
 
 
 template<const size_t Num>
-double CompPeer<Num>::compare(string key1, string key2) {
+int CompPeer<Num>::compare(string key1, string key2) {
 
   string w = ".2" + key1;
   string x = ".2" + key2;

@@ -122,19 +122,21 @@ void BGPProcess::process_neighbors_mpc(
 
       comp_peer_->values_ = affected.values_;
 
-      const double cmp = comp_peer_->compare(
+      const int cmp = comp_peer_->compare(
           lexical_cast<string>(next_hop),
           lexical_cast<string>(offered));
 
-      //printf("(Is, Should): (%f, %d)\n", cmp, current_preference < offered_preference);
+      printf("(Is, Should): (%d, %d)\n", cmp, current_preference >= offered_preference);
       //printf("%ld <= %ld\n", offered_preference, current_preference);
 
-      if ( offered_preference <= current_preference ) continue;
-      if ( neigh.in_as_path(graph, affected_vertex) ) continue;
+      if ( current_preference < offered_preference ) {
+        if ( neigh.in_as_path(graph, affected_vertex) ) continue;
 
-      affected.set_next_hop(graph, neigh_vertex);
-      //printf("Next hop set to: %ld\n", affected.next_hop_);
-      new_changed_set.insert(affected_vertex);
+        affected.set_next_hop(graph, neigh_vertex);
+        //printf("Next hop set to: %ld\n", affected.next_hop_);
+        new_changed_set.insert(affected_vertex);
+      }
+
     }
   }
 }
