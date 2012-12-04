@@ -9,6 +9,10 @@ Peer::Peer(const short port) :
     values_(new value_map_t)
 {
 
+  for(size_t i = 0; i < 300; i ++) {
+    lock_map_[i] = shared_ptr<tbb::mutex>(new tbb::mutex);
+  }
+
   barrier_mutex_.lock();
   tg_.add_thread( new boost::thread(bind(&io_service::run, &io_service_)) );
 }

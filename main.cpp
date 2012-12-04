@@ -117,7 +117,7 @@ void run_test1() {
   const auto t1 = clock_t::now();
 
   for (auto& cp : comp_peer_seq) {
-    io.post(bind(&comp_peer_t::evaluate, cp.get(), "C", "B" ));
+    //io.post(bind(&comp_peer_t::evaluate, cp.get(), "C", "B" ));
     //io.post(bind(&comp_peer_t::generate_random_bit, cp.get(), "R" ));
     //io.post(bind(&comp_peer_t::generate_random_bitwise_num, cp.get(), "BR" ));
     //io.post(bind(&comp_peer_t::evaluate, cp.get(), circut));

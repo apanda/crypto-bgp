@@ -25,6 +25,7 @@ void Vertex::set_preference() {
     preference_.insert(std::make_pair(neigh, preference) );
     preference++;
   }
+  preference_.insert(std::make_pair(UNDEFINED, 0) );
 }
 
 

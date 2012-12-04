@@ -47,9 +47,9 @@ void CompPeer<Num>::evaluate(string a, string b) {
 
 
 template<const size_t Num>
-void CompPeer<Num>::evaluate(vector<string> circut) {
+void CompPeer<Num>::evaluate(vector<string> circut, vertex_t l) {
 
-  const symbol_t recombination_key = execute(circut);
+  const symbol_t recombination_key = execute(circut, l);
   const int64_t result = (*values_)[recombination_key];
   LOG4CXX_INFO( logger_, "Return value: " << recombination_key);
 
@@ -60,7 +60,7 @@ void CompPeer<Num>::evaluate(vector<string> circut) {
 
 
 template<const size_t Num>
-symbol_t CompPeer<Num>::execute(vector<string> circut) {
+symbol_t CompPeer<Num>::execute(vector<string> circut, vertex_t l) {
 
   const string first_operand = circut.back();
   circut.pop_back();
@@ -77,15 +77,15 @@ symbol_t CompPeer<Num>::execute(vector<string> circut) {
 
     try {
       const int64_t number = lexical_cast<int>(second_operand);
-      multiply_const(first_operand, number, recombination_key);
+      multiply_const(first_operand, number, recombination_key, l);
     } catch(boost::bad_lexical_cast& e) {
-      multiply(first_operand, second_operand, recombination_key);
+      multiply(first_operand, second_operand, recombination_key, l);
     }
 
   } else if (operation == "+") {
-    add(first_operand, second_operand, recombination_key);
+    add(first_operand, second_operand, recombination_key, l);
   } else if (operation == "-") {
-    sub(first_operand, second_operand, recombination_key);
+    sub(first_operand, second_operand, recombination_key, l);
   } else {
     BOOST_ASSERT_MSG(false, "Operation not supported!");
   }
@@ -93,7 +93,7 @@ symbol_t CompPeer<Num>::execute(vector<string> circut) {
   const int64_t result = (*values_)[recombination_key];
   const string key = recombination_key + boost::lexical_cast<string>(id_);
 
-  std::string final = continue_or_not(circut, key, result, recombination_key);
+  std::string final = continue_or_not(circut, key, result, recombination_key, l);
   return final;
 }
 
@@ -103,7 +103,7 @@ template<const size_t Num>
 symbol_t CompPeer<Num>::add(
     string first,
     string second,
-    string recombination_key) {
+    string recombination_key, vertex_t l) {
 
   int64_t result = (*values_)[second] + (*values_)[first];
   result = mod(result, PRIME);
@@ -119,7 +119,7 @@ template<const size_t Num>
 symbol_t CompPeer<Num>::sub(
     string first,
     string second,
-    string recombination_key) {
+    string recombination_key, vertex_t l) {
 
   int64_t result = (*values_)[first] - (*values_)[second];
   result = mod(result, PRIME);
@@ -134,7 +134,7 @@ symbol_t CompPeer<Num>::sub(
 
 
 template<const size_t Num>
-symbol_t CompPeer<Num>::generate_random_num(string key) {
+symbol_t CompPeer<Num>::generate_random_num(string key, vertex_t l) {
 
   boost::random::uniform_int_distribution<> dist(-256, 256);
   const auto random = dist(rng_);
@@ -164,7 +164,7 @@ symbol_t CompPeer<Num>::generate_random_num(string key) {
 
 
 template<const size_t Num>
-int CompPeer<Num>::compare(string key1, string key2) {
+int CompPeer<Num>::compare(string key1, string key2, vertex_t l) {
 
   string w = ".2" + key1;
   string x = ".2" + key2;
@@ -175,26 +175,26 @@ int CompPeer<Num>::compare(string key1, string key2) {
   LOG4CXX_DEBUG( logger_, id_ << ": y: " << (*values_)[y]);
 
   vector<string> wx_cricut = {"*", w, x};
-  const string wx( execute(wx_cricut) );
+  const string wx( execute(wx_cricut, l) );
   LOG4CXX_DEBUG( logger_,  id_ << ": wx: " << wx << ": " << (*values_)[wx]);
 
   vector<string> wy_cricut = {"*", w, y};
-  const string wy( execute(wy_cricut) );
+  const string wy( execute(wy_cricut, l) );
   LOG4CXX_DEBUG( logger_,  id_ << ": wy: " << wy << ": " << (*values_)[wy]);
 
   vector<string> wxy2_cricut = {"*", "2", "*", y, "*", w, x};
-  const string wxy2( execute(wxy2_cricut) );
+  const string wxy2( execute(wxy2_cricut, l) );
   LOG4CXX_DEBUG( logger_,  id_ << ": 2wxy: " << wxy2 << ": " << (*values_)[wxy2]);
 
   vector<string> xy_cricut = {"*", x, y};
-  const string xy( execute(xy_cricut) );
+  const string xy( execute(xy_cricut, l) );
   LOG4CXX_DEBUG( logger_,  id_ << ": xy: " << xy << ": " << (*values_)[xy]);
 
   vector<string> final = {
      "+", xy, "-", x, "-", y, "-", wxy2, "+", wy, wx
   };
 
-  string result = execute(final);
+  string result = execute(final, l);
 
   auto value = (*values_)[result] + 1;
   value = mod(value, PRIME);
@@ -241,11 +241,11 @@ int CompPeer<Num>::compare(string key1, string key2) {
 
 
 template<const size_t Num>
-symbol_t CompPeer<Num>::generate_random_bitwise_num(string key) {
+symbol_t CompPeer<Num>::generate_random_bitwise_num(string key, vertex_t l) {
 
   for(auto i = 0; i < SHARE_BIT_SIZE; i++) {
     const string bit_key = key + "b" + lexical_cast<string>(i);
-    generate_random_bit(bit_key);
+    generate_random_bit(bit_key, l);
     counter_ = 0;
   }
 
@@ -258,7 +258,7 @@ template<const size_t Num>
 symbol_t CompPeer<Num>::multiply_const(
     string first,
     int64_t second,
-    string recombination_key) {
+    string recombination_key, vertex_t l) {
 
   const auto result = (*values_)[first] * second;
   values_->insert( make_pair(recombination_key, result) );
@@ -272,7 +272,7 @@ template<const size_t Num>
 symbol_t CompPeer<Num>::multiply(
     string first,
     string second,
-    string recombination_key) {
+    string recombination_key, vertex_t l) {
 
   //LOG4CXX_TRACE( logger_, "CompPeer<Num>::multiply");
 
@@ -286,13 +286,13 @@ symbol_t CompPeer<Num>::multiply(
   barrier_mutex_.lock();
   barrier_mutex_.unlock();
 
-  return recombine(recombination_key);
+  return recombine(recombination_key, l);
 }
 
 
 
 template<const size_t Num>
-symbol_t CompPeer<Num>::recombine(string recombination_key) {
+symbol_t CompPeer<Num>::recombine(string recombination_key, vertex_t l) {
 
   //LOG4CXX_TRACE( logger_, "CompPeer<Num>::recombin");
   gsl_vector* ds = gsl_vector_alloc(3);
@@ -321,14 +321,14 @@ symbol_t CompPeer<Num>::recombine(string recombination_key) {
 
 
 template<const size_t Num>
-symbol_t CompPeer<Num>::generate_random_bit(string key) {
+symbol_t CompPeer<Num>::generate_random_bit(string key, vertex_t l) {
 
-  generate_random_num(key);
+  generate_random_num(key, l);
   const double rand = (*values_)[key];
 
   string recombination_key = key + "*" + key;
 
-  multiply(key, key, recombination_key);
+  multiply(key, key, recombination_key, l);
 
   const auto result = (*values_)[recombination_key];
 
@@ -377,13 +377,13 @@ symbol_t CompPeer<Num>::continue_or_not(
     vector<string> circut,
     const string key,
     const int64_t result,
-    string recombination_key) {
+    string recombination_key, vertex_t l) {
 
   if(circut.empty()) {
     return recombination_key;
   } else {
     circut.push_back(recombination_key);
-    return execute(circut);
+    return execute(circut, l);
   }
 
 }

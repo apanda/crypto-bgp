@@ -74,7 +74,7 @@ void BGPProcess::next_iteration(
   set<vertex_t> new_changed_set;
 
   for(const vertex_t affected_vertex: affected_set) {
-    //std::cout << "Current vertex: " << affected_vertex << std::endl;
+    //printf("Current vertex: %ld\n", affected_vertex);
     if(affected_vertex == dst_vertex) continue;
     process_neighbors_mpc(affected_vertex, graph, changed_set, new_changed_set);
   }
@@ -117,19 +117,19 @@ void BGPProcess::process_neighbors_mpc(
       BOOST_ASSERT(offer_it != affected.preference_.end());
       const auto offered_preference = offer_it->second;
 
-      const auto next_hop = lexical_cast<string>(affected.next_hop_);
-      const auto offered = lexical_cast<string>(neigh_vertex);
+      //printf("%ld <= %ld\n", offered_preference, current_preference);
 
       comp_peer_->values_ = affected.values_;
 
+      const bool condition = offered_preference <= current_preference;
       const int cmp = comp_peer_->compare(
-          lexical_cast<string>(next_hop),
-          lexical_cast<string>(offered));
+          lexical_cast<string>(affected.next_hop_),
+          lexical_cast<string>(neigh_vertex),
+          affected_vertex);
 
-      printf("(Is, Should): (%d, %d)\n", cmp, current_preference >= offered_preference);
-      //printf("%ld <= %ld\n", offered_preference, current_preference);
+      printf("(Is, Should): (%d, %d) -- Vertex (%ld, %ld)\n", cmp, condition, affected_vertex, neigh_vertex);
 
-      if ( current_preference < offered_preference ) {
+      if ( offered_preference > current_preference ) {
         if ( neigh.in_as_path(graph, affected_vertex) ) continue;
 
         affected.set_next_hop(graph, neigh_vertex);

@@ -12,6 +12,7 @@
 #include <boost/thread/recursive_mutex.hpp>
 #include <boost/thread/condition.hpp>
 #include <boost/thread/locks.hpp>
+#include <boost/shared_ptr.hpp>
 
 #include <tbb/concurrent_unordered_map.h>
 #include <tbb/mutex.h>
@@ -43,10 +44,11 @@ public:
   typedef tbb::concurrent_unordered_map<symbol_t, int64_t> value_map_t;
 
   io_service io_service_;
-
   RPCServer* server_;
 
   int counter_;
+  std::unordered_map<int, shared_ptr<tbb::mutex> > lock_map_;
+  std::unordered_map<int, int > couter_map_;
   tbb::mutex barrier_mutex_;
 
   tbb::mutex __mutex;
