@@ -34,6 +34,15 @@ void BGPProcess::start(graph_t& graph) {
 
 
 
+void BGPProcess::start_callback(function<bool()> f) {
+
+  start(graph_);
+  f();
+
+}
+
+
+
 void BGPProcess::init(graph_t& graph) {
 
   auto iter = vertices(graph);
@@ -66,7 +75,7 @@ void BGPProcess::next_iteration(
 
   for(const vertex_t affected_vertex: affected_set) {
     //std::cout << "Current vertex: " << affected_vertex << std::endl;
-    if(affected_vertex == 0) continue;
+    if(affected_vertex == dst_vertex) continue;
     process_neighbors_mpc(affected_vertex, graph, changed_set, new_changed_set);
   }
 
@@ -81,39 +90,6 @@ void BGPProcess::next_iteration(
   }
 
 }
-
-
-
-void BGPProcess::process_neighbors(
-    const vertex_t affected_vertex,
-    graph_t& graph,
-    set<vertex_t>& changed_set,
-    set<vertex_t>& new_changed_set) {
-
-  Vertex& affected = graph[affected_vertex];
-  auto neighbors = adjacent_vertices(affected_vertex, graph);
-
-  for(; neighbors.first != neighbors.second; ++neighbors.first) {
-    const vertex_t& neigh_vertex = *(neighbors.first);
-    //std::cout << "\tNeighbor: " << neigh_vertex << std::endl;
-
-    if(changed_set.find(neigh_vertex) != changed_set.end()) {
-      Vertex& neigh = graph[neigh_vertex];
-
-      const auto current_preference = affected.current_next_hop_preference(graph);
-      const auto offered_preference = affected.preference_[neigh_vertex];
-      //std::cout << "\tCurrent preference: " << current_preference << std::endl;
-      //std::cout << "\tOffered preference: " << offered_preference << std::endl;
-
-      if ( offered_preference <= current_preference ) continue;
-      if ( neigh.in_as_path(graph, affected_vertex) ) continue;
-
-      affected.set_next_hop(graph, neigh_vertex);
-      new_changed_set.insert(affected_vertex);
-    }
-  }
-}
-
 
 
 
@@ -151,7 +127,6 @@ void BGPProcess::process_neighbors_mpc(
           lexical_cast<string>(offered));
 
       //printf("(Is, Should): (%f, %d)\n", cmp, current_preference < offered_preference);
-
       //printf("%ld <= %ld\n", offered_preference, current_preference);
 
       if ( offered_preference <= current_preference ) continue;
@@ -212,4 +187,23 @@ void BGPProcess::print_state(
   }
 
   std::cout << std::endl;
+}
+
+
+
+void BGPProcess::print_result() {
+
+  auto iter = vertices(graph_);
+  auto last = iter.second;
+  auto current = iter.first;
+
+  printf("digraph G {\n");
+
+  for (; current != last; ++current) {
+    const auto& current_vertex = *current;
+    Vertex& vertex = graph_[current_vertex];
+    printf("%ld -> %ld;\n", vertex.id_, vertex.next_hop_);
+  }
+
+  printf("}\n");
 }

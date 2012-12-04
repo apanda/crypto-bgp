@@ -32,34 +32,9 @@ public:
 
   void load_graph(std::string path, graph_t& graph);
   void init(graph_t& graph);
+
   void start(graph_t& graph);
-
-
-  void startX(function<bool()> f) {
-
-    //print_state(graph);
-    start(graph_);
-
-    f();
-
-  }
-
-  void print_result() {
-
-    auto iter = vertices(graph_);
-    auto last = iter.second;
-    auto current = iter.first;
-
-    printf("digraph G {\n");
-
-    for (; current != last; ++current) {
-      const auto& current_vertex = *current;
-      Vertex& vertex = graph_[current_vertex];
-      printf("%ld -> %ld;\n", vertex.id_, vertex.next_hop_);
-    }
-
-    printf("}\n");
-  }
+  void start_callback(function<bool()> f);
 
   void process_neighbors(
       const vertex_t affected_vertex,
@@ -84,8 +59,8 @@ public:
       set<vertex_t>& affected_set,
       set<vertex_t>& changed_set);
 
-
   void print_state(graph_t& graph);
+  void print_result();
 
   graph_t graph_;
   CompPeer<3>* comp_peer_;

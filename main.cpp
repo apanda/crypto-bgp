@@ -55,7 +55,7 @@ void run_test2() {
 
   for (auto& cp : comp_peer_seq) {
     BGPProcess* bgp = cp->bgp_.get();
-    io.post(boost::phoenix::bind(&BGPProcess::startX, bgp, f));
+    io.post(boost::phoenix::bind(&BGPProcess::start_callback, bgp, f));
   }
 
   b->wait();
