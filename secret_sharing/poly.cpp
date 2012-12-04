@@ -30,7 +30,7 @@ void Poly::set_y0(double y0) {
 void Poly::init(double y0) {
 
   set_y0(y0);
-  boost::random::uniform_int_distribution<> dist(-8, 8);
+  boost::random::uniform_int_distribution<> dist(-4, 4);
 
   for (auto i = 1; i < degree_; i++) {
 

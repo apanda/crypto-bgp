@@ -55,7 +55,7 @@ void run_test2() {
 
   for (auto& cp : comp_peer_seq) {
     BGPProcess* bgp = cp->bgp_.get();
-    io.post(boost::phoenix::bind(&BGPProcess::startX, bgp, bgp->graph_, f));
+    io.post(boost::phoenix::bind(&BGPProcess::startX, bgp, f));
   }
 
   b->wait();
@@ -64,6 +64,8 @@ void run_test2() {
   const auto duration = duration_cast<microseconds>(t2 - t1).count();
   std::cout << "The execution took " << duration << " microseconds." << std::endl;
 
+
+  comp_peer_seq[0]->bgp_->print_result();
 
   io.stop();
   worker_threads.join_all();

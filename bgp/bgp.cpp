@@ -43,6 +43,7 @@ void BGPProcess::init(graph_t& graph) {
   for (; current != last; ++current) {
     const auto& current_vertex = *current;
     Vertex& vertex = graph[current_vertex];
+    vertex.id_ = current_vertex;
 
     vertex.set_neighbors(graph);
     vertex.set_preference();
@@ -58,14 +59,14 @@ void BGPProcess::next_iteration(
     set<vertex_t>& affected_set,
     set<vertex_t>& changed_set) {
 
-  std::cout << "Next iteration... " << changed_set.size() << " " << affected_set.size() << std::endl;
+  //std::cout << "Next iteration... " << changed_set.size() << " " << affected_set.size() << std::endl;
 
   set<vertex_t> new_affected_set;
   set<vertex_t> new_changed_set;
 
   for(const vertex_t affected_vertex: affected_set) {
     //std::cout << "Current vertex: " << affected_vertex << std::endl;
-    if(affected_vertex == dst_vertex) continue;
+    if(affected_vertex == 0) continue;
     process_neighbors_mpc(affected_vertex, graph, changed_set, new_changed_set);
   }
 
@@ -126,28 +127,38 @@ void BGPProcess::process_neighbors_mpc(
   auto neighbors = adjacent_vertices(affected_vertex, graph);
 
   for(; neighbors.first != neighbors.second; ++neighbors.first) {
-    const vertex_t& neigh_vertex = *(neighbors.first);
-    //std::cout << "\tNeighbor: " << neigh_vertex << std::endl;
+    const vertex_t neigh_vertex = *(neighbors.first);
 
     if(changed_set.find(neigh_vertex) != changed_set.end()) {
+
+      //printf("Vertex: %ld -> %ld\n", affected_vertex, neigh_vertex);
+
       Vertex& neigh = graph[neigh_vertex];
+
+      const auto current_preference = affected.current_next_hop_preference(graph);
+
+      auto offer_it = affected.preference_.find(neigh_vertex);
+      BOOST_ASSERT(offer_it != affected.preference_.end());
+      const auto offered_preference = offer_it->second;
+
+      const auto next_hop = lexical_cast<string>(affected.next_hop_);
+      const auto offered = lexical_cast<string>(neigh_vertex);
 
       comp_peer_->values_ = affected.values_;
 
-      const auto current_preference = affected.next_hop_;
-      const auto offered_preference = neigh_vertex;
+      const double cmp = comp_peer_->compare(
+          lexical_cast<string>(next_hop),
+          lexical_cast<string>(offered));
 
-      comp_peer_->evaluate(
-          lexical_cast<string>(current_preference),
-          lexical_cast<string>(offered_preference));
+      //printf("(Is, Should): (%f, %d)\n", cmp, current_preference < offered_preference);
 
-      if (current_preference < offered_preference) {
-        continue;
-      }
+      //printf("%ld <= %ld\n", offered_preference, current_preference);
 
+      if ( offered_preference <= current_preference ) continue;
       if ( neigh.in_as_path(graph, affected_vertex) ) continue;
 
       affected.set_next_hop(graph, neigh_vertex);
+      //printf("Next hop set to: %ld\n", affected.next_hop_);
       new_changed_set.insert(affected_vertex);
     }
   }

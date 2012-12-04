@@ -35,9 +35,10 @@ void Peer::publish(std::string key, int64_t value) {
   //LOG4CXX_TRACE(logger_,counter_);
 
   if (done) {
-    counter_ = 0;
+
 
     barrier_mutex_.unlock();
+    counter_ = 0;
     //cv_.notify_all();
 
     LOG4CXX_TRACE(logger_, "Unlocking mutex!");

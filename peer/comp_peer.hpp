@@ -44,7 +44,7 @@ public:
   symbol_t generate_random_bit(string key);
   symbol_t generate_random_bitwise_num(string key);
 
-  symbol_t compare(string key1, string key2);
+  double compare(string key1, string key2);
 
   symbol_t continue_or_not(vector<string> circut,
       const string key,

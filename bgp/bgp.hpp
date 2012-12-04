@@ -35,12 +35,30 @@ public:
   void start(graph_t& graph);
 
 
-  void startX(graph_t& graph, function<bool()> f) {
+  void startX(function<bool()> f) {
 
-    start(graph);
     //print_state(graph);
+    start(graph_);
+
     f();
 
+  }
+
+  void print_result() {
+
+    auto iter = vertices(graph_);
+    auto last = iter.second;
+    auto current = iter.first;
+
+    printf("digraph G {\n");
+
+    for (; current != last; ++current) {
+      const auto& current_vertex = *current;
+      Vertex& vertex = graph_[current_vertex];
+      printf("%ld -> %ld;\n", vertex.id_, vertex.next_hop_);
+    }
+
+    printf("}\n");
   }
 
   void process_neighbors(
