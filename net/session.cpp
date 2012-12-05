@@ -31,15 +31,19 @@ void Session::handle_read(
    if (!error) {
 
      int64_t value;
+     vertex_t vertex;
+
+     memcpy(
+         &vertex,
+         data + (length_  - sizeof(int64_t) - sizeof(vertex_t)),
+         sizeof(vertex_t));
 
      memcpy(
          &value,
          data + (length_ - sizeof(int64_t)),
          sizeof(int64_t));
 
-
-     LOG4CXX_TRACE(peer_->logger_, "Received value: " << data << ": " << value);
-     peer_->publish(data, value);
+     peer_->publish(data, value, vertex);
    }
 
    //delete data;

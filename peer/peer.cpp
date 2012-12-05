@@ -6,12 +6,7 @@ LoggerPtr Peer::logger_(Logger::getLogger("all.peer"));
 Peer::Peer(const short port) :
     server_(new RPCServer(io_service_, port, this)),
     counter_(0),
-    values_(new value_map_t)
-{
-
-  for(size_t i = 0; i < 300; i ++) {
-    lock_map_[i] = shared_ptr<tbb::mutex>(new tbb::mutex);
-  }
+    values_(new value_map_t) {
 
   barrier_mutex_.lock();
   tg_.add_thread( new boost::thread(bind(&io_service::run, &io_service_)) );
@@ -28,24 +23,37 @@ Peer::~Peer() {
 
 
 
-void Peer::publish(std::string key, int64_t value) {
+void Peer::publish(std::string key, int64_t value, vertex_t vertex) {
+
+
+
+  value_map_t& vlm = vertex_value_map_[vertex];
+
+  //auto iter = vlm.insert(make_pair(key, value));
+  //if (!iter.second) {
+    //vlm.unsafe_erase(key);
+    vlm[key] = value;
+    //iter = vlm.insert(make_pair(key, value));
+    //BOOST_ASSERT(iter.second);
+  //}
+
+  LOG4CXX_INFO(logger_, " Received value: " << key << ": " << value << " (" << vertex << ")");
 
   tbb::mutex::scoped_lock lock(__mutex);
 
-  values_->insert(make_pair(key, value));
-  counter_++;
-  bool done = (counter_ == 3);
 
-  //LOG4CXX_TRACE(logger_,counter_);
-
-  if (done) {
+  int& count = couter_map_[vertex];
 
 
+  count++;
+  LOG4CXX_TRACE(logger_, "Counter: " << count);
+
+  if (count == 3) {
+
+    count = 0;
     barrier_mutex_.unlock();
-    counter_ = 0;
     //cv_.notify_all();
-
-    LOG4CXX_TRACE(logger_, "Unlocking mutex!");
+    //LOG4CXX_TRACE(logger_, "Unlocking mutex!");
   }
 
 }

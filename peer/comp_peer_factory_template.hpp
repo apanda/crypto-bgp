@@ -17,9 +17,10 @@ CompPeer_factory::generate(shared_ptr<InputPeer> input_peer) {
   array<shared_ptr<comp_peer_t>, Num> comp_peer_seq;
 
    int64_t id = 0;
+  boost::barrier* b = new boost::barrier(3);
   for (auto& cp : comp_peer_seq) {
     id++;
-    cp = shared_ptr<comp_peer_t>(new comp_peer_t(id, input_peer));
+    cp = shared_ptr<comp_peer_t>(new comp_peer_t(id, input_peer, b));
   }
 
   for(shared_ptr<comp_peer_t>& cp: comp_peer_seq) {

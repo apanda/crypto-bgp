@@ -2,6 +2,8 @@
 #define RPC_CLIENT_HPP_
 
 #include <common.hpp>
+#include <bgp/common.hpp>
+
 #include <net/session.hpp>
 
 #include <boost/asio.hpp>
@@ -13,7 +15,7 @@ public:
 
   RPCClient(io_service& io_service, string hostname,  int64_t port);
 
-  void publish(string key, int64_t value);
+  void publish(string key, int64_t value, vertex_t vertex);
 
   void handle_write(
       char* data,
@@ -23,7 +25,7 @@ public:
 
   tcp::socket socket_;
   tcp::resolver resolver_;
-  enum { length_ = 256 + 8 };
+  enum { length_ = 256 + 8 + 8 };
 
   static log4cxx::LoggerPtr logger_;
 };

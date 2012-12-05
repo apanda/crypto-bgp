@@ -127,7 +127,13 @@ void BGPProcess::process_neighbors_mpc(
           lexical_cast<string>(neigh_vertex),
           affected_vertex);
 
-      printf("(Is, Should): (%d, %d) -- Vertex (%ld, %ld)\n", cmp, condition, affected_vertex, neigh_vertex);
+      if (cmp != condition) {
+        printf("==================================================\n");
+        printf("(Is, Should): (%d, %d) -- Vertex (%ld, %ld)\n", cmp, condition, affected_vertex, neigh_vertex);
+        printf("==================================================\n");
+      }
+
+      //printf("(Is, Should): (%d, %d) -- Vertex (%ld, %ld)\n", cmp, condition, affected_vertex, neigh_vertex);
 
       if ( offered_preference > current_preference ) {
         if ( neigh.in_as_path(graph, affected_vertex) ) continue;

@@ -29,15 +29,15 @@ public:
 
   template<class PeerSeq>
   void distribute_secret(
-      const symbol_t key, const int64_t value,
+      const symbol_t key, const int64_t value, const vertex_t vertex,
       PeerSeq comp_peers);
 
   template<class Values, class PeerSeq>
   static void distribute_shares(
-      const symbol_t key, const Values values, const int64_t secret,
+      const symbol_t key, const Values values, const int64_t secret, const vertex_t vertex,
       PeerSeq comp_peers);
 
-  void publish(std::string key,  int64_t value);
+  void publish(std::string key,  int64_t value, vertex_t vertex);
   void print_values();
 
   typedef tbb::concurrent_unordered_map<int, int64_t> inter_map_t;
@@ -47,9 +47,11 @@ public:
   RPCServer* server_;
 
   int counter_;
-  std::unordered_map<int, shared_ptr<tbb::mutex> > lock_map_;
+
+  std::unordered_map<int, value_map_t > vertex_value_map_;
   std::unordered_map<int, int > couter_map_;
   tbb::mutex barrier_mutex_;
+
 
   tbb::mutex __mutex;
   std::string recombination_key_;

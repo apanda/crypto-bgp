@@ -101,9 +101,9 @@ void run_test1() {
   CompPeer_factory factory;
   comp_peer_seq = factory.generate<COMP_PEER_NUM>(input_peer);
 
-  for(std::pair<string, int> pair: input_peer->plaintext_map_) {
+  //for(std::pair<string, int> pair: input_peer->plaintext_map_) {
     //InputPeer::lsb(pair.first, pair.second, comp_peer_seq);
-  }
+  //}
 
   InputPeer::distribute_lsb(input_peer->plaintext_map_, comp_peer_seq);
   InputPeer::distribute_secrets(input_peer->plaintext_map_, comp_peer_seq);
@@ -116,13 +116,13 @@ void run_test1() {
 
   const auto t1 = clock_t::now();
 
-  for (auto& cp : comp_peer_seq) {
+  //for (auto& cp : comp_peer_seq) {
     //io.post(bind(&comp_peer_t::evaluate, cp.get(), "C", "B" ));
     //io.post(bind(&comp_peer_t::generate_random_bit, cp.get(), "R" ));
     //io.post(bind(&comp_peer_t::generate_random_bitwise_num, cp.get(), "BR" ));
     //io.post(bind(&comp_peer_t::evaluate, cp.get(), circut));
 
-  }
+  //}
 
   result_thread.join();
 

@@ -57,7 +57,7 @@ void InputPeer::distribute_secret(
 
   secret_t secret(value);
   auto shares = secret.share();
-  distribute_shares(key, shares, value, comp_peers);
+  distribute_shares(key, shares, value, 0, comp_peers);
 
 }
 
@@ -139,7 +139,7 @@ void InputPeer::bitwise_share(string key, int64_t value, CompPeerSeq& comp_peers
 
     secret_t secret(bit);
     auto shares = secret.share();
-    distribute_shares(symbol, shares, bit, comp_peers);
+    distribute_shares(symbol, shares, bit, 0, comp_peers);
   }
 }
 
@@ -187,14 +187,15 @@ void InputPeer::disseminate_bgp(CompPeerSeq& comp_peers) {
       auto shares = secret.share();
 
       for(size_t i = 0; i < COMP_PEER_NUM; i++) {
-        Vertex& tmp_vertex = comp_peers[i]->bgp_->graph_[current_vertex];
+        //Vertex& tmp_vertex = comp_peers[i]->bgp_->graph_[current_vertex];
 
         string mpc_key;
         int64_t mpc_value;
 
         mpc_key = lexical_cast<string>(key);
         mpc_value = shares[i];
-        value_map_t& vm = *(tmp_vertex.values_);
+        value_map_t& vm = comp_peers[i]->vertex_value_map_[current_vertex];
+        //value_map_t& vm = *(tmp_vertex.values_);
         vm[mpc_key] = mpc_value;
 
         mpc_key = ".2" + lexical_cast<string>(key);

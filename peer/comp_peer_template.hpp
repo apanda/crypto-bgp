@@ -12,11 +12,12 @@
 #include <boost/assign.hpp>
 
 template<const size_t Num>
-CompPeer<Num>::CompPeer(size_t id, shared_ptr<InputPeer> input_peer) :
+CompPeer<Num>::CompPeer(size_t id, shared_ptr<InputPeer> input_peer, boost::barrier* b) :
     Peer(id + 10000),
     id_(id),
     input_peer_(input_peer),
-    bgp_(new BGPProcess("scripts/dot.dot", this))
+    bgp_(new BGPProcess("scripts/dot.dot", this)),
+    b_(b)
     {
 
   using boost::assign::list_of;
@@ -49,18 +50,22 @@ void CompPeer<Num>::evaluate(string a, string b) {
 template<const size_t Num>
 void CompPeer<Num>::evaluate(vector<string> circut, vertex_t l) {
 
+  value_map_t& vlm = vertex_value_map_[l];
+
   const symbol_t recombination_key = execute(circut, l);
-  const int64_t result = (*values_)[recombination_key];
+  const int64_t result = vlm[recombination_key];
   LOG4CXX_INFO( logger_, "Return value: " << recombination_key);
 
   input_peer_->recombination_key_ = recombination_key;
-  input_peer_->publish(recombination_key + lexical_cast<string>(id_), result);
+  input_peer_->publish(recombination_key + lexical_cast<string>(id_), result, l);
 }
 
 
 
 template<const size_t Num>
 symbol_t CompPeer<Num>::execute(vector<string> circut, vertex_t l) {
+
+  value_map_t& vlm = vertex_value_map_[l];
 
   const string first_operand = circut.back();
   circut.pop_back();
@@ -90,7 +95,7 @@ symbol_t CompPeer<Num>::execute(vector<string> circut, vertex_t l) {
     BOOST_ASSERT_MSG(false, "Operation not supported!");
   }
 
-  const int64_t result = (*values_)[recombination_key];
+  const int64_t result = vlm[recombination_key];
   const string key = recombination_key + boost::lexical_cast<string>(id_);
 
   std::string final = continue_or_not(circut, key, result, recombination_key, l);
@@ -105,11 +110,13 @@ symbol_t CompPeer<Num>::add(
     string second,
     string recombination_key, vertex_t l) {
 
-  int64_t result = (*values_)[second] + (*values_)[first];
+  value_map_t& vlm = vertex_value_map_[l];
+
+  int64_t result = vlm[second] + vlm[first];
   result = mod(result, PRIME);
 
   const string key = recombination_key + lexical_cast<string>(id_);
-  (*values_)[recombination_key] = result;
+  vlm[recombination_key] = result;
   return recombination_key;
 }
 
@@ -121,11 +128,13 @@ symbol_t CompPeer<Num>::sub(
     string second,
     string recombination_key, vertex_t l) {
 
-  int64_t result = (*values_)[first] - (*values_)[second];
+  value_map_t& vlm = vertex_value_map_[l];
+
+  int64_t result = vlm[first] - vlm[second];
   result = mod(result, PRIME);
 
   const string key = recombination_key + lexical_cast<string>(id_);
-  (*values_)[recombination_key] = result;
+  vlm[recombination_key] = result;
   return recombination_key;
 }
 
@@ -136,6 +145,8 @@ symbol_t CompPeer<Num>::sub(
 template<const size_t Num>
 symbol_t CompPeer<Num>::generate_random_num(string key, vertex_t l) {
 
+  value_map_t& vlm = vertex_value_map_[l];
+
   boost::random::uniform_int_distribution<> dist(-256, 256);
   const auto random = dist(rng_);
 
@@ -144,20 +155,20 @@ symbol_t CompPeer<Num>::generate_random_num(string key, vertex_t l) {
 
   barrier_mutex_.lock();
 
-  distribute_secret(key + id_string, random, net_peers_);
+  distribute_secret(key + id_string, l, random, net_peers_);
 
   barrier_mutex_.lock();
   barrier_mutex_.unlock();
 
   int64_t sum = 0;
   for(auto i = 1; i <= Num; i++) {
-    const int64_t value = (*values_)[key + lexical_cast<string>(i)];
+    const int64_t value = vlm[key + lexical_cast<string>(i)];
     sum += value;
   }
 
   LOG4CXX_DEBUG( logger_,  id_ << "Sum: " << sum);
 
-  (*values_)[key] = sum;
+  vlm[key] = sum;
   return key;
 }
 
@@ -166,29 +177,41 @@ symbol_t CompPeer<Num>::generate_random_num(string key, vertex_t l) {
 template<const size_t Num>
 int CompPeer<Num>::compare(string key1, string key2, vertex_t l) {
 
+
+
+  value_map_t& vlm = vertex_value_map_[l];
+
   string w = ".2" + key1;
   string x = ".2" + key2;
   string y = ".2" + key1 + "-" + key2;
 
-  LOG4CXX_DEBUG( logger_, id_ << ": w: " << (*values_)[w]);
-  LOG4CXX_DEBUG( logger_, id_ << ": x: " << (*values_)[x]);
-  LOG4CXX_DEBUG( logger_, id_ << ": y: " << (*values_)[y]);
+  LOG4CXX_DEBUG( logger_, id_ << ": w: " << vlm[w]);
+  LOG4CXX_DEBUG( logger_, id_ << ": x: " << vlm[x]);
+  LOG4CXX_DEBUG( logger_, id_ << ": y: " << vlm[y]);
 
   vector<string> wx_cricut = {"*", w, x};
   const string wx( execute(wx_cricut, l) );
-  LOG4CXX_DEBUG( logger_,  id_ << ": wx: " << wx << ": " << (*values_)[wx]);
+  LOG4CXX_DEBUG( logger_,  id_ << ": wx: " << wx << ": " << vlm[wx]);
+
+  b_->wait();
 
   vector<string> wy_cricut = {"*", w, y};
   const string wy( execute(wy_cricut, l) );
-  LOG4CXX_DEBUG( logger_,  id_ << ": wy: " << wy << ": " << (*values_)[wy]);
+  LOG4CXX_DEBUG( logger_,  id_ << ": wy: " << wy << ": " << vlm[wy]);
+
+  b_->wait();
 
   vector<string> wxy2_cricut = {"*", "2", "*", y, "*", w, x};
   const string wxy2( execute(wxy2_cricut, l) );
-  LOG4CXX_DEBUG( logger_,  id_ << ": 2wxy: " << wxy2 << ": " << (*values_)[wxy2]);
+  LOG4CXX_DEBUG( logger_,  id_ << ": 2wxy: " << wxy2 << ": " << vlm[wxy2]);
+
+  b_->wait();
 
   vector<string> xy_cricut = {"*", x, y};
   const string xy( execute(xy_cricut, l) );
-  LOG4CXX_DEBUG( logger_,  id_ << ": xy: " << xy << ": " << (*values_)[xy]);
+  LOG4CXX_DEBUG( logger_,  id_ << ": xy: " << xy << ": " << vlm[xy]);
+
+  b_->wait();
 
   vector<string> final = {
      "+", xy, "-", x, "-", y, "-", wxy2, "+", wy, wx
@@ -196,7 +219,9 @@ int CompPeer<Num>::compare(string key1, string key2, vertex_t l) {
 
   string result = execute(final, l);
 
-  auto value = (*values_)[result] + 1;
+  b_->wait();
+
+  auto value = vlm[result] + 1;
   value = mod(value, PRIME);
 
   //printf("%lu: result: %ld\n", id_, value);
@@ -204,11 +229,13 @@ int CompPeer<Num>::compare(string key1, string key2, vertex_t l) {
   barrier_mutex_.lock();
 
   for(size_t i = 0; i < COMP_PEER_NUM; i++) {
-    net_peers_[i]->publish(result + lexical_cast<string>(id_), value);
+    net_peers_[i]->publish(result + lexical_cast<string>(id_), value, l);
   }
 
   barrier_mutex_.lock();
   barrier_mutex_.unlock();
+
+  b_->wait();
 
   double X[Num], Y[Num], D[Num];
 
@@ -216,7 +243,7 @@ int CompPeer<Num>::compare(string key1, string key2, vertex_t l) {
 
   for(size_t i = 0; i < Num; i++) {
     std::string key = result  + boost::lexical_cast<std::string>(i + 1);
-    const auto value = (*values_)[key];
+    const auto value = vlm[key];
     intermediary_[i + 1] = value;
   }
 
@@ -233,9 +260,6 @@ int CompPeer<Num>::compare(string key1, string key2, vertex_t l) {
   const double interpol = gsl_poly_dd_eval( D, X, 3, 0);
 
   return mod(interpol, PRIME);
-
-
-  //return 0;
 }
 
 
@@ -260,8 +284,11 @@ symbol_t CompPeer<Num>::multiply_const(
     int64_t second,
     string recombination_key, vertex_t l) {
 
-  const auto result = (*values_)[first] * second;
-  values_->insert( make_pair(recombination_key, result) );
+  value_map_t& vlm = vertex_value_map_[l];
+
+  vlm.at(first);
+  const auto result = vlm[first] * second;
+  vlm.insert( make_pair(recombination_key, result) );
 
   return recombination_key;
 }
@@ -274,14 +301,18 @@ symbol_t CompPeer<Num>::multiply(
     string second,
     string recombination_key, vertex_t l) {
 
-  //LOG4CXX_TRACE( logger_, "CompPeer<Num>::multiply");
+  LOG4CXX_TRACE( logger_, "CompPeer<Num>::multiply -> " << l);
+  value_map_t& vlm = vertex_value_map_[l];
+
+  vlm.at(first);
+  vlm.at(second);
 
   const string key = recombination_key + "_" + boost::lexical_cast<string>(id_);
-  const int64_t result = (*values_)[first] * (*values_)[second];
+  const int64_t result = vlm[first] * vlm[second];
 
   barrier_mutex_.lock();
 
-  distribute_secret(key, result, net_peers_);
+  distribute_secret(key, result, l, net_peers_);
 
   barrier_mutex_.lock();
   barrier_mutex_.unlock();
@@ -294,13 +325,32 @@ symbol_t CompPeer<Num>::multiply(
 template<const size_t Num>
 symbol_t CompPeer<Num>::recombine(string recombination_key, vertex_t l) {
 
-  //LOG4CXX_TRACE( logger_, "CompPeer<Num>::recombin");
+  vertex_value_map_.at(l);
+  value_map_t& vlm = vertex_value_map_[l];
+
   gsl_vector* ds = gsl_vector_alloc(3);
+
+  LOG4CXX_TRACE( logger_, "CompPeer<Num>::recombine -> " << l);
 
   std::stringstream debug_stream;
   for(size_t i = 0; i < Num; i++) {
     const string key = recombination_key + "_" + lexical_cast<string>(i + 1);
-    const int64_t value = (*values_)[key];
+
+    try {
+      vlm.at(key);
+    } catch (...) {
+      string error = "recombine: " +  key;
+
+      for(auto val: vlm) {
+        printf("\t%s: %ld\n", val.first.c_str(), val.second);
+      }
+
+      throw std::runtime_error(error);
+
+
+    }
+
+    const int64_t value = vlm[key];
 
     gsl_vector_set(ds, i,  value);
     debug_stream <<  " " << value;
@@ -309,7 +359,8 @@ symbol_t CompPeer<Num>::recombine(string recombination_key, vertex_t l) {
   double recombine;
 
   gsl_blas_ddot(ds, recombination_vercor_, &recombine);
-  (*values_)[recombination_key] = recombine;
+
+  vlm.insert(make_pair(recombination_key, recombine));
   debug_stream << ": " << recombine;
   LOG4CXX_TRACE(logger_, id_ << ": recombine:" << debug_stream.str());
 
@@ -323,19 +374,21 @@ symbol_t CompPeer<Num>::recombine(string recombination_key, vertex_t l) {
 template<const size_t Num>
 symbol_t CompPeer<Num>::generate_random_bit(string key, vertex_t l) {
 
+  value_map_t& vlm = vertex_value_map_[l];
+
   generate_random_num(key, l);
-  const double rand = (*values_)[key];
+  const double rand = vlm[key];
 
   string recombination_key = key + "*" + key;
 
   multiply(key, key, recombination_key, l);
 
-  const auto result = (*values_)[recombination_key];
+  const auto result = vlm[recombination_key];
 
   barrier_mutex_.lock();
 
   for( int64_t i = 0; i < COMP_PEER_NUM; i++) {
-    net_peers_[i]->publish(recombination_key + lexical_cast<string>(id_), result);
+    net_peers_[i]->publish(recombination_key + lexical_cast<string>(id_), result), l;
   }
 
   //cv_.wait(lock_);
@@ -347,7 +400,7 @@ symbol_t CompPeer<Num>::generate_random_bit(string key, vertex_t l) {
   for( int64_t i = 1; i <= Num; i++) {
     const size_t index = i - 1;
     x[index] = i;
-    y[index] = (*values_)[recombination_key + lexical_cast<string>(i)];
+    y[index] = vlm[recombination_key + lexical_cast<string>(i)];
   }
 
   gsl_poly_dd_init( d, x, y, 3 );

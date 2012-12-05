@@ -8,7 +8,7 @@
 #include <net/rpc_client.hpp>
 
 
-LoggerPtr RPCClient::logger_(Logger::getLogger("RPC Client"));
+LoggerPtr RPCClient::logger_(Logger::getLogger("all.peer.client"));
 
 
 RPCClient::RPCClient(io_service& io_service, string hostname,  int64_t port) :
@@ -27,14 +27,19 @@ RPCClient::RPCClient(io_service& io_service, string hostname,  int64_t port) :
 
 
 
-void RPCClient::publish(string key,  int64_t value) {
+void RPCClient::publish(string key,  int64_t value, vertex_t vertex) {
 
   char* data = new char[length_];
 
-  memcpy(
+  BOOST_ASSERT(key.length() < (length_ - sizeof(vertex_t) - sizeof(int64_t)));
+  strcpy(
       data,
-      key.c_str(),
-      length_ - sizeof(int64_t));
+      key.c_str());
+
+  memcpy(
+      data + (length_ - sizeof(vertex_t) - sizeof(int64_t)),
+      &vertex,
+      sizeof(vertex_t));
 
   memcpy(
       data + (length_ - sizeof(int64_t)),
@@ -42,7 +47,7 @@ void RPCClient::publish(string key,  int64_t value) {
       sizeof(int64_t));
 
 
-  LOG4CXX_TRACE(logger_, "Sending value: " << key << ": " << value);
+  LOG4CXX_TRACE(logger_, "Sending value: " << key << ": " << value << " (" << vertex << ")");
 
   boost::asio::async_write(socket_, boost::asio::buffer(data, length_),
       boost::bind(&RPCClient::handle_write, this, data,
