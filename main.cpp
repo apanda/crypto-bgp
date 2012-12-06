@@ -47,7 +47,6 @@ void run_test2() {
 
   for (auto& cp : comp_peer_seq) {
     cp->counter_ = 0;
-    cp->barrier_mutex_.unlock();
   }
 
 

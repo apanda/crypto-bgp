@@ -8,7 +8,10 @@ Peer::Peer(const short port) :
     counter_(0),
     values_(new value_map_t) {
 
-  barrier_mutex_.lock();
+  for(int i = 0; i < 500; i++) {
+    mutex_map_[i] = shared_ptr<mutex_t>(new mutex_t);
+  }
+
   tg_.add_thread( new boost::thread(bind(&io_service::run, &io_service_)) );
 }
 
@@ -25,34 +28,22 @@ Peer::~Peer() {
 
 void Peer::publish(std::string key, int64_t value, vertex_t vertex) {
 
-
-
   value_map_t& vlm = vertex_value_map_[vertex];
-
-  //auto iter = vlm.insert(make_pair(key, value));
-  //if (!iter.second) {
-    //vlm.unsafe_erase(key);
-    vlm[key] = value;
-    //iter = vlm.insert(make_pair(key, value));
-    //BOOST_ASSERT(iter.second);
-  //}
+  vlm[key] = value;
 
   LOG4CXX_INFO(logger_, " Received value: " << key << ": " << value << " (" << vertex << ")");
 
   tbb::mutex::scoped_lock lock(__mutex);
 
-
   int& count = couter_map_[vertex];
-
 
   count++;
   LOG4CXX_TRACE(logger_, "Counter: " << count);
 
-  if (count == 3) {
+  if (count == COMP_PEER_NUM) {
 
     count = 0;
-    barrier_mutex_.unlock();
-    //cv_.notify_all();
+    mutex_map_[vertex]->unlock();
     //LOG4CXX_TRACE(logger_, "Unlocking mutex!");
   }
 

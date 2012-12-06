@@ -27,7 +27,7 @@ public:
   vertex_t id_;
 
   vertex_t next_hop_;
-  queue<vertex_t> as_path_;
+  vector<vertex_t> as_path_;
   set<vertex_t> as_path_set_;
 
   vector<vertex_t> neigh_;

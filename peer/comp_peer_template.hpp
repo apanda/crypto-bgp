@@ -153,12 +153,12 @@ symbol_t CompPeer<Num>::generate_random_num(string key, vertex_t l) {
   const string id_string = lexical_cast<string>(id_);
   LOG4CXX_DEBUG( logger_, id_string << ": random seed: " << random);
 
-  barrier_mutex_.lock();
+  mutex_map_[l]->lock();
 
   distribute_secret(key + id_string, l, random, net_peers_);
 
-  barrier_mutex_.lock();
-  barrier_mutex_.unlock();
+  mutex_map_[l]->lock();
+  mutex_map_[l]->unlock();
 
   int64_t sum = 0;
   for(auto i = 1; i <= Num; i++) {
@@ -226,14 +226,14 @@ int CompPeer<Num>::compare(string key1, string key2, vertex_t l) {
 
   //printf("%lu: result: %ld\n", id_, value);
 
-  barrier_mutex_.lock();
+  mutex_map_[l]->lock();
 
   for(size_t i = 0; i < COMP_PEER_NUM; i++) {
     net_peers_[i]->publish(result + lexical_cast<string>(id_), value, l);
   }
 
-  barrier_mutex_.lock();
-  barrier_mutex_.unlock();
+  mutex_map_[l]->lock();
+  mutex_map_[l]->unlock();
 
   b_->wait();
 
@@ -310,12 +310,12 @@ symbol_t CompPeer<Num>::multiply(
   const string key = recombination_key + "_" + boost::lexical_cast<string>(id_);
   const int64_t result = vlm[first] * vlm[second];
 
-  barrier_mutex_.lock();
+  mutex_map_[l]->lock();
 
   distribute_secret(key, result, l, net_peers_);
 
-  barrier_mutex_.lock();
-  barrier_mutex_.unlock();
+  mutex_map_[l]->lock();
+  mutex_map_[l]->unlock();
 
   return recombine(recombination_key, l);
 }
@@ -385,15 +385,15 @@ symbol_t CompPeer<Num>::generate_random_bit(string key, vertex_t l) {
 
   const auto result = vlm[recombination_key];
 
-  barrier_mutex_.lock();
+  mutex_map_[l]->lock();
 
   for( int64_t i = 0; i < COMP_PEER_NUM; i++) {
     net_peers_[i]->publish(recombination_key + lexical_cast<string>(id_), result), l;
   }
 
   //cv_.wait(lock_);
-  barrier_mutex_.lock();
-  barrier_mutex_.unlock();
+  mutex_map_[l]->lock();
+  mutex_map_[l]->unlock();
 
   double x[Num], y[Num], d[Num];
 

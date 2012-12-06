@@ -42,6 +42,7 @@ public:
 
   typedef tbb::concurrent_unordered_map<int, int64_t> inter_map_t;
   typedef tbb::concurrent_unordered_map<symbol_t, int64_t> value_map_t;
+  typedef tbb::mutex mutex_t;
 
   io_service io_service_;
   RPCServer* server_;
@@ -50,10 +51,11 @@ public:
 
   std::unordered_map<int, value_map_t > vertex_value_map_;
   std::unordered_map<int, int > couter_map_;
-  tbb::mutex barrier_mutex_;
+  std::unordered_map<int, shared_ptr<mutex_t> > mutex_map_;
 
+  mutex_t barrier_mutex_;
 
-  tbb::mutex __mutex;
+  mutex_t __mutex;
   std::string recombination_key_;
 
   inter_map_t intermediary_;

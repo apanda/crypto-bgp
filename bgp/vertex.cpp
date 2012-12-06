@@ -40,23 +40,22 @@ int64_t Vertex::current_next_hop_preference(graph_t graph) {
 
 bool Vertex::in_as_path(graph_t& graph, vertex_t vertex) {
 
-  return (as_path_set_.find(vertex) != as_path_set_.end());
+  vertex_t next = next_hop_;
 
+  while(true) {
+    if (next == vertex) return true;
+    else if (next == UNDEFINED) return false;
+    Vertex& v = graph[next];
+    next = v.next_hop_;
+  }
+
+  return false;
 }
 
 
-
 void Vertex::set_next_hop(graph_t& graph, vertex_t neigh) {
-
   Vertex& v = graph[neigh];
-
   next_hop_ = neigh;
-
-  as_path_ = v.as_path_;
-  as_path_.push(neigh);
-
-  as_path_set_ = v.as_path_set_;
-  as_path_set_.insert(neigh);
 }
 
 

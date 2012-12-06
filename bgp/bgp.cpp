@@ -12,28 +12,6 @@ BGPProcess::BGPProcess(string path, CompPeer<3>* comp_peer):
 
 
 
-void BGPProcess::start(graph_t& graph) {
-
-  Vertex& dst = graph[0];
-
-  dst.next_hop_ = 0;
-  dst.as_path_.push(dst.id_);
-  dst.as_path_set_.insert(dst.id_);
-
-  set<vertex_t> affected;
-  set<vertex_t> changed;
-
-  changed.insert(0);
-  for(const vertex_t& vertex: dst.neigh_) {
-    affected.insert(vertex);
-  }
-
-  next_iteration(0, graph, affected, changed);
-
-}
-
-
-
 void BGPProcess::start_callback(function<bool()> f) {
 
   start(graph_);
@@ -62,6 +40,24 @@ void BGPProcess::init(graph_t& graph) {
 
 
 
+void BGPProcess::start(graph_t& graph) {
+
+  vertex_t dst_vertex = 0;
+  Vertex& dst = graph[dst_vertex];
+
+  set<vertex_t> affected;
+  set<vertex_t> changed;
+
+  changed.insert(dst_vertex);
+  for(const vertex_t& vertex: dst.neigh_) {
+    affected.insert(vertex);
+  }
+
+  next_iteration(dst_vertex, graph, affected, changed);
+}
+
+
+
 void BGPProcess::next_iteration(
     const vertex_t dst_vertex,
     graph_t& graph,
@@ -74,7 +70,6 @@ void BGPProcess::next_iteration(
   set<vertex_t> new_changed_set;
 
   for(const vertex_t affected_vertex: affected_set) {
-    //printf("Current vertex: %ld\n", affected_vertex);
     if(affected_vertex == dst_vertex) continue;
     process_neighbors_mpc(affected_vertex, graph, changed_set, new_changed_set);
   }
@@ -85,7 +80,6 @@ void BGPProcess::next_iteration(
   }
 
   if( !new_changed_set.empty() ) {
-    //print_state(graph, new_affected_set, new_changed_set);
     next_iteration(dst_vertex, graph, new_affected_set, new_changed_set);
   }
 
@@ -107,19 +101,17 @@ void BGPProcess::process_neighbors_mpc(
 
     if(changed_set.find(neigh_vertex) != changed_set.end()) {
 
-      //printf("Vertex: %ld -> %ld\n", affected_vertex, neigh_vertex);
+      //printf("Vertex: (%ld -> %ld)\n", affected_vertex, neigh_vertex);
 
       Vertex& neigh = graph[neigh_vertex];
+
+      if ( neigh.in_as_path(graph, affected_vertex) ) continue;
 
       const auto current_preference = affected.current_next_hop_preference(graph);
 
       auto offer_it = affected.preference_.find(neigh_vertex);
       BOOST_ASSERT(offer_it != affected.preference_.end());
       const auto offered_preference = offer_it->second;
-
-      //printf("%ld <= %ld\n", offered_preference, current_preference);
-
-      comp_peer_->values_ = affected.values_;
 
       const bool condition = offered_preference <= current_preference;
       const int cmp = comp_peer_->compare(
@@ -133,16 +125,11 @@ void BGPProcess::process_neighbors_mpc(
         printf("==================================================\n");
       }
 
-      //printf("(Is, Should): (%d, %d) -- Vertex (%ld, %ld)\n", cmp, condition, affected_vertex, neigh_vertex);
+      if ( offered_preference <= current_preference ) continue;
 
-      if ( offered_preference > current_preference ) {
-        if ( neigh.in_as_path(graph, affected_vertex) ) continue;
-
-        affected.set_next_hop(graph, neigh_vertex);
-        //printf("Next hop set to: %ld\n", affected.next_hop_);
-        new_changed_set.insert(affected_vertex);
-      }
-
+      affected.set_next_hop(graph, neigh_vertex);
+      //printf("%ld next hop set to: %ld\n", affected_vertex, affected.next_hop_);
+      new_changed_set.insert(affected_vertex);
     }
   }
 }
