@@ -25,6 +25,7 @@ public:
 
   tcp::socket socket_;
   tcp::resolver resolver_;
+  boost::asio::strand strand_;
   enum { length_ = 256 + 8 + 8 };
 
   static log4cxx::LoggerPtr logger_;

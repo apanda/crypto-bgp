@@ -1,6 +1,7 @@
 #ifndef VERTEX_HPP_
 #define VERTEX_HPP_
 
+#include <common.hpp>
 #include <bgp/common.hpp>
 
 #include <tbb/concurrent_unordered_map.h>
@@ -11,6 +12,9 @@
 
 using std::set;
 using std::queue;
+
+class RPCClient;
+class RPCServer;
 
 class Vertex {
 public:
@@ -34,6 +38,8 @@ public:
   unordered_map<vertex_t, int64_t> preference_;
 
   typedef tbb::concurrent_unordered_map<string, int64_t> value_map_t;
+  array<shared_ptr<RPCClient>, 3> clients_;
+  array<shared_ptr<RPCServer>, 3> servers_;
 
   value_map_t* values_;
 

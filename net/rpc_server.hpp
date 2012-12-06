@@ -35,9 +35,11 @@ private:
       Session* new_session,
       const boost::system::error_code& error);
 
+
   io_service& io_service_;
   tcp::acceptor acceptor_;
   Peer* peer_;
+  boost::asio::strand strand_;
 };
 
 #endif /* RPC_SERVER_HPP_ */

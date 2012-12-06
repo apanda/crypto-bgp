@@ -25,7 +25,8 @@ template<const size_t Num>
 class CompPeer : public Peer {
 public:
 
-  CompPeer(size_t id, shared_ptr<InputPeer> input_peer, boost::barrier* b);
+  CompPeer(size_t id, shared_ptr<InputPeer> input_peer,
+      std::unordered_map<int, shared_ptr<boost::barrier> > b);
   ~CompPeer();
 
 
@@ -67,7 +68,7 @@ public:
 
   gsl_vector* recombination_vercor_;
   array<double, Num> recombination_array_;
-  boost::barrier* b_;
+  std::unordered_map<int, shared_ptr<boost::barrier> > barrier_map_;
 };
 
 typedef CompPeer<COMP_PEER_NUM> comp_peer_t;

@@ -12,12 +12,13 @@
 #include <boost/assign.hpp>
 
 template<const size_t Num>
-CompPeer<Num>::CompPeer(size_t id, shared_ptr<InputPeer> input_peer, boost::barrier* b) :
+CompPeer<Num>::CompPeer(size_t id, shared_ptr<InputPeer> input_peer,
+    std::unordered_map<int, shared_ptr<boost::barrier> > b) :
     Peer(id + 10000),
     id_(id),
     input_peer_(input_peer),
-    bgp_(new BGPProcess("scripts/dot.dot", this)),
-    b_(b)
+    bgp_(new BGPProcess("scripts/dot.dot", b[300], this)),
+    barrier_map_(b)
     {
 
   using boost::assign::list_of;
@@ -178,6 +179,8 @@ template<const size_t Num>
 int CompPeer<Num>::compare(string key1, string key2, vertex_t l) {
 
 
+  barrier_map_[l]->wait();
+
 
   value_map_t& vlm = vertex_value_map_[l];
 
@@ -193,25 +196,25 @@ int CompPeer<Num>::compare(string key1, string key2, vertex_t l) {
   const string wx( execute(wx_cricut, l) );
   LOG4CXX_DEBUG( logger_,  id_ << ": wx: " << wx << ": " << vlm[wx]);
 
-  b_->wait();
+  barrier_map_[l]->wait();
 
   vector<string> wy_cricut = {"*", w, y};
   const string wy( execute(wy_cricut, l) );
   LOG4CXX_DEBUG( logger_,  id_ << ": wy: " << wy << ": " << vlm[wy]);
 
-  b_->wait();
+  barrier_map_[l]->wait();
 
   vector<string> wxy2_cricut = {"*", "2", "*", y, "*", w, x};
   const string wxy2( execute(wxy2_cricut, l) );
   LOG4CXX_DEBUG( logger_,  id_ << ": 2wxy: " << wxy2 << ": " << vlm[wxy2]);
 
-  b_->wait();
+  barrier_map_[l]->wait();
 
   vector<string> xy_cricut = {"*", x, y};
   const string xy( execute(xy_cricut, l) );
   LOG4CXX_DEBUG( logger_,  id_ << ": xy: " << xy << ": " << vlm[xy]);
 
-  b_->wait();
+  barrier_map_[l]->wait();
 
   vector<string> final = {
      "+", xy, "-", x, "-", y, "-", wxy2, "+", wy, wx
@@ -219,12 +222,10 @@ int CompPeer<Num>::compare(string key1, string key2, vertex_t l) {
 
   string result = execute(final, l);
 
-  b_->wait();
+  barrier_map_[l]->wait();
 
   auto value = vlm[result] + 1;
   value = mod(value, PRIME);
-
-  //printf("%lu: result: %ld\n", id_, value);
 
   mutex_map_[l]->lock();
 
@@ -235,7 +236,7 @@ int CompPeer<Num>::compare(string key1, string key2, vertex_t l) {
   mutex_map_[l]->lock();
   mutex_map_[l]->unlock();
 
-  b_->wait();
+  barrier_map_[l]->wait();
 
   double X[Num], Y[Num], D[Num];
 

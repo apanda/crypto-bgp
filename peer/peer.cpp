@@ -5,8 +5,7 @@ LoggerPtr Peer::logger_(Logger::getLogger("all.peer"));
 
 Peer::Peer(const short port) :
     server_(new RPCServer(io_service_, port, this)),
-    counter_(0),
-    values_(new value_map_t) {
+    counter_(0) {
 
   for(int i = 0; i < 500; i++) {
     mutex_map_[i] = shared_ptr<mutex_t>(new mutex_t);
@@ -28,12 +27,13 @@ Peer::~Peer() {
 
 void Peer::publish(std::string key, int64_t value, vertex_t vertex) {
 
+  tbb::mutex::scoped_lock lock(__mutex);
+
   value_map_t& vlm = vertex_value_map_[vertex];
   vlm[key] = value;
 
   LOG4CXX_INFO(logger_, " Received value: " << key << ": " << value << " (" << vertex << ")");
 
-  tbb::mutex::scoped_lock lock(__mutex);
 
   int& count = couter_map_[vertex];
 
@@ -52,9 +52,5 @@ void Peer::publish(std::string key, int64_t value, vertex_t vertex) {
 
 
 void Peer::print_values() {
-
-  for (auto pair: (*values_)) {
-    LOG4CXX_DEBUG(logger_, "Value: " << pair.first << ": " << pair.second );
-  }
 
 }

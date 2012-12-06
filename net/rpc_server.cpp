@@ -14,7 +14,8 @@ RPCServer::RPCServer(
 
 : io_service_(io_service),
   acceptor_(io_service, tcp::endpoint(tcp::v4(), port)),
-  peer_(peer) {
+  peer_(peer),
+  strand_(io_service) {
 
 
   LOG4CXX_TRACE(peer_->logger_, "Listening on port: " << port );
@@ -30,11 +31,12 @@ RPCServer::~RPCServer() {};
 
 void RPCServer::start_accept() {
 
-  Session* new_session = new Session(io_service_, peer_);
+  Session* new_session = new Session(io_service_, strand_, peer_);
 
   acceptor_.async_accept(new_session->socket(),
       boost::bind(&RPCServer::handle_accept, this, new_session,
-        boost::asio::placeholders::error));
+        boost::asio::placeholders::error)
+  );
 }
 
 

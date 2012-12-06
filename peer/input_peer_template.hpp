@@ -17,7 +17,7 @@ typedef Secret<plaintext_t, COMP_PEER_NUM> secret_t;
 
 template<size_t Num>
 void InputPeer::result() {
-
+/*
   barrier_mutex_.lock();
 
   double x[Num], y[Num], d[Num];
@@ -46,6 +46,7 @@ void InputPeer::result() {
 
   LOG4CXX_INFO(logger_, "Result: " << interpol);
   LOG4CXX_INFO(logger_, "Result: " << mod(interpol, PRIME) );
+  */
 }
 
 
@@ -167,7 +168,8 @@ void InputPeer::lsb(
 template<class CompPeerSeq>
 void InputPeer::disseminate_bgp(CompPeerSeq& comp_peers) {
 
-  BGPProcess bgp("scripts/dot.dot", NULL);
+  boost::shared_ptr<boost::barrier> bp;
+  BGPProcess bgp("scripts/dot.dot", bp, NULL);
 
   graph_t& input_graph = bgp.graph_;
 

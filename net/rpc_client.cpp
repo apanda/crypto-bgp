@@ -12,7 +12,7 @@ LoggerPtr RPCClient::logger_(Logger::getLogger("all.peer.client"));
 
 
 RPCClient::RPCClient(io_service& io_service, string hostname,  int64_t port) :
-  socket_(io_service), resolver_(io_service) {
+  socket_(io_service), resolver_(io_service), strand_(io_service) {
 
   const string service = lexical_cast<string>(port);
 
@@ -49,10 +49,14 @@ void RPCClient::publish(string key,  int64_t value, vertex_t vertex) {
 
   LOG4CXX_TRACE(logger_, "Sending value: " << key << ": " << value << " (" << vertex << ")");
 
-  boost::asio::async_write(socket_, boost::asio::buffer(data, length_),
+  boost::asio::async_write(socket_,
+      boost::asio::buffer(data, length_),
+      //strand_.wrap(
       boost::bind(&RPCClient::handle_write, this, data,
           boost::asio::placeholders::error,
-          boost::asio::placeholders::bytes_transferred));
+          boost::asio::placeholders::bytes_transferred)
+  //)
+  );
 }
 
 

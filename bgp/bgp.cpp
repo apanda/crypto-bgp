@@ -4,8 +4,9 @@
 
 
 
-BGPProcess::BGPProcess(string path, CompPeer<3>* comp_peer):
-    comp_peer_(comp_peer) {
+BGPProcess::BGPProcess(string path, shared_ptr<boost::barrier> bp, CompPeer<3>* comp_peer):
+    comp_peer_(comp_peer),
+    bp_(bp) {
   load_graph(path, graph_);
   init(graph_);
 }
@@ -64,24 +65,96 @@ void BGPProcess::next_iteration(
     set<vertex_t>& affected_set,
     set<vertex_t>& changed_set) {
 
+  boost::thread_group tg;
+
   //std::cout << "Next iteration... " << changed_set.size() << " " << affected_set.size() << std::endl;
 
   set<vertex_t> new_affected_set;
   set<vertex_t> new_changed_set;
 
+
+  for(auto it = affected_set.begin(); ;) {
+    //printf("%ld\n", (*it));
+
+    if((*it) == dst_vertex) {
+      ++it;
+      continue;
+    }
+
+    if(it == affected_set.end()) {
+      tg.join_all();
+      break;;
+    }
+
+
+    tg.add_thread( new boost::thread(
+      boost::bind(
+          &BGPProcess::process_neighbors_mpc,
+          this, (*it),
+          boost::ref(graph),
+          boost::ref(changed_set),
+          boost::ref(new_changed_set)
+      )
+    ));
+
+    ++it;
+
+
+
+    if((*it) == dst_vertex) {
+      ++it;
+      continue;
+    }
+
+    if(it == affected_set.end()) {
+      tg.join_all();
+      break;
+    }
+
+
+    tg.add_thread( new boost::thread(
+      boost::bind(
+          &BGPProcess::process_neighbors_mpc,
+          this, (*it),
+          boost::ref(graph),
+          boost::ref(changed_set),
+          boost::ref(new_changed_set)
+      )
+    ));
+
+    ++it;
+
+    tg.join_all();
+  }
+  /*
   for(const vertex_t affected_vertex: affected_set) {
     if(affected_vertex == dst_vertex) continue;
-    process_neighbors_mpc(affected_vertex, graph, changed_set, new_changed_set);
+
+    tg.add_thread( new boost::thread(
+      boost::bind(
+          &BGPProcess::process_neighbors_mpc,
+          this, affected_vertex,
+          boost::ref(graph),
+          boost::ref(changed_set),
+          boost::ref(new_changed_set)
+      )
+    ));
+
+    tg.join_all();
+    //process_neighbors_mpc(affected_vertex, graph, changed_set, new_changed_set);
   }
+*/
+
 
   for(const vertex_t vertex: new_changed_set) {
     auto neighbors = adjacent_vertices(vertex, graph);
     new_affected_set.insert(neighbors.first, neighbors.second);
   }
 
-  if( !new_changed_set.empty() ) {
-    next_iteration(dst_vertex, graph, new_affected_set, new_changed_set);
-  }
+  if(new_changed_set.empty()) return;
+
+  next_iteration(dst_vertex, graph, new_affected_set, new_changed_set);
+
 
 }
 

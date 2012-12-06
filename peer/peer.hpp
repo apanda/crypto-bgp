@@ -54,12 +54,11 @@ public:
   std::unordered_map<int, shared_ptr<mutex_t> > mutex_map_;
 
   mutex_t barrier_mutex_;
-
   mutex_t __mutex;
+
   std::string recombination_key_;
 
   inter_map_t intermediary_;
-  value_map_t* values_;
 
   boost::thread_group tg_;
 
