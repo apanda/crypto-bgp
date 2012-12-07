@@ -24,7 +24,7 @@ class RPCServer;
 
 class Peer {
 public:
-  Peer(const short port);
+  Peer(const short port, io_service& io);
   ~Peer();
 
   template<class PeerSeq>
@@ -44,7 +44,8 @@ public:
   typedef tbb::concurrent_unordered_map<symbol_t, int64_t> value_map_t;
   typedef tbb::mutex mutex_t;
 
-  io_service io_service_;
+  io_service& io_service_;
+  //io_service::work work_;
   RPCServer* server_;
 
   int counter_;

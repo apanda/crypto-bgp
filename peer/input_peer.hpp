@@ -58,6 +58,7 @@ public:
       CompPeerSeq& comp_peers);
 
   plaintext_map_t plaintext_map_;
+  io_service io_;
 };
 
 #include <peer/input_peer_template.hpp>

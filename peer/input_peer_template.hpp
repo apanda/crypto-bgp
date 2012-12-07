@@ -219,6 +219,49 @@ void InputPeer::disseminate_bgp(CompPeerSeq& comp_peers) {
   }
 
 
+
+  iter = vertices(input_graph);
+  last = iter.second;
+  current = iter.first;
+
+  for (; current != last; ++current) {
+    const auto& current_vertex = *current;
+
+    for(size_t i = 0; i < COMP_PEER_NUM; i++) {
+      size_t port = 2000 + COMP_PEER_NUM*current_vertex + i;
+      auto cp = comp_peers[i];
+      auto sp = shared_ptr<RPCServer>(new RPCServer(cp->io_service_, port, cp.get() ) );
+      for(auto ccp: comp_peers) {
+        Vertex& vertex = ccp->bgp_->graph_[current_vertex];
+        vertex.servers_[i] = sp;
+      }
+    }
+  }
+
+  std::cout << "Connecting..." << std::endl;
+
+  iter = vertices(input_graph);
+  last = iter.second;
+  current = iter.first;
+
+  for (; current != last; ++current) {
+    const auto& current_vertex = *current;
+
+    for(size_t i = 0; i < COMP_PEER_NUM; i++) {
+      size_t port = 2000 + COMP_PEER_NUM*current_vertex + i;
+      for(size_t ID = 0; ID < COMP_PEER_NUM; ID++) {
+        auto cp = comp_peers[ID];
+        auto sp = shared_ptr<RPCClient>(new RPCClient(cp->io_service_, "localhost", port ));
+        for(auto ccp: comp_peers) {
+          Vertex& vertex = ccp->bgp_->graph_[current_vertex];
+          vertex.clients_[ID + 1][i] = sp;
+
+        }
+      }
+    }
+  }
+
+  std::cout << "Done!" << std::endl;
 }
 
 

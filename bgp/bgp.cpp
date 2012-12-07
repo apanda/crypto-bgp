@@ -4,7 +4,10 @@
 
 
 
-BGPProcess::BGPProcess(string path, shared_ptr<boost::barrier> bp, CompPeer<3>* comp_peer):
+BGPProcess::BGPProcess(
+    string path,
+    shared_ptr<boost::barrier> bp,
+    CompPeer<3>* comp_peer):
     comp_peer_(comp_peer),
     bp_(bp) {
   load_graph(path, graph_);

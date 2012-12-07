@@ -28,7 +28,10 @@ class BGPProcess {
 public:
 
   BGPProcess();
-  BGPProcess(string path, shared_ptr<boost::barrier> bp, CompPeer<3>* comp_peer);
+  BGPProcess(
+      string path,
+      shared_ptr<boost::barrier> bp,
+      CompPeer<3>* comp_peer);
 
   void load_graph(std::string path, graph_t& graph);
   void init(graph_t& graph);

@@ -12,13 +12,16 @@
 #include <boost/assign.hpp>
 
 template<const size_t Num>
-CompPeer<Num>::CompPeer(size_t id, shared_ptr<InputPeer> input_peer,
-    std::unordered_map<int, shared_ptr<boost::barrier> > b) :
-    Peer(id + 10000),
-    id_(id),
-    input_peer_(input_peer),
-    bgp_(new BGPProcess("scripts/dot.dot", b[300], this)),
-    barrier_map_(b)
+CompPeer<Num>::CompPeer(
+    size_t id,
+    shared_ptr<InputPeer> input_peer,
+    std::unordered_map<int, shared_ptr<boost::barrier> > b,
+    io_service& io) :
+      Peer(id + 10000, io),
+      id_(id),
+      input_peer_(input_peer),
+      bgp_(new BGPProcess("scripts/dot.dot", b[300], this)),
+      barrier_map_(b)
     {
 
   using boost::assign::list_of;
@@ -196,24 +199,28 @@ int CompPeer<Num>::compare(string key1, string key2, vertex_t l) {
   const string wx( execute(wx_cricut, l) );
   LOG4CXX_DEBUG( logger_,  id_ << ": wx: " << wx << ": " << vlm[wx]);
 
+  boost::this_thread::yield();
   barrier_map_[l]->wait();
 
   vector<string> wy_cricut = {"*", w, y};
   const string wy( execute(wy_cricut, l) );
   LOG4CXX_DEBUG( logger_,  id_ << ": wy: " << wy << ": " << vlm[wy]);
 
+  boost::this_thread::yield();
   barrier_map_[l]->wait();
 
   vector<string> wxy2_cricut = {"*", "2", "*", y, "*", w, x};
   const string wxy2( execute(wxy2_cricut, l) );
   LOG4CXX_DEBUG( logger_,  id_ << ": 2wxy: " << wxy2 << ": " << vlm[wxy2]);
 
+  boost::this_thread::yield();
   barrier_map_[l]->wait();
 
   vector<string> xy_cricut = {"*", x, y};
   const string xy( execute(xy_cricut, l) );
   LOG4CXX_DEBUG( logger_,  id_ << ": xy: " << xy << ": " << vlm[xy]);
 
+  boost::this_thread::yield();
   barrier_map_[l]->wait();
 
   vector<string> final = {
@@ -222,6 +229,7 @@ int CompPeer<Num>::compare(string key1, string key2, vertex_t l) {
 
   string result = execute(final, l);
 
+  boost::this_thread::yield();
   barrier_map_[l]->wait();
 
   auto value = vlm[result] + 1;
@@ -229,9 +237,13 @@ int CompPeer<Num>::compare(string key1, string key2, vertex_t l) {
 
   mutex_map_[l]->lock();
 
+  Vertex& v = bgp_->graph_[l];
+
   for(size_t i = 0; i < COMP_PEER_NUM; i++) {
-    net_peers_[i]->publish(result + lexical_cast<string>(id_), value, l);
+    v.clients_[id_][i]->publish(result + lexical_cast<string>(id_), value, l);
   }
+
+  boost::this_thread::yield();
 
   mutex_map_[l]->lock();
   mutex_map_[l]->unlock();
@@ -313,7 +325,11 @@ symbol_t CompPeer<Num>::multiply(
 
   mutex_map_[l]->lock();
 
-  distribute_secret(key, result, l, net_peers_);
+  Vertex& v = bgp_->graph_[l];
+  distribute_secret(key, result, l, v.clients_[id_]);
+  //distribute_secret(key, result, l, net_peers_);
+
+  boost::this_thread::yield();
 
   mutex_map_[l]->lock();
   mutex_map_[l]->unlock();

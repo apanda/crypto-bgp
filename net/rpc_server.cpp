@@ -48,6 +48,7 @@ void RPCServer::handle_accept(
   if (!error) {
     new_session->start();
   } else {
+    LOG4CXX_ERROR(peer_->logger_, error.message());
     delete new_session;
   }
 

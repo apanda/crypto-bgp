@@ -38,7 +38,7 @@ public:
   unordered_map<vertex_t, int64_t> preference_;
 
   typedef tbb::concurrent_unordered_map<string, int64_t> value_map_t;
-  array<shared_ptr<RPCClient>, 3> clients_;
+  std::unordered_map<int, array<shared_ptr<RPCClient>, 3> > clients_;
   array<shared_ptr<RPCServer>, 3> servers_;
 
   value_map_t* values_;

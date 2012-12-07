@@ -25,8 +25,11 @@ template<const size_t Num>
 class CompPeer : public Peer {
 public:
 
-  CompPeer(size_t id, shared_ptr<InputPeer> input_peer,
-      std::unordered_map<int, shared_ptr<boost::barrier> > b);
+  CompPeer(
+      size_t id,
+      shared_ptr<InputPeer> input_peer,
+      std::unordered_map<int, shared_ptr<boost::barrier> > b,
+      io_service& io);
   ~CompPeer();
 
 

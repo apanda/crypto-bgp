@@ -3,15 +3,16 @@
 LoggerPtr Peer::logger_(Logger::getLogger("all.peer"));
 
 
-Peer::Peer(const short port) :
-    server_(new RPCServer(io_service_, port, this)),
+Peer::Peer(const short port, io_service& io) :
+    //server_(new RPCServer(io_service_, port, this)),
+        io_service_(io),
     counter_(0) {
 
   for(int i = 0; i < 500; i++) {
     mutex_map_[i] = shared_ptr<mutex_t>(new mutex_t);
   }
 
-  tg_.add_thread( new boost::thread(bind(&io_service::run, &io_service_)) );
+  //tg_.add_thread( new boost::thread(bind(&io_service::run, &io_service_)) );
 }
 
 
@@ -26,6 +27,8 @@ Peer::~Peer() {
 
 
 void Peer::publish(std::string key, int64_t value, vertex_t vertex) {
+
+  boost::this_thread::yield();
 
   tbb::mutex::scoped_lock lock(__mutex);
 

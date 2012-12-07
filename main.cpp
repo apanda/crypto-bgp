@@ -27,16 +27,19 @@ void run_test2() {
   array<shared_ptr<comp_peer_t>, COMP_PEER_NUM> comp_peer_seq;
   shared_ptr<InputPeer> input_peer(new InputPeer());
 
-  CompPeer_factory factory;
-  comp_peer_seq = factory.generate<COMP_PEER_NUM>(input_peer);
 
-  input_peer->disseminate_bgp(comp_peer_seq);
 
   boost::thread_group worker_threads;
 
   io_service io;
   io_service::work work(io);
 
+  CompPeer_factory factory;
+  comp_peer_seq = factory.generate<COMP_PEER_NUM>(input_peer, io);
+
+  input_peer->disseminate_bgp(comp_peer_seq);
+
+  worker_threads.add_thread( new boost::thread(bind(&io_service::run, &io)) );
   worker_threads.add_thread( new boost::thread(bind(&io_service::run, &io)) );
   worker_threads.add_thread( new boost::thread(bind(&io_service::run, &io)) );
   worker_threads.add_thread( new boost::thread(bind(&io_service::run, &io)) );
@@ -98,7 +101,7 @@ void run_test1() {
   worker_threads.add_thread( new boost::thread(bind(&io_service::run, &io)) );
 
   CompPeer_factory factory;
-  comp_peer_seq = factory.generate<COMP_PEER_NUM>(input_peer);
+  comp_peer_seq = factory.generate<COMP_PEER_NUM>(input_peer, io);
 
   //for(std::pair<string, int> pair: input_peer->plaintext_map_) {
     //InputPeer::lsb(pair.first, pair.second, comp_peer_seq);
@@ -138,7 +141,7 @@ void run_test1() {
 
 int main() {
 
-  mainLogger->setLevel(log4cxx::Level::getOff());
+  mainLogger->setLevel(log4cxx::Level::getTrace());
 
   log4cxx::BasicConfigurator::configure();
   log4cxx::PatternLayoutPtr patternLayout = new log4cxx::PatternLayout();

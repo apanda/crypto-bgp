@@ -11,7 +11,7 @@ public:
 
   template<size_t Num>
   array<shared_ptr<comp_peer_t>, Num>
-  generate(shared_ptr<InputPeer> input_peer);
+  generate(shared_ptr<InputPeer> input_peer, io_service& io);
 
 };
 
