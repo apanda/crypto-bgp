@@ -57,8 +57,6 @@ void RPCClient::publish(string key,  int64_t value, vertex_t vertex) {
           boost::asio::placeholders::bytes_transferred)
   //)
   );
-
-  boost::this_thread::yield();
 }
 
 

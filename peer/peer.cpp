@@ -4,15 +4,17 @@ LoggerPtr Peer::logger_(Logger::getLogger("all.peer"));
 
 
 Peer::Peer(const short port, io_service& io) :
-    //server_(new RPCServer(io_service_, port, this)),
-        io_service_(io),
+    io_service_(io),
     counter_(0) {
 
   for(int i = 0; i < 500; i++) {
     mutex_map_[i] = shared_ptr<mutex_t>(new mutex_t);
   }
 
-  //tg_.add_thread( new boost::thread(bind(&io_service::run, &io_service_)) );
+  for(int i = 0; i < 500; i++) {
+    cv_map_[i] = shared_ptr<condition_variable_t>(new condition_variable_t);
+  }
+
 }
 
 
@@ -28,28 +30,47 @@ Peer::~Peer() {
 
 void Peer::publish(std::string key, int64_t value, vertex_t vertex) {
 
-  boost::this_thread::yield();
 
-  tbb::mutex::scoped_lock lock(__mutex);
+  string rkey = key.substr(0, key.size() - 2);
+  //std::cout << "publish LOCK -> " << rkey << std::endl;
+
+  auto p =mutex_map_2[vertex].insert(
+      make_pair(rkey, shared_ptr<mutex_t>(new mutex_t))
+      );
+  mutex_t& m = *(p.first->second);
+
+  LOG4CXX_INFO(logger_, " Receiving value... " << p.second);
+
+  lock_t lock(m);
+
+  LOG4CXX_INFO(logger_, " Acquired lock..." << rkey);
+
+  auto cv_p = cv_map_2[vertex].insert(
+      make_pair(rkey, shared_ptr<condition_variable_t>(new condition_variable_t))
+      );
+  condition_variable_t& cv = *(cv_p.first->second);
+
+  int& counter = couter_map_2[vertex][rkey];
+
+  //int& count = couter_map_[vertex];
+
+  while (counter >= 3) {
+
+    LOG4CXX_INFO(logger_, "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX");
+
+    cv.notify_all();
+    cv.wait(lock);
+  }
 
   value_map_t& vlm = vertex_value_map_[vertex];
   vlm[key] = value;
 
   LOG4CXX_INFO(logger_, " Received value: " << key << ": " << value << " (" << vertex << ")");
 
+  counter++;
 
-  int& count = couter_map_[vertex];
-
-  count++;
-  LOG4CXX_TRACE(logger_, "Counter: " << count);
-
-  if (count == COMP_PEER_NUM) {
-
-    count = 0;
-    mutex_map_[vertex]->unlock();
-    //LOG4CXX_TRACE(logger_, "Unlocking mutex!");
-  }
-
+  LOG4CXX_TRACE(logger_, "Counter: " << counter);
+  cv.notify_all();
 }
 
 

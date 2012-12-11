@@ -20,7 +20,7 @@ CompPeer<Num>::CompPeer(
       Peer(id + 10000, io),
       id_(id),
       input_peer_(input_peer),
-      bgp_(new BGPProcess("scripts/dot.dot", b[300], this)),
+      bgp_(new BGPProcess("scripts/dot.dot", b[300], this, io_service_)),
       barrier_map_(b)
     {
 
@@ -102,8 +102,7 @@ symbol_t CompPeer<Num>::execute(vector<string> circut, vertex_t l) {
   const int64_t result = vlm[recombination_key];
   const string key = recombination_key + boost::lexical_cast<string>(id_);
 
-  std::string final = continue_or_not(circut, key, result, recombination_key, l);
-  return final;
+  return continue_or_not(circut, key, result, recombination_key, l);
 }
 
 
@@ -181,10 +180,6 @@ symbol_t CompPeer<Num>::generate_random_num(string key, vertex_t l) {
 template<const size_t Num>
 int CompPeer<Num>::compare(string key1, string key2, vertex_t l) {
 
-
-  barrier_map_[l]->wait();
-
-
   value_map_t& vlm = vertex_value_map_[l];
 
   string w = ".2" + key1;
@@ -198,61 +193,80 @@ int CompPeer<Num>::compare(string key1, string key2, vertex_t l) {
   vector<string> wx_cricut = {"*", w, x};
   const string wx( execute(wx_cricut, l) );
   LOG4CXX_DEBUG( logger_,  id_ << ": wx: " << wx << ": " << vlm[wx]);
+  mutex_map_2[l][wx]->unlock();
 
-  boost::this_thread::yield();
   barrier_map_[l]->wait();
 
   vector<string> wy_cricut = {"*", w, y};
   const string wy( execute(wy_cricut, l) );
   LOG4CXX_DEBUG( logger_,  id_ << ": wy: " << wy << ": " << vlm[wy]);
+  mutex_map_2[l][wy]->unlock();
 
-  boost::this_thread::yield();
-  barrier_map_[l]->wait();
-
-  vector<string> wxy2_cricut = {"*", "2", "*", y, "*", w, x};
-  const string wxy2( execute(wxy2_cricut, l) );
-  LOG4CXX_DEBUG( logger_,  id_ << ": 2wxy: " << wxy2 << ": " << vlm[wxy2]);
-
-  boost::this_thread::yield();
   barrier_map_[l]->wait();
 
   vector<string> xy_cricut = {"*", x, y};
   const string xy( execute(xy_cricut, l) );
   LOG4CXX_DEBUG( logger_,  id_ << ": xy: " << xy << ": " << vlm[xy]);
+  mutex_map_2[l][xy]->unlock();
 
-  boost::this_thread::yield();
   barrier_map_[l]->wait();
+
+  vector<string> wxy2_cricut = {"*", "2", "*", w, "*", y, x};
+  const string wxy2( execute(wxy2_cricut, l) );
+  LOG4CXX_DEBUG( logger_,  id_ << ": 2wxy: " << wxy2 << ": " << vlm[wxy2]);
+  LOG4CXX_DEBUG( logger_,  id_ << wxy2);
+
+  mutex_map_2[l][wxy2]->unlock();
+  mutex_map_2[l][wxy2.substr(0, wxy2.size() - 2)]->unlock();
+
+  barrier_map_[l]->wait();
+
 
   vector<string> final = {
      "+", xy, "-", x, "-", y, "-", wxy2, "+", wy, wx
   };
 
   string result = execute(final, l);
+  LOG4CXX_DEBUG( logger_,  id_ << ": Final!");
 
-  boost::this_thread::yield();
+  auto p_final = mutex_map_2[l].insert(
+      std::make_pair(result, shared_ptr<mutex_t>(new mutex_t))
+      );
+
   barrier_map_[l]->wait();
 
   auto value = vlm[result] + 1;
   value = mod(value, PRIME);
 
-  mutex_map_[l]->lock();
-
   Vertex& v = bgp_->graph_[l];
 
   for(size_t i = 0; i < COMP_PEER_NUM; i++) {
-    v.clients_[id_][i]->publish(result + lexical_cast<string>(id_), value, l);
+    v.clients_[id_][i]->publish(result + "_" + lexical_cast<string>(id_), value, l);
   }
 
-  boost::this_thread::yield();
 
-  mutex_map_[l]->lock();
-  mutex_map_[l]->unlock();
+  mutex_t& m = *(mutex_map_2[l][result]);
+  lock_t lock(m);
 
-  barrier_map_[l]->wait();
+  auto cv_p = cv_map_2[l].insert(
+      make_pair(result, shared_ptr<condition_variable_t>(new condition_variable_t))
+      );
+  condition_variable_t& cv = *(cv_map_2[l][result]);
+
+  LOG4CXX_TRACE( logger_, "Waiting 2..." << result);
+
+  int& counter = couter_map_2[l][result];
+
+  while (counter != 3) {
+    cv.wait(lock);
+    cv.notify_all();
+  }
+  counter = 0;
+
+  //barrier_map_[l]->wait();
+  mutex_map_2[l][result]->unlock();
 
   double X[Num], Y[Num], D[Num];
-
-  //print_values();
 
   for(size_t i = 0; i < Num; i++) {
     std::string key = result  + boost::lexical_cast<std::string>(i + 1);
@@ -271,6 +285,8 @@ int CompPeer<Num>::compare(string key1, string key2, vertex_t l) {
 
   gsl_poly_dd_init( D, X, Y, 3 );
   const double interpol = gsl_poly_dd_eval( D, X, 3, 0);
+
+  barrier_map_[l]->wait();
 
   return mod(interpol, PRIME);
 }
@@ -303,6 +319,14 @@ symbol_t CompPeer<Num>::multiply_const(
   const auto result = vlm[first] * second;
   vlm.insert( make_pair(recombination_key, result) );
 
+  auto m_p = mutex_map_2[l].insert(
+      make_pair(recombination_key, shared_ptr<mutex_t>(new mutex_t))
+      );
+
+  auto cv_p = cv_map_2[l].insert(
+      make_pair(recombination_key, shared_ptr<condition_variable_t>(new condition_variable_t))
+      );
+
   return recombination_key;
 }
 
@@ -314,7 +338,14 @@ symbol_t CompPeer<Num>::multiply(
     string second,
     string recombination_key, vertex_t l) {
 
-  LOG4CXX_TRACE( logger_, "CompPeer<Num>::multiply -> " << l);
+
+
+  auto p = mutex_map_2[l].insert(
+      std::make_pair(recombination_key, shared_ptr<mutex_t>(new mutex_t))
+      );
+
+  LOG4CXX_TRACE( logger_, "CompPeer<Num>::multiply -> " << p.second);
+
   value_map_t& vlm = vertex_value_map_[l];
 
   vlm.at(first);
@@ -323,16 +354,34 @@ symbol_t CompPeer<Num>::multiply(
   const string key = recombination_key + "_" + boost::lexical_cast<string>(id_);
   const int64_t result = vlm[first] * vlm[second];
 
-  mutex_map_[l]->lock();
-
   Vertex& v = bgp_->graph_[l];
   distribute_secret(key, result, l, v.clients_[id_]);
-  //distribute_secret(key, result, l, net_peers_);
 
-  boost::this_thread::yield();
+  //boost::this_thread::yield();
 
-  mutex_map_[l]->lock();
-  mutex_map_[l]->unlock();
+  //mutex_t& m = *( mutex_map_2[l][recombination_key] );
+  mutex_t& m = *(p.first->second);
+
+  LOG4CXX_TRACE( logger_, "CompPeer acquiring lock... " << recombination_key);
+
+  lock_t lock( m );
+
+  LOG4CXX_TRACE( logger_, "CompPeer acquired lock... " << recombination_key);
+
+  auto cv_p = cv_map_2[l].insert(
+      make_pair(recombination_key, shared_ptr<condition_variable_t>(new condition_variable_t))
+      );
+  condition_variable_t& cv = *(cv_p.first->second);
+
+  int& counter = couter_map_2[l][recombination_key];
+
+  LOG4CXX_TRACE( logger_, "Waiting...");
+
+  while (counter != 3) {
+    cv.wait(lock);
+    cv.notify_all();
+  }
+  counter = 0;
 
   return recombine(recombination_key, l);
 }
@@ -342,12 +391,12 @@ symbol_t CompPeer<Num>::multiply(
 template<const size_t Num>
 symbol_t CompPeer<Num>::recombine(string recombination_key, vertex_t l) {
 
+  LOG4CXX_TRACE( logger_, "CompPeer<Num>::recombine -> " << l);
+
   vertex_value_map_.at(l);
   value_map_t& vlm = vertex_value_map_[l];
 
   gsl_vector* ds = gsl_vector_alloc(3);
-
-  LOG4CXX_TRACE( logger_, "CompPeer<Num>::recombine -> " << l);
 
   std::stringstream debug_stream;
   for(size_t i = 0; i < Num; i++) {
@@ -363,7 +412,6 @@ symbol_t CompPeer<Num>::recombine(string recombination_key, vertex_t l) {
       }
 
       throw std::runtime_error(error);
-
 
     }
 

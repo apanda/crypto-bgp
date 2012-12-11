@@ -7,9 +7,11 @@
 BGPProcess::BGPProcess(
     string path,
     shared_ptr<boost::barrier> bp,
-    CompPeer<3>* comp_peer):
+    CompPeer<3>* comp_peer,
+    io_service& io):
     comp_peer_(comp_peer),
-    bp_(bp) {
+    bp_(bp),
+    io_service_(io) {
   load_graph(path, graph_);
   init(graph_);
 }
@@ -68,16 +70,21 @@ void BGPProcess::next_iteration(
     set<vertex_t>& affected_set,
     set<vertex_t>& changed_set) {
 
-  boost::thread_group tg;
+  printf("Next iteration... %d: %d\n", affected_set.size(), changed_set.size());
 
-  //std::cout << "Next iteration... " << changed_set.size() << " " << affected_set.size() << std::endl;
+  boost::thread_group tg;
 
   set<vertex_t> new_affected_set;
   set<vertex_t> new_changed_set;
 
 
+  boost::mutex m;
+  boost::condition_variable cv;
+
   for(auto it = affected_set.begin(); ;) {
-    //printf("%ld\n", (*it));
+
+    int suppose = 0;
+    int count = 0;
 
     if((*it) == dst_vertex) {
       ++it;
@@ -85,70 +92,192 @@ void BGPProcess::next_iteration(
     }
 
     if(it == affected_set.end()) {
-      tg.join_all();
       break;;
     }
 
-
-    tg.add_thread( new boost::thread(
+    io_service_.post(
       boost::bind(
           &BGPProcess::process_neighbors_mpc,
           this, (*it),
           boost::ref(graph),
           boost::ref(changed_set),
-          boost::ref(new_changed_set)
+          boost::ref(new_changed_set),
+          boost::ref(count),
+          boost::ref(m),
+          boost::ref(cv)
       )
-    ));
+    );
 
+    suppose++;
     ++it;
 
 
 
     if((*it) == dst_vertex) {
+
+      boost::unique_lock<boost::mutex> lock(m);
+      while(count != suppose) {
+        cv.wait(lock);
+      }
+
       ++it;
       continue;
     }
 
     if(it == affected_set.end()) {
-      tg.join_all();
+
+      boost::unique_lock<boost::mutex> lock(m);
+      while(count != suppose) {
+        cv.wait(lock);
+      }
       break;
     }
 
 
-    tg.add_thread( new boost::thread(
+    io_service_.post(
       boost::bind(
           &BGPProcess::process_neighbors_mpc,
           this, (*it),
           boost::ref(graph),
           boost::ref(changed_set),
-          boost::ref(new_changed_set)
+          boost::ref(new_changed_set),
+          boost::ref(count),
+          boost::ref(m),
+          boost::ref(cv)
       )
-    ));
+        );
 
+    suppose++;
     ++it;
 
-    tg.join_all();
-  }
-  /*
-  for(const vertex_t affected_vertex: affected_set) {
-    if(affected_vertex == dst_vertex) continue;
+    /*
 
-    tg.add_thread( new boost::thread(
+    if((*it) == dst_vertex) {
+
+      boost::unique_lock<boost::mutex> lock(m);
+      while(count != suppose) {
+        cv.wait(lock);
+      }
+
+      ++it;
+      continue;
+    }
+
+    if(it == affected_set.end()) {
+
+      boost::unique_lock<boost::mutex> lock(m);
+      while(count != suppose) {
+        cv.wait(lock);
+      }
+      break;
+    }
+
+
+    io_service_.post(
       boost::bind(
           &BGPProcess::process_neighbors_mpc,
-          this, affected_vertex,
+          this, (*it),
           boost::ref(graph),
           boost::ref(changed_set),
-          boost::ref(new_changed_set)
+          boost::ref(new_changed_set),
+          boost::ref(count),
+          boost::ref(m),
+          boost::ref(cv)
       )
-    ));
+        );
 
-    tg.join_all();
-    //process_neighbors_mpc(affected_vertex, graph, changed_set, new_changed_set);
-  }
+    suppose++;
+    ++it;
+
+
+
+
+    if((*it) == dst_vertex) {
+
+      boost::unique_lock<boost::mutex> lock(m);
+      while(count != suppose) {
+        cv.wait(lock);
+      }
+
+      ++it;
+      continue;
+    }
+
+    if(it == affected_set.end()) {
+
+      boost::unique_lock<boost::mutex> lock(m);
+      while(count != suppose) {
+        cv.wait(lock);
+      }
+      break;
+    }
+
+
+    io_service_.post(
+      boost::bind(
+          &BGPProcess::process_neighbors_mpc,
+          this, (*it),
+          boost::ref(graph),
+          boost::ref(changed_set),
+          boost::ref(new_changed_set),
+          boost::ref(count),
+          boost::ref(m),
+          boost::ref(cv)
+      )
+        );
+
+    suppose++;
+    ++it;
+
+    if((*it) == dst_vertex) {
+
+      boost::unique_lock<boost::mutex> lock(m);
+      while(count != suppose) {
+        cv.wait(lock);
+      }
+
+      ++it;
+      continue;
+    }
+
+    if(it == affected_set.end()) {
+
+      boost::unique_lock<boost::mutex> lock(m);
+      while(count != suppose) {
+        cv.wait(lock);
+      }
+      break;
+    }
+
+
+    io_service_.post(
+      boost::bind(
+          &BGPProcess::process_neighbors_mpc,
+          this, (*it),
+          boost::ref(graph),
+          boost::ref(changed_set),
+          boost::ref(new_changed_set),
+          boost::ref(count),
+          boost::ref(m),
+          boost::ref(cv)
+      )
+        );
+
+    suppose++;
+    ++it;
 */
 
+    boost::unique_lock<boost::mutex> lock(m);
+    while(count != suppose) {
+      cv.wait(lock);
+    }
 
+  }
+/*
+  comp_peer_->mutex_map_2.clear();
+  comp_peer_->cv_map_2.clear();
+  comp_peer_->couter_map_2.clear();
+*/
   for(const vertex_t vertex: new_changed_set) {
     auto neighbors = adjacent_vertices(vertex, graph);
     new_affected_set.insert(neighbors.first, neighbors.second);
@@ -167,7 +296,10 @@ void BGPProcess::process_neighbors_mpc(
     const vertex_t affected_vertex,
     graph_t& graph,
     set<vertex_t>& changed_set,
-    set<vertex_t>& new_changed_set) {
+    set<vertex_t>& new_changed_set,
+    int& count,
+    boost::mutex& m,
+    boost::condition_variable& cv) {
 
   Vertex& affected = graph[affected_vertex];
   auto neighbors = adjacent_vertices(affected_vertex, graph);
@@ -196,9 +328,11 @@ void BGPProcess::process_neighbors_mpc(
           affected_vertex);
 
       if (cmp != condition) {
+        /*
         printf("==================================================\n");
         printf("(Is, Should): (%d, %d) -- Vertex (%ld, %ld)\n", cmp, condition, affected_vertex, neigh_vertex);
         printf("==================================================\n");
+        */
       }
 
       if ( offered_preference <= current_preference ) continue;
@@ -208,6 +342,12 @@ void BGPProcess::process_neighbors_mpc(
       new_changed_set.insert(affected_vertex);
     }
   }
+
+  boost::unique_lock<boost::mutex> lock(m);
+  count++;
+
+  cv.notify_all();
+
 }
 
 

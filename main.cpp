@@ -6,6 +6,7 @@
 #include <peer/comp_peer_factory.hpp>
 
 #include <log4cxx/patternlayout.h>
+#include <log4cxx/propertyconfigurator.h>
 
 #include <common.hpp>
 
@@ -39,10 +40,10 @@ void run_test2() {
 
   input_peer->disseminate_bgp(comp_peer_seq);
 
-  worker_threads.add_thread( new boost::thread(bind(&io_service::run, &io)) );
-  worker_threads.add_thread( new boost::thread(bind(&io_service::run, &io)) );
-  worker_threads.add_thread( new boost::thread(bind(&io_service::run, &io)) );
-  worker_threads.add_thread( new boost::thread(bind(&io_service::run, &io)) );
+  for (int i = 0; i < 32; i++) {
+    worker_threads.add_thread( new boost::thread(bind(&io_service::run, &io)) );
+  }
+
 
   boost::barrier* b = new boost::barrier(4);
   typedef function<bool()> Functor;
@@ -141,11 +142,7 @@ void run_test1() {
 
 int main() {
 
-  mainLogger->setLevel(log4cxx::Level::getTrace());
-
-  log4cxx::BasicConfigurator::configure();
-  log4cxx::PatternLayoutPtr patternLayout = new log4cxx::PatternLayout();
-  patternLayout->setConversionPattern("%m%n");
+  log4cxx::PropertyConfigurator::configure("apache.conf");
 
   run_test2();
 }

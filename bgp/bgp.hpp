@@ -31,7 +31,8 @@ public:
   BGPProcess(
       string path,
       shared_ptr<boost::barrier> bp,
-      CompPeer<3>* comp_peer);
+      CompPeer<3>* comp_peer,
+      io_service& io);
 
   void load_graph(std::string path, graph_t& graph);
   void init(graph_t& graph);
@@ -49,7 +50,10 @@ public:
       const vertex_t affected_vertex,
       graph_t& graph,
       set<vertex_t>& changed_set,
-      set<vertex_t>& new_changed_set);
+      set<vertex_t>& new_changed_set,
+      int& count,
+      boost::mutex& m,
+      boost::condition_variable& cv);
 
   void next_iteration(
       vertex_t dst,
@@ -68,6 +72,7 @@ public:
   graph_t graph_;
   CompPeer<3>* comp_peer_;
   shared_ptr<boost::barrier> bp_;
+  io_service& io_service_;
 };
 
 #endif /* BGP_HPP_ */

@@ -169,7 +169,7 @@ template<class CompPeerSeq>
 void InputPeer::disseminate_bgp(CompPeerSeq& comp_peers) {
 
   boost::shared_ptr<boost::barrier> bp;
-  BGPProcess bgp("scripts/dot.dot", bp, NULL);
+  BGPProcess bgp("scripts/dot.dot", bp, NULL, io_service_);
 
   graph_t& input_graph = bgp.graph_;
 
