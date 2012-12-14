@@ -177,6 +177,215 @@ symbol_t CompPeer<Num>::generate_random_num(string key, vertex_t l) {
 
 
 
+
+template<const size_t Num>
+int CompPeer<Num>::compare0(string key1, string key2, vertex_t l) {
+
+  value_map_t& vlm = vertex_value_map_[l];
+
+  string w = ".2" + key1;
+  string x = ".2" + key2;
+  string y = ".2" + key1 + "-" + key2;
+
+  LOG4CXX_INFO( logger_, id_ << ": w: " << vlm[w]);
+  LOG4CXX_INFO( logger_, id_ << ": x: " << vlm[x]);
+  LOG4CXX_INFO( logger_, id_ << ": y: " << vlm[y]);
+
+  vector<string> circut = {"*", w, x};
+  string circut_str = x + "*" + w;
+
+  //sig_map_[l][circut_str].connect
+
+  const string wx( execute(circut, l) );
+  LOG4CXX_INFO( logger_,  id_ << ": wx: " << circut_str << ": " << vlm[circut_str]);
+
+  barrier_map_[l]->wait();
+
+  return compare1(key1, key2, l);
+}
+
+
+
+template<const size_t Num>
+int CompPeer<Num>::compare1(string key1, string key2, vertex_t l) {
+
+  value_map_t& vlm = vertex_value_map_[l];
+
+  string w = ".2" + key1;
+  string x = ".2" + key2;
+  string y = ".2" + key1 + "-" + key2;
+
+  vector<string> circut = {"*", w, y};
+  string circut_str = y + "*" + w;
+  const string str( execute(circut, l) );
+  LOG4CXX_INFO( logger_,  id_ << ": wy: " << circut_str << ": " << vlm[circut_str]);
+
+  barrier_map_[l]->wait();
+
+  return compare2(key1, key2, l);
+}
+
+
+template<const size_t Num>
+int CompPeer<Num>::compare2(string key1, string key2, vertex_t l) {
+
+  value_map_t& vlm = vertex_value_map_[l];
+
+  string w = ".2" + key1;
+  string x = ".2" + key2;
+  string y = ".2" + key1 + "-" + key2;
+
+  vector<string> circut = {"*", x, y};
+  string circut_str = y + "*" + x;
+  const string str( execute(circut, l) );
+  LOG4CXX_INFO( logger_,  id_ << ": xy: " << circut_str << ": " << vlm[circut_str]);
+
+  barrier_map_[l]->wait();
+
+  return compare3(key1, key2, l);
+
+}
+
+
+
+template<const size_t Num>
+int CompPeer<Num>::compare3(string key1, string key2, vertex_t l) {
+
+  value_map_t& vlm = vertex_value_map_[l];
+
+  string w = ".2" + key1;
+  string x = ".2" + key2;
+  string y = ".2" + key1 + "-" + key2;
+
+  string xy = y + "*" + x;
+
+  vector<string> circut = {"*", w, "*", "2", xy};
+  string circut_str = xy + "*" + "2" + "*" + w;
+  const string str( execute(circut, l) );
+  LOG4CXX_INFO( logger_,  id_ << ": 2xyw: " << circut_str << ": " << vlm[circut_str]);
+
+  barrier_map_[l]->wait();
+
+  return compare4(key1, key2, l);
+}
+
+
+
+template<const size_t Num>
+int CompPeer<Num>::compare4(string key1, string key2, vertex_t l) {
+
+  value_map_t& vlm = vertex_value_map_[l];
+
+  string w = ".2" + key1;
+  string x = ".2" + key2;
+  string y = ".2" + key1 + "-" + key2;
+
+  string xy = y + "*" + x;
+  string wx = x + "*" + w;
+  string wy = y + "*" + w;
+
+  string wxy2 = xy + "*" + "2" + "*" + w;
+
+  std::vector<string> circut = {"+", xy, "-", x, "-", y, "-", wxy2, "+", wy, wx};
+  string result = execute(circut, l);
+
+  string circut_str = wx + "+" + wy + "-" + wxy2 + "-" + y + "-" + x + "+" + xy;
+  LOG4CXX_INFO( logger_,  id_ << ": Final: " << result   << ": " << vlm[result] );
+
+  barrier_map_[l]->wait();
+
+  return compare5(key1, key2, l);
+}
+
+
+
+template<const size_t Num>
+int CompPeer<Num>::compare5(string key1, string key2, vertex_t l) {
+
+  value_map_t& vlm = vertex_value_map_[l];
+
+  string w = ".2" + key1;
+  string x = ".2" + key2;
+  string y = ".2" + key1 + "-" + key2;
+
+  string xy = y + "*" + x;
+  string wx = x + "*" + w;
+  string wy = y + "*" + w;
+
+  string wxy2 = xy + "*" + "2" + "*" + w;
+  string result = wx + "+" + wy + "-" + wxy2 + "-" + y + "-" + x + "+" + xy;
+
+
+  auto p_final = mutex_map_2[l].insert(
+      std::make_pair(result, shared_ptr<mutex_t>(new mutex_t))
+      );
+
+  //barrier_map_[l]->wait();
+
+  auto value = vlm[result] + 1;
+  value = mod(value, PRIME);
+
+  Vertex& v = bgp_->graph_[l];
+
+  for(size_t i = 0; i < COMP_PEER_NUM; i++) {
+    v.clients_[id_][i]->publish(result + "_" + lexical_cast<string>(id_), value, l);
+  }
+
+
+  mutex_t& m = *(p_final.first->second);
+  lock_t lock(m);
+
+  auto cv_p = cv_map_2[l].insert(
+      make_pair(result, shared_ptr<condition_variable_t>(new condition_variable_t))
+      );
+
+  condition_variable_t& cv = *(cv_p.first->second);
+
+  LOG4CXX_TRACE( logger_, "Waiting 2..." << result);
+
+  int& counter = couter_map_2[l][result];
+
+  while (counter != 3) {
+    cv.wait(lock);
+  }
+  counter = 0;
+
+  //barrier_map_[l]->wait();
+
+  double X[Num], Y[Num], D[Num];
+
+  for(size_t i = 0; i < Num; i++) {
+    std::string key = result + "_"  + boost::lexical_cast<std::string>(i + 1);
+    const auto value = vlm[key];
+    intermediary_[i + 1] = value;
+
+    LOG4CXX_INFO( logger_, "intermediary_: " << key << ": " << value);
+  }
+
+  for(auto it = intermediary_.begin(); it != intermediary_.end(); ++it) {
+    const auto _x = it->first;
+    const auto _y = it->second;
+    const auto _index = it->first - 1;
+
+    X[_index] = _x;
+    Y[_index] = _y;
+  }
+
+  gsl_poly_dd_init( D, X, Y, 3 );
+  const double interpol = gsl_poly_dd_eval( D, X, 3, 0);
+
+  LOG4CXX_INFO( logger_, "Result: " << result << ": " << interpol);
+
+  barrier_map_[l]->wait();
+
+  sig_map_2[l][result]->operator ()(( mod(interpol, PRIME) ));
+
+  return mod(interpol, PRIME);
+
+}
+
+
+
 template<const size_t Num>
 int CompPeer<Num>::compare(string key1, string key2, vertex_t l) {
 
@@ -193,33 +402,27 @@ int CompPeer<Num>::compare(string key1, string key2, vertex_t l) {
   vector<string> wx_cricut = {"*", w, x};
   const string wx( execute(wx_cricut, l) );
   LOG4CXX_DEBUG( logger_,  id_ << ": wx: " << wx << ": " << vlm[wx]);
-  mutex_map_2[l][wx]->unlock();
 
-  barrier_map_[l]->wait();
+  //barrier_map_[l]->wait();
 
   vector<string> wy_cricut = {"*", w, y};
   const string wy( execute(wy_cricut, l) );
   LOG4CXX_DEBUG( logger_,  id_ << ": wy: " << wy << ": " << vlm[wy]);
-  mutex_map_2[l][wy]->unlock();
 
-  barrier_map_[l]->wait();
+  //barrier_map_[l]->wait();
 
   vector<string> xy_cricut = {"*", x, y};
   const string xy( execute(xy_cricut, l) );
   LOG4CXX_DEBUG( logger_,  id_ << ": xy: " << xy << ": " << vlm[xy]);
-  mutex_map_2[l][xy]->unlock();
 
-  barrier_map_[l]->wait();
+  //barrier_map_[l]->wait();
 
   vector<string> wxy2_cricut = {"*", "2", "*", w, "*", y, x};
   const string wxy2( execute(wxy2_cricut, l) );
   LOG4CXX_DEBUG( logger_,  id_ << ": 2wxy: " << wxy2 << ": " << vlm[wxy2]);
   LOG4CXX_DEBUG( logger_,  id_ << wxy2);
 
-  mutex_map_2[l][wxy2]->unlock();
-  mutex_map_2[l][wxy2.substr(0, wxy2.size() - 2)]->unlock();
-
-  barrier_map_[l]->wait();
+  //barrier_map_[l]->wait();
 
 
   vector<string> final = {
@@ -233,7 +436,7 @@ int CompPeer<Num>::compare(string key1, string key2, vertex_t l) {
       std::make_pair(result, shared_ptr<mutex_t>(new mutex_t))
       );
 
-  barrier_map_[l]->wait();
+  //barrier_map_[l]->wait();
 
   auto value = vlm[result] + 1;
   value = mod(value, PRIME);
@@ -245,13 +448,13 @@ int CompPeer<Num>::compare(string key1, string key2, vertex_t l) {
   }
 
 
-  mutex_t& m = *(mutex_map_2[l][result]);
+  mutex_t& m = *(p_final.first->second);
   lock_t lock(m);
 
   auto cv_p = cv_map_2[l].insert(
       make_pair(result, shared_ptr<condition_variable_t>(new condition_variable_t))
       );
-  condition_variable_t& cv = *(cv_map_2[l][result]);
+  condition_variable_t& cv = *(cv_p.first->second);
 
   LOG4CXX_TRACE( logger_, "Waiting 2..." << result);
 
@@ -264,7 +467,6 @@ int CompPeer<Num>::compare(string key1, string key2, vertex_t l) {
   counter = 0;
 
   //barrier_map_[l]->wait();
-  mutex_map_2[l][result]->unlock();
 
   double X[Num], Y[Num], D[Num];
 
@@ -286,7 +488,7 @@ int CompPeer<Num>::compare(string key1, string key2, vertex_t l) {
   gsl_poly_dd_init( D, X, Y, 3 );
   const double interpol = gsl_poly_dd_eval( D, X, 3, 0);
 
-  barrier_map_[l]->wait();
+  //barrier_map_[l]->wait();
 
   return mod(interpol, PRIME);
 }
@@ -319,11 +521,11 @@ symbol_t CompPeer<Num>::multiply_const(
   const auto result = vlm[first] * second;
   vlm.insert( make_pair(recombination_key, result) );
 
-  auto m_p = mutex_map_2[l].insert(
+  mutex_map_2[l].insert(
       make_pair(recombination_key, shared_ptr<mutex_t>(new mutex_t))
       );
 
-  auto cv_p = cv_map_2[l].insert(
+  cv_map_2[l].insert(
       make_pair(recombination_key, shared_ptr<condition_variable_t>(new condition_variable_t))
       );
 
@@ -338,20 +540,18 @@ symbol_t CompPeer<Num>::multiply(
     string second,
     string recombination_key, vertex_t l) {
 
-
-
   auto p = mutex_map_2[l].insert(
       std::make_pair(recombination_key, shared_ptr<mutex_t>(new mutex_t))
       );
 
-  LOG4CXX_TRACE( logger_, "CompPeer<Num>::multiply -> " << p.second);
+  LOG4CXX_TRACE( logger_, "CompPeer<Num>::multiply");
 
   value_map_t& vlm = vertex_value_map_[l];
 
   vlm.at(first);
   vlm.at(second);
 
-  const string key = recombination_key + "_" + boost::lexical_cast<string>(id_);
+  const string key = recombination_key + "_" + lexical_cast<string>(id_);
   const int64_t result = vlm[first] * vlm[second];
 
   Vertex& v = bgp_->graph_[l];
@@ -362,11 +562,11 @@ symbol_t CompPeer<Num>::multiply(
   //mutex_t& m = *( mutex_map_2[l][recombination_key] );
   mutex_t& m = *(p.first->second);
 
-  LOG4CXX_TRACE( logger_, "CompPeer acquiring lock... " << recombination_key);
+  LOG4CXX_TRACE( logger_, "CompPeer acquiring lock... " << l << ": " << recombination_key);
 
   lock_t lock( m );
 
-  LOG4CXX_TRACE( logger_, "CompPeer acquired lock... " << recombination_key);
+  LOG4CXX_TRACE( logger_, "CompPeer acquired lock... " << l << ": " << recombination_key);
 
   auto cv_p = cv_map_2[l].insert(
       make_pair(recombination_key, shared_ptr<condition_variable_t>(new condition_variable_t))

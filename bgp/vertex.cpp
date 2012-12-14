@@ -54,7 +54,7 @@ bool Vertex::in_as_path(graph_t& graph, vertex_t vertex) {
 
 
 void Vertex::set_next_hop(graph_t& graph, vertex_t neigh) {
-  Vertex& v = graph[neigh];
+  //Vertex& v = graph[neigh];
   next_hop_ = neigh;
 }
 

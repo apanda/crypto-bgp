@@ -15,6 +15,8 @@
 #include <boost/graph/adjacency_list.hpp>
 #include <boost/graph/graphviz.hpp>
 
+#include <tbb/concurrent_unordered_set.h>
+
 #include <iostream>
 #include <vector>
 
@@ -48,18 +50,38 @@ public:
 
   void process_neighbors_mpc(
       const vertex_t affected_vertex,
-      graph_t& graph,
-      set<vertex_t>& changed_set,
-      set<vertex_t>& new_changed_set,
+      tbb::concurrent_unordered_set<vertex_t> changed_set,
+      tbb::concurrent_unordered_set<vertex_t>& new_changed_set,
+      int& count);
+
+  void for1(
+      vertex_t affected_vertex,
+      vertex_t neigh_vertex,
+      tbb::concurrent_unordered_set<vertex_t>& new_changed_set,
+      int cmp);
+
+  void for0(
+      const vertex_t affected_vertex,
+      tbb::concurrent_unordered_set<vertex_t> changed_set,
+      tbb::concurrent_unordered_set<vertex_t>& new_changed_set,
       int& count,
-      boost::mutex& m,
-      boost::condition_variable& cv);
+      int& cnt,
+      std::pair<graph_t::adjacency_iterator, graph_t::adjacency_iterator>& neighbors);
+
+
+  void process_neighbors_mpc2(
+      const vertex_t affected_vertex,
+      const vertex_t neigh_vertex,
+      graph_t& graph,
+      tbb::concurrent_unordered_set<vertex_t>& new_changed_set,
+      int& count,
+      int cmp);
 
   void next_iteration(
       vertex_t dst,
       graph_t& graph,
       set<vertex_t>& affected_set,
-      set<vertex_t>& changed_set);
+      tbb::concurrent_unordered_set<vertex_t> changed_set);
 
   void print_state(
       graph_t& graph,
@@ -73,6 +95,10 @@ public:
   CompPeer<3>* comp_peer_;
   shared_ptr<boost::barrier> bp_;
   io_service& io_service_;
+
+  boost::mutex m_;
+  boost::condition_variable cv_;
+
 };
 
 #endif /* BGP_HPP_ */

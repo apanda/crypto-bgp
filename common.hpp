@@ -23,6 +23,7 @@
 #include <boost/function.hpp>
 
 typedef int64_t share_t;
+
 const size_t SHARE_SIZE = sizeof(share_t);
 const size_t SHARE_BIT_SIZE = SHARE_SIZE * 8;
 

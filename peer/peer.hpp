@@ -54,8 +54,6 @@ public:
 
 
   io_service& io_service_;
-  //io_service::work work_;
-  RPCServer* server_;
 
   int counter_;
 
@@ -78,10 +76,27 @@ public:
   > cv_map_2;
 
 
-  std::unordered_map<int, boost::signals2::signal<void (string)> > sig_map_;
+  std::unordered_map<
+    int, tbb::concurrent_unordered_map<string,
+      boost::signals2::signal<symbol_t (string, vertex_t)> >
+  > sig_map_;
+
+  std::unordered_map<
+    int,
+      tbb::concurrent_unordered_map<string,
+      shared_ptr< boost::signals2::signal<void (int)> >
+      >
+  > sig_map_2;
+
+
+  std::unordered_map<
+    int,
+      tbb::concurrent_unordered_map<string,
+      shared_ptr< boost::signals2::signal<void ()> >
+      >
+  > sig_map_3;
 
   mutex_t barrier_mutex_;
-  mutex_t __mutex;
 
   std::string recombination_key_;
 

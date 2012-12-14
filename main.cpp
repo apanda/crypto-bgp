@@ -32,7 +32,7 @@ void run_test2() {
 
   boost::thread_group worker_threads;
 
-  io_service io;
+  io_service io(32);
   io_service::work work(io);
 
   CompPeer_factory factory;
