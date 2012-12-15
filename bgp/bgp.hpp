@@ -65,8 +65,8 @@ public:
       tbb::concurrent_unordered_set<vertex_t> changed_set,
       tbb::concurrent_unordered_set<vertex_t>& new_changed_set,
       int& count,
-      int& cnt,
-      std::pair<graph_t::adjacency_iterator, graph_t::adjacency_iterator>& neighbors);
+      int cnt,
+      std::pair<graph_t::adjacency_iterator, graph_t::adjacency_iterator> neighbors);
 
 
   void process_neighbors_mpc2(

@@ -32,7 +32,7 @@ void run_test2() {
 
   boost::thread_group worker_threads;
 
-  io_service io(32);
+  io_service io;
   io_service::work work(io);
 
   CompPeer_factory factory;
@@ -40,7 +40,7 @@ void run_test2() {
 
   input_peer->disseminate_bgp(comp_peer_seq);
 
-  for (int i = 0; i < 32; i++) {
+  for (int i = 0; i < 4; i++) {
     worker_threads.add_thread( new boost::thread(bind(&io_service::run, &io)) );
   }
 

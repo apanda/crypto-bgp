@@ -36,29 +36,29 @@ public:
   void evaluate(vector<string> circut, vertex_t l);
   void evaluate(string a, string b);
 
-  symbol_t execute(vector<string> circut, vertex_t l);
+  void execute(vector<string> circut, vertex_t l);
 
-  symbol_t add(string first, string second, string recombination_key, vertex_t l);
-  symbol_t sub(string first, string second, string recombination_key, vertex_t l);
-  symbol_t multiply(string first, string second, string recombination_key, vertex_t l);
-  symbol_t multiply_const(string first, int64_t second, string recombination_key, vertex_t l);
-  symbol_t recombine(string recombination_key, vertex_t key);
+  void add(string first, string second, string recombination_key, vertex_t l);
+  void sub(string first, string second, string recombination_key, vertex_t l);
+  void multiply(string first, string second, string recombination_key, vertex_t l);
+  void multiply_const(string first, int64_t second, string recombination_key, vertex_t l);
+  void recombine(string recombination_key, vertex_t key);
 
-  symbol_t generate_random_num(string key, vertex_t l);
-  symbol_t generate_random_bit(string key, vertex_t l);
-  symbol_t generate_random_bitwise_num(string key, vertex_t l);
+  void generate_random_num(string key, vertex_t l);
+  void generate_random_bit(string key, vertex_t l);
+  void generate_random_bitwise_num(string key, vertex_t l);
 
-  int compare(string key1, string key2, vertex_t key);
+  void compare(string key1, string key2, vertex_t key);
 
-  int compare0(string key1, string key2, vertex_t key);
-  int compare1(string key1, string key2, vertex_t key);
-  int compare2(string key1, string key2, vertex_t key);
-  int compare3(string key1, string key2, vertex_t key);
-  int compare4(string key1, string key2, vertex_t key);
-  int compare5(string key1, string key2, vertex_t key);
+  void compare0(string key1, string key2, vertex_t key);
+  void compare1(string key1, string key2, vertex_t key);
+  void compare2(string key1, string key2, vertex_t key);
+  void compare3(string key1, string key2, vertex_t key);
+  void compare4(string key1, string key2, vertex_t key);
+  void compare5(string key1, string key2, vertex_t key);
 
 
-  symbol_t continue_or_not(vector<string> circut,
+  void continue_or_not(vector<string> circut,
       const string key,
       const int64_t result,
       string recombination_key,

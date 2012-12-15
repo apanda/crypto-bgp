@@ -67,7 +67,7 @@ public:
     int, std::unordered_map<string, int>
   > couter_map_2;
 
-  std::unordered_map<
+  tbb::concurrent_unordered_map<
     int, tbb::concurrent_unordered_map<string, shared_ptr<mutex_t> >
   > mutex_map_2;
 
@@ -78,8 +78,13 @@ public:
 
   std::unordered_map<
     int, tbb::concurrent_unordered_map<string,
-      boost::signals2::signal<symbol_t (string, vertex_t)> >
+    shared_ptr< boost::signals2::signal<void ()> > >
   > sig_map_;
+
+  std::unordered_map<
+    int, tbb::concurrent_unordered_map<string,
+    shared_ptr< boost::signals2::signal<void ()> > >
+  > sig_map_0;
 
   std::unordered_map<
     int,
