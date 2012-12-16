@@ -32,6 +32,8 @@ void Vertex::set_preference() {
 
 int64_t Vertex::current_next_hop_preference(graph_t graph) {
 
+  //boost::mutex::scoped_lock lock(m_);
+
   if (next_hop_ == UNDEFINED) return 0;
   return preference_[graph[next_hop_].id_];
 }
@@ -40,13 +42,24 @@ int64_t Vertex::current_next_hop_preference(graph_t graph) {
 
 bool Vertex::in_as_path(graph_t& graph, vertex_t vertex) {
 
+  //boost::mutex::scoped_lock lock(m_);
+
   vertex_t next = next_hop_;
+  int MAX_AS_LENGTH = 10;
+  int count = 0;
 
   while(true) {
+    count++;
+
+    //printf("Loop: %lu!\n", next );
     if (next == vertex) return true;
     else if (next == UNDEFINED) return false;
     Vertex& v = graph[next];
     next = v.next_hop_;
+    if (count > MAX_AS_LENGTH)  {
+      //printf("Undefined behavior!\n" );
+      return true;
+    }
   }
 
   return false;
@@ -54,7 +67,9 @@ bool Vertex::in_as_path(graph_t& graph, vertex_t vertex) {
 
 
 void Vertex::set_next_hop(graph_t& graph, vertex_t neigh) {
-  //Vertex& v = graph[neigh];
+
+  //boost::mutex::scoped_lock lock(m_);
+
   next_hop_ = neigh;
 }
 

@@ -14,6 +14,7 @@
 #include <boost/thread/condition.hpp>
 #include <boost/thread/locks.hpp>
 #include <boost/shared_ptr.hpp>
+#include <boost/function.hpp>
 
 #include <tbb/compat/condition_variable>
 #include <tbb/concurrent_unordered_map.h>
@@ -49,7 +50,7 @@ public:
   //typedef tbb::interface5::condition_variable condition_variable_t;
 
   typedef boost::mutex mutex_t;
-  typedef boost::unique_lock<mutex_t> lock_t;
+  typedef boost::lock_guard<mutex_t> lock_t;
   typedef boost::condition_variable condition_variable_t;
 
 
@@ -57,7 +58,7 @@ public:
 
   int counter_;
 
-  std::unordered_map<int, value_map_t > vertex_value_map_;
+  tbb::concurrent_unordered_map<int, value_map_t > vertex_value_map_;
 
   std::unordered_map<int, int > couter_map_;
   std::unordered_map<int, shared_ptr<mutex_t> > mutex_map_;
@@ -71,35 +72,34 @@ public:
     int, tbb::concurrent_unordered_map<string, shared_ptr<mutex_t> >
   > mutex_map_2;
 
-  std::unordered_map<
+  tbb::concurrent_unordered_map<
     int, tbb::concurrent_unordered_map<string, shared_ptr<condition_variable_t> >
   > cv_map_2;
 
-
-  std::unordered_map<
+  tbb::concurrent_unordered_map<
     int, tbb::concurrent_unordered_map<string,
-    shared_ptr< boost::signals2::signal<void ()> > >
-  > sig_map_;
+    shared_ptr< boost::function<void ()> > >
+  > sig_map_x;
 
-  std::unordered_map<
+
+  tbb::concurrent_unordered_map<
     int, tbb::concurrent_unordered_map<string,
-    shared_ptr< boost::signals2::signal<void ()> > >
-  > sig_map_0;
+    shared_ptr< boost::function<void ()> > >
+  > sig_map_0x;
 
-  std::unordered_map<
+  tbb::concurrent_unordered_map<
     int,
       tbb::concurrent_unordered_map<string,
-      shared_ptr< boost::signals2::signal<void (int)> >
+      shared_ptr< boost::function<void (int)> >
       >
-  > sig_map_2;
+  > sig_map_2x;
 
-
-  std::unordered_map<
+  tbb::concurrent_unordered_map<
     int,
       tbb::concurrent_unordered_map<string,
-      shared_ptr< boost::signals2::signal<void ()> >
+      shared_ptr< boost::function<void ()> >
       >
-  > sig_map_3;
+  > sig_map_3x;
 
   mutex_t barrier_mutex_;
 

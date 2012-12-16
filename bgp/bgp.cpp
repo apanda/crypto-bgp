@@ -77,200 +77,44 @@ void BGPProcess::next_iteration(
   set<vertex_t> new_affected_set;
   tbb::concurrent_unordered_set<vertex_t> new_changed_set;
 
-  for(auto it = affected_set.begin(); ;) {
-
-    int suppose = 0;
-    int count = 0;
-
-    if((*it) == dst_vertex) {
-      ++it;
-      continue;
-    }
-
-    if(it == affected_set.end()) {
-      break;
-    }
-
-    io_service_.post(
-      boost::bind(
-          &BGPProcess::process_neighbors_mpc,
-          this, (*it),
-          changed_set,
-          boost::ref(new_changed_set),
-          boost::ref(count)
-      )
-    );
-
-    suppose++;
-    ++it;
-
-
-    /*
-
-    if((*it) == dst_vertex) {
-
-      boost::unique_lock<boost::mutex> lock(m_);
-      while(count != suppose) {
-        cv_.wait(lock);
-      }
-
-      ++it;
-      continue;
-    }
-
-    if(it == affected_set.end()) {
-
-      boost::unique_lock<boost::mutex> lock(m_);
-      while(count != suppose) {
-        cv_.wait(lock);
-      }
-      break;
-    }
-
-
-    io_service_.post(
-      boost::bind(
-          &BGPProcess::process_neighbors_mpc,
-          this, (*it),
-          changed_set,
-          boost::ref(new_changed_set),
-          boost::ref(count)
-      )
-    );
-
-    suppose++;
-    ++it;
-
-
-
-
-    if((*it) == dst_vertex) {
-
-      boost::unique_lock<boost::mutex> lock(m);
-      while(count != suppose) {
-        cv.wait(lock);
-      }
-
-      ++it;
-      continue;
-    }
-
-    if(it == affected_set.end()) {
-
-      boost::unique_lock<boost::mutex> lock(m);
-      while(count != suppose) {
-        cv.wait(lock);
-      }
-      break;
-    }
-
-
-    io_service_.post(
-      boost::bind(
-          &BGPProcess::process_neighbors_mpc,
-          this, (*it),
-          boost::ref(graph),
-          boost::ref(changed_set),
-          boost::ref(new_changed_set),
-          boost::ref(count),
-          boost::ref(m),
-          boost::ref(cv)
-      )
-        );
-
-    suppose++;
-    ++it;
-
-
-
-
-    if((*it) == dst_vertex) {
-
-      boost::unique_lock<boost::mutex> lock(m);
-      while(count != suppose) {
-        cv.wait(lock);
-      }
-
-      ++it;
-      continue;
-    }
-
-    if(it == affected_set.end()) {
-
-      boost::unique_lock<boost::mutex> lock(m);
-      while(count != suppose) {
-        cv.wait(lock);
-      }
-      break;
-    }
-
-
-    io_service_.post(
-      boost::bind(
-          &BGPProcess::process_neighbors_mpc,
-          this, (*it),
-          boost::ref(graph),
-          boost::ref(changed_set),
-          boost::ref(new_changed_set),
-          boost::ref(count),
-          boost::ref(m),
-          boost::ref(cv)
-      )
-        );
-
-    suppose++;
-    ++it;
-
-    if((*it) == dst_vertex) {
-
-      boost::unique_lock<boost::mutex> lock(m);
-      while(count != suppose) {
-        cv.wait(lock);
-      }
-
-      ++it;
-      continue;
-    }
-
-    if(it == affected_set.end()) {
-
-      boost::unique_lock<boost::mutex> lock(m);
-      while(count != suppose) {
-        cv.wait(lock);
-      }
-      break;
-    }
-
-
-    io_service_.post(
-      boost::bind(
-          &BGPProcess::process_neighbors_mpc,
-          this, (*it),
-          boost::ref(graph),
-          boost::ref(changed_set),
-          boost::ref(new_changed_set),
-          boost::ref(count),
-          boost::ref(m),
-          boost::ref(cv)
-      )
-        );
-
-    suppose++;
-    ++it;
-*/
-
-    boost::unique_lock<boost::mutex> lock(m_);
-    while(count != suppose) {
-      cv_.wait(lock);
-      //printf("Woken up!\n");
-    }
-
-/*
-    comp_peer_->mutex_map_2.clear();
-*/
+  vector<vertex_t> batch;
+  for(const auto vertex: affected_set) {
+    batch.push_back(vertex);
   }
 
+  for(;;) {
 
+    size_t count = 0;
+    vector<vertex_t> current_batch;
+
+    for(int i = 0; i < 10; i++) {
+
+      if (batch.empty()) break;
+
+      const vertex_t vertex = batch.back();
+      batch.pop_back();
+
+      if (vertex == dst_vertex) continue;
+      current_batch.push_back(vertex);
+
+      io_service_.post(
+        boost::bind(
+            &BGPProcess::process_neighbors_mpc,
+            this, vertex,
+            changed_set,
+            boost::ref(new_changed_set),
+            boost::ref(count))
+      );
+    }
+
+    boost::unique_lock<boost::mutex> lock(m_);
+    while(count != current_batch.size()) {
+      cv_.wait(lock);
+    }
+
+    if (batch.empty()) break;
+
+  }
 
   for(const vertex_t vertex: new_changed_set) {
     auto neighbors = adjacent_vertices(vertex, graph_);
@@ -285,68 +129,11 @@ void BGPProcess::next_iteration(
 }
 
 
-void BGPProcess::for1(
-    vertex_t affected_vertex,
-    vertex_t neigh_vertex,
-    tbb::concurrent_unordered_set<vertex_t>& new_changed_set,
-    int cmp) {
-
-  Vertex& affected = graph_[affected_vertex];
-
-  const string key1 = lexical_cast<string>(affected.next_hop_);
-  const string key2 = lexical_cast<string>(neigh_vertex);
-
-  string w = ".2" + key1;
-  string x = ".2" + key2;
-  string y = ".2" + key1 + "-" + key2;
-
-  string xy = y + "*" + x;
-  string wx = x + "*" + w;
-  string wy = y + "*" + w;
-
-  string wxy2 = xy + "*" + "2" + "*" + w;
-  string result = wx + "+" + wy + "-" + wxy2 + "-" + y + "-" + x + "+" + xy;
-
-  comp_peer_->sig_map_2[affected_vertex][result]->disconnect_all_slots();
-
-  const auto current_preference = affected.current_next_hop_preference(graph_);
-
-  auto offer_it = affected.preference_.find(neigh_vertex);
-  BOOST_ASSERT(offer_it != affected.preference_.end());
-  const auto offered_preference = offer_it->second;
-
-  LOG4CXX_INFO(comp_peer_->logger_, "Compare -> "
-      << current_preference << ", " << offered_preference );
-
-  const bool condition = offered_preference <= current_preference;
-
-  if (cmp != condition) {
-    printf("==================================================\n");
-    printf("(Is, Should): (%d, %d) -- Vertex (%ld, %ld)\n",
-        cmp, condition, affected_vertex, neigh_vertex);
-    printf("==================================================\n");
-  }
-
-  if ( offered_preference <= current_preference ) {
-    comp_peer_->sig_map_3[affected_vertex][result]->operator ()();
-    return;
-  }
-
-  affected.set_next_hop(graph_, neigh_vertex);
-  //printf("%ld next hop set to: %ld\n", affected_vertex, affected.next_hop_);
-  new_changed_set.insert(affected_vertex);
-
-  comp_peer_->sig_map_3[affected_vertex][result]->operator ()();
-}
-
-
-
-
 void BGPProcess::for0(
     const vertex_t affected_vertex,
     tbb::concurrent_unordered_set<vertex_t> changed_set,
     tbb::concurrent_unordered_set<vertex_t>& new_changed_set,
-    int& count,
+    size_t& count,
     int cnt,
     std::pair<graph_t::adjacency_iterator, graph_t::adjacency_iterator> neighbors) {
 
@@ -374,9 +161,8 @@ void BGPProcess::for0(
   string wxy2 = xy + "*" + "2" + "*" + w;
   string result = wx + "+" + wy + "-" + wxy2 + "-" + y + "-" + x + "+" + xy;
 
-  comp_peer_->sig_map_3[affected_vertex][result] =
-      shared_ptr<boost::signals2::signal<void()> >(new boost::signals2::signal<void()>);
-
+  comp_peer_->sig_map_3x[affected_vertex][result] =
+      shared_ptr<boost::function<void()> >(new boost::function<void()>);
 
   if (neighbors.first == neighbors.second) {
     boost::unique_lock<boost::mutex> lock(m_);
@@ -395,12 +181,7 @@ void BGPProcess::for0(
         neighbors
       );
 
-  comp_peer_->sig_map_3[affected_vertex][result]->connect(next);
-
-
-
-
-
+  *(comp_peer_->sig_map_3x[affected_vertex][result]) = next;
 
   if(changed_set.find(neigh_vertex) == changed_set.end()) {
     next();
@@ -410,46 +191,99 @@ void BGPProcess::for0(
   LOG4CXX_INFO(comp_peer_->logger_, "Vertex -> "
       << affected_vertex << ", " << neigh_vertex );
 
-  //boost::recursive_mutex& m = *(comp_peer_->mutex_map_[neigh_vertex]);
+  //Peer::mutex_t& m = *(comp_peer_->mutex_map_[neigh_vertex]);
   //Peer::mutex_t::scoped_lock lock(m);
+
+  LOG4CXX_INFO(comp_peer_->logger_, "Getting neigh..")
 
   Vertex& neigh = graph_[neigh_vertex];
 
+  LOG4CXX_INFO(comp_peer_->logger_, "Got the neigh!")
+
   if ( neigh.in_as_path(graph_, affected_vertex) ) {
+    LOG4CXX_INFO(comp_peer_->logger_, "In AS PATH!")
     next();
     return;
   }
 
-  //comp_peer_->sig_map_3
+  LOG4CXX_INFO(comp_peer_->logger_, "Binding...!")
 
-
-
-  //comp_peer_->sig_map_3[affected_vertex][result]->disconnect_all_slots();
-
-
-
-
-  comp_peer_->sig_map_2[affected_vertex][result] =
-      shared_ptr<boost::signals2::signal<void(int)> >(new boost::signals2::signal<void(int)>);
-  comp_peer_->sig_map_2[affected_vertex][result]->connect(
+  comp_peer_->sig_map_2x[affected_vertex][result] =
+      shared_ptr<boost::function<void(int)> >(new boost::function<void(int)>);
+  *(comp_peer_->sig_map_2x[affected_vertex][result]) =
       boost::bind(&BGPProcess::for1, this,
               affected_vertex,
               neigh_vertex,
               boost::ref(new_changed_set),
-              _1
-            )
-  );
+              _1);
+
+  LOG4CXX_INFO(comp_peer_->logger_, "Compare0")
 
   comp_peer_->compare0(
       lexical_cast<string>(affected.next_hop_),
       lexical_cast<string>(neigh_vertex),
       affected_vertex);
 
-
   return;
 
 }
 
+
+
+void BGPProcess::for1(
+    vertex_t affected_vertex,
+    vertex_t neigh_vertex,
+    tbb::concurrent_unordered_set<vertex_t>& new_changed_set,
+    int cmp) {
+
+  //Peer::mutex_t& m = *(comp_peer_->mutex_map_[neigh_vertex]);
+  //Peer::mutex_t::scoped_lock lock(m);
+
+  Vertex& affected = graph_[affected_vertex];
+
+  const string key1 = lexical_cast<string>(affected.next_hop_);
+  const string key2 = lexical_cast<string>(neigh_vertex);
+
+  string w = ".2" + key1;
+  string x = ".2" + key2;
+  string y = ".2" + key1 + "-" + key2;
+
+  string xy = y + "*" + x;
+  string wx = x + "*" + w;
+  string wy = y + "*" + w;
+
+  string wxy2 = xy + "*" + "2" + "*" + w;
+  string result = wx + "+" + wy + "-" + wxy2 + "-" + y + "-" + x + "+" + xy;
+
+  const auto current_preference = affected.current_next_hop_preference(graph_);
+
+  auto offer_it = affected.preference_.find(neigh_vertex);
+  BOOST_ASSERT(offer_it != affected.preference_.end());
+  const auto offered_preference = offer_it->second;
+
+  LOG4CXX_INFO(comp_peer_->logger_, "Compare -> "
+      << current_preference << ", " << offered_preference );
+
+  const bool condition = offered_preference <= current_preference;
+
+  if (cmp != condition) {
+    printf("==================================================\n");
+    printf("(Is, Should): (%d, %d) -- Vertex (%ld, %ld)\n",
+        cmp, condition, affected_vertex, neigh_vertex);
+    printf("==================================================\n");
+  }
+
+  if ( offered_preference <= current_preference ) {
+    comp_peer_->sig_map_3x[affected_vertex][result]->operator ()();
+    return;
+  }
+
+  affected.set_next_hop(graph_, neigh_vertex);
+  //printf("%ld next hop set to: %ld\n", affected_vertex, affected.next_hop_);
+  new_changed_set.insert(affected_vertex);
+
+  comp_peer_->sig_map_3x[affected_vertex][result]->operator ()();
+}
 
 
 
@@ -458,7 +292,7 @@ void BGPProcess::process_neighbors_mpc(
     const vertex_t affected_vertex,
     tbb::concurrent_unordered_set<vertex_t> changed_set,
     tbb::concurrent_unordered_set<vertex_t>& new_changed_set,
-    int& count) {
+    size_t& count) {
 
   //Vertex& affected = graph_[affected_vertex];
   auto neighbors = adjacent_vertices(affected_vertex, graph_);
@@ -466,14 +300,6 @@ void BGPProcess::process_neighbors_mpc(
   int cnt = 0;
 
   for0(affected_vertex, changed_set, new_changed_set, count, cnt, neighbors);
-
-
-/*
-  boost::unique_lock<boost::mutex> lock(m_);
-  count++;
-
-  cv_.notify_all();
-*/
 
 }
 

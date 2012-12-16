@@ -5,6 +5,7 @@
 #include <bgp/common.hpp>
 
 #include <tbb/concurrent_unordered_map.h>
+#include <boost/thread/mutex.hpp>
 
 #include <limits>
 #include <queue>
@@ -42,6 +43,11 @@ public:
   array<shared_ptr<RPCServer>, 3> servers_;
 
   value_map_t* values_;
+
+  tbb::concurrent_unordered_map<string, shared_ptr<boost::function<void()> > > sig_map_x;
+  tbb::concurrent_unordered_map<string, shared_ptr<boost::function<void(int)> > > sig_map_2x;
+  tbb::concurrent_unordered_map<string, shared_ptr<boost::function<void()> > > sig_map_0x;
+  tbb::concurrent_unordered_map<string, shared_ptr<boost::function<void()> > > sig_map_3x;
 
   static const vertex_t UNDEFINED;
 };

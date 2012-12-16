@@ -191,26 +191,23 @@ void CompPeer<Num>::compare0(string key1, string key2, vertex_t l) {
   vector<string> circut = {"*", w, x};
   string circut_str = x + "*" + w;
 
-  sig_map_0[l][circut_str] = shared_ptr< boost::signals2::signal<void ()> >(
-      new boost::signals2::signal<void ()>
+
+  sig_map_0x[l][circut_str] = shared_ptr< boost::function<void ()> >(
+      new boost::function<void ()>
   );
 
-  sig_map_0[l][circut_str]->connect(
-      boost::bind(&CompPeer<Num>::compare1, this, key1, key2, l)
+  *(sig_map_0x[l][circut_str]) =
+      boost::bind(&CompPeer<Num>::compare1, this, key1, key2, l);
+
+
+  sig_map_x[l][circut_str] = shared_ptr< boost::function<void ()> >(
+      new boost::function<void ()>
   );
 
-  sig_map_[l][circut_str] = shared_ptr< boost::signals2::signal<void ()> >(
-      new boost::signals2::signal<void ()>
-  );
-
-  sig_map_[l][circut_str]->connect(
-      boost::bind(&CompPeer<Num>::recombine, this, circut_str, l)
-  );
+  *(sig_map_x[l][circut_str]) =
+      boost::bind(&CompPeer<Num>::recombine, this, circut_str, l);
 
   execute(circut, l);
-
-
-  //return compare1(key1, key2, l);
 }
 
 
@@ -230,26 +227,22 @@ void CompPeer<Num>::compare1(string key1, string key2, vertex_t l) {
   string wx = x + "*" + w;
   LOG4CXX_INFO( logger_,  id_ << ": wx: " << wx << ": " << vlm[wx]);
 
-  sig_map_0[l][circut_str] = shared_ptr< boost::signals2::signal<void ()> >(
-      new boost::signals2::signal<void ()>
+  sig_map_0x[l][circut_str] = shared_ptr< boost::function<void ()> >(
+      new boost::function<void ()>
   );
 
-  sig_map_0[l][circut_str]->connect(
-      boost::bind(&CompPeer<Num>::compare2, this, key1, key2, l)
+  *(sig_map_0x[l][circut_str]) =
+      boost::bind(&CompPeer<Num>::compare2, this, key1, key2, l);
+
+
+  sig_map_x[l][circut_str] = shared_ptr< boost::function<void ()> >(
+      new boost::function<void ()>
   );
 
-  sig_map_[l][circut_str] = shared_ptr< boost::signals2::signal<void ()> >(
-      new boost::signals2::signal<void ()>
-  );
-
-  sig_map_[l][circut_str]->connect(
-      boost::bind(&CompPeer<Num>::recombine, this, circut_str, l)
-  );
+  *(sig_map_x[l][circut_str]) =
+      boost::bind(&CompPeer<Num>::recombine, this, circut_str, l);
 
   execute(circut, l);
-
-
-  //return compare2(key1, key2, l);
 }
 
 
@@ -268,27 +261,22 @@ void CompPeer<Num>::compare2(string key1, string key2, vertex_t l) {
 
   LOG4CXX_INFO( logger_,  id_ << ": wy: " << wy << ": " << vlm[wy]);
 
-  sig_map_0[l][circut_str] = shared_ptr< boost::signals2::signal<void ()> >(
-      new boost::signals2::signal<void ()>
+  sig_map_0x[l][circut_str] = shared_ptr< boost::function<void ()> >(
+      new boost::function<void ()>
   );
 
-  sig_map_0[l][circut_str]->connect(
-      boost::bind(&CompPeer<Num>::compare3, this, key1, key2, l)
+  *(sig_map_0x[l][circut_str]) =
+      boost::bind(&CompPeer<Num>::compare3, this, key1, key2, l);
+
+
+  sig_map_x[l][circut_str] = shared_ptr< boost::function<void ()> >(
+      new boost::function<void ()>
   );
 
-  sig_map_[l][circut_str] = shared_ptr< boost::signals2::signal<void ()> >(
-      new boost::signals2::signal<void ()>
-  );
-
-  sig_map_[l][circut_str]->connect(
-      boost::bind(&CompPeer<Num>::recombine, this, circut_str, l)
-  );
+  *(sig_map_x[l][circut_str]) =
+      boost::bind(&CompPeer<Num>::recombine, this, circut_str, l);
 
   execute(circut, l);
-
-
-  //return compare3(key1, key2, l);
-
 }
 
 
@@ -308,26 +296,22 @@ void CompPeer<Num>::compare3(string key1, string key2, vertex_t l) {
   string circut_str = xy + "*" + "2" + "*" + w;
 
   LOG4CXX_INFO( logger_,  id_ << ": xy: " << xy << ": " << vlm[xy]);
-  sig_map_0[l][circut_str] = shared_ptr< boost::signals2::signal<void ()> >(
-      new boost::signals2::signal<void ()>
+  sig_map_0x[l][circut_str] = shared_ptr< boost::function<void ()> >(
+      new boost::function<void ()>
   );
 
-  sig_map_0[l][circut_str]->connect(
-      boost::bind(&CompPeer<Num>::compare4, this, key1, key2, l)
+  *(sig_map_0x[l][circut_str]) =
+      boost::bind(&CompPeer<Num>::compare4, this, key1, key2, l);
+
+
+  sig_map_x[l][circut_str] = shared_ptr< boost::function<void ()> >(
+      new boost::function<void ()>
   );
 
-  sig_map_[l][circut_str] = shared_ptr< boost::signals2::signal<void ()> >(
-      new boost::signals2::signal<void ()>
-  );
-
-  sig_map_[l][circut_str]->connect(
-      boost::bind(&CompPeer<Num>::recombine, this, circut_str, l)
-  );
+  *(sig_map_x[l][circut_str]) =
+      boost::bind(&CompPeer<Num>::recombine, this, circut_str, l);
 
   execute(circut, l);
-
-
-  //return compare4(key1, key2, l);
 }
 
 
@@ -353,21 +337,20 @@ void CompPeer<Num>::compare4(string key1, string key2, vertex_t l) {
   LOG4CXX_INFO( logger_,  id_ << ": 2xyw: " << wxy2 << ": " << vlm[wxy2]);
 
 
-  sig_map_0[l][circut_str] = shared_ptr< boost::signals2::signal<void ()> >(
-      new boost::signals2::signal<void ()>
+  sig_map_0x[l][circut_str] = shared_ptr< boost::function<void ()> >(
+      new boost::function<void ()>
   );
 
-  sig_map_0[l][circut_str]->connect(
-      boost::bind(&CompPeer<Num>::compare5, this, key1, key2, l)
+  *(sig_map_0x[l][circut_str]) =
+      boost::bind(&CompPeer<Num>::compare5, this, key1, key2, l);
+
+
+  sig_map_x[l][circut_str] = shared_ptr< boost::function<void ()> >(
+      new boost::function<void ()>
   );
 
-  sig_map_[l][circut_str] = shared_ptr< boost::signals2::signal<void ()> >(
-      new boost::signals2::signal<void ()>
-  );
-
-  sig_map_[l][circut_str]->connect(
-      boost::bind(&CompPeer<Num>::recombine, this, circut_str, l)
-  );
+  *(sig_map_x[l][circut_str]) =
+      boost::bind(&CompPeer<Num>::recombine, this, circut_str, l);
 
   execute(circut, l);
 
@@ -403,31 +386,6 @@ void CompPeer<Num>::compare5(string key1, string key2, vertex_t l) {
   string wxy2 = xy + "*" + "2" + "*" + w;
   string result = wx + "+" + wy + "-" + wxy2 + "-" + y + "-" + x + "+" + xy;
 
-  //auto p_final = mutex_map_2[l].insert(
-  //    std::make_pair(result, shared_ptr<mutex_t>(new mutex_t))
-  //    );
-
-
-
-  //mutex_t& m = *(p_final.first->second);
-  //lock_t lock(m);
-/*
-  auto cv_p = cv_map_2[l].insert(
-      make_pair(result, shared_ptr<condition_variable_t>(new condition_variable_t))
-      );
-*/
-  //condition_variable_t& cv = *(cv_p.first->second);
-
-  /*
-  int& counter = couter_map_2[l][result];
-
-  while (counter != 3) {
-    cv.wait(lock);
-  }
-  counter = 0;
-*/
-  //barrier_map_[l]->wait();
-
   double X[Num], Y[Num], D[Num];
 
   for(size_t i = 0; i < Num; i++) {
@@ -454,9 +412,7 @@ void CompPeer<Num>::compare5(string key1, string key2, vertex_t l) {
   LOG4CXX_INFO( logger_, "Result: " << ": " << end);
 
 
-  sig_map_2[l][result]->operator ()(( end ));
-
-  //return mod(interpol, PRIME);
+  sig_map_2x[l][result]->operator ()(( end ));
 
 }
 
@@ -503,10 +459,6 @@ void CompPeer<Num>::multiply(
     string second,
     string recombination_key, vertex_t l) {
 
-  //auto p = mutex_map_2[l].insert(
-  //    std::make_pair(recombination_key, shared_ptr<mutex_t>(new mutex_t))
-  //    );
-
   LOG4CXX_TRACE( logger_, "CompPeer<Num>::multiply");
 
   value_map_t& vlm = vertex_value_map_[l];
@@ -519,43 +471,6 @@ void CompPeer<Num>::multiply(
 
   Vertex& v = bgp_->graph_[l];
   distribute_secret(key, result, l, v.clients_[id_]);
-
-
-  //boost::this_thread::yield();
-  /*
-  //mutex_t& m = *( mutex_map_2[l][recombination_key] );
-  mutex_t& m = *(p.first->second);
-
-  LOG4CXX_TRACE( logger_, "CompPeer acquiring lock... " << l << ": " << recombination_key);
-
-  lock_t lock( m );
-
-  LOG4CXX_TRACE( logger_, "CompPeer acquired lock... " << l << ": " << recombination_key);
-
-  auto cv_p = cv_map_2[l].insert(
-      make_pair(recombination_key, shared_ptr<condition_variable_t>(new condition_variable_t))
-      );
-  condition_variable_t& cv = *(cv_p.first->second);
-
-  int& counter = couter_map_2[l][recombination_key];
-
-  if (counter == COMP_PEER_NUM) {
-    return recombine(recombination_key, l);
-  }
-
-  return "";
-
-
-  LOG4CXX_TRACE( logger_, "Waiting...");
-
-  while (counter != 3) {
-    cv.wait(lock);
-    cv.notify_all();
-  }
-  counter = 0;
-*/
-
- // return recombine(recombination_key, l);
 }
 
 
@@ -584,7 +499,7 @@ void CompPeer<Num>::recombine(string recombination_key, vertex_t l) {
 
       }
 
-      throw std::runtime_error(error);
+      //throw std::runtime_error(error);
 
     }
 
@@ -606,7 +521,7 @@ void CompPeer<Num>::recombine(string recombination_key, vertex_t l) {
   gsl_vector_free(ds);
 
 
-  sig_map_0[l][recombination_key]->operator ()();
+  sig_map_0x[l][recombination_key]->operator ()();
 }
 
 

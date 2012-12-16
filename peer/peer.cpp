@@ -42,14 +42,9 @@ void Peer::publish(std::string key, int64_t value, vertex_t vertex) {
 
 
   mutex_t& m = *(mutex_map_2[vertex][rkey]);
-  lock_t lock(m);
+  m.lock();
 
   LOG4CXX_TRACE(logger_, " Acquired lock... " << vertex << ": " << rkey);
-
-  //auto cv_p = cv_map_2[vertex].insert(
-  //    make_pair(rkey, shared_ptr<condition_variable_t>(new condition_variable_t))
-  //    );
-  //condition_variable_t& cv = *(cv_p.first->second);
 
   int& counter = couter_map_2[vertex][rkey];
 
@@ -59,14 +54,17 @@ void Peer::publish(std::string key, int64_t value, vertex_t vertex) {
   counter++;
 
   LOG4CXX_TRACE(logger_, "Counter... (" << vertex << "): " << rkey << " " << counter);
-  //cv.notify_all();
   LOG4CXX_TRACE(logger_, " Received value: " << key << ": " << value << " (" << vertex << ")");
 
   if (counter == 3) {
-    lock.release();
     counter = 0;
-    sig_map_[vertex][rkey]->operator ()();
+    m.unlock();
+    sig_map_x[vertex][rkey]->operator ()();
+  } else {
+    m.unlock();
   }
+
+
 }
 
 

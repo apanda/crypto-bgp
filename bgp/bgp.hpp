@@ -52,7 +52,7 @@ public:
       const vertex_t affected_vertex,
       tbb::concurrent_unordered_set<vertex_t> changed_set,
       tbb::concurrent_unordered_set<vertex_t>& new_changed_set,
-      int& count);
+      size_t& count);
 
   void for1(
       vertex_t affected_vertex,
@@ -64,7 +64,7 @@ public:
       const vertex_t affected_vertex,
       tbb::concurrent_unordered_set<vertex_t> changed_set,
       tbb::concurrent_unordered_set<vertex_t>& new_changed_set,
-      int& count,
+      size_t& count,
       int cnt,
       std::pair<graph_t::adjacency_iterator, graph_t::adjacency_iterator> neighbors);
 
