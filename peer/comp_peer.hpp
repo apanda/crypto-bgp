@@ -57,6 +57,7 @@ public:
   void compare4(string key1, string key2, vertex_t key);
   void compare5(string key1, string key2, vertex_t key);
 
+  void publish(std::string key,  int64_t value, vertex_t vertex);
 
   void continue_or_not(vector<string> circut,
       const string key,
@@ -65,6 +66,8 @@ public:
       vertex_t l);
 
   void publish_all(symbol_t key,  int64_t value);
+
+  shared_ptr<BGPProcess> bgp_;
 
   boost::random::random_device rng_;
 
@@ -75,7 +78,6 @@ public:
 
   netPeersImpl net_peers_;
   shared_ptr<InputPeer> input_peer_;
-  shared_ptr<BGPProcess> bgp_;
 
   gsl_vector* recombination_vercor_;
   array<double, Num> recombination_array_;

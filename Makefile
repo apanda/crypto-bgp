@@ -1,6 +1,6 @@
 all:
 	g++ -Wall \
-  -DTBB_USE_DEBUG -shared-libgcc -g -O0 --std=c++11 \
+  -DTBB_USE_DEBUG -shared-libgcc -g -O3 --std=c++11 \
 	*.cpp net/*.cpp peer/*.cpp secret_sharing/*.cpp \
   bgp/bgp.cpp bgp/vertex.cpp bgp/edge.cpp \
   -I. -lboost_random -lboost_graph -lboost_program_options \

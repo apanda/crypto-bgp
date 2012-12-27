@@ -22,6 +22,9 @@
 #include <boost/phoenix/bind.hpp>
 #include <boost/function.hpp>
 
+extern int THREAD_COUNT;
+extern int TASK_COUNT;
+
 typedef int64_t share_t;
 
 const size_t SHARE_SIZE = sizeof(share_t);
@@ -49,6 +52,10 @@ using boost::phoenix::bind;
 
 using boost::asio::ip::tcp;
 using boost::asio::io_service;
+
+typedef int64_t plaintext_t;
+typedef string symbol_t;
+
 
 int mod( int64_t x, int m);
 

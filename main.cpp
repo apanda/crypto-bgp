@@ -1,4 +1,5 @@
 
+#include <boost/program_options.hpp>
 #include <secret_sharing/secret.hpp>
 
 #include <peer/input_peer.hpp>
@@ -32,7 +33,7 @@ void run_test2() {
 
   boost::thread_group worker_threads;
 
-  io_service io(12);
+  io_service io;
   io_service::work work(io);
 
   CompPeer_factory factory;
@@ -40,7 +41,7 @@ void run_test2() {
 
   input_peer->disseminate_bgp(comp_peer_seq);
 
-  for (int i = 0; i < 12; i++) {
+  for (int i = 0; i < THREAD_COUNT; i++) {
     worker_threads.add_thread( new boost::thread(bind(&io_service::run, &io)) );
   }
 
@@ -140,7 +141,35 @@ void run_test1() {
 }
 
 
-int main() {
+int main(int argc, char *argv[]) {
+
+  namespace po = boost::program_options;
+
+  // Declare the supported options.
+  po::options_description desc("Allowed options");
+  desc.add_options()
+      ("help", "produce help message")
+      ("threads", po::value<int>(), "total number of threads")
+      ("tasks", po::value<int>(), "total number of tasks per iteration")
+  ;
+
+  po::variables_map vm;
+  po::store(po::parse_command_line(argc, argv, desc), vm);
+  po::notify(vm);
+
+  if (vm.count("help")) {
+      std::cout << desc << std::endl;;
+      return 1;
+  }
+
+
+  if (vm.count("threads")) {
+    THREAD_COUNT = vm["threads"].as<int>();
+  }
+
+  if (vm.count("tasks")) {
+    TASK_COUNT = vm["tasks"].as<int>();
+  }
 
   log4cxx::PropertyConfigurator::configure("apache.conf");
 

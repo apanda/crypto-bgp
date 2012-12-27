@@ -44,6 +44,16 @@ public:
 
   value_map_t* values_;
 
+  typedef boost::mutex mutex_t;
+  typedef boost::lock_guard<mutex_t> lock_t;
+  typedef boost::condition_variable condition_variable_t;
+
+  tbb::concurrent_unordered_map<symbol_t, int64_t> value_map_;
+
+  std::unordered_map<string, int> couter_map_2;
+  tbb::concurrent_unordered_map<string, shared_ptr<mutex_t> > mutex_map_2;
+  tbb::concurrent_unordered_map<string, shared_ptr<condition_variable_t> >cv_map_2;
+
   tbb::concurrent_unordered_map<string, shared_ptr<boost::function<void()> > > sig_map_x;
   tbb::concurrent_unordered_map<string, shared_ptr<boost::function<void(int)> > > sig_map_2x;
   tbb::concurrent_unordered_map<string, shared_ptr<boost::function<void()> > > sig_map_0x;

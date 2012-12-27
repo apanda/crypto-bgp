@@ -32,7 +32,6 @@ public:
   BGPProcess();
   BGPProcess(
       string path,
-      shared_ptr<boost::barrier> bp,
       CompPeer<3>* comp_peer,
       io_service& io);
 

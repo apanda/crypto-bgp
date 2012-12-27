@@ -19,15 +19,13 @@
 #include <tbb/compat/condition_variable>
 #include <tbb/concurrent_unordered_map.h>
 
-typedef int64_t plaintext_t;
-typedef string symbol_t;
-
+class BGPProcess;
 class RPCServer;
 
 class Peer {
 public:
   Peer(const short port, io_service& io);
-  ~Peer();
+  virtual ~Peer();
 
   template<class PeerSeq>
   void distribute_secret(
@@ -39,7 +37,7 @@ public:
       const symbol_t key, const Values values, const int64_t secret, const vertex_t vertex,
       PeerSeq comp_peers);
 
-  void publish(std::string key,  int64_t value, vertex_t vertex);
+  virtual void publish(std::string key,  int64_t value, vertex_t vertex)  ;
   void print_values();
 
   typedef tbb::concurrent_unordered_map<int, int64_t> inter_map_t;
@@ -55,60 +53,12 @@ public:
 
 
   io_service& io_service_;
-
   int counter_;
 
-  tbb::concurrent_unordered_map<int, value_map_t > vertex_value_map_;
-
-  std::unordered_map<int, int > couter_map_;
-  std::unordered_map<int, shared_ptr<mutex_t> > mutex_map_;
-  std::unordered_map<int, shared_ptr< condition_variable_t> > cv_map_;
-
-  std::unordered_map<
-    int, std::unordered_map<string, int>
-  > couter_map_2;
-
-  tbb::concurrent_unordered_map<
-    int, tbb::concurrent_unordered_map<string, shared_ptr<mutex_t> >
-  > mutex_map_2;
-
-  tbb::concurrent_unordered_map<
-    int, tbb::concurrent_unordered_map<string, shared_ptr<condition_variable_t> >
-  > cv_map_2;
-
-  tbb::concurrent_unordered_map<
-    int, tbb::concurrent_unordered_map<string,
-    shared_ptr< boost::function<void ()> > >
-  > sig_map_x;
-
-
-  tbb::concurrent_unordered_map<
-    int, tbb::concurrent_unordered_map<string,
-    shared_ptr< boost::function<void ()> > >
-  > sig_map_0x;
-
-  tbb::concurrent_unordered_map<
-    int,
-      tbb::concurrent_unordered_map<string,
-      shared_ptr< boost::function<void (int)> >
-      >
-  > sig_map_2x;
-
-  tbb::concurrent_unordered_map<
-    int,
-      tbb::concurrent_unordered_map<string,
-      shared_ptr< boost::function<void ()> >
-      >
-  > sig_map_3x;
-
   mutex_t barrier_mutex_;
-
   std::string recombination_key_;
-
   inter_map_t intermediary_;
-
   boost::thread_group tg_;
-
   static log4cxx::LoggerPtr logger_;
 };
 

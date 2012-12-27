@@ -169,7 +169,7 @@ template<class CompPeerSeq>
 void InputPeer::disseminate_bgp(CompPeerSeq& comp_peers) {
 
   boost::shared_ptr<boost::barrier> bp;
-  BGPProcess bgp("scripts/dot.dot", bp, NULL, io_service_);
+  BGPProcess bgp("scripts/dot.dot", NULL, io_service_);
 
   graph_t& input_graph = bgp.graph_;
 
@@ -196,7 +196,8 @@ void InputPeer::disseminate_bgp(CompPeerSeq& comp_peers) {
 
         mpc_key = lexical_cast<string>(key);
         mpc_value = shares[i];
-        value_map_t& vm = comp_peers[i]->vertex_value_map_[current_vertex];
+
+        value_map_t& vm = comp_peers[i]->bgp_->graph_[current_vertex].value_map_;
         //value_map_t& vm = *(tmp_vertex.values_);
         vm[mpc_key] = mpc_value;
 
