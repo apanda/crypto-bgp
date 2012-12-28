@@ -28,7 +28,7 @@ public:
   void set_neighbors(graph_t& graph);
   void set_next_hop(graph_t& graph, vertex_t vertex);
   bool in_as_path(graph_t& graph, vertex_t vertex);
-  int64_t current_next_hop_preference(graph_t graph);
+  int64_t current_next_hop_preference(graph_t& graph);
 
   vertex_t id_;
   vertex_t next_hop_;

@@ -243,14 +243,14 @@ void BGPProcess::for1(
       << current_preference << ", " << offered_preference );
 
   const bool condition = offered_preference <= current_preference;
-
+/*
   if (cmp != condition) {
     printf("==================================================\n");
     printf("(Is, Should): (%d, %d) -- Vertex (%ld, %ld)\n",
         cmp, condition, affected_vertex, neigh_vertex);
     printf("==================================================\n");
   }
-
+*/
   if ( offered_preference <= current_preference ) {
     affected.sig_bgp_next[result]->operator()();
     return;

@@ -31,7 +31,7 @@ void Vertex::set_preference() {
 
 
 
-int64_t Vertex::current_next_hop_preference(graph_t graph) {
+int64_t Vertex::current_next_hop_preference(graph_t& graph) {
 
   //boost::mutex::scoped_lock lock(m_);
 
