@@ -65,8 +65,8 @@ void run_test2() {
   b->wait();
 
   const auto t2 = clock_t::now();
-  const auto duration = duration_cast<microseconds>(t2 - t1).count();
-  std::cout << "The execution took " << duration << " microseconds." << std::endl;
+  const auto duration = duration_cast<milliseconds>(t2 - t1).count();
+  std::cout << "The execution took " << duration << " ms." << std::endl;
 
 
   comp_peer_seq[0]->bgp_->print_result();
@@ -76,69 +76,6 @@ void run_test2() {
 
 }
 
-
-void run_test1() {
-
-  typedef std::chrono::high_resolution_clock clock_t;
-
-  array<shared_ptr<comp_peer_t>, COMP_PEER_NUM> comp_peer_seq;
-  shared_ptr<InputPeer> input_peer(new InputPeer());
-
-  input_peer->plaintext_map_ = {
-      {"A", 2},
-      {"B", 3},
-      {"C", 4}
-  };
-
-  boost::thread result_thread(&InputPeer::result<COMP_PEER_NUM>, input_peer);
-  boost::thread_group worker_threads;
-
-  io_service io;
-  io_service::work work(io);
-
-  worker_threads.add_thread( new boost::thread(bind(&io_service::run, &io)) );
-  worker_threads.add_thread( new boost::thread(bind(&io_service::run, &io)) );
-  worker_threads.add_thread( new boost::thread(bind(&io_service::run, &io)) );
-  worker_threads.add_thread( new boost::thread(bind(&io_service::run, &io)) );
-  worker_threads.add_thread( new boost::thread(bind(&io_service::run, &io)) );
-
-  CompPeer_factory factory;
-  comp_peer_seq = factory.generate<COMP_PEER_NUM>(input_peer, io);
-
-  //for(std::pair<string, int> pair: input_peer->plaintext_map_) {
-    //InputPeer::lsb(pair.first, pair.second, comp_peer_seq);
-  //}
-
-  InputPeer::distribute_lsb(input_peer->plaintext_map_, comp_peer_seq);
-  InputPeer::distribute_secrets(input_peer->plaintext_map_, comp_peer_seq);
-
-  vector<string> circut = {"*", "C","*", "C", "+", "2", "A"};
-
-  for (auto& cp : comp_peer_seq) {
-    cp->counter_ = 0;
-  }
-
-  const auto t1 = clock_t::now();
-
-  //for (auto& cp : comp_peer_seq) {
-    //io.post(bind(&comp_peer_t::evaluate, cp.get(), "C", "B" ));
-    //io.post(bind(&comp_peer_t::generate_random_bit, cp.get(), "R" ));
-    //io.post(bind(&comp_peer_t::generate_random_bitwise_num, cp.get(), "BR" ));
-    //io.post(bind(&comp_peer_t::evaluate, cp.get(), circut));
-
-  //}
-
-  result_thread.join();
-
-  const auto t2 = clock_t::now();
-  const auto duration = duration_cast<microseconds>(t2 - t1).count();
-
-  LOG4CXX_INFO(mainLogger, "The execution took " << duration << " microseconds.")
-
-  io.stop();
-  worker_threads.join_all();
-
-}
 
 
 int main(int argc, char *argv[]) {

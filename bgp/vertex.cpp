@@ -4,8 +4,9 @@
 const vertex_t Vertex::UNDEFINED  = 9999999;
 
 Vertex::Vertex() :
-id_(0), next_hop_(UNDEFINED),
-values_(new value_map_t){}
+id_(0), next_hop_(UNDEFINED) {
+
+}
 
 
 
@@ -42,8 +43,6 @@ int64_t Vertex::current_next_hop_preference(graph_t graph) {
 
 bool Vertex::in_as_path(graph_t& graph, vertex_t vertex) {
 
-  //boost::mutex::scoped_lock lock(m_);
-
   vertex_t next = next_hop_;
   int MAX_AS_LENGTH = 10;
   int count = 0;
@@ -51,7 +50,6 @@ bool Vertex::in_as_path(graph_t& graph, vertex_t vertex) {
   while(true) {
     count++;
 
-    //printf("Loop: %lu!\n", next );
     if (next == vertex) return true;
     else if (next == UNDEFINED) return false;
     Vertex& v = graph[next];
@@ -67,9 +65,6 @@ bool Vertex::in_as_path(graph_t& graph, vertex_t vertex) {
 
 
 void Vertex::set_next_hop(graph_t& graph, vertex_t neigh) {
-
-  //boost::mutex::scoped_lock lock(m_);
-
   next_hop_ = neigh;
 }
 

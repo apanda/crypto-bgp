@@ -11,8 +11,6 @@
 #include <set>
 #include <unordered_map>
 
-
-
 using boost::adjacency_list;
 using boost::graph_traits;
 

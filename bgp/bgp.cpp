@@ -129,7 +129,7 @@ void BGPProcess::next_iteration(
 
 void BGPProcess::for0(
     const vertex_t affected_vertex,
-    tbb::concurrent_unordered_set<vertex_t> changed_set,
+    tbb::concurrent_unordered_set<vertex_t>& changed_set,
     tbb::concurrent_unordered_set<vertex_t>& new_changed_set,
     size_t& count,
     int cnt,
@@ -159,7 +159,7 @@ void BGPProcess::for0(
   string wxy2 = xy + "*" + "2" + "*" + w;
   string result = wx + "+" + wy + "-" + wxy2 + "-" + y + "-" + x + "+" + xy;
 
-  affected.sig_map_3x[result] =
+  affected.sig_bgp_next[result] =
       shared_ptr<boost::function<void()> >(new boost::function<void()>);
 
   if (neighbors.first == neighbors.second) {
@@ -180,7 +180,7 @@ void BGPProcess::for0(
         neighbors
       );
 
-  *(affected.sig_map_3x[result]) = next;
+  *(affected.sig_bgp_next[result]) = next;
 
   if(changed_set.find(neigh_vertex) == changed_set.end()) {
     next();
@@ -190,20 +190,9 @@ void BGPProcess::for0(
   LOG4CXX_INFO(comp_peer_->logger_, "Vertex -> "
       << affected_vertex << ", " << neigh_vertex );
 
-  //Peer::mutex_t& m = *(comp_peer_->mutex_map_[neigh_vertex]);
-  //Peer::mutex_t::scoped_lock lock(m);
+  affected.sig_bgp_cnt[result] = shared_ptr<boost::function<void(int)> >(new boost::function<void(int)>);
 
-  Vertex& neigh = graph_[neigh_vertex];
-
-  if ( neigh.in_as_path(graph_, affected_vertex) ) {
-    LOG4CXX_INFO(comp_peer_->logger_, "In AS PATH!")
-    next();
-    return;
-  }
-
-  affected.sig_map_2x[result] = shared_ptr<boost::function<void(int)> >(new boost::function<void(int)>);
-
-  *(affected.sig_map_2x [result]) = boost::bind(&BGPProcess::for1, this,
+  *(affected.sig_bgp_cnt[result]) = boost::bind(&BGPProcess::for1, this,
               affected_vertex,
               neigh_vertex,
               boost::ref(new_changed_set),
@@ -227,9 +216,6 @@ void BGPProcess::for1(
     vertex_t neigh_vertex,
     tbb::concurrent_unordered_set<vertex_t>& new_changed_set,
     int cmp) {
-
-  //Peer::mutex_t& m = *(comp_peer_->mutex_map_[neigh_vertex]);
-  //Peer::mutex_t::scoped_lock lock(m);
 
   Vertex& affected = graph_[affected_vertex];
 
@@ -266,15 +252,21 @@ void BGPProcess::for1(
   }
 
   if ( offered_preference <= current_preference ) {
-    affected.sig_map_3x[result]->operator()();
+    affected.sig_bgp_next[result]->operator()();
     return;
   }
+
+  /*if ( neigh.in_as_path(graph_, affected_vertex) ) {
+    LOG4CXX_INFO(comp_peer_->logger_, "In AS PATH!")
+    affected.sig_bgp_next[result]->operator()();
+    return;
+  }*/
 
   affected.set_next_hop(graph_, neigh_vertex);
   //printf("%ld next hop set to: %ld\n", affected_vertex, affected.next_hop_);
   new_changed_set.insert(affected_vertex);
 
-  affected.sig_map_3x[result]->operator ()();
+  affected.sig_bgp_next[result]->operator ()();
 }
 
 

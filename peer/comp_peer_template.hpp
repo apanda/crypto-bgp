@@ -17,8 +17,8 @@ CompPeer<Num>::CompPeer(
     shared_ptr<InputPeer> input_peer,
     std::unordered_map<int, shared_ptr<boost::barrier> > b,
     io_service& io) :
-    bgp_(new BGPProcess("scripts/dot.dot", this, io_service_)),
       Peer(id + 10000, io),
+      bgp_(new BGPProcess("scripts/dot.dot", this, io_service_)),
       id_(id),
       input_peer_(input_peer),
       barrier_map_(b)
@@ -74,7 +74,7 @@ void CompPeer<Num>::publish(std::string key, int64_t value, vertex_t v) {
   if (counter == 3) {
     counter = 0;
     m.unlock();
-    vertex.sig_map_x[rkey]->operator ()();
+    vertex.sig_recombine[rkey]->operator ()();
   } else {
     m.unlock();
   }
@@ -82,13 +82,6 @@ void CompPeer<Num>::publish(std::string key, int64_t value, vertex_t v) {
 
 }
 
-
-template<const size_t Num>
-void CompPeer<Num>::evaluate(string a, string b) {
-
-  //const double comp = compare(a, b);
-
-}
 
 
 template<const size_t Num>
@@ -186,41 +179,6 @@ void CompPeer<Num>::sub(
 
 
 
-
-
-template<const size_t Num>
-void CompPeer<Num>::generate_random_num(string key, vertex_t l) {
-
-  Vertex& vertex = bgp_->graph_[l];
-  value_map_t& vlm = vertex.value_map_;
-
-  boost::random::uniform_int_distribution<> dist(-256, 256);
-  const auto random = dist(rng_);
-
-  const string id_string = lexical_cast<string>(id_);
-  LOG4CXX_DEBUG( logger_, id_string << ": random seed: " << random);
-
-  //mutex_map_[l]->lock();
-
-  distribute_secret(key + id_string, l, random, net_peers_);
-
-  //mutex_map_[l]->lock();
-  //mutex_map_[l]->unlock();
-
-  int64_t sum = 0;
-  for(auto i = 1; i <= Num; i++) {
-    const int64_t value = vlm[key + lexical_cast<string>(i)];
-    sum += value;
-  }
-
-  LOG4CXX_DEBUG( logger_,  id_ << "Sum: " << sum);
-
-  vlm[key] = sum;
-}
-
-
-
-
 template<const size_t Num>
 void CompPeer<Num>::compare0(string key1, string key2, vertex_t l) {
 
@@ -238,19 +196,19 @@ void CompPeer<Num>::compare0(string key1, string key2, vertex_t l) {
   vector<string> circut = {"*", w, x};
   string circut_str = x + "*" + w;
 
-  vertex.sig_map_0x[circut_str] = shared_ptr< boost::function<void ()> >(
+  vertex.sig_compare[circut_str] = shared_ptr< boost::function<void ()> >(
       new boost::function<void ()>
   );
 
-  *(vertex.sig_map_0x[circut_str]) =
+  *(vertex.sig_compare[circut_str]) =
       boost::bind(&CompPeer<Num>::compare1, this, key1, key2, l);
 
 
-  vertex.sig_map_x[circut_str] = shared_ptr< boost::function<void ()> >(
+  vertex.sig_recombine[circut_str] = shared_ptr< boost::function<void ()> >(
       new boost::function<void ()>
   );
 
-  *(vertex.sig_map_x[circut_str]) =
+  *(vertex.sig_recombine[circut_str]) =
       boost::bind(&CompPeer<Num>::recombine, this, circut_str, l);
 
   execute(circut, l);
@@ -275,19 +233,19 @@ void CompPeer<Num>::compare1(string key1, string key2, vertex_t l) {
   LOG4CXX_INFO( logger_,  id_ << ": wx: " << wx << ": " << vlm[wx]);
 
 
-  vertex.sig_map_0x[circut_str] = shared_ptr< boost::function<void ()> >(
+  vertex.sig_compare[circut_str] = shared_ptr< boost::function<void ()> >(
       new boost::function<void ()>
   );
 
-  *(vertex.sig_map_0x[circut_str]) =
+  *(vertex.sig_compare[circut_str]) =
       boost::bind(&CompPeer<Num>::compare2, this, key1, key2, l);
 
 
-  vertex.sig_map_x[circut_str] = shared_ptr< boost::function<void ()> >(
+  vertex.sig_recombine[circut_str] = shared_ptr< boost::function<void ()> >(
       new boost::function<void ()>
   );
 
-  *(vertex.sig_map_x[circut_str]) =
+  *(vertex.sig_recombine[circut_str]) =
       boost::bind(&CompPeer<Num>::recombine, this, circut_str, l);
 
   execute(circut, l);
@@ -311,19 +269,19 @@ void CompPeer<Num>::compare2(string key1, string key2, vertex_t l) {
   LOG4CXX_INFO( logger_,  id_ << ": wy: " << wy << ": " << vlm[wy]);
 
 
-  vertex.sig_map_0x[circut_str] = shared_ptr< boost::function<void ()> >(
+  vertex.sig_compare[circut_str] = shared_ptr< boost::function<void ()> >(
       new boost::function<void ()>
   );
 
-  *(vertex.sig_map_0x[circut_str]) =
+  *(vertex.sig_compare[circut_str]) =
       boost::bind(&CompPeer<Num>::compare3, this, key1, key2, l);
 
 
-  vertex.sig_map_x[circut_str] = shared_ptr< boost::function<void ()> >(
+  vertex.sig_recombine[circut_str] = shared_ptr< boost::function<void ()> >(
       new boost::function<void ()>
   );
 
-  *(vertex.sig_map_x[circut_str]) =
+  *(vertex.sig_recombine[circut_str]) =
       boost::bind(&CompPeer<Num>::recombine, this, circut_str, l);
 
   execute(circut, l);
@@ -348,19 +306,19 @@ void CompPeer<Num>::compare3(string key1, string key2, vertex_t l) {
 
 
   LOG4CXX_INFO( logger_,  id_ << ": xy: " << xy << ": " << vlm[xy]);
-  vertex.sig_map_0x[circut_str] = shared_ptr< boost::function<void ()> >(
+  vertex.sig_compare[circut_str] = shared_ptr< boost::function<void ()> >(
       new boost::function<void ()>
   );
 
-  *(vertex.sig_map_0x[circut_str]) =
+  *(vertex.sig_compare[circut_str]) =
       boost::bind(&CompPeer<Num>::compare4, this, key1, key2, l);
 
 
-  vertex.sig_map_x[circut_str] = shared_ptr< boost::function<void ()> >(
+  vertex.sig_recombine[circut_str] = shared_ptr< boost::function<void ()> >(
       new boost::function<void ()>
   );
 
-  *(vertex.sig_map_x[circut_str]) =
+  *(vertex.sig_recombine[circut_str]) =
       boost::bind(&CompPeer<Num>::recombine, this, circut_str, l);
 
   execute(circut, l);
@@ -390,19 +348,19 @@ void CompPeer<Num>::compare4(string key1, string key2, vertex_t l) {
   LOG4CXX_INFO( logger_,  id_ << ": 2xyw: " << wxy2 << ": " << vlm[wxy2]);
 
 
-  vertex.sig_map_0x[circut_str] = shared_ptr< boost::function<void ()> >(
+  vertex.sig_compare[circut_str] = shared_ptr< boost::function<void ()> >(
       new boost::function<void ()>
   );
 
-  *(vertex.sig_map_0x[circut_str]) =
+  *(vertex.sig_compare[circut_str]) =
       boost::bind(&CompPeer<Num>::compare5, this, key1, key2, l);
 
 
-  vertex.sig_map_x[circut_str] = shared_ptr< boost::function<void ()> >(
+  vertex.sig_recombine[circut_str] = shared_ptr< boost::function<void ()> >(
       new boost::function<void ()>
   );
 
-  *(vertex.sig_map_x[circut_str]) =
+  *(vertex.sig_recombine[circut_str]) =
       boost::bind(&CompPeer<Num>::recombine, this, circut_str, l);
 
   execute(circut, l);
@@ -465,21 +423,9 @@ void CompPeer<Num>::compare5(string key1, string key2, vertex_t l) {
   LOG4CXX_INFO( logger_, "Result: " << ": " << end);
 
 
-  vertex.sig_map_2x[result]->operator ()(( end ));
-
+  vertex.sig_bgp_cnt[result]->operator ()(( end ));
 }
 
-
-
-template<const size_t Num>
-void CompPeer<Num>::generate_random_bitwise_num(string key, vertex_t l) {
-
-  for(auto i = 0; i < SHARE_BIT_SIZE; i++) {
-    const string bit_key = key + "b" + lexical_cast<string>(i);
-    generate_random_bit(bit_key, l);
-    counter_ = 0;
-  }
-}
 
 
 
@@ -575,59 +521,7 @@ void CompPeer<Num>::recombine(string recombination_key, vertex_t l) {
   gsl_vector_free(ds);
 
 
-  vertex.sig_map_0x[recombination_key]->operator ()();
-}
-
-
-
-template<const size_t Num>
-void CompPeer<Num>::generate_random_bit(string key, vertex_t l) {
-
-  Vertex& vertex = bgp_->graph_[l];
-  value_map_t& vlm = vertex.value_map_;
-
-  generate_random_num(key, l);
-  const double rand = vlm[key];
-
-  string recombination_key = key + "*" + key;
-
-  multiply(key, key, recombination_key, l);
-
-  const auto result = vlm[recombination_key];
-
-  //mutex_map_[l]->lock();
-
-  for( int64_t i = 0; i < COMP_PEER_NUM; i++) {
-    net_peers_[i]->publish(recombination_key + lexical_cast<string>(id_), result), l;
-  }
-
-  //mutex_map_[l]->lock();
-  //mutex_map_[l]->unlock();
-
-  double x[Num], y[Num], d[Num];
-
-  for( int64_t i = 1; i <= Num; i++) {
-    const size_t index = i - 1;
-    x[index] = i;
-    y[index] = vlm[recombination_key + lexical_cast<string>(i)];
-  }
-
-  gsl_poly_dd_init( d, x, y, 3 );
-  double interpol = gsl_poly_dd_eval( d, x, 3, 0);
-
-  LOG4CXX_TRACE( logger_, id_ << ": pow(r, 2)" << " = " << interpol);
-
-  BOOST_ASSERT_MSG(interpol != 0, "pow(r, 2) != 0");
-
-  interpol = sqrt(interpol);
-
-  BOOST_ASSERT_MSG(interpol > 0, "0 < r < p/2");
-  BOOST_ASSERT_MSG(interpol < PRIME/2, "0 < r < p/2");
-
-  const double bit = (rand/interpol + 1)/2;
-
-  LOG4CXX_DEBUG(logger_, id_ << ": r" << ": " << interpol);
-  LOG4CXX_INFO(logger_, id_ << ": " << key << ": random bit" << ": " << bit);
+  vertex.sig_compare[recombination_key]->operator ()();
 }
 
 
