@@ -59,5 +59,6 @@ typedef string symbol_t;
 
 
 int mod( int64_t x, int m);
+bool is_number(const std::string& s);
 
 #endif /* COMMON_H_ */

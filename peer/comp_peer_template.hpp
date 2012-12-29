@@ -122,10 +122,13 @@ void CompPeer<Num>::execute(vector<string> circut, vertex_t l) {
 
   if (operation == "*") {
 
-    try {
+    /*
+     * Warning: the number has to be positive!
+     */
+    if (is_number(second_operand)) {
       const int64_t number = lexical_cast<int>(second_operand);
       multiply_const(first_operand, number, recombination_key, l);
-    } catch(boost::bad_lexical_cast& e) {
+    } else {
       multiply(first_operand, second_operand, recombination_key, l);
     }
 
