@@ -61,7 +61,6 @@ public:
 
   void for0(
       const vertex_t affected_vertex,
-      tbb::concurrent_unordered_set<vertex_t>& changed_set,
       tbb::concurrent_unordered_set<vertex_t>& new_changed_set,
       size_t& count,
       vector<vertex_t>& n);

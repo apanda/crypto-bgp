@@ -105,7 +105,6 @@ void CompPeer<Num>::evaluate(vector<string> circut, vertex_t l) {
 template<const size_t Num>
 void CompPeer<Num>::execute(vector<string> circut, vertex_t l) {
 
-
   Vertex& vertex = bgp_->graph_[l];
   value_map_t& vlm = vertex.value_map_;
 

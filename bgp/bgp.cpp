@@ -144,7 +144,7 @@ void BGPProcess::process_neighbors_mpc(
   std::set_intersection( neighs.begin(), neighs.end(), ch.begin(), ch.end(),
       std::insert_iterator< std::vector<vertex_t> >( intersection, intersection.begin() ) );
 
-  for0(affected_vertex, changed_set, new_changed_set, count, intersection);
+  for0(affected_vertex, new_changed_set, count, intersection);
 
 }
 
@@ -153,7 +153,6 @@ void BGPProcess::process_neighbors_mpc(
 
 void BGPProcess::for0(
     const vertex_t affected_vertex,
-    tbb::concurrent_unordered_set<vertex_t>& changed_set,
     tbb::concurrent_unordered_set<vertex_t>& new_changed_set,
     size_t& count,
     vector<vertex_t>& n) {
@@ -189,7 +188,6 @@ void BGPProcess::for0(
 
   auto next = boost::bind(&BGPProcess::for0, this,
         affected_vertex,
-        changed_set,
         boost::ref(new_changed_set),
         boost::ref(count),
         n
