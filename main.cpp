@@ -50,11 +50,6 @@ void run_test2() {
   typedef function<bool()> Functor;
   Functor f = boost::bind(&boost::barrier::wait, b);
 
-  for (auto& cp : comp_peer_seq) {
-    cp->counter_ = 0;
-  }
-
-
   const auto t1 = clock_t::now();
 
   for (auto& cp : comp_peer_seq) {

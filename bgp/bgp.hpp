@@ -49,7 +49,7 @@ public:
 
   void process_neighbors_mpc(
       const vertex_t affected_vertex,
-      tbb::concurrent_unordered_set<vertex_t> changed_set,
+      tbb::concurrent_unordered_set<vertex_t>& changed_set,
       tbb::concurrent_unordered_set<vertex_t>& new_changed_set,
       size_t& count);
 
@@ -64,17 +64,7 @@ public:
       tbb::concurrent_unordered_set<vertex_t>& changed_set,
       tbb::concurrent_unordered_set<vertex_t>& new_changed_set,
       size_t& count,
-      int cnt,
-      std::pair<graph_t::adjacency_iterator, graph_t::adjacency_iterator> neighbors);
-
-
-  void process_neighbors_mpc2(
-      const vertex_t affected_vertex,
-      const vertex_t neigh_vertex,
-      graph_t& graph,
-      tbb::concurrent_unordered_set<vertex_t>& new_changed_set,
-      int& count,
-      int cmp);
+      vector<vertex_t>& n);
 
   void next_iteration(
       vertex_t dst,

@@ -14,7 +14,7 @@ void Vertex::set_neighbors(graph_t& graph) {
 
   const auto range = adjacent_vertices(id_, graph);
   neigh_ = vector<vertex_t>(range.first, range.second);
-
+  std::sort(neigh_.begin(), neigh_.end());
 }
 
 
@@ -32,8 +32,6 @@ void Vertex::set_preference() {
 
 
 int64_t Vertex::current_next_hop_preference(graph_t& graph) {
-
-  //boost::mutex::scoped_lock lock(m_);
 
   if (next_hop_ == UNDEFINED) return 0;
   return preference_[graph[next_hop_].id_];
