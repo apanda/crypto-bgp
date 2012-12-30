@@ -51,32 +51,31 @@ void CompPeer<Num>::publish(std::string key, int64_t value, vertex_t v) {
 
   string rkey = key.substr(0, key.size() - 2);
 
-  vertex.mutex_map_2.insert(
-      make_pair(rkey, shared_ptr<mutex_t>(new mutex_t))
-      );
+  auto mp = vertex.mutex_map_2.insert(
+        make_pair(rkey, shared_ptr<mutex_t>(new mutex_t))
+        );
 
-
-  mutex_t& m = *(vertex.mutex_map_2[rkey]);
+  mutex_t& m = *(mp.first->second);
 
   LOG4CXX_TRACE(logger_, " Acquired lock... " << v << ": " << rkey);
 
   int& counter = vertex.couter_map_2[rkey];
 
   value_map_t& vlm = vertex.value_map_;
-  vlm[key] = value;
-
-
 
   LOG4CXX_TRACE(logger_, "Counter... (" << v << "): " << rkey << " " << counter);
   LOG4CXX_TRACE(logger_, " Received value: " << key << ": " << value << " (" << v << ")");
 
   m.lock();
+  vlm[key] = value;
   counter++;
 
   if (counter == 3) {
     counter = 0;
     m.unlock();
-    vertex.sig_recombine[rkey]->operator ()();
+    vertex.sig_recombine[rkey]->operator()();
+  } else if(counter > 3) {
+    throw std::runtime_error("Should never throw!");
   } else {
     m.unlock();
   }
@@ -121,10 +120,10 @@ void CompPeer<Num>::execute(vector<string> circut, vertex_t l) {
 
   if (operation == "*") {
 
-    /*
-     * Warning: the number has to be positive!
-     */
     if (is_number(second_operand)) {
+      /*
+       * Warning: the number has to be positive!
+       */
       const int64_t number = lexical_cast<int>(second_operand);
       multiply_const(first_operand, number, recombination_key, l);
     } else {
@@ -403,21 +402,14 @@ void CompPeer<Num>::compare5(string key1, string key2, vertex_t l) {
 
   double X[Num], Y[Num], D[Num];
 
+
   for(size_t i = 0; i < Num; i++) {
     std::string key = result + "_"  + boost::lexical_cast<std::string>(i + 1);
     const auto value = vlm[key];
-    intermediary_[i + 1] = value;
+    X[i] = i + 1;
+    Y[i] = value;
 
-    //LOG4CXX_INFO( logger_, "intermediary_: " << key << ": " << value);
-  }
-
-  for(auto it = intermediary_.begin(); it != intermediary_.end(); ++it) {
-    const auto _x = it->first;
-    const auto _y = it->second;
-    const auto _index = it->first - 1;
-
-    X[_index] = _x;
-    Y[_index] = _y;
+    LOG4CXX_INFO( logger_, "intermediary_: " << key << ": " << value);
   }
 
   gsl_poly_dd_init( D, X, Y, 3 );
@@ -446,13 +438,9 @@ void CompPeer<Num>::multiply_const(
   const auto result = vlm[first] * second;
   vlm.insert( make_pair(recombination_key, result) );
 
-  vertex.mutex_map_2.insert(
-      make_pair(recombination_key, shared_ptr<mutex_t>(new mutex_t))
-      );
-
-  vertex.cv_map_2.insert(
-      make_pair(recombination_key, shared_ptr<condition_variable_t>(new condition_variable_t))
-      );
+    vertex.mutex_map_2.insert(
+        make_pair(recombination_key, shared_ptr<mutex_t>(new mutex_t))
+        );
 }
 
 

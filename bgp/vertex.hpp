@@ -7,6 +7,8 @@
 #include <tbb/concurrent_unordered_map.h>
 #include <tbb/concurrent_hash_map.h>
 #include <boost/thread/mutex.hpp>
+#include <boost/pool/object_pool.hpp>
+#include <boost/pool/pool_alloc.hpp>
 
 #include <limits>
 #include <queue>
@@ -49,7 +51,12 @@ public:
   tbb::concurrent_unordered_map<symbol_t, int64_t> value_map_;
 
   tbb::concurrent_unordered_map<string, int> couter_map_2;
-  tbb::concurrent_unordered_map<string, shared_ptr<mutex_t> > mutex_map_2;
+  tbb::concurrent_unordered_map<
+    string,
+    shared_ptr<mutex_t>,
+    tbb::tbb_hash<string>,
+    std::equal_to<string>
+  > mutex_map_2;
   tbb::concurrent_unordered_map<string, shared_ptr<condition_variable_t> >cv_map_2;
 
   unordered_map<string, shared_ptr<boost::function<void()> > > sig_recombine;

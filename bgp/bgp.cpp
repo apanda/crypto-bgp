@@ -251,7 +251,7 @@ void BGPProcess::for1(
       << current_preference << ", " << offered_preference );
 
 
-#if 0
+#if 1
   const bool condition = offered_preference <= current_preference;
 
   if (cmp != condition) {

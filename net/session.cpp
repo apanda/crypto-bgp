@@ -53,11 +53,11 @@ void Session::handle_read(
    //char* new_data = new char[length_];
 
    boost::asio::async_read(socket_, boost::asio::buffer(data, length_),
-
+       //strand_.wrap(
          boost::bind(&Session::handle_read, this, data,
              boost::asio::placeholders::error,
              boost::asio::placeholders::bytes_transferred)
-
+       //)
    );
 }
 

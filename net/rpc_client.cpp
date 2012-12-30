@@ -55,7 +55,7 @@ void RPCClient::publish(string key,  int64_t value, vertex_t vertex) {
       boost::bind(&RPCClient::handle_write, this, data,
           boost::asio::placeholders::error,
           boost::asio::placeholders::bytes_transferred)
-  //)
+    //)
   );
 }
 
