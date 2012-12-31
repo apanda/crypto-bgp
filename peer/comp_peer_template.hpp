@@ -48,16 +48,7 @@ template<const size_t Num>
 void CompPeer<Num>::publish(std::string key, int64_t value, vertex_t v) {
 
   Vertex& vertex = bgp_->graph_[v];
-
   string rkey = key.substr(0, key.size() - 2);
-/*
-  auto mp = vertex.mutex_map_2.insert(
-        make_pair(rkey, shared_ptr<mutex_t>(new mutex_t))
-        );
-
-  mutex_t& m = *(mp.first->second);
-*/
-  vertex.mutex_->lock();
 
   LOG4CXX_TRACE(logger_, " Acquired lock... " << v << ": " << rkey);
 
@@ -68,13 +59,12 @@ void CompPeer<Num>::publish(std::string key, int64_t value, vertex_t v) {
   LOG4CXX_TRACE(logger_, "Counter... (" << v << "): " << rkey << " " << counter);
   LOG4CXX_TRACE(logger_, " Received value: " << key << ": " << value << " (" << v << ")");
 
-  //m.lock();
   vlm[key] = value;
+  vertex.mutex_->lock();
   counter++;
 
   if (counter == 3) {
     counter = 0;
-    //m.unlock();
     vertex.mutex_->unlock();
     vertex.sig_recombine[rkey]->operator()();
   } else if(counter > 3) {
@@ -440,11 +430,7 @@ void CompPeer<Num>::multiply_const(
   vlm.at(first);
   const auto result = vlm[first] * second;
   vlm.insert( make_pair(recombination_key, result) );
-/*
-    vertex.mutex_map_2.insert(
-        make_pair(recombination_key, shared_ptr<mutex_t>(new mutex_t))
-        );
-        */
+
 }
 
 
@@ -510,7 +496,6 @@ void CompPeer<Num>::recombine(string recombination_key, vertex_t l) {
   gsl_blas_ddot(ds, recombination_vercor_, &recombine);
 
   vlm[recombination_key] = recombine;
-  //vlm.insert(make_pair(recombination_key, recombine));
   debug_stream << ": " << recombine;
   LOG4CXX_DEBUG(logger_, id_ << ": recombine:" << debug_stream.str());
 
