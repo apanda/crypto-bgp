@@ -50,12 +50,14 @@ void CompPeer<Num>::publish(std::string key, int64_t value, vertex_t v) {
   Vertex& vertex = bgp_->graph_[v];
 
   string rkey = key.substr(0, key.size() - 2);
-
+/*
   auto mp = vertex.mutex_map_2.insert(
         make_pair(rkey, shared_ptr<mutex_t>(new mutex_t))
         );
 
   mutex_t& m = *(mp.first->second);
+*/
+  vertex.mutex_->lock();
 
   LOG4CXX_TRACE(logger_, " Acquired lock... " << v << ": " << rkey);
 
@@ -66,18 +68,19 @@ void CompPeer<Num>::publish(std::string key, int64_t value, vertex_t v) {
   LOG4CXX_TRACE(logger_, "Counter... (" << v << "): " << rkey << " " << counter);
   LOG4CXX_TRACE(logger_, " Received value: " << key << ": " << value << " (" << v << ")");
 
-  m.lock();
+  //m.lock();
   vlm[key] = value;
   counter++;
 
   if (counter == 3) {
     counter = 0;
-    m.unlock();
+    //m.unlock();
+    vertex.mutex_->unlock();
     vertex.sig_recombine[rkey]->operator()();
   } else if(counter > 3) {
     throw std::runtime_error("Should never throw!");
   } else {
-    m.unlock();
+    vertex.mutex_->unlock();
   }
 
 
@@ -437,10 +440,11 @@ void CompPeer<Num>::multiply_const(
   vlm.at(first);
   const auto result = vlm[first] * second;
   vlm.insert( make_pair(recombination_key, result) );
-
+/*
     vertex.mutex_map_2.insert(
         make_pair(recombination_key, shared_ptr<mutex_t>(new mutex_t))
         );
+        */
 }
 
 

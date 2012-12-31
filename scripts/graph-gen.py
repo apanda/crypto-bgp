@@ -4,7 +4,7 @@ import random
 import networkx
 import pylab
 
-GRAPH_SIZE = 400
+GRAPH_SIZE = 450
 
 def generate_graph(path):
   z = []

@@ -32,6 +32,12 @@ public:
   bool in_as_path(graph_t& graph, vertex_t vertex);
   int64_t current_next_hop_preference(graph_t& graph);
 
+  typedef boost::mutex mutex_t;
+  typedef boost::lock_guard<mutex_t> lock_t;
+  typedef boost::condition_variable condition_variable_t;
+
+  mutex_t* mutex_;
+
   vertex_t id_;
   vertex_t next_hop_;
 
@@ -41,12 +47,8 @@ public:
   vector<vertex_t> neigh_;
   unordered_map<vertex_t, int64_t> preference_;
 
-  std::unordered_map<int, array<shared_ptr<RPCClient>, 3> > clients_;
+  unordered_map<int, array<shared_ptr<RPCClient>, 3> > clients_;
   array<shared_ptr<RPCServer>, 3> servers_;
-
-  typedef boost::mutex mutex_t;
-  typedef boost::lock_guard<mutex_t> lock_t;
-  typedef boost::condition_variable condition_variable_t;
 
   tbb::concurrent_unordered_map<symbol_t, int64_t> value_map_;
 
