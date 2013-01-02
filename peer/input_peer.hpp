@@ -40,12 +40,18 @@ public:
       CompPeerSeq& comp_peers);
 
   template<class CompPeerSeq>
+  void start_clients(CompPeerSeq& comp_peers, graph_t& input_graph);
+
+  template<class CompPeerSeq>
+  void start_listeners(CompPeerSeq& comp_peers, graph_t& input_graph);
+
+  template<class CompPeerSeq>
+  void disseminate_bgp(CompPeerSeq& comp_peers, graph_t& input_graph);
+
+  template<class CompPeerSeq>
   static void distribute_secret(
       symbol_t key, plaintext_t value,
       CompPeerSeq& comp_peers);
-
-  template<class CompPeerSeq>
-  void disseminate_bgp(CompPeerSeq& comp_peers);
 
   template<class PlaintextMap, class CompPeerSeq>
   static void distribute_secrets(

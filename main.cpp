@@ -29,8 +29,6 @@ void run_test2() {
   array<shared_ptr<comp_peer_t>, COMP_PEER_NUM> comp_peer_seq;
   shared_ptr<InputPeer> input_peer(new InputPeer());
 
-
-
   boost::thread_group worker_threads;
 
   io_service io(20);
@@ -39,7 +37,13 @@ void run_test2() {
   CompPeer_factory factory;
   comp_peer_seq = factory.generate<COMP_PEER_NUM>(input_peer, io);
 
-  input_peer->disseminate_bgp(comp_peer_seq);
+
+  BGPProcess bgp("scripts/dot.dot", NULL, io);
+  graph_t& input_graph = bgp.graph_;
+
+  input_peer->disseminate_bgp(comp_peer_seq, input_graph);
+  input_peer->start_listeners(comp_peer_seq, input_graph);
+  input_peer->start_clients(comp_peer_seq, input_graph);
 
   for (int i = 0; i < THREAD_COUNT; i++) {
     worker_threads.add_thread( new boost::thread(bind(&io_service::run, &io)) );

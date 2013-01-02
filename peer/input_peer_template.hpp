@@ -16,38 +16,7 @@ typedef Secret<plaintext_t, COMP_PEER_NUM> secret_t;
 
 
 template<size_t Num>
-void InputPeer::result() {
-/*
-  barrier_mutex_.lock();
-
-  double x[Num], y[Num], d[Num];
-
-  print_values();
-
-  for(size_t i = 0; i < Num; i++) {
-    std::string key = recombination_key_  + boost::lexical_cast<std::string>(i + 1);
-    const auto value = (*values_)[key];
-    intermediary_[i + 1] = value;
-  }
-
-  for(auto it = intermediary_.begin(); it != intermediary_.end(); ++it) {
-    const auto _x = it->first;
-    const auto _y = it->second;
-    const auto _index = it->first - 1;
-
-    x[_index] = _x;
-    y[_index] = _y;
-  }
-
-
-
-  gsl_poly_dd_init( d, x, y, 3 );
-  const double interpol = gsl_poly_dd_eval( d, x, 3, 0);
-
-  LOG4CXX_INFO(logger_, "Result: " << interpol);
-  LOG4CXX_INFO(logger_, "Result: " << mod(interpol, PRIME) );
-  */
-}
+void InputPeer::result() {}
 
 
 
@@ -166,12 +135,62 @@ void InputPeer::lsb(
 
 
 template<class CompPeerSeq>
-void InputPeer::disseminate_bgp(CompPeerSeq& comp_peers) {
+void InputPeer::start_listeners(CompPeerSeq& comp_peers, graph_t& input_graph) {
 
-  boost::shared_ptr<boost::barrier> bp;
-  BGPProcess bgp("scripts/dot.dot", NULL, io_service_);
+  auto iter = vertices(input_graph);
+  auto last = iter.second;
+  auto current = iter.first;
 
-  graph_t& input_graph = bgp.graph_;
+  for (; current != last; ++current) {
+    const auto& current_vertex = *current;
+
+    for(size_t i = 0; i < COMP_PEER_NUM; i++) {
+      size_t port = 2000 + COMP_PEER_NUM*current_vertex + i;
+      auto cp = comp_peers[i];
+      auto sp = shared_ptr<RPCServer>(new RPCServer(cp->io_service_, port, cp.get() ) );
+      for(auto ccp: comp_peers) {
+        Vertex& vertex = ccp->bgp_->graph_[current_vertex];
+        vertex.servers_[i] = sp;
+      }
+    }
+  }
+
+}
+
+
+
+template<class CompPeerSeq>
+void InputPeer::start_clients(CompPeerSeq& comp_peers, graph_t& input_graph) {
+
+  auto iter = vertices(input_graph);
+  auto last = iter.second;
+  auto current = iter.first;
+
+  for (; current != last; ++current) {
+    const auto& current_vertex = *current;
+
+    for(size_t i = 0; i < COMP_PEER_NUM; i++) {
+      size_t port = 2000 + COMP_PEER_NUM*current_vertex + i;
+
+      for(size_t ID = 0; ID < COMP_PEER_NUM; ID++) {
+
+        auto cp = comp_peers[ID];
+        auto sp = shared_ptr<RPCClient>(new RPCClient(cp->io_service_, "127.0.0.1", port));
+
+        for(auto ccp: comp_peers) {
+          Vertex& vertex = ccp->bgp_->graph_[current_vertex];
+          vertex.clients_[ID + 1][i] = sp;
+        }
+
+      }
+    }
+  }
+}
+
+
+
+template<class CompPeerSeq>
+void InputPeer::disseminate_bgp(CompPeerSeq& comp_peers, graph_t& input_graph) {
 
   auto iter = vertices(input_graph);
   auto last = iter.second;
@@ -189,7 +208,6 @@ void InputPeer::disseminate_bgp(CompPeerSeq& comp_peers) {
       auto shares = secret.share();
 
       for(size_t i = 0; i < COMP_PEER_NUM; i++) {
-        //Vertex& tmp_vertex = comp_peers[i]->bgp_->graph_[current_vertex];
 
         string mpc_key;
         int64_t mpc_value;
@@ -198,7 +216,6 @@ void InputPeer::disseminate_bgp(CompPeerSeq& comp_peers) {
         mpc_value = shares[i];
 
         value_map_t& vm = comp_peers[i]->bgp_->graph_[current_vertex].value_map_;
-        //value_map_t& vm = *(tmp_vertex.values_);
         vm[mpc_key] = mpc_value;
 
         mpc_key = ".2" + lexical_cast<string>(key);
@@ -219,48 +236,7 @@ void InputPeer::disseminate_bgp(CompPeerSeq& comp_peers) {
 
   }
 
-
-
-  iter = vertices(input_graph);
-  last = iter.second;
-  current = iter.first;
-
-  for (; current != last; ++current) {
-    const auto& current_vertex = *current;
-
-    for(size_t i = 0; i < COMP_PEER_NUM; i++) {
-      size_t port = 2000 + COMP_PEER_NUM*current_vertex + i;
-      auto cp = comp_peers[i];
-      auto sp = shared_ptr<RPCServer>(new RPCServer(cp->io_service_, port, cp.get() ) );
-      for(auto ccp: comp_peers) {
-        Vertex& vertex = ccp->bgp_->graph_[current_vertex];
-        vertex.servers_[i] = sp;
-      }
-    }
-  }
-
   std::cout << "Connecting..." << std::endl;
-
-  iter = vertices(input_graph);
-  last = iter.second;
-  current = iter.first;
-
-  for (; current != last; ++current) {
-    const auto& current_vertex = *current;
-
-    for(size_t i = 0; i < COMP_PEER_NUM; i++) {
-      size_t port = 2000 + COMP_PEER_NUM*current_vertex + i;
-      for(size_t ID = 0; ID < COMP_PEER_NUM; ID++) {
-        auto cp = comp_peers[ID];
-        auto sp = shared_ptr<RPCClient>(new RPCClient(cp->io_service_, "localhost", port ));
-        for(auto ccp: comp_peers) {
-          Vertex& vertex = ccp->bgp_->graph_[current_vertex];
-          vertex.clients_[ID + 1][i] = sp;
-
-        }
-      }
-    }
-  }
 
   std::cout << "Done!" << std::endl;
 }
