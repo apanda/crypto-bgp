@@ -3,6 +3,7 @@
 #include <secret_sharing/secret.hpp>
 
 #include <peer/input_peer.hpp>
+#include <peer/master_peer.hpp>
 #include <peer/comp_peer.hpp>
 #include <peer/comp_peer_factory.hpp>
 
@@ -41,8 +42,13 @@ void run_test2() {
   BGPProcess bgp("scripts/dot.dot", NULL, io);
   graph_t& input_graph = bgp.graph_;
 
+  shared_ptr<RPCClient> master( new RPCClient(io, "localhost", MASTER_PORT) );
+
   input_peer->disseminate_bgp(comp_peer_seq, input_graph);
   input_peer->start_listeners(comp_peer_seq, input_graph);
+
+  master->publish("", 1, 1);
+
   input_peer->start_clients(comp_peer_seq, input_graph);
 
   for (int i = 0; i < THREAD_COUNT; i++) {

@@ -9,11 +9,13 @@
 #include <boost/asio.hpp>
 #include <boost/bind.hpp>
 
+class Peer;
+
 class RPCClient {
 
 public:
 
-  RPCClient(io_service& io_service, string hostname,  int64_t port);
+  RPCClient(io_service& io_service, string hostname,  int64_t port, Peer* peer = NULL);
 
   void publish(string key, int64_t value, vertex_t vertex);
 

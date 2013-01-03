@@ -9,6 +9,8 @@
 #define COMP_PEER_FACTORY_TEMPLATE_HPP_
 
 #include <peer/comp_peer_factory.hpp>
+#include <peer/comp_peer_template.hpp>
+
 
 template<size_t Num>
 array<shared_ptr<comp_peer_t>, Num>

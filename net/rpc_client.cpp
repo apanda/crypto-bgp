@@ -7,11 +7,12 @@
 
 #include <net/rpc_client.hpp>
 
-
 LoggerPtr RPCClient::logger_(Logger::getLogger("all.peer.client"));
 
 
-RPCClient::RPCClient(io_service& io_service, string hostname,  int64_t port) :
+class Peer;
+
+RPCClient::RPCClient(io_service& io_service, string hostname,  int64_t port, Peer*) :
   socket_(io_service), resolver_(io_service), strand_(io_service) {
 
   const string service = lexical_cast<string>(port);
