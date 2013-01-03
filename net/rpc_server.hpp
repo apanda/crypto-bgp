@@ -27,6 +27,8 @@ public:
 
   ~RPCServer();
 
+  vector<Session*> sessions_;
+
 private:
 
   void start_accept();

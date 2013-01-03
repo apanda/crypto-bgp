@@ -25,6 +25,17 @@ RPCClient::RPCClient(io_service& io_service, string hostname,  int64_t port, Pee
 
   boost::asio::connect(socket_, iterator);
   //socket_.set_option(tcp::no_delay(true));
+
+  char* data = new char[length_];
+
+  boost::asio::async_read(socket_, boost::asio::buffer(data, length_),
+      //strand_.wrap(
+        boost::bind(&RPCClient::handle_read, this, data,
+            boost::asio::placeholders::error,
+            boost::asio::placeholders::bytes_transferred)
+      //)
+  );
+
 }
 
 
@@ -61,6 +72,23 @@ void RPCClient::publish(string key,  int64_t value, vertex_t vertex) {
   );
 }
 
+
+void RPCClient::handle_read(
+      char* data,
+      const boost::system::error_code& error,
+      size_t bytes_transferred) {
+
+  printf("Received a value!\n");
+
+  boost::asio::async_read(socket_, boost::asio::buffer(data, length_),
+      //strand_.wrap(
+        boost::bind(&RPCClient::handle_read, this, data,
+            boost::asio::placeholders::error,
+            boost::asio::placeholders::bytes_transferred)
+      //)
+  );
+
+}
 
 
 void RPCClient::handle_write(

@@ -34,6 +34,11 @@ public:
 
   void publish(string key, int64_t value, vertex_t vertex);
 
+  void handle_read(
+      char* data,
+      const boost::system::error_code& error,
+      size_t bytes_transferred);
+
   void handle_write(
       char* data,
       const boost::system::error_code& error,

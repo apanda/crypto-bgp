@@ -46,6 +46,7 @@ void RPCServer::handle_accept(
     const boost::system::error_code& error) {
 
   if (!error) {
+    sessions_.push_back(new_session);
     new_session->start();
   } else {
     LOG4CXX_ERROR(peer_->logger_, error.message());

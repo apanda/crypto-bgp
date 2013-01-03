@@ -54,7 +54,8 @@ public:
       const symbol_t key, const Values values, const int64_t secret, const vertex_t vertex,
       PeerSeq comp_peers);
 
-  virtual void publish(std::string key,  int64_t value, vertex_t vertex)  ;
+  virtual void subscribe(std::string key,  int64_t value, vertex_t vertex)  ;
+  virtual void publish(std::string key,  int64_t value, vertex_t vertex);
   void print_values();
 
   typedef tbb::concurrent_unordered_map<int, int64_t> inter_map_t;

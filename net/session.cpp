@@ -26,6 +26,13 @@ void Session::start()  {
 
 
 
+void Session::handle_write(
+    char* data,
+    const boost::system::error_code& error,
+    size_t bytes_transferred) {}
+
+
+
 void Session::handle_read(
     char* data,
     const boost::system::error_code& error,
@@ -61,6 +68,37 @@ void Session::handle_read(
    );
 }
 
+
+
+void Session::notify(string key,  int64_t value, vertex_t vertex) {
+
+  char* data = new char[length_];
+
+  BOOST_ASSERT(key.length() < (length_ - sizeof(vertex_t) - sizeof(int64_t)));
+  strcpy(
+      data,
+      key.c_str());
+
+  memcpy(
+      data + (length_ - sizeof(vertex_t) - sizeof(int64_t)),
+      &vertex,
+      sizeof(vertex_t));
+
+  memcpy(
+      data + (length_ - sizeof(int64_t)),
+      &value,
+      sizeof(int64_t));
+
+
+  boost::asio::async_write(socket_,
+      boost::asio::buffer(data, length_),
+      //strand_.wrap(
+      boost::bind(&Session::handle_write, this, data,
+          boost::asio::placeholders::error,
+          boost::asio::placeholders::bytes_transferred)
+    //)
+  );
+}
 
 
 tcp::socket& Session::socket()  {

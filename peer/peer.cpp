@@ -24,6 +24,12 @@ void Peer::publish(std::string key, int64_t value, vertex_t v) {
 
 
 
+void Peer::subscribe(std::string key, int64_t value, vertex_t v) {
+
+}
+
+
+
 void Peer::print_values() {
 
 }

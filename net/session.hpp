@@ -3,6 +3,7 @@
 
 #include <common.hpp>
 
+#include <bgp/vertex.hpp>
 #include <peer/peer.hpp>
 
 class Peer;
@@ -20,12 +21,17 @@ public:
 
   void start();
 
+  void handle_write(
+      char* data,
+      const boost::system::error_code& error,
+      size_t bytes_transferred);
 
   void handle_read(
       char* data,
       const boost::system::error_code& error,
       size_t bytes_transferred);
 
+  void notify(string key,  int64_t value, vertex_t vertex);
 
   tcp::socket& socket();
 
