@@ -1,7 +1,9 @@
 #include <bgp/bgp.hpp>
 #include <peer/comp_peer.hpp>
 
-
+#include <bgp/common.hpp>
+#include <bgp/vertex.hpp>
+#include <bgp/edge.hpp>
 
 
 BGPProcess::BGPProcess(

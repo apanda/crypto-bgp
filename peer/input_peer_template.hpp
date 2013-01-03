@@ -3,6 +3,7 @@
 
 #include <common.hpp>
 #include <bgp/bgp.hpp>
+#include <bgp/vertex.hpp>
 
 #include <bitset>
 

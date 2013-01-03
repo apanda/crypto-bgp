@@ -1,5 +1,5 @@
 #include <bgp/vertex.hpp>
-
+#include <bgp/edge.hpp>
 
 const vertex_t Vertex::UNDEFINED  = 9999999;
 

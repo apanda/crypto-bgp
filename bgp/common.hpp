@@ -47,7 +47,4 @@ typedef adjacency_list<
 typedef graph_traits<graph_t>::vertex_descriptor vertex_t;
 typedef graph_traits<graph_t>::edge_descriptor edge_t;
 
-#include "vertex.hpp"
-#include "edge.hpp"
-
 #endif /* COMMON_HPP_ */

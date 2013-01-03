@@ -20,8 +20,6 @@
 #include <iostream>
 #include <vector>
 
-//#include <peer/comp_peer.hpp>
-
 template<size_t >
 class CompPeer;
 

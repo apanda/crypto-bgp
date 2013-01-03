@@ -2,16 +2,31 @@
 #define RPC_CLIENT_HPP_
 
 #include <common.hpp>
-#include <bgp/common.hpp>
 
 #include <net/session.hpp>
 
+#include <boost/graph/graph_traits.hpp>
+#include <boost/graph/adjacency_list.hpp>
 #include <boost/asio.hpp>
 #include <boost/bind.hpp>
 
 class Peer;
 
 class RPCClient {
+
+  class Vertex;
+  class Edge;
+
+  typedef boost::adjacency_list<
+      boost::vecS,
+      boost::vecS,
+      boost::undirectedS,
+      Vertex,
+      Edge
+      > graph_t;
+
+  typedef boost::graph_traits<graph_t>::vertex_descriptor vertex_t;
+  typedef boost::graph_traits<graph_t>::edge_descriptor edge_t;
 
 public:
 

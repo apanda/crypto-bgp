@@ -7,6 +7,8 @@
 #include <peer/comp_peer.hpp>
 #include <peer/comp_peer_factory.hpp>
 
+#include <bgp/vertex.hpp>
+
 #include <log4cxx/patternlayout.h>
 #include <log4cxx/propertyconfigurator.h>
 

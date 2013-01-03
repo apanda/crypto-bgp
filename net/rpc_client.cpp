@@ -6,6 +6,7 @@
  */
 
 #include <net/rpc_client.hpp>
+#include <bgp/vertex.hpp>
 
 LoggerPtr RPCClient::logger_(Logger::getLogger("all.peer.client"));
 

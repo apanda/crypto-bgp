@@ -4,7 +4,7 @@
 #include <common.hpp>
 #include <net/rpc_client.hpp>
 #include <net/rpc_server.hpp>
-
+#include <bgp/edge.hpp>
 #include <atomic>
 #include <unordered_map>
 
@@ -16,11 +16,28 @@
 #include <boost/shared_ptr.hpp>
 #include <boost/function.hpp>
 
+#include <boost/graph/adjacency_list.hpp>
+#include <boost/graph/graph_traits.hpp>
+
 #include <tbb/compat/condition_variable>
 #include <tbb/concurrent_unordered_map.h>
 
 class BGPProcess;
 class RPCServer;
+
+
+class Vertex;
+
+typedef boost::adjacency_list<
+    boost::vecS,
+    boost::vecS,
+    boost::undirectedS,
+    Vertex,
+    Edge
+    > graph_t;
+
+typedef boost::graph_traits<graph_t>::vertex_descriptor vertex_t;
+typedef boost::graph_traits<graph_t>::edge_descriptor edge_t;
 
 class Peer {
 public:
