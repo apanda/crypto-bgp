@@ -32,7 +32,7 @@ void run_test2() {
   io_service io(20);
   io_service::work work(io);
 
-  MasterPeer<COMP_PEER_NUM> m(1, io);
+  MasterPeer m(1, io);
 
   worker_threads.add_thread( new boost::thread(bind(&io_service::run, &io)) );
   worker_threads.join_all();

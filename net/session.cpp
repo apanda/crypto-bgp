@@ -26,13 +26,6 @@ void Session::start()  {
 
 
 
-void Session::handle_write(
-    char* data,
-    const boost::system::error_code& error,
-    size_t bytes_transferred) {}
-
-
-
 void Session::handle_read(
     char* data,
     const boost::system::error_code& error,
@@ -56,15 +49,10 @@ void Session::handle_read(
      peer_->publish(data, value, vertex);
    }
 
-   //delete data;
-   //char* new_data = new char[length_];
-
    boost::asio::async_read(socket_, boost::asio::buffer(data, length_),
-       //strand_.wrap(
          boost::bind(&Session::handle_read, this, data,
              boost::asio::placeholders::error,
              boost::asio::placeholders::bytes_transferred)
-       //)
    );
 }
 
@@ -90,15 +78,29 @@ void Session::notify(string key,  int64_t value, vertex_t vertex) {
       sizeof(int64_t));
 
 
-  boost::asio::async_write(socket_,
-      boost::asio::buffer(data, length_),
-      //strand_.wrap(
+  write_impl(data, length_, socket_);
+
+}
+
+
+void Session::write_impl(char* data, size_t length, tcp::socket& socket) {
+
+  boost::asio::async_write(socket,
+      boost::asio::buffer(data, length),
       boost::bind(&Session::handle_write, this, data,
           boost::asio::placeholders::error,
           boost::asio::placeholders::bytes_transferred)
-    //)
   );
+
 }
+
+
+
+void Session::handle_write(
+    char* data,
+    const boost::system::error_code& error,
+    size_t bytes_transferred) {}
+
 
 
 tcp::socket& Session::socket()  {

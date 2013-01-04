@@ -19,9 +19,7 @@
 #include <peer/peer.hpp>
 #include <peer/input_peer.hpp>
 
-class InputPeer;
 
-template<const size_t Num>
 class MasterPeer : public Peer {
 public:
 

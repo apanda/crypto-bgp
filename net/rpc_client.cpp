@@ -10,10 +10,14 @@
 
 LoggerPtr RPCClient::logger_(Logger::getLogger("all.peer.client"));
 
-
 class Peer;
 
-RPCClient::RPCClient(io_service& io_service, string hostname,  int64_t port, Peer*) :
+
+RPCClient::RPCClient(
+    io_service& io_service,
+    string hostname,
+    int64_t port) :
+
   socket_(io_service), resolver_(io_service), strand_(io_service) {
 
   const string service = lexical_cast<string>(port);
@@ -27,13 +31,17 @@ RPCClient::RPCClient(io_service& io_service, string hostname,  int64_t port, Pee
   //socket_.set_option(tcp::no_delay(true));
 
   char* data = new char[length_];
+  read_impl(data, length_, socket_);
+}
+
+
+
+void RPCClient::read_impl(char* data, size_t length, tcp::socket& socket) {
 
   boost::asio::async_read(socket_, boost::asio::buffer(data, length_),
-      //strand_.wrap(
         boost::bind(&RPCClient::handle_read, this, data,
             boost::asio::placeholders::error,
             boost::asio::placeholders::bytes_transferred)
-      //)
   );
 
 }
@@ -64,13 +72,12 @@ void RPCClient::publish(string key,  int64_t value, vertex_t vertex) {
 
   boost::asio::async_write(socket_,
       boost::asio::buffer(data, length_),
-      //strand_.wrap(
       boost::bind(&RPCClient::handle_write, this, data,
           boost::asio::placeholders::error,
           boost::asio::placeholders::bytes_transferred)
-    //)
   );
 }
+
 
 
 void RPCClient::handle_read(
@@ -78,17 +85,27 @@ void RPCClient::handle_read(
       const boost::system::error_code& error,
       size_t bytes_transferred) {
 
-  printf("Received a value!\n");
+  if (!error) {
 
-  boost::asio::async_read(socket_, boost::asio::buffer(data, length_),
-      //strand_.wrap(
-        boost::bind(&RPCClient::handle_read, this, data,
-            boost::asio::placeholders::error,
-            boost::asio::placeholders::bytes_transferred)
-      //)
-  );
+    int64_t value;
+    vertex_t vertex;
 
+    memcpy(
+        &vertex,
+        data + (length_  - sizeof(int64_t) - sizeof(vertex_t)),
+        sizeof(vertex_t));
+
+    memcpy(
+        &value,
+        data + (length_ - sizeof(int64_t)),
+        sizeof(int64_t));
+
+  mutex.unlock();
+  read_impl(data, length_, socket_);
+
+  }
 }
+
 
 
 void RPCClient::handle_write(

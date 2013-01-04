@@ -27,15 +27,26 @@ using boost::function;
 
 void run_test2() {
 
+
   typedef std::chrono::high_resolution_clock clock_t;
 
   array<shared_ptr<comp_peer_t>, COMP_PEER_NUM> comp_peer_seq;
   shared_ptr<InputPeer> input_peer(new InputPeer());
 
-  boost::thread_group worker_threads;
-
   io_service io(20);
   io_service::work work(io);
+
+  boost::thread_group worker_threads;
+
+  typedef function<bool()> functor_t;
+
+  boost::barrier* b = new boost::barrier(COMP_PEER_NUM + 1);
+  functor_t f = boost::bind(&boost::barrier::wait, b);
+
+  for (int i = 0; i < THREAD_COUNT; i++) {
+    worker_threads.add_thread( new boost::thread(bind(&io_service::run, &io)) );
+  }
+
 
   CompPeer_factory factory;
   comp_peer_seq = factory.generate<COMP_PEER_NUM>(input_peer, io);
@@ -45,22 +56,18 @@ void run_test2() {
   graph_t& input_graph = bgp.graph_;
 
   shared_ptr<RPCClient> master( new RPCClient(io, "localhost", MASTER_PORT) );
+  master->mutex.lock();
 
   input_peer->disseminate_bgp(comp_peer_seq, input_graph);
   input_peer->start_listeners(comp_peer_seq, input_graph);
 
-  master->publish("", 1, 1);
+  master->publish("started", 0, input_graph.m_vertices.size());
+  master->mutex.lock();
+
+  printf("Master says good to go.\n");
 
   input_peer->start_clients(comp_peer_seq, input_graph);
 
-  for (int i = 0; i < THREAD_COUNT; i++) {
-    worker_threads.add_thread( new boost::thread(bind(&io_service::run, &io)) );
-  }
-
-
-  boost::barrier* b = new boost::barrier(4);
-  typedef function<bool()> Functor;
-  Functor f = boost::bind(&boost::barrier::wait, b);
 
   const auto t1 = clock_t::now();
 
