@@ -28,7 +28,17 @@ public:
       const boost::system::error_code& error,
       size_t bytes_transferred);
 
+  void handle_preread(
+      int* data,
+      const boost::system::error_code& error,
+      size_t bytes_transferred);
+
   void handle_read(
+      char* data,
+      const boost::system::error_code& error,
+      size_t bytes_transferred);
+
+  void handle_msg(
       char* data,
       const boost::system::error_code& error,
       size_t bytes_transferred);
@@ -39,7 +49,6 @@ public:
 
   tcp::socket socket_;
   boost::asio::strand strand_;
-  enum { length_ = 256 + 8 + 8 };
   Peer* peer_;
 
 };

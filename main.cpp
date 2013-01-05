@@ -62,7 +62,7 @@ void run_test2() {
   input_peer->start_listeners(comp_peer_seq, input_graph);
 
   master->publish("started", 0, input_graph.m_vertices.size());
-  master->mutex.lock();
+  //master->mutex.lock();
 
   printf("Master says good to go.\n");
 

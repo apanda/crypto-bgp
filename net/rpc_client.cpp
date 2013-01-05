@@ -51,19 +51,24 @@ void RPCClient::read_impl(char* data, size_t length, tcp::socket& socket) {
 void RPCClient::publish(string key,  int64_t value, vertex_t vertex) {
 
   char* data = new char[length_];
+  char* msg = data + cmd_;
 
-  BOOST_ASSERT(key.length() < (length_ - sizeof(vertex_t) - sizeof(int64_t)));
+  uint32_t& command =  *((uint32_t*) data);
+  command = CMD_TYPE::MSG;
+
+  BOOST_ASSERT(key.length() < (msg_ - sizeof(vertex_t) - sizeof(int64_t)));
+
   strcpy(
-      data,
+      msg,
       key.c_str());
 
   memcpy(
-      data + (length_ - sizeof(vertex_t) - sizeof(int64_t)),
+      msg + (msg_ - sizeof(vertex_t) - sizeof(int64_t)),
       &vertex,
       sizeof(vertex_t));
 
   memcpy(
-      data + (length_ - sizeof(int64_t)),
+      msg + (msg_ - sizeof(int64_t)),
       &value,
       sizeof(int64_t));
 
@@ -87,23 +92,25 @@ void RPCClient::handle_read(
 
   if (!error) {
 
+    char* msg = data + cmd_;
+
     int64_t value;
     vertex_t vertex;
 
     memcpy(
         &vertex,
-        data + (length_  - sizeof(int64_t) - sizeof(vertex_t)),
+        msg + (msg_ - sizeof(int64_t) - sizeof(vertex_t)),
         sizeof(vertex_t));
 
     memcpy(
         &value,
-        data + (length_ - sizeof(int64_t)),
+        msg + (msg_ - sizeof(int64_t)),
         sizeof(int64_t));
 
-  mutex.unlock();
-  read_impl(data, length_, socket_);
-
+    mutex.unlock();
+    read_impl(data, length_, socket_);
   }
+
 }
 
 

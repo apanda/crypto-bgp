@@ -11,19 +11,50 @@
 
 void Session::start()  {
 
-  char* data = new char[length_];
-
   //socket_.set_option(tcp::no_delay(true));
 
+  char* data = new char[length_];
+
   boost::asio::async_read(socket_, boost::asio::buffer(data, length_),
-      //strand_.wrap(
         boost::bind(&Session::handle_read, this, data,
             boost::asio::placeholders::error,
             boost::asio::placeholders::bytes_transferred)
-      //)
   );
 }
 
+
+
+void Session::handle_preread(
+    int* data,
+    const boost::system::error_code& error,
+    size_t bytes_transferred) {
+
+}
+
+
+void Session::handle_msg(
+    char* data,
+    const boost::system::error_code& error,
+    size_t bytes_transferred) {
+
+  char* msg = data + cmd_;
+
+  int64_t value;
+  vertex_t vertex;
+
+  memcpy(
+      &vertex,
+      msg + (msg_ - sizeof(int64_t) - sizeof(vertex_t)),
+      sizeof(vertex_t));
+
+  memcpy(
+      &value,
+      msg + (msg_ - sizeof(int64_t)),
+      sizeof(int64_t));
+
+  peer_->publish(msg, value, vertex);
+
+}
 
 
 void Session::handle_read(
@@ -33,27 +64,22 @@ void Session::handle_read(
 
    if (!error) {
 
-     int64_t value;
-     vertex_t vertex;
+     uint32_t& command =  *((uint32_t*) data);
+     if(command == CMD_TYPE::MSG) {
+       handle_msg(data, error, bytes_transferred);
+     }
 
-     memcpy(
-         &vertex,
-         data + (length_  - sizeof(int64_t) - sizeof(vertex_t)),
-         sizeof(vertex_t));
 
-     memcpy(
-         &value,
-         data + (length_ - sizeof(int64_t)),
-         sizeof(int64_t));
+     boost::asio::async_read(socket_, boost::asio::buffer(data, length_),
+           boost::bind(&Session::handle_read, this, data,
+               boost::asio::placeholders::error,
+               boost::asio::placeholders::bytes_transferred)
+     );
 
-     peer_->publish(data, value, vertex);
+   } else {
+     delete this;
    }
 
-   boost::asio::async_read(socket_, boost::asio::buffer(data, length_),
-         boost::bind(&Session::handle_read, this, data,
-             boost::asio::placeholders::error,
-             boost::asio::placeholders::bytes_transferred)
-   );
 }
 
 
@@ -61,19 +87,21 @@ void Session::handle_read(
 void Session::notify(string key,  int64_t value, vertex_t vertex) {
 
   char* data = new char[length_];
+  char* msg = data + cmd_;
 
-  BOOST_ASSERT(key.length() < (length_ - sizeof(vertex_t) - sizeof(int64_t)));
+  BOOST_ASSERT(key.length() < (msg_ - sizeof(vertex_t) - sizeof(int64_t)));
+
   strcpy(
-      data,
+      msg,
       key.c_str());
 
   memcpy(
-      data + (length_ - sizeof(vertex_t) - sizeof(int64_t)),
+      msg + (msg_ - sizeof(vertex_t) - sizeof(int64_t)),
       &vertex,
       sizeof(vertex_t));
 
   memcpy(
-      data + (length_ - sizeof(int64_t)),
+      msg + (msg_ - sizeof(int64_t)),
       &value,
       sizeof(int64_t));
 

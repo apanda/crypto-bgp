@@ -26,6 +26,17 @@
 extern int THREAD_COUNT;
 extern int TASK_COUNT;
 
+enum {
+  msg_ = 256 + 8 + 8,
+  cmd_ = sizeof(uint32_t),
+  length_ = cmd_ + msg_
+};
+
+enum CMD_TYPE {
+  MSG = 0,
+  SYNC = 1
+};
+
 typedef int64_t share_t;
 
 const size_t SHARE_SIZE = sizeof(share_t);
