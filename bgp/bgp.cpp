@@ -113,13 +113,18 @@ void BGPProcess::next_iteration(
     }
 
     if (batch.empty()) break;
-
   }
+
+  vector<vertex_t> nodes;
 
   for(const vertex_t vertex: new_changed_set) {
     auto neighbors = adjacent_vertices(vertex, graph_);
     new_affected_set.insert(neighbors.first, neighbors.second);
+    nodes.push_back(vertex);
   }
+
+  printf("calling the master!\n");
+  master_->sync(nodes);
 
   if(new_changed_set.empty()) return;
 

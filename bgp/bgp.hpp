@@ -22,6 +22,7 @@
 
 template<size_t >
 class CompPeer;
+class RPCClient;
 
 class BGPProcess {
 
@@ -80,6 +81,7 @@ public:
   graph_t graph_;
   CompPeer<3>* comp_peer_;
   shared_ptr<boost::barrier> bp_;
+  shared_ptr<RPCClient> master_;
   io_service& io_service_;
 
   boost::mutex m_;

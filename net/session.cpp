@@ -54,7 +54,6 @@ void Session::handle_sync(
     size_t bytes_transferred) {
 
   uint32_t& size =  *((uint32_t*) (data + sizeof(uint32_t)));
-  printf("length = %u\n", size);
 
   uint16_t* array = (uint16_t*) (data + sizeof(uint32_t) * 2);
   const size_t num = (size - sizeof(uint32_t) * 2) / sizeof(uint16_t);
@@ -85,14 +84,20 @@ void Session::handle_read(
        } else if (command == CMD_TYPE::SYNC) {
 
          uint32_t& size =  *((uint32_t*) (data + sizeof(uint32_t)));
+         printf("length = %u\n", size);
 
-         char* new_data = new char[size];
-         memcpy(new_data, data, length_);
+         if (size > length_) {
 
-         boost::asio::async_read(socket_, boost::asio::buffer(new_data + length_, size - length_),
-               boost::bind(&Session::handle_sync, this, new_data,
-                   boost::asio::placeholders::error,
-                   boost::asio::placeholders::bytes_transferred));
+           char* new_data = new char[size];
+           memcpy(new_data, data, length_);
+
+           boost::asio::async_read(socket_, boost::asio::buffer(new_data + length_, size - length_),
+              boost::bind(&Session::handle_sync, this, new_data,
+                  boost::asio::placeholders::error,
+                  boost::asio::placeholders::bytes_transferred));
+         } else {
+           handle_sync(data, error, bytes_transferred);
+         }
 
        } else {
          throw std::runtime_error("invalid command");

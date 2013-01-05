@@ -56,13 +56,17 @@ void run_test2() {
   graph_t& input_graph = bgp.graph_;
 
   shared_ptr<RPCClient> master( new RPCClient(io, "localhost", MASTER_PORT) );
+  bgp.master_ = master;
   master->mutex.lock();
 
   input_peer->disseminate_bgp(comp_peer_seq, input_graph);
   auto nodes = input_peer->start_listeners(comp_peer_seq, input_graph);
 
-  master->sync(nodes.size(), nodes);
-  //master->publish("started", 0, nodes.size());
+  for(auto& comp: comp_peer_seq) {
+    comp->bgp_->master_ = master;
+  }
+
+  master->sync(nodes);
   //master->mutex.lock();
 
   printf("Master says good to go.\n");

@@ -39,7 +39,7 @@ public:
       const boost::system::error_code& error,
       size_t bytes_transferred);
 
-  void sync(int64_t num, vector<vertex_t> nodes);
+  void sync(vector<vertex_t> nodes);
 
   boost::mutex mutex;
 
