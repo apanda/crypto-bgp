@@ -43,7 +43,7 @@ public:
   void start_clients(CompPeerSeq& comp_peers, graph_t& input_graph);
 
   template<class CompPeerSeq>
-  void start_listeners(CompPeerSeq& comp_peers, graph_t& input_graph);
+  vector<vertex_t> start_listeners(CompPeerSeq& comp_peers, graph_t& input_graph);
 
   template<class CompPeerSeq>
   void disseminate_bgp(CompPeerSeq& comp_peers, graph_t& input_graph);

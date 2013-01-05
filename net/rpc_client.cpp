@@ -48,6 +48,37 @@ void RPCClient::read_impl(char* data, size_t length, tcp::socket& socket) {
 
 
 
+void RPCClient::sync(int64_t num, vector<vertex_t> nodes) {
+
+  printf("nodes.size() %u\n", nodes.size());
+
+  size_t length = sizeof(uint32_t) + sizeof(uint32_t) + nodes.size() * sizeof(uint16_t);
+  if (length < length_) length = length_;
+
+  char* data = new char[length];
+
+  uint32_t& command =  *((uint32_t*) data);
+  uint32_t& size =  *((uint32_t*) (data + sizeof(uint32_t)));
+  uint16_t* array = (uint16_t*) (data + sizeof(uint32_t)*2);
+
+  command = CMD_TYPE::SYNC;
+  size = length;
+
+  for(int i = 0; i < nodes.size(); i++) {
+    array[i] = nodes[i];
+  }
+
+  boost::asio::async_write(socket_,
+      boost::asio::buffer(data, length),
+      boost::bind(&RPCClient::handle_write, this, data,
+          boost::asio::placeholders::error,
+          boost::asio::placeholders::bytes_transferred)
+  );
+
+}
+
+
+
 void RPCClient::publish(string key,  int64_t value, vertex_t vertex) {
 
   char* data = new char[length_];

@@ -43,6 +43,11 @@ public:
       const boost::system::error_code& error,
       size_t bytes_transferred);
 
+  void handle_sync(
+      char* data,
+      const boost::system::error_code& error,
+      size_t bytes_transferred);
+
   void notify(string key,  int64_t value, vertex_t vertex);
 
   tcp::socket& socket();

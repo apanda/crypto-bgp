@@ -59,9 +59,10 @@ void run_test2() {
   master->mutex.lock();
 
   input_peer->disseminate_bgp(comp_peer_seq, input_graph);
-  input_peer->start_listeners(comp_peer_seq, input_graph);
+  auto nodes = input_peer->start_listeners(comp_peer_seq, input_graph);
 
-  master->publish("started", 0, input_graph.m_vertices.size());
+  master->sync(nodes.size(), nodes);
+  //master->publish("started", 0, nodes.size());
   //master->mutex.lock();
 
   printf("Master says good to go.\n");

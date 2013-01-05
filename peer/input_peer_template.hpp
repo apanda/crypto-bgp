@@ -136,7 +136,9 @@ void InputPeer::lsb(
 
 
 template<class CompPeerSeq>
-void InputPeer::start_listeners(CompPeerSeq& comp_peers, graph_t& input_graph) {
+vector<vertex_t> InputPeer::start_listeners(CompPeerSeq& comp_peers, graph_t& input_graph) {
+
+  vector<vertex_t> nodes;
 
   auto iter = vertices(input_graph);
   auto last = iter.second;
@@ -144,6 +146,7 @@ void InputPeer::start_listeners(CompPeerSeq& comp_peers, graph_t& input_graph) {
 
   for (; current != last; ++current) {
     const auto& current_vertex = *current;
+    nodes.push_back(current_vertex);
 
     for(size_t i = 0; i < COMP_PEER_NUM; i++) {
       size_t port = 2000 + COMP_PEER_NUM*current_vertex + i;
@@ -156,6 +159,7 @@ void InputPeer::start_listeners(CompPeerSeq& comp_peers, graph_t& input_graph) {
     }
   }
 
+  return nodes;
 }
 
 
