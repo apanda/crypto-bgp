@@ -4,6 +4,9 @@
 int THREAD_COUNT = 4;
 int TASK_COUNT = 1;
 
+size_t VERTEX_START = 0;
+size_t VERTEX_END = 0;
+
 int mod( int64_t x, int m) {
     return (x%m + m)%m;
 }

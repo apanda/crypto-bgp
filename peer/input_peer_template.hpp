@@ -146,6 +146,10 @@ vector<vertex_t> InputPeer::start_listeners(CompPeerSeq& comp_peers, graph_t& in
 
   for (; current != last; ++current) {
     const auto& current_vertex = *current;
+
+    if (current_vertex < VERTEX_START) continue;
+    if (current_vertex > VERTEX_END) continue;
+
     nodes.push_back(current_vertex);
 
     for(size_t i = 0; i < COMP_PEER_NUM; i++) {

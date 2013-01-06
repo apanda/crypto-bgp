@@ -2,7 +2,12 @@
 #include <boost/program_options.hpp>
 #include <secret_sharing/secret.hpp>
 
+#include <peer/input_peer.hpp>
 #include <peer/master_peer.hpp>
+#include <peer/comp_peer.hpp>
+#include <peer/comp_peer_factory.hpp>
+
+#include <bgp/vertex.hpp>
 
 #include <log4cxx/patternlayout.h>
 #include <log4cxx/propertyconfigurator.h>
@@ -22,17 +27,21 @@ using boost::function;
 
 void run_test2() {
 
+
   typedef std::chrono::high_resolution_clock clock_t;
 
   array<shared_ptr<comp_peer_t>, COMP_PEER_NUM> comp_peer_seq;
   shared_ptr<InputPeer> input_peer(new InputPeer());
 
-  boost::thread_group worker_threads;
-
   io_service io(20);
   io_service::work work(io);
 
-  MasterPeer m(1, io);
+  graph_t graph;
+  BGPProcess::load_graph("scripts/dot.dot", graph);
+
+  MasterPeer mp(graph.m_vertices.size(), io);
+
+  boost::thread_group worker_threads;
 
   worker_threads.add_thread( new boost::thread(bind(&io_service::run, &io)) );
   worker_threads.join_all();

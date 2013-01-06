@@ -34,7 +34,7 @@ public:
       CompPeer<3>* comp_peer,
       io_service& io);
 
-  void load_graph(std::string path, graph_t& graph);
+  static void load_graph(std::string path, graph_t& graph);
   void init(graph_t& graph);
 
   void start(graph_t& graph);

@@ -41,7 +41,7 @@ typedef boost::graph_traits<graph_t>::edge_descriptor edge_t;
 
 class Peer {
 public:
-  Peer(const short port, io_service& io);
+  Peer(io_service& io);
   virtual ~Peer();
 
   template<class PeerSeq>
@@ -55,7 +55,10 @@ public:
       PeerSeq comp_peers);
 
   virtual void subscribe(std::string key,  int64_t value, vertex_t vertex)  ;
+
   virtual void publish(std::string key,  int64_t value, vertex_t vertex);
+  virtual void publish(vector<vertex_t>& nodes);
+
   void print_values();
 
   typedef tbb::concurrent_unordered_map<int, int64_t> inter_map_t;

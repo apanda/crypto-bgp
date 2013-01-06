@@ -14,9 +14,15 @@
 
 
 MasterPeer::MasterPeer(
-    size_t id,
+    size_t num,
     io_service& io) :
-      Peer(id + 10000, io)
+      Peer(io),
+      num_(num),
+      peers_(0),
+      peer_count_(0),
+      peer_count_round_(0),
+      count_(0),
+      started_(false)
     {
 
   master_server_ = shared_ptr<RPCServer>(new RPCServer(io, MASTER_PORT, this));
@@ -28,13 +34,41 @@ MasterPeer::~MasterPeer() {}
 
 
 
-void MasterPeer::publish(std::string key, int64_t value, vertex_t v) {
+void MasterPeer::publish(vector<vertex_t>& nodes) {
 
-  printf("Started %ld vertices!\n", v);
+  boost::mutex::scoped_lock lock(mutex_);
 
-  for(auto s: master_server_->sessions_) {
-    s->notify("Go!", 0, 1);
+  nodes_.insert(nodes_.end(), nodes.begin(), nodes.end() );
+
+  if (started_) {
+
+    peer_count_round_ += 1;
+    if (peer_count_round_ == peer_count_) {
+      peer_count_round_ = 0;
+
+      for(auto s: master_server_->sessions_)
+        s->notify(nodes_);
+
+      nodes_.clear();
+    }
+
+  } else {
+
+    count_ += nodes.size();
+    peer_count_ += 1;
+
+    if (count_ == num_) {
+      printf("Total number of peers participating: %u\n", peer_count_);
+      started_ = true;
+
+      for(auto s: master_server_->sessions_)
+        s->notify(nodes_);
+
+      nodes_.clear();
+    }
+
   }
+
 
 }
 

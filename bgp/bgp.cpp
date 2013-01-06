@@ -12,8 +12,10 @@ BGPProcess::BGPProcess(
     io_service& io):
     comp_peer_(comp_peer),
     io_service_(io) {
+
   load_graph(path, graph_);
   init(graph_);
+
 }
 
 
@@ -94,6 +96,9 @@ void BGPProcess::next_iteration(
       const vertex_t vertex = batch.back();
       batch.pop_back();
 
+      if (vertex < VERTEX_START) continue;
+      if (vertex > VERTEX_END) continue;
+
       if (vertex == dst_vertex) continue;
       current_batch.push_back(vertex);
 
@@ -118,13 +123,26 @@ void BGPProcess::next_iteration(
   vector<vertex_t> nodes;
 
   for(const vertex_t vertex: new_changed_set) {
-    auto neighbors = adjacent_vertices(vertex, graph_);
-    new_affected_set.insert(neighbors.first, neighbors.second);
     nodes.push_back(vertex);
   }
+  new_changed_set.clear();
 
-  printf("calling the master!\n");
-  master_->sync(nodes);
+  if (comp_peer_->id_ == 1) {
+    printf("calling the master!\n");
+    master_->sync(nodes);
+  }
+
+  master_->barrier_->wait();
+
+  for(int i = 0; i < master_->size_; i++) {
+    new_changed_set.insert(master_->array_[i]);
+  }
+
+
+  for(const vertex_t vertex: new_changed_set) {
+    auto neighbors = adjacent_vertices(vertex, graph_);
+    new_affected_set.insert(neighbors.first, neighbors.second);
+  }
 
   if(new_changed_set.empty()) return;
 

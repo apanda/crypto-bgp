@@ -29,19 +29,28 @@ public:
 
   void read_impl(char* data, size_t length, tcp::socket& socket);
 
+  void handle_write(
+      char* data,
+      const boost::system::error_code& error,
+      size_t bytes_transferred);
+
   void handle_read(
       char* data,
       const boost::system::error_code& error,
       size_t bytes_transferred);
 
-  void handle_write(
+  void handle_sync(
       char* data,
       const boost::system::error_code& error,
       size_t bytes_transferred);
 
   void sync(vector<vertex_t> nodes);
 
-  boost::mutex mutex;
+  boost::barrier* barrier_;
+  boost::mutex mutex_;
+
+  uint32_t size_;
+  uint16_t* array_;
 
   tcp::socket socket_;
   tcp::resolver resolver_;

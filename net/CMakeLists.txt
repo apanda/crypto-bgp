@@ -1,1 +1,1 @@
-add_library (net session.cpp rpc_server.cpp rpc_client.cpp) 
+add_library (net SHARED session.cpp rpc_server.cpp rpc_client.cpp) 

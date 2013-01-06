@@ -17,7 +17,7 @@ CompPeer<Num>::CompPeer(
     shared_ptr<InputPeer> input_peer,
     std::unordered_map<int, shared_ptr<boost::barrier> > b,
     io_service& io) :
-      Peer(id + 10000, io),
+      Peer(io),
       bgp_(new BGPProcess("scripts/dot.dot", this, io_service_)),
       id_(id),
       input_peer_(input_peer),

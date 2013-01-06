@@ -1,1 +1,1 @@
-add_library (peer comp_peer_factory.cpp  input_peer.cpp  peer.cpp) 
+add_library (peer SHARED comp_peer_factory.cpp  input_peer.cpp  peer.cpp) 

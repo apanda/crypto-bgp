@@ -26,6 +26,9 @@
 extern int THREAD_COUNT;
 extern int TASK_COUNT;
 
+extern size_t VERTEX_START;
+extern size_t VERTEX_END;
+
 enum {
   msg_ = 256 + 8 + 8,
   cmd_ = sizeof(uint32_t),

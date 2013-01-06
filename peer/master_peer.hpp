@@ -28,7 +28,17 @@ public:
       io_service& io);
   ~MasterPeer();
 
-  void publish(std::string key,  int64_t value, vertex_t vertex);
+  void publish(vector<vertex_t>& nodes);
+
+  boost::mutex mutex_;
+  size_t num_;
+  size_t peers_;
+  size_t peer_count_;
+  size_t peer_count_round_;
+  size_t count_;
+  bool started_;
+
+  vector<vertex_t> nodes_;
 
   shared_ptr<RPCServer> master_server_;
 };

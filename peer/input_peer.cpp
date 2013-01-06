@@ -1,6 +1,6 @@
 #include <peer/input_peer.hpp>
 
-InputPeer::InputPeer() : Peer(12122, io_)  {}
+InputPeer::InputPeer() : Peer(io_)  {}
 
 int InputPeer::compute_lsb(int64_t value) {
 

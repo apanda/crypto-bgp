@@ -57,7 +57,7 @@ void run_test2() {
 
   shared_ptr<RPCClient> master( new RPCClient(io, "localhost", MASTER_PORT) );
   bgp.master_ = master;
-  master->mutex.lock();
+  master->mutex_.lock();
 
   input_peer->disseminate_bgp(comp_peer_seq, input_graph);
   auto nodes = input_peer->start_listeners(comp_peer_seq, input_graph);
@@ -67,9 +67,12 @@ void run_test2() {
   }
 
   master->sync(nodes);
-  //master->mutex.lock();
+  master->barrier_ = new boost::barrier(2);
+  master->barrier_ ->wait();
 
   printf("Master says good to go.\n");
+
+  master->barrier_ = new boost::barrier(4);
 
   input_peer->start_clients(comp_peer_seq, input_graph);
 
@@ -107,6 +110,8 @@ int main(int argc, char *argv[]) {
       ("help", "produce help message")
       ("threads", po::value<int>(), "total number of threads")
       ("tasks", po::value<int>(), "total number of tasks per iteration")
+      ("start", po::value<int>(), "staring vertex")
+      ("end", po::value<int>(), "ending vertex")
   ;
 
   po::variables_map vm;
@@ -125,6 +130,14 @@ int main(int argc, char *argv[]) {
 
   if (vm.count("tasks")) {
     TASK_COUNT = vm["tasks"].as<int>();
+  }
+
+  if (vm.count("start")) {
+    VERTEX_START = vm["start"].as<int>();
+  }
+
+  if (vm.count("end")) {
+    VERTEX_END = vm["end"].as<int>();
   }
 
   log4cxx::PropertyConfigurator::configure("apache.conf");

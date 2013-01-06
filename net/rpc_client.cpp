@@ -17,8 +17,8 @@ RPCClient::RPCClient(
     io_service& io_service,
     string hostname,
     int64_t port) :
-
-  socket_(io_service), resolver_(io_service), strand_(io_service) {
+        barrier_(new boost::barrier(COMP_PEER_NUM + 1)),
+        socket_(io_service), resolver_(io_service), strand_(io_service) {
 
   const string service = lexical_cast<string>(port);
 
@@ -47,9 +47,8 @@ void RPCClient::read_impl(char* data, size_t length, tcp::socket& socket) {
 }
 
 
-void RPCClient::sync(vector<vertex_t> nodes) {
 
-  printf("nodes.size() %u\n", nodes.size());
+void RPCClient::sync(vector<vertex_t> nodes) {
 
   size_t real_length = sizeof(uint32_t) + sizeof(uint32_t) + nodes.size() * sizeof(uint16_t);
   size_t length = real_length;
@@ -74,7 +73,6 @@ void RPCClient::sync(vector<vertex_t> nodes) {
       boost::bind(&RPCClient::handle_write, this, data,
           boost::asio::placeholders::error,
           boost::asio::placeholders::bytes_transferred));
-
 }
 
 
@@ -110,8 +108,8 @@ void RPCClient::publish(string key,  int64_t value, vertex_t vertex) {
       boost::asio::buffer(data, length_),
       boost::bind(&RPCClient::handle_write, this, data,
           boost::asio::placeholders::error,
-          boost::asio::placeholders::bytes_transferred)
-  );
+          boost::asio::placeholders::bytes_transferred));
+
 }
 
 
@@ -121,27 +119,67 @@ void RPCClient::handle_read(
       const boost::system::error_code& error,
       size_t bytes_transferred) {
 
+
   if (!error) {
 
-    char* msg = data + cmd_;
+    if (bytes_transferred == length_) {
 
-    int64_t value;
-    vertex_t vertex;
+      uint32_t& command =  *((uint32_t*) data);
 
-    memcpy(
-        &vertex,
-        msg + (msg_ - sizeof(int64_t) - sizeof(vertex_t)),
-        sizeof(vertex_t));
+      if (command == CMD_TYPE::SYNC) {
 
-    memcpy(
-        &value,
-        msg + (msg_ - sizeof(int64_t)),
-        sizeof(int64_t));
+        uint32_t& size =  *((uint32_t*) (data + sizeof(uint32_t)));
 
-    mutex.unlock();
-    read_impl(data, length_, socket_);
+        if (size > length_) {
+
+          char* new_data = new char[size];
+          memcpy(new_data, data, length_);
+
+          boost::asio::async_read(socket_, boost::asio::buffer(new_data + length_, size - length_),
+             boost::bind(&RPCClient::handle_sync, this, new_data,
+                 boost::asio::placeholders::error,
+                 boost::asio::placeholders::bytes_transferred));
+
+        } else {
+          handle_sync(data, error, bytes_transferred);
+        }
+
+      } else {
+        throw std::runtime_error("invalid command");
+      }
+
+      boost::asio::async_read(socket_, boost::asio::buffer(data, length_),
+            boost::bind(&RPCClient::handle_read, this, data,
+                boost::asio::placeholders::error,
+                boost::asio::placeholders::bytes_transferred));
+    }
+
+
   }
 
+}
+
+
+
+void RPCClient::handle_sync(
+    char* data,
+    const boost::system::error_code& error,
+    size_t bytes_transferred) {
+
+  uint32_t& size =  *((uint32_t*) (data + sizeof(uint32_t)));
+
+  uint16_t* array = (uint16_t*) (data + sizeof(uint32_t) * 2);
+  const size_t num = (size - sizeof(uint32_t) * 2) / sizeof(uint16_t);
+  for (int i = 0; i < num; i++) {
+    //printf(" %u ", array[i]);
+  }
+  //printf("\n");
+
+  array_ = array;
+  size_ = num;
+
+  mutex_.unlock();
+  barrier_->wait();
 }
 
 
@@ -152,5 +190,4 @@ void RPCClient::handle_write(
       size_t bytes_transferred) {
 
   delete data;
-
 }

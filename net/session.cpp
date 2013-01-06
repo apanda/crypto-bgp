@@ -44,8 +44,8 @@ void Session::handle_msg(
       sizeof(int64_t));
 
   peer_->publish(msg, value, vertex);
-
 }
+
 
 
 void Session::handle_sync(
@@ -54,14 +54,17 @@ void Session::handle_sync(
     size_t bytes_transferred) {
 
   uint32_t& size =  *((uint32_t*) (data + sizeof(uint32_t)));
+  std::vector<vertex_t> nodes;
 
   uint16_t* array = (uint16_t*) (data + sizeof(uint32_t) * 2);
   const size_t num = (size - sizeof(uint32_t) * 2) / sizeof(uint16_t);
   for (int i = 0; i < num; i++) {
-    printf(" %u ", array[i]);
+    nodes.push_back(array[i]);
+    //printf(" %u ", array[i]);
   }
-  printf("\n");
+  //printf("\n");
 
+  peer_->publish(nodes);
 }
 
 
@@ -71,20 +74,18 @@ void Session::handle_read(
     const boost::system::error_code& error,
     size_t bytes_transferred) {
 
-  //printf("size: %u\n", bytes_transferred);
-
    if (!error) {
 
      if (bytes_transferred == length_) {
 
        uint32_t& command =  *((uint32_t*) data);
        if(command == CMD_TYPE::MSG) {
+
          handle_msg(data, error, bytes_transferred);
 
        } else if (command == CMD_TYPE::SYNC) {
 
          uint32_t& size =  *((uint32_t*) (data + sizeof(uint32_t)));
-         printf("length = %u\n", size);
 
          if (size > length_) {
 
@@ -118,29 +119,29 @@ void Session::handle_read(
 
 
 
-void Session::notify(string key,  int64_t value, vertex_t vertex) {
+void Session::notify(vector<vertex_t> nodes) {
 
-  char* data = new char[length_];
-  char* msg = data + cmd_;
+  printf("nodes.size() %u\n", nodes.size());
 
-  BOOST_ASSERT(key.length() < (msg_ - sizeof(vertex_t) - sizeof(int64_t)));
+  size_t real_length = sizeof(uint32_t) + sizeof(uint32_t) + nodes.size() * sizeof(uint16_t);
+  size_t length = real_length;
 
-  strcpy(
-      msg,
-      key.c_str());
+  if (length < length_) length = length_;
 
-  memcpy(
-      msg + (msg_ - sizeof(vertex_t) - sizeof(int64_t)),
-      &vertex,
-      sizeof(vertex_t));
+  char* data = new char[length];
 
-  memcpy(
-      msg + (msg_ - sizeof(int64_t)),
-      &value,
-      sizeof(int64_t));
+  uint32_t& command =  *((uint32_t*) data);
+  uint32_t& size =  *((uint32_t*) (data + sizeof(uint32_t)));
+  uint16_t* array = (uint16_t*) (data + sizeof(uint32_t)*2);
 
+  command = CMD_TYPE::SYNC;
+  size = real_length;
 
-  write_impl(data, length_, socket_);
+  for(int i = 0; i < nodes.size(); i++) {
+    array[i] = nodes[i];
+  }
+
+  write_impl(data, length, socket_);
 
 }
 
