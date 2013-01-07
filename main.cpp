@@ -55,7 +55,8 @@ void run_test2() {
   BGPProcess bgp("scripts/dot.dot", NULL, io);
   graph_t& input_graph = bgp.graph_;
 
-  shared_ptr<RPCClient> master( new RPCClient(io, "localhost", MASTER_PORT) );
+  std::cout << MASTER_ADDRESS << std::endl;
+  shared_ptr<RPCClient> master( new RPCClient(io, MASTER_ADDRESS, MASTER_PORT) );
   bgp.master_ = master;
   master->mutex_.lock();
 
@@ -110,6 +111,7 @@ int main(int argc, char *argv[]) {
       ("help", "produce help message")
       ("threads", po::value<int>(), "total number of threads")
       ("tasks", po::value<int>(), "total number of tasks per iteration")
+      ("master", po::value<string>(), "master address")
       ("start", po::value<int>(), "staring vertex")
       ("end", po::value<int>(), "ending vertex")
   ;
@@ -130,6 +132,10 @@ int main(int argc, char *argv[]) {
 
   if (vm.count("tasks")) {
     TASK_COUNT = vm["tasks"].as<int>();
+  }
+
+  if (vm.count("master")) {
+    MASTER_ADDRESS = vm["master"].as<string>();
   }
 
   if (vm.count("start")) {
