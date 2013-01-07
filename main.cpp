@@ -55,7 +55,6 @@ void run_test2() {
   BGPProcess bgp("scripts/dot.dot", NULL, io);
   graph_t& input_graph = bgp.graph_;
 
-  std::cout << MASTER_ADDRESS << std::endl;
   shared_ptr<RPCClient> master( new RPCClient(io, MASTER_ADDRESS, MASTER_PORT) );
   bgp.master_ = master;
   master->mutex_.lock();

@@ -178,6 +178,9 @@ void InputPeer::start_clients(CompPeerSeq& comp_peers, graph_t& input_graph) {
   for (; current != last; ++current) {
     const auto& current_vertex = *current;
 
+    if (current_vertex < VERTEX_START) continue;
+    if (current_vertex > VERTEX_END) continue;
+
     for(size_t i = 0; i < COMP_PEER_NUM; i++) {
       size_t port = 2000 + COMP_PEER_NUM*current_vertex + i;
 
