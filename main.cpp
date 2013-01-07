@@ -57,16 +57,16 @@ void run_test2() {
 
   shared_ptr<RPCClient> master( new RPCClient(io, MASTER_ADDRESS, MASTER_PORT) );
   bgp.master_ = master;
-  master->mutex_.lock();
 
   input_peer->disseminate_bgp(comp_peer_seq, input_graph);
   auto nodes = input_peer->start_listeners(comp_peer_seq, input_graph);
 
-  for(auto& comp: comp_peer_seq) {
-    comp->bgp_->master_ = master;
+  for(auto& cp: comp_peer_seq) {
+    if (COMP_PEER_IDS.find(cp->id_) == COMP_PEER_IDS.end()) continue;
+    cp->bgp_->master_ = master;
+    cp->bgp_->master_->sync(nodes);
   }
 
-  master->sync(nodes);
   master->barrier_ = new boost::barrier(2);
   master->barrier_ ->wait();
 
@@ -76,13 +76,13 @@ void run_test2() {
 
   input_peer->start_clients(comp_peer_seq, input_graph);
 
-
-  const auto t1 = clock_t::now();
-
   for (auto& cp : comp_peer_seq) {
+    if (COMP_PEER_IDS.find(cp->id_) == COMP_PEER_IDS.end()) continue;
     BGPProcess* bgp = cp->bgp_.get();
     io.post(boost::phoenix::bind(&BGPProcess::start_callback, bgp, f));
   }
+
+  const auto t1 = clock_t::now();
 
   b->wait();
 
@@ -113,6 +113,8 @@ int main(int argc, char *argv[]) {
       ("master", po::value<string>(), "master address")
       ("start", po::value<int>(), "staring vertex")
       ("end", po::value<int>(), "ending vertex")
+      ("id", po::value<vector<int>>()->multitoken(), "computational peer id")
+      ("host", po::value<vector<string>>()->multitoken(), "hosts associated with the computational peers")
   ;
 
   po::variables_map vm;
@@ -144,6 +146,19 @@ int main(int argc, char *argv[]) {
   if (vm.count("end")) {
     VERTEX_END = vm["end"].as<int>();
   }
+
+  if (vm.count("id")) {
+    vector<int> ids =  vm["id"].as<vector<int>>();
+    COMP_PEER_IDS.insert(ids.begin(), ids.end());
+  }
+
+  if (vm.count("host")) {
+    vector<string> hosts =  vm["host"].as<vector<string>>();
+    for(size_t i = 0; i < hosts.size(); i++) {
+      COMP_PEER_HOSTS[i] = hosts[i];
+    }
+  }
+
 
   log4cxx::PropertyConfigurator::configure("apache.conf");
 

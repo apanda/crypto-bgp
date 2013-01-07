@@ -127,11 +127,11 @@ void BGPProcess::next_iteration(
   }
   new_changed_set.clear();
 
+
   if (comp_peer_->id_ == 1) {
     printf("calling the master!\n");
     master_->sync(nodes);
   }
-
   master_->barrier_->wait();
 
   for(int i = 0; i < master_->size_; i++) {

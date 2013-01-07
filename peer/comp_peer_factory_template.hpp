@@ -19,9 +19,6 @@ CompPeer_factory::generate(shared_ptr<InputPeer> input_peer, io_service& io) {
   array<shared_ptr<comp_peer_t>, Num> comp_peer_seq;
 
   std::unordered_map<int, shared_ptr<boost::barrier> > barrier_map;
-  for(int i = 0; i < 500; i++) {
-    barrier_map[i] = shared_ptr<boost::barrier>(new boost::barrier(3));
-  }
 
   int64_t id = 0;
   for (auto& cp : comp_peer_seq) {

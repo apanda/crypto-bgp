@@ -48,7 +48,7 @@ void RPCClient::read_impl(char* data, size_t length, tcp::socket& socket) {
 
 
 
-void RPCClient::sync(vector<vertex_t> nodes) {
+void RPCClient::sync(vector<vertex_t>& nodes) {
 
   size_t real_length = sizeof(uint32_t) + sizeof(uint32_t) + nodes.size() * sizeof(uint16_t);
   size_t length = real_length;

@@ -23,13 +23,24 @@
 #include <boost/function.hpp>
 
 
+const size_t COMP_PEER_NUM = 3;
+
 extern int THREAD_COUNT;
 extern int TASK_COUNT;
 
 extern size_t VERTEX_START;
 extern size_t VERTEX_END;
 
-extern std::string MASTER_ADDRESS;
+using std::string;
+using std::vector;
+using std::set;
+
+using boost::array;
+
+extern string MASTER_ADDRESS;
+
+static set<int> COMP_PEER_IDS;
+static array<string, COMP_PEER_NUM> COMP_PEER_HOSTS;
 
 enum {
   msg_ = 256 + 8 + 8,
@@ -48,20 +59,17 @@ const size_t SHARE_SIZE = sizeof(share_t);
 const size_t SHARE_BIT_SIZE = SHARE_SIZE * 8;
 const size_t MASTER_PORT = 65000;
 
-const size_t COMP_PEER_NUM = 3;
 const int64_t PRIME = 2147483647;
 
 #include <secret_sharing/secret.hpp>
 
-using std::string;
-using std::vector;
+
 using std::stringstream;
 
 using log4cxx::Logger;
 using log4cxx::LoggerPtr;
 
 using boost::function;
-using boost::array;
 using boost::shared_ptr;
 using boost::shared_array;
 

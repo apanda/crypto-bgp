@@ -44,7 +44,7 @@ public:
       const boost::system::error_code& error,
       size_t bytes_transferred);
 
-  void sync(vector<vertex_t> nodes);
+  void sync(vector<vertex_t>& nodes);
 
   boost::barrier* barrier_;
   boost::mutex mutex_;

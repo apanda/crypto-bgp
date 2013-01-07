@@ -184,14 +184,16 @@ void InputPeer::start_clients(CompPeerSeq& comp_peers, graph_t& input_graph) {
     for(size_t i = 0; i < COMP_PEER_NUM; i++) {
       size_t port = 2000 + COMP_PEER_NUM*current_vertex + i;
 
-      for(size_t ID = 0; ID < COMP_PEER_NUM; ID++) {
+      for(size_t ID = 1; ID <= COMP_PEER_NUM; ID++) {
 
-        auto cp = comp_peers[ID];
-        auto sp = shared_ptr<RPCClient>(new RPCClient(cp->io_service_, "127.0.0.1", port));
+        if (COMP_PEER_IDS.find(ID) == COMP_PEER_IDS.end()) continue;
+
+        auto cp = comp_peers[ID - 1];
+        auto sp = shared_ptr<RPCClient>(new RPCClient(cp->io_service_, COMP_PEER_HOSTS[ID - 1], port));
 
         for(auto ccp: comp_peers) {
           Vertex& vertex = ccp->bgp_->graph_[current_vertex];
-          vertex.clients_[ID + 1][i] = sp;
+          vertex.clients_[ID][i] = sp;
         }
 
       }

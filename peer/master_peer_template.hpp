@@ -17,7 +17,7 @@ MasterPeer::MasterPeer(
     size_t num,
     io_service& io) :
       Peer(io),
-      num_(num),
+      num_(num * COMP_PEER_NUM),
       peers_(0),
       peer_count_(0),
       peer_count_round_(0),
@@ -43,7 +43,7 @@ void MasterPeer::publish(vector<vertex_t>& nodes) {
   if (started_) {
 
     peer_count_round_ += 1;
-    if (peer_count_round_ == peer_count_) {
+    if (peer_count_round_ == (peer_count_/3)) {
       peer_count_round_ = 0;
 
       for(auto s: master_server_->sessions_)
