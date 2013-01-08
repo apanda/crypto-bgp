@@ -40,7 +40,7 @@ void run_test2() {
 
   typedef function<bool()> functor_t;
 
-  boost::barrier* b = new boost::barrier(COMP_PEER_NUM + 1);
+  boost::barrier* b = new boost::barrier(COMP_PEER_IDS.size() + 1);
   functor_t f = boost::bind(&boost::barrier::wait, b);
 
   for (int i = 0; i < THREAD_COUNT; i++) {
@@ -61,23 +61,31 @@ void run_test2() {
   input_peer->disseminate_bgp(comp_peer_seq, input_graph);
   auto nodes = input_peer->start_listeners(comp_peer_seq, input_graph);
 
+
+  master->barrier_ = new boost::barrier(2);
+
   for(auto& cp: comp_peer_seq) {
     if (COMP_PEER_IDS.find(cp->id_) == COMP_PEER_IDS.end()) continue;
     cp->bgp_->master_ = master;
-    cp->bgp_->master_->sync(nodes);
+    // Need to use a strand or something...
+    usleep(200);
+    master->sync(nodes);
   }
 
-  master->barrier_ = new boost::barrier(2);
   master->barrier_ ->wait();
 
-  printf("Master says good to go.\n");
+  printf("Master says good to go %u.\n", COMP_PEER_IDS.size());
 
-  master->barrier_ = new boost::barrier(4);
+  master->barrier_ = new boost::barrier(COMP_PEER_IDS.size() + 1);
 
   input_peer->start_clients(comp_peer_seq, input_graph);
 
+  printf("started all clients!\n");
+
   for (auto& cp : comp_peer_seq) {
+    printf("finding %u\n", cp->id_);
     if (COMP_PEER_IDS.find(cp->id_) == COMP_PEER_IDS.end()) continue;
+    printf("BGPProcess::start_callback\n");
     BGPProcess* bgp = cp->bgp_.get();
     io.post(boost::phoenix::bind(&BGPProcess::start_callback, bgp, f));
   }
@@ -149,7 +157,10 @@ int main(int argc, char *argv[]) {
 
   if (vm.count("id")) {
     vector<int> ids =  vm["id"].as<vector<int>>();
-    COMP_PEER_IDS.insert(ids.begin(), ids.end());
+    for(size_t i = 0; i < ids.size(); i++) {
+      printf("%i\n", ids[i]);
+      COMP_PEER_IDS.insert( ids[i] );
+    }
   }
 
   if (vm.count("host")) {

@@ -177,6 +177,7 @@ void InputPeer::start_clients(CompPeerSeq& comp_peers, graph_t& input_graph) {
 
   for (; current != last; ++current) {
     const auto& current_vertex = *current;
+    printf("current vertex: %u\n", current_vertex);
 
     if (current_vertex < VERTEX_START) continue;
     if (current_vertex > VERTEX_END) continue;
@@ -186,10 +187,9 @@ void InputPeer::start_clients(CompPeerSeq& comp_peers, graph_t& input_graph) {
 
       for(size_t ID = 1; ID <= COMP_PEER_NUM; ID++) {
 
-        if (COMP_PEER_IDS.find(ID) == COMP_PEER_IDS.end()) continue;
-
-        auto cp = comp_peers[ID - 1];
-        auto sp = shared_ptr<RPCClient>(new RPCClient(cp->io_service_, COMP_PEER_HOSTS[ID - 1], port));
+        auto cp  = comp_peers[ID - 1];
+        auto sp = shared_ptr<RPCClient>(
+        new RPCClient(cp->io_service_, COMP_PEER_HOSTS[i], port));
 
         for(auto ccp: comp_peers) {
           Vertex& vertex = ccp->bgp_->graph_[current_vertex];
@@ -199,6 +199,10 @@ void InputPeer::start_clients(CompPeerSeq& comp_peers, graph_t& input_graph) {
       }
     }
   }
+
+
+  printf("exiting start_clients\n");
+
 }
 
 

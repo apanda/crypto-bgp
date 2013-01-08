@@ -22,13 +22,13 @@ RPCClient::RPCClient(
 
   const string service = lexical_cast<string>(port);
 
-  LOG4CXX_TRACE(logger_, "Connecting to: " << service);
+  //LOG4CXX_TRACE(logger_, "Connecting to: " << service);
 
   tcp::resolver::query query(tcp::v4(), hostname, service);
   tcp::resolver::iterator iterator = resolver_.resolve(query);
 
   boost::asio::connect(socket_, iterator);
-  //socket_.set_option(tcp::no_delay(true));
+  socket_.set_option(tcp::no_delay(true));
 
   char* data = new char[length_];
   read_impl(data, length_, socket_);
@@ -70,9 +70,13 @@ void RPCClient::sync(vector<vertex_t>& nodes) {
 
   boost::asio::async_write(socket_,
       boost::asio::buffer(data, length),
+      strand_.wrap(
       boost::bind(&RPCClient::handle_write, this, data,
           boost::asio::placeholders::error,
-          boost::asio::placeholders::bytes_transferred));
+          boost::asio::placeholders::bytes_transferred)
+      )
+  );
+
 }
 
 
@@ -119,6 +123,7 @@ void RPCClient::handle_read(
       const boost::system::error_code& error,
       size_t bytes_transferred) {
 
+  printf("Handle read.\n");
 
   if (!error) {
 
@@ -127,6 +132,7 @@ void RPCClient::handle_read(
       uint32_t& command =  *((uint32_t*) data);
 
       if (command == CMD_TYPE::SYNC) {
+        printf("handle_sync \n");
 
         uint32_t& size =  *((uint32_t*) (data + sizeof(uint32_t)));
 
@@ -178,7 +184,6 @@ void RPCClient::handle_sync(
   array_ = array;
   size_ = num;
 
-  mutex_.unlock();
   barrier_->wait();
 }
 

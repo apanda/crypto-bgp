@@ -4,6 +4,7 @@
 #include <common.hpp>
 #include <net/rpc_client.hpp>
 #include <net/rpc_server.hpp>
+#include <net/session.hpp>
 #include <bgp/edge.hpp>
 #include <atomic>
 #include <unordered_map>
@@ -24,7 +25,7 @@
 
 class BGPProcess;
 class RPCServer;
-
+class Session;
 
 class Vertex;
 
@@ -57,7 +58,7 @@ public:
   virtual void subscribe(std::string key,  int64_t value, vertex_t vertex)  ;
 
   virtual void publish(std::string key,  int64_t value, vertex_t vertex);
-  virtual void publish(vector<vertex_t>& nodes);
+  virtual void publish(Session* session, vector<vertex_t>& nodes);
 
   void print_values();
 

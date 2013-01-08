@@ -3,7 +3,7 @@
 # to the root binary directory of the project as ${HELLO_BINARY_DIR}.
 cmake_minimum_required (VERSION 2.6)
 
-SET(CMAKE_CXX_FLAGS "-std=c++0x -O3 -Wall -g")
+SET(CMAKE_CXX_FLAGS "-std=c++11 -O3 -Wall -g")
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}) 
 
 project (MPC)

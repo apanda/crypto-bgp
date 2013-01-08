@@ -25,15 +25,6 @@ CompPeer_factory::generate(shared_ptr<InputPeer> input_peer, io_service& io) {
     id++;
     cp = shared_ptr<comp_peer_t>(new comp_peer_t(id, input_peer, barrier_map, io));
   }
-/*
-  for(shared_ptr<comp_peer_t>& cp: comp_peer_seq) {
-    for(size_t i = 0; i < Num; i++) {
-      //cp->net_peers_[i] = shared_ptr<RPCClient>(
-      //    new RPCClient(cp->io_service_, "localhost", i + 1 + 10000));
-    }
-  }
-*/
-
 
   return comp_peer_seq;
 

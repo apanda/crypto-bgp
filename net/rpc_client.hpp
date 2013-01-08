@@ -47,7 +47,7 @@ public:
   void sync(vector<vertex_t>& nodes);
 
   boost::barrier* barrier_;
-  boost::mutex mutex_;
+  boost::mutex m_;
 
   uint32_t size_;
   uint16_t* array_;

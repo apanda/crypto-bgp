@@ -28,7 +28,7 @@ public:
       io_service& io);
   ~MasterPeer();
 
-  void publish(vector<vertex_t>& nodes);
+  void publish(Session* session, vector<vertex_t>& nodes);
 
   boost::mutex mutex_;
   size_t num_;
@@ -39,6 +39,9 @@ public:
   bool started_;
 
   vector<vertex_t> nodes_;
+  set<vertex_t> node_set_;
+
+  std::vector<Session*> sessions_;
 
   shared_ptr<RPCServer> master_server_;
 };

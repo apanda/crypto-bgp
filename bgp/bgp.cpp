@@ -128,11 +128,10 @@ void BGPProcess::next_iteration(
   new_changed_set.clear();
 
 
-  if (comp_peer_->id_ == 1) {
-    printf("calling the master!\n");
-    master_->sync(nodes);
-  }
+
+  master_->sync(nodes);
   master_->barrier_->wait();
+  printf("syncing up with the master... size %u.\n", master_->size_);
 
   for(int i = 0; i < master_->size_; i++) {
     new_changed_set.insert(master_->array_[i]);
@@ -144,7 +143,9 @@ void BGPProcess::next_iteration(
     new_affected_set.insert(neighbors.first, neighbors.second);
   }
 
-  if(new_changed_set.empty()) return;
+  if(new_changed_set.empty())  {
+    return;
+  }
 
   next_iteration(dst_vertex, graph, new_affected_set, new_changed_set);
 }

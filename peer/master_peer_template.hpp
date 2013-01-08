@@ -34,37 +34,46 @@ MasterPeer::~MasterPeer() {}
 
 
 
-void MasterPeer::publish(vector<vertex_t>& nodes) {
+void MasterPeer::publish(Session* session, vector<vertex_t>& nodes) {
 
   boost::mutex::scoped_lock lock(mutex_);
 
-  nodes_.insert(nodes_.end(), nodes.begin(), nodes.end() );
+  node_set_.insert( nodes.begin(), nodes.end() );
 
   if (started_) {
 
     peer_count_round_ += 1;
-    if (peer_count_round_ == (peer_count_/3)) {
+    printf("peer_count_round_ %u\n", peer_count_round_);
+    if (peer_count_round_ == sessions_.size()) {
       peer_count_round_ = 0;
 
-      for(auto s: master_server_->sessions_)
+      for(auto s: master_server_->sessions_) {
+        printf("syncing up with a comp peer\n");
+        nodes_ = vector<vertex_t>(node_set_.begin(), node_set_.end());
         s->notify(nodes_);
+      }
 
-      nodes_.clear();
+      node_set_.clear();
     }
 
   } else {
 
     count_ += nodes.size();
-    peer_count_ += 1;
+    sessions_.push_back(session);
+    peer_count_++;
+
+    printf("count %u\n", count_);
 
     if (count_ == num_) {
-      printf("Total number of peers participating: %u\n", peer_count_);
+      printf("Total number of peers participating: %u\n", sessions_.size());
       started_ = true;
 
-      for(auto s: master_server_->sessions_)
+      for(auto s: master_server_->sessions_) {
+        nodes_ = vector<vertex_t>(node_set_.begin(), node_set_.end());
         s->notify(nodes_);
+      }
 
-      nodes_.clear();
+      node_set_.clear();
     }
 
   }

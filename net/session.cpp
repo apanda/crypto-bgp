@@ -11,7 +11,7 @@
 
 void Session::start()  {
 
-  //socket_.set_option(tcp::no_delay(true));
+  socket_.set_option(tcp::no_delay(true));
 
   char* data = new char[length_];
 
@@ -64,7 +64,7 @@ void Session::handle_sync(
   }
   //printf("\n");
 
-  peer_->publish(nodes);
+  peer_->publish(this ,nodes);
 }
 
 
@@ -101,6 +101,7 @@ void Session::handle_read(
          }
 
        } else {
+         printf("command %u\n", command);
          throw std::runtime_error("invalid command");
        }
 
