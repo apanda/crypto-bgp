@@ -24,13 +24,12 @@ using std::chrono::milliseconds;
 
 using boost::function;
 
+io_service io(20);
+io_service::work work(io);
 
 void run_master() {
 
   typedef std::chrono::high_resolution_clock clock_t;
-
-  io_service io(20);
-  io_service::work work(io);
 
   array<shared_ptr<comp_peer_t>, COMP_PEER_NUM> comp_peer_seq;
   shared_ptr<InputPeer> input_peer(new InputPeer(io));
@@ -44,17 +43,13 @@ void run_master() {
 
   worker_threads.add_thread( new boost::thread(bind(&io_service::run, &io)) );
   worker_threads.join_all();
-
 }
+
 
 
 void run_mpc() {
 
-
   typedef std::chrono::high_resolution_clock clock_t;
-
-  io_service io(20);
-  io_service::work work(io);
 
   array<shared_ptr<comp_peer_t>, COMP_PEER_NUM> comp_peer_seq;
   shared_ptr<InputPeer> input_peer(new InputPeer(io));
@@ -92,6 +87,8 @@ void run_mpc() {
     cp->bgp_->master_ = master;
     master->sync(nodes);
   }
+
+  sleep(1);
 
   master->barrier_ ->wait();
 
@@ -195,5 +192,9 @@ int main(int argc, char *argv[]) {
     }
   }
 
-  run_mpc();
+  try {
+    run_mpc();
+  } catch (std::exception& e) {
+    io.stop();
+  }
 }
