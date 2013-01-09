@@ -25,16 +25,39 @@ using std::chrono::milliseconds;
 using boost::function;
 
 
-void run_test2() {
+void run_master() {
+
+  typedef std::chrono::high_resolution_clock clock_t;
+
+  io_service io(20);
+  io_service::work work(io);
+
+  array<shared_ptr<comp_peer_t>, COMP_PEER_NUM> comp_peer_seq;
+  shared_ptr<InputPeer> input_peer(new InputPeer(io));
+
+  graph_t graph;
+  BGPProcess::load_graph("scripts/dot.dot", graph);
+
+  MasterPeer mp(graph.m_vertices.size(), io);
+
+  boost::thread_group worker_threads;
+
+  worker_threads.add_thread( new boost::thread(bind(&io_service::run, &io)) );
+  worker_threads.join_all();
+
+}
+
+
+void run_mpc() {
 
 
   typedef std::chrono::high_resolution_clock clock_t;
 
-  array<shared_ptr<comp_peer_t>, COMP_PEER_NUM> comp_peer_seq;
-  shared_ptr<InputPeer> input_peer(new InputPeer());
-
   io_service io(20);
   io_service::work work(io);
+
+  array<shared_ptr<comp_peer_t>, COMP_PEER_NUM> comp_peer_seq;
+  shared_ptr<InputPeer> input_peer(new InputPeer(io));
 
   boost::thread_group worker_threads;
 
@@ -96,10 +119,10 @@ void run_test2() {
 
   const auto t2 = clock_t::now();
   const auto duration = duration_cast<milliseconds>(t2 - t1).count();
-  std::cout << "The execution took " << duration << " ms." << std::endl;
-
 
   comp_peer_seq[0]->bgp_->print_result();
+  std::cout << "The execution took " << duration << " ms." << std::endl;
+
 
   io.stop();
   worker_threads.join_all();
@@ -116,9 +139,10 @@ int main(int argc, char *argv[]) {
   po::options_description desc("Allowed options");
   desc.add_options()
       ("help", "produce help message")
+      ("master", "start the master peer")
       ("threads", po::value<int>(), "total number of threads")
       ("tasks", po::value<int>(), "total number of tasks per iteration")
-      ("master", po::value<string>(), "master address")
+      ("master-host", po::value<string>(), "master address")
       ("start", po::value<int>(), "staring vertex")
       ("end", po::value<int>(), "ending vertex")
       ("id", po::value<vector<int>>()->multitoken(), "computational peer id")
@@ -129,9 +153,15 @@ int main(int argc, char *argv[]) {
   po::store(po::parse_command_line(argc, argv, desc), vm);
   po::notify(vm);
 
+
+  if (vm.count("master")) {
+    run_master();
+    return 0;
+  }
+
   if (vm.count("help")) {
-      std::cout << desc << std::endl;;
-      return 1;
+    std::cout << desc << std::endl;;
+    return 1;
   }
 
 
@@ -141,10 +171,6 @@ int main(int argc, char *argv[]) {
 
   if (vm.count("tasks")) {
     TASK_COUNT = vm["tasks"].as<int>();
-  }
-
-  if (vm.count("master")) {
-    MASTER_ADDRESS = vm["master"].as<string>();
   }
 
   if (vm.count("start")) {
@@ -163,6 +189,10 @@ int main(int argc, char *argv[]) {
     }
   }
 
+  if (vm.count("master-host")) {
+    MASTER_ADDRESS = vm["master-host"].as<string>();
+  }
+
   if (vm.count("host")) {
     vector<string> hosts =  vm["host"].as<vector<string>>();
     for(size_t i = 0; i < hosts.size(); i++) {
@@ -173,5 +203,5 @@ int main(int argc, char *argv[]) {
 
   log4cxx::PropertyConfigurator::configure("apache.conf");
 
-  run_test2();
+  run_mpc();
 }

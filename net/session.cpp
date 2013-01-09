@@ -120,9 +120,7 @@ void Session::handle_read(
 
 
 
-void Session::notify(vector<vertex_t> nodes) {
-
-  printf("nodes.size() %u\n", nodes.size());
+void Session::notify(vector<vertex_t>& nodes) {
 
   size_t real_length = sizeof(uint32_t) + sizeof(uint32_t) + nodes.size() * sizeof(uint16_t);
   size_t length = real_length;

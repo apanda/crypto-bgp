@@ -1,10 +1,10 @@
 #include <bgp/bgp.hpp>
-#include <peer/comp_peer.hpp>
-
 #include <bgp/common.hpp>
 #include <bgp/vertex.hpp>
 #include <bgp/edge.hpp>
+#include <peer/comp_peer.hpp>
 
+#include <algorithm>
 
 BGPProcess::BGPProcess(
     string path,
@@ -131,6 +131,7 @@ void BGPProcess::next_iteration(
 
   master_->sync(nodes);
   master_->barrier_->wait();
+
   printf("syncing up with the master... size %u.\n", master_->size_);
 
   for(int i = 0; i < master_->size_; i++) {
@@ -150,8 +151,6 @@ void BGPProcess::next_iteration(
   next_iteration(dst_vertex, graph, new_affected_set, new_changed_set);
 }
 
-
-#include <algorithm>
 
 
 void BGPProcess::process_neighbors_mpc(

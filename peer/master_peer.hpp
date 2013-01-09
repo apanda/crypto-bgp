@@ -31,17 +31,16 @@ public:
   void publish(Session* session, vector<vertex_t>& nodes);
 
   boost::mutex mutex_;
-  size_t num_;
+  size_t graph_size_;
   size_t peers_;
-  size_t peer_count_;
-  size_t peer_count_round_;
-  size_t count_;
+  size_t peers_synchronized_;
+  size_t vertex_count_;
   bool started_;
 
   vector<vertex_t> nodes_;
   set<vertex_t> node_set_;
 
-  std::vector<Session*> sessions_;
+  std::vector<Session*> all_sessions_;
 
   shared_ptr<RPCServer> master_server_;
 };

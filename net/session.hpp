@@ -48,7 +48,7 @@ public:
       const boost::system::error_code& error,
       size_t bytes_transferred);
 
-  void notify(vector<vertex_t> nodes);
+  void notify(vector<vertex_t>& nodes);
 
   tcp::socket& socket();
 

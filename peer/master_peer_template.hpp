@@ -17,11 +17,10 @@ MasterPeer::MasterPeer(
     size_t num,
     io_service& io) :
       Peer(io),
-      num_(num * COMP_PEER_NUM),
+      graph_size_(num * COMP_PEER_NUM),
       peers_(0),
-      peer_count_(0),
-      peer_count_round_(0),
-      count_(0),
+      peers_synchronized_(0),
+      vertex_count_(0),
       started_(false)
     {
 
@@ -42,13 +41,14 @@ void MasterPeer::publish(Session* session, vector<vertex_t>& nodes) {
 
   if (started_) {
 
-    peer_count_round_ += 1;
-    printf("peer_count_round_ %u\n", peer_count_round_);
-    if (peer_count_round_ == sessions_.size()) {
-      peer_count_round_ = 0;
+    peers_synchronized_ += 1;
+    printf("Number of synchronized peers: %u\n", peers_synchronized_);
+
+    if (peers_synchronized_ == all_sessions_.size()) {
+      peers_synchronized_ = 0;
 
       for(auto s: master_server_->sessions_) {
-        printf("syncing up with a comp peer\n");
+        printf("Raising the barrier.\n");
         nodes_ = vector<vertex_t>(node_set_.begin(), node_set_.end());
         s->notify(nodes_);
       }
@@ -58,14 +58,14 @@ void MasterPeer::publish(Session* session, vector<vertex_t>& nodes) {
 
   } else {
 
-    count_ += nodes.size();
-    sessions_.push_back(session);
-    peer_count_++;
+    vertex_count_ += nodes.size();
+    all_sessions_.push_back(session);
 
-    printf("count %u\n", count_);
+    printf("Vertex count: %u\n", vertex_count_);
 
-    if (count_ == num_) {
-      printf("Total number of peers participating: %u\n", sessions_.size());
+    if (vertex_count_ == graph_size_) {
+
+      printf("Total number of peers participating: %u\n", all_sessions_.size());
       started_ = true;
 
       for(auto s: master_server_->sessions_) {

@@ -20,7 +20,7 @@ typedef map<symbol_t, plaintext_t> plaintext_map_t;
 
 class InputPeer : public Peer {
 public:
-  InputPeer();
+  InputPeer(io_service& io);
 
   template<size_t Num>
   void result();
@@ -64,7 +64,6 @@ public:
       CompPeerSeq& comp_peers);
 
   plaintext_map_t plaintext_map_;
-  io_service io_;
 };
 
 #include <peer/input_peer_template.hpp>
