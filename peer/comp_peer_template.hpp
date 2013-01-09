@@ -86,7 +86,7 @@ void CompPeer<Num>::evaluate(vector<string> circut, vertex_t l) {
 
   const symbol_t recombination_key = execute(circut, l);
   const int64_t result = vlm[recombination_key];
-  LOG4CXX_INFO( logger_, "Return value: " << recombination_key);
+  LOG4CXX_DEBUG( logger_, "Return value: " << recombination_key);
 
   input_peer_->recombination_key_ = recombination_key;
   input_peer_->publish(recombination_key + lexical_cast<string>(id_), result, l);
@@ -185,9 +185,9 @@ void CompPeer<Num>::compare0(string key1, string key2, vertex_t l) {
   string x = ".2" + key2;
   string y = ".2" + key1 + "-" + key2;
 
-  LOG4CXX_INFO( logger_, id_ << " (" << l <<  ") " << ": w: " << vlm[w]);
-  LOG4CXX_INFO( logger_, id_ << " (" << l <<  ") " << ": x: " << vlm[x]);
-  LOG4CXX_INFO( logger_, id_ << " (" << l <<  ") " << ": y: " << vlm[y]);
+  LOG4CXX_DEBUG( logger_, id_ << " (" << l <<  ") " << ": w: " << vlm[w]);
+  LOG4CXX_DEBUG( logger_, id_ << " (" << l <<  ") " << ": x: " << vlm[x]);
+  LOG4CXX_DEBUG( logger_, id_ << " (" << l <<  ") " << ": y: " << vlm[y]);
 
   vector<string> circut = {"*", w, x};
   string circut_str = x + "*" + w;
@@ -226,7 +226,7 @@ void CompPeer<Num>::compare1(string key1, string key2, vertex_t l) {
   string circut_str = y + "*" + w;
 
   string wx = x + "*" + w;
-  LOG4CXX_INFO( logger_,  id_ << ": wx: " << wx << ": " << vlm[wx]);
+  LOG4CXX_DEBUG( logger_,  id_ << ": wx: " << wx << ": " << vlm[wx]);
 
 
   vertex.sig_compare[circut_str] = shared_ptr< boost::function<void ()> >(
@@ -262,7 +262,7 @@ void CompPeer<Num>::compare2(string key1, string key2, vertex_t l) {
   string circut_str = y + "*" + x;
   string wy = y + "*" + w;
 
-  LOG4CXX_INFO( logger_,  id_ << ": wy: " << wy << ": " << vlm[wy]);
+  LOG4CXX_DEBUG( logger_,  id_ << ": wy: " << wy << ": " << vlm[wy]);
 
 
   vertex.sig_compare[circut_str] = shared_ptr< boost::function<void ()> >(
@@ -301,7 +301,7 @@ void CompPeer<Num>::compare3(string key1, string key2, vertex_t l) {
   string circut_str = xy + "*" + "2" + "*" + w;
 
 
-  LOG4CXX_INFO( logger_,  id_ << ": xy: " << xy << ": " << vlm[xy]);
+  LOG4CXX_DEBUG( logger_,  id_ << ": xy: " << xy << ": " << vlm[xy]);
   vertex.sig_compare[circut_str] = shared_ptr< boost::function<void ()> >(
       new boost::function<void ()>
   );
@@ -341,7 +341,7 @@ void CompPeer<Num>::compare4(string key1, string key2, vertex_t l) {
   std::vector<string> circut = {"+", xy, "-", x, "-", y, "-", wxy2, "+", wy, wx};
   string circut_str = wx + "+" + wy + "-" + wxy2 + "-" + y + "-" + x + "+" + xy;
 
-  LOG4CXX_INFO( logger_,  id_ << ": 2xyw: " << wxy2 << ": " << vlm[wxy2]);
+  LOG4CXX_DEBUG( logger_,  id_ << ": 2xyw: " << wxy2 << ": " << vlm[wxy2]);
 
 
   vertex.sig_compare[circut_str] = shared_ptr< boost::function<void ()> >(
@@ -361,7 +361,7 @@ void CompPeer<Num>::compare4(string key1, string key2, vertex_t l) {
 
   execute(circut, l);
 
-  LOG4CXX_INFO( logger_,  id_ << ": Final: " << ": " << vlm[circut_str] );
+  LOG4CXX_DEBUG( logger_,  id_ << ": Final: " << ": " << vlm[circut_str] );
 
 
   auto value = vlm[circut_str] + 1;
@@ -402,14 +402,14 @@ void CompPeer<Num>::compare5(string key1, string key2, vertex_t l) {
     X[i] = i + 1;
     Y[i] = value;
 
-    LOG4CXX_INFO( logger_, "intermediary_: " << key << ": " << value);
+    LOG4CXX_DEBUG( logger_, "intermediary_: " << key << ": " << value);
   }
 
   gsl_poly_dd_init( D, X, Y, 3 );
   const double interpol = gsl_poly_dd_eval( D, X, 3, 0);
 
   const double end = mod(interpol, PRIME);
-  LOG4CXX_INFO( logger_, "Result: " << ": " << end);
+  LOG4CXX_DEBUG( logger_, "Result: " << ": " << end);
 
 
   vertex.sig_bgp_cnt[result]->operator ()(( end ));
@@ -497,7 +497,7 @@ void CompPeer<Num>::recombine(string recombination_key, vertex_t l) {
 
   vlm[recombination_key] = recombine;
   debug_stream << ": " << recombine;
-  LOG4CXX_DEBUG(logger_, id_ << ": recombine:" << debug_stream.str());
+  LOG4CXX_TRACE(logger_, id_ << ": recombine:" << debug_stream.str());
 
   gsl_vector_free(ds);
 

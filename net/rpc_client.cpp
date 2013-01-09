@@ -22,7 +22,7 @@ RPCClient::RPCClient(
 
   const string service = lexical_cast<string>(port);
 
-  //LOG4CXX_TRACE(logger_, "Connecting to: " << service);
+  LOG4CXX_TRACE(logger_, "Connecting to: " << service);
 
   tcp::resolver::query query(tcp::v4(), hostname, service);
   tcp::resolver::iterator iterator = resolver_.resolve(query);
@@ -64,7 +64,7 @@ void RPCClient::sync(vector<vertex_t>& nodes) {
   command = CMD_TYPE::SYNC;
   size = real_length;
 
-  for(int i = 0; i < nodes.size(); i++) {
+  for(size_t i = 0; i < nodes.size(); i++) {
     array[i] = nodes[i];
   }
 
@@ -176,10 +176,6 @@ void RPCClient::handle_sync(
 
   uint16_t* array = (uint16_t*) (data + sizeof(uint32_t) * 2);
   const size_t num = (size - sizeof(uint32_t) * 2) / sizeof(uint16_t);
-  for (int i = 0; i < num; i++) {
-    //printf(" %u ", array[i]);
-  }
-  //printf("\n");
 
   array_ = array;
   size_ = num;

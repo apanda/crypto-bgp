@@ -58,11 +58,9 @@ void Session::handle_sync(
 
   uint16_t* array = (uint16_t*) (data + sizeof(uint32_t) * 2);
   const size_t num = (size - sizeof(uint32_t) * 2) / sizeof(uint16_t);
-  for (int i = 0; i < num; i++) {
+  for (size_t i = 0; i < num; i++) {
     nodes.push_back(array[i]);
-    //printf(" %u ", array[i]);
   }
-  //printf("\n");
 
   peer_->publish(this ,nodes);
 }
@@ -101,7 +99,7 @@ void Session::handle_read(
          }
 
        } else {
-         printf("command %u\n", command);
+         LOG4CXX_FATAL(peer_->logger_, "Unknown command: " << command);
          throw std::runtime_error("invalid command");
        }
 
@@ -136,7 +134,7 @@ void Session::notify(vector<vertex_t>& nodes) {
   command = CMD_TYPE::SYNC;
   size = real_length;
 
-  for(int i = 0; i < nodes.size(); i++) {
+  for(size_t i = 0; i < nodes.size(); i++) {
     array[i] = nodes[i];
   }
 

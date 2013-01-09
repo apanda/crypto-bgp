@@ -90,25 +90,22 @@ void run_mpc() {
   for(auto& cp: comp_peer_seq) {
     if (COMP_PEER_IDS.find(cp->id_) == COMP_PEER_IDS.end()) continue;
     cp->bgp_->master_ = master;
-    // Need to use a strand or something...
     usleep(200);
     master->sync(nodes);
   }
 
   master->barrier_ ->wait();
 
-  printf("Master says good to go %u.\n", COMP_PEER_IDS.size());
+  LOG4CXX_INFO(mainLogger, "Master has raised the barrier.");
 
   master->barrier_ = new boost::barrier(COMP_PEER_IDS.size() + 1);
 
   input_peer->start_clients(comp_peer_seq, input_graph);
 
-  printf("started all clients!\n");
+  LOG4CXX_INFO(mainLogger, "All clients have been started.");
 
   for (auto& cp : comp_peer_seq) {
-    printf("finding %u\n", cp->id_);
     if (COMP_PEER_IDS.find(cp->id_) == COMP_PEER_IDS.end()) continue;
-    printf("BGPProcess::start_callback\n");
     BGPProcess* bgp = cp->bgp_.get();
     io.post(boost::phoenix::bind(&BGPProcess::start_callback, bgp, f));
   }
@@ -122,7 +119,6 @@ void run_mpc() {
 
   comp_peer_seq[0]->bgp_->print_result();
   std::cout << "The execution took " << duration << " ms." << std::endl;
-
 
   io.stop();
   worker_threads.join_all();

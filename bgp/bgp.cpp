@@ -134,7 +134,7 @@ void BGPProcess::next_iteration(
 
   printf("syncing up with the master... size %u.\n", master_->size_);
 
-  for(int i = 0; i < master_->size_; i++) {
+  for(size_t i = 0; i < master_->size_; i++) {
     new_changed_set.insert(master_->array_[i]);
   }
 
@@ -220,7 +220,7 @@ void BGPProcess::for0(
 
   *(affected.sig_bgp_next[result]) = next;
 
-  LOG4CXX_INFO(comp_peer_->logger_, "Vertex -> "
+  LOG4CXX_DEBUG(comp_peer_->logger_, "Vertex -> "
       << affected_vertex << ", " << neigh_vertex );
 
   affected.sig_bgp_cnt[result] = shared_ptr<boost::function<void(int)> >(new boost::function<void(int)>);
@@ -231,7 +231,7 @@ void BGPProcess::for0(
               boost::ref(new_changed_set),
               _1);
 
-  LOG4CXX_INFO(comp_peer_->logger_, "Compare0")
+  LOG4CXX_DEBUG(comp_peer_->logger_, "Compare0")
 
   comp_peer_->compare0(
       lexical_cast<string>(affected.next_hop_),
@@ -272,7 +272,7 @@ void BGPProcess::for1(
   BOOST_ASSERT(offer_it != affected.preference_.end());
   const auto offered_preference = offer_it->second;
 
-  LOG4CXX_INFO(comp_peer_->logger_, "Compare -> "
+  LOG4CXX_DEBUG(comp_peer_->logger_, "Compare -> "
       << current_preference << ", " << offered_preference );
 
 
@@ -294,7 +294,7 @@ void BGPProcess::for1(
 
 #if 0
   if ( neigh.in_as_path(graph_, affected_vertex) ) {
-    LOG4CXX_INFO(comp_peer_->logger_, "In AS PATH!")
+    LOG4CXX_DEBUG(comp_peer_->logger_, "In AS PATH!")
     affected.sig_bgp_next[result]->operator()();
     return;
   }

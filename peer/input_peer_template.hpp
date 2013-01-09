@@ -100,10 +100,10 @@ void InputPeer::bitwise_share(string key, int64_t value, CompPeerSeq& comp_peers
     bits += lexical_cast<string>( bs[i] );
   }
 
-  LOG4CXX_INFO(logger_, "Sharing bitset: " << bits);
+  LOG4CXX_DEBUG(logger_, "Sharing bitset: " << bits);
 
   for(auto i = 0; i < size; i++) {
-    LOG4CXX_INFO(logger_, "Sharing bit " << i << ": ");
+    LOG4CXX_DEBUG(logger_, "Sharing bit " << i << ": ");
 
     const string symbol = key + "b" + lexical_cast<string>(i);
     const auto bit = bs[i];
@@ -128,7 +128,7 @@ void InputPeer::lsb(
   int result = mod(value, PRIME);
   result = result % 2;
 
-  LOG4CXX_INFO(logger_, "LSB (" << key << "): " << result);
+  LOG4CXX_DEBUG(logger_, "LSB (" << key << "): " << result);
 
   distribute_secret(key, result, comp_peers);
 }
@@ -177,7 +177,8 @@ void InputPeer::start_clients(CompPeerSeq& comp_peers, graph_t& input_graph) {
 
   for (; current != last; ++current) {
     const auto& current_vertex = *current;
-    printf("current vertex: %u\n", current_vertex);
+
+    LOG4CXX_TRACE(logger_, "Current vertex: " << current_vertex);
 
     if (current_vertex < VERTEX_START) continue;
     if (current_vertex > VERTEX_END) continue;
@@ -199,9 +200,6 @@ void InputPeer::start_clients(CompPeerSeq& comp_peers, graph_t& input_graph) {
       }
     }
   }
-
-
-  printf("exiting start_clients\n");
 
 }
 
@@ -254,9 +252,6 @@ void InputPeer::disseminate_bgp(CompPeerSeq& comp_peers, graph_t& input_graph) {
 
   }
 
-  std::cout << "Connecting..." << std::endl;
-
-  std::cout << "Done!" << std::endl;
 }
 
 

@@ -42,13 +42,13 @@ void MasterPeer::publish(Session* session, vector<vertex_t>& nodes) {
   if (started_) {
 
     peers_synchronized_ += 1;
-    printf("Number of synchronized peers: %u\n", peers_synchronized_);
+    LOG4CXX_INFO(logger_, "Number of synchronized peers: " << peers_synchronized_);
 
     if (peers_synchronized_ == all_sessions_.size()) {
       peers_synchronized_ = 0;
 
       for(auto s: master_server_->sessions_) {
-        printf("Raising the barrier.\n");
+        LOG4CXX_INFO(logger_, "Raising the barrier.");
         nodes_ = vector<vertex_t>(node_set_.begin(), node_set_.end());
         s->notify(nodes_);
       }
@@ -61,11 +61,11 @@ void MasterPeer::publish(Session* session, vector<vertex_t>& nodes) {
     vertex_count_ += nodes.size();
     all_sessions_.push_back(session);
 
-    printf("Vertex count: %u\n", vertex_count_);
+    LOG4CXX_INFO(logger_, "Vertex count: " << vertex_count_);
 
     if (vertex_count_ == graph_size_) {
 
-      printf("Total number of peers participating: %u\n", all_sessions_.size());
+      LOG4CXX_INFO(logger_, "Total number of peers participating: " << all_sessions_.size());
       started_ = true;
 
       for(auto s: master_server_->sessions_) {
