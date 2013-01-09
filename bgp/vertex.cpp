@@ -56,7 +56,6 @@ bool Vertex::in_as_path(graph_t& graph, vertex_t vertex) {
     Vertex& v = graph[next];
     next = v.next_hop_;
     if (count > MAX_AS_LENGTH)  {
-      printf("Undefined behavior!\n" );
       return true;
     }
   }

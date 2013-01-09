@@ -72,7 +72,8 @@ void BGPProcess::next_iteration(
     set<vertex_t>& affected_set,
     tbb::concurrent_unordered_set<vertex_t> changed_set) {
 
-  printf("Next iteration... %lu: %lu\n", affected_set.size(), changed_set.size());
+  LOG4CXX_INFO(comp_peer_->logger_,
+      "Next iteration... " << affected_set.size() << ": " << changed_set.size());
 
   boost::thread_group tg;
 
@@ -132,7 +133,9 @@ void BGPProcess::next_iteration(
   master_->sync(nodes);
   master_->barrier_->wait();
 
-  printf("syncing up with the master... size %u.\n", master_->size_);
+
+  LOG4CXX_INFO(comp_peer_->logger_,
+      "Syncing up with the master... size: " << master_->size_);
 
   for(size_t i = 0; i < master_->size_; i++) {
     new_changed_set.insert(master_->array_[i]);
@@ -280,10 +283,14 @@ void BGPProcess::for1(
   const bool condition = offered_preference <= current_preference;
 
   if (cmp != condition) {
-    printf("==================================================\n");
-    printf("(Is, Should): (%d, %d) -- Vertex (%ld, %ld)\n",
-        cmp, condition, affected_vertex, neigh_vertex);
-    printf("==================================================\n");
+
+    LOG4CXX_FATAL(comp_peer_->logger_, "==================================================");
+    LOG4CXX_FATAL(comp_peer_->logger_,
+        "(Is, Should): " <<
+        "(" << cmp << ", " << condition << ") -- " <<
+        "(" << affected_vertex << ", " << neigh_vertex << ")");
+    LOG4CXX_FATAL(comp_peer_->logger_, "==================================================");
+
   }
 #endif
 
@@ -363,13 +370,14 @@ void BGPProcess::print_result() {
   auto last = iter.second;
   auto current = iter.first;
 
-  printf("digraph G {\n");
+  LOG4CXX_FATAL(comp_peer_->logger_, "digraph G {");
 
   for (; current != last; ++current) {
     const auto& current_vertex = *current;
     Vertex& vertex = graph_[current_vertex];
-    printf("%ld -> %ld;\n", vertex.id_, vertex.next_hop_);
+    LOG4CXX_FATAL(comp_peer_->logger_, vertex.id_ << " -> " << vertex.next_hop_);
   }
 
-  printf("}\n");
+  LOG4CXX_FATAL(comp_peer_->logger_, "}");
+
 }

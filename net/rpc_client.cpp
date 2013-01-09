@@ -123,7 +123,6 @@ void RPCClient::handle_read(
       const boost::system::error_code& error,
       size_t bytes_transferred) {
 
-  printf("Handle read.\n");
 
   if (!error) {
 
@@ -132,7 +131,6 @@ void RPCClient::handle_read(
       uint32_t& command =  *((uint32_t*) data);
 
       if (command == CMD_TYPE::SYNC) {
-        printf("handle_sync \n");
 
         uint32_t& size =  *((uint32_t*) (data + sizeof(uint32_t)));
 

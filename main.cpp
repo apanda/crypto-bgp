@@ -90,7 +90,6 @@ void run_mpc() {
   for(auto& cp: comp_peer_seq) {
     if (COMP_PEER_IDS.find(cp->id_) == COMP_PEER_IDS.end()) continue;
     cp->bgp_->master_ = master;
-    usleep(200);
     master->sync(nodes);
   }
 
@@ -149,6 +148,7 @@ int main(int argc, char *argv[]) {
   po::store(po::parse_command_line(argc, argv, desc), vm);
   po::notify(vm);
 
+  log4cxx::PropertyConfigurator::configure("apache.conf");
 
   if (vm.count("master")) {
     run_master();
@@ -180,7 +180,6 @@ int main(int argc, char *argv[]) {
   if (vm.count("id")) {
     vector<int> ids =  vm["id"].as<vector<int>>();
     for(size_t i = 0; i < ids.size(); i++) {
-      printf("%i\n", ids[i]);
       COMP_PEER_IDS.insert( ids[i] );
     }
   }
@@ -195,9 +194,6 @@ int main(int argc, char *argv[]) {
       COMP_PEER_HOSTS[i] = hosts[i];
     }
   }
-
-
-  log4cxx::PropertyConfigurator::configure("apache.conf");
 
   run_mpc();
 }
