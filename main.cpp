@@ -98,13 +98,22 @@ void run_mpc() {
 
   master->barrier_ ->wait();
 
-  LOG4CXX_INFO(mainLogger, "Master has raised the barrier.");
-
-  master->barrier_ = new boost::barrier(COMP_PEER_IDS.size() + 1);
-
   input_peer->start_clients(comp_peer_seq, input_graph, master->hm_);
 
   LOG4CXX_INFO(mainLogger, "All clients have been started.");
+
+
+  vector<vertex_t> nodes;
+  for(auto& cp: comp_peer_seq) {
+    if (COMP_PEER_IDS.find(cp->id_) == COMP_PEER_IDS.end()) continue;
+    master->sync(nodes);
+  }
+
+  master->barrier_->wait();
+
+  master->barrier_ = new boost::barrier(COMP_PEER_IDS.size() + 1);
+
+  LOG4CXX_INFO(mainLogger, "Master has raised the barrier.");
 
   for (auto& cp : comp_peer_seq) {
     if (COMP_PEER_IDS.find(cp->id_) == COMP_PEER_IDS.end()) continue;

@@ -474,7 +474,7 @@ void CompPeer<Num>::recombine(string recombination_key, vertex_t l) {
 
     try {
 
-      vlm.at(key);
+      //vlm.at(key);
     } catch (...) {
 
       LOG4CXX_FATAL(logger_, "CompPeer<Num>::recombine( " << key << " )");
