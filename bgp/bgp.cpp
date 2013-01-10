@@ -61,6 +61,12 @@ void BGPProcess::start(graph_t& graph) {
     affected.insert(vertex);
   }
 
+  vector<vertex_t> nodes;
+
+  master_->sync(nodes);
+  master_->barrier_->wait();
+
+
   next_iteration(dst_vertex, graph, affected, changed);
 }
 
