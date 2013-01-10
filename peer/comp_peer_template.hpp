@@ -58,9 +58,8 @@ void CompPeer<Num>::publish(std::string key, int64_t value, vertex_t v) {
 
   LOG4CXX_TRACE(logger_, "Counter... (" << v << "): " << rkey << " " << counter);
   LOG4CXX_TRACE(logger_, " Received value: " << key << ": " << value << " (" << v << ")");
-  {
+
   vlm[key] = value;
-  }
   vertex.mutex_->lock();
   counter++;
 
@@ -481,7 +480,8 @@ void CompPeer<Num>::recombine(string recombination_key, vertex_t l) {
 
     }
 
-    const int64_t value = vlm[key];
+    vlm.at(key);
+    const int64_t& value = vlm[key];
 
     gsl_vector_set(ds, i,  value);
     debug_stream <<  " " << value;
