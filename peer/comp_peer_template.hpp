@@ -471,16 +471,19 @@ void CompPeer<Num>::recombine(string recombination_key, vertex_t l) {
   for(size_t i = 0; i < Num; i++) {
     const string key = recombination_key + "_" + lexical_cast<string>(i + 1);
 
+    again:
+
     try {
+
       vlm.at(key);
     } catch (...) {
 
       LOG4CXX_FATAL(logger_, "CompPeer<Num>::recombine( " << key << " )");
+      goto again;
       //throw std::runtime_error(error);
 
     }
 
-    vlm.at(key);
     const int64_t& value = vlm[key];
 
     gsl_vector_set(ds, i,  value);
