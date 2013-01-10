@@ -193,7 +193,7 @@ void InputPeer::start_clients(
 
         auto cp  = comp_peers[ID - 1];
         auto sp = shared_ptr<RPCClient>(
-        new RPCClient(cp->io_service_, (*hm)[i][current_vertex], port));
+        new RPCClient(cp->io_service_, (*hm)[i + 1][current_vertex], port));
 
         for(auto ccp: comp_peers) {
           Vertex& vertex = ccp->bgp_->graph_[current_vertex];
