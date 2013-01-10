@@ -50,6 +50,8 @@ void CompPeer<Num>::publish(std::string key, int64_t value, vertex_t v) {
   Vertex& vertex = bgp_->graph_[v];
   string rkey = key.substr(0, key.size() - 2);
 
+  vertex.mutex_->lock();
+
   LOG4CXX_TRACE(logger_, " Acquired lock... " << v << ": " << rkey);
 
   int& counter = vertex.couter_map_2[rkey];
@@ -59,9 +61,8 @@ void CompPeer<Num>::publish(std::string key, int64_t value, vertex_t v) {
   LOG4CXX_TRACE(logger_, "Counter... (" << v << "): " << rkey << " " << counter);
   LOG4CXX_TRACE(logger_, " Received value: " << key << ": " << value << " (" << v << ")");
 
-  vertex.mutex_->lock();
-  vlm.unsafe_erase(key);
-  vlm.insert(make_pair(key, value));
+
+  vlm[key] = value;
   counter++;
 
   if (counter == 3) {
