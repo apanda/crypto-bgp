@@ -28,19 +28,22 @@ public:
       io_service& io);
   ~MasterPeer();
 
-  void publish(Session* session, vector<vertex_t>& nodes);
+  void publish(Session* session, sync_init si);
+  void publish(Session* session, vector<vertex_t>& nodes, size_t id = 0);
 
   boost::mutex mutex_;
+  bool started_;
+
   size_t graph_size_;
   size_t peers_;
   size_t peers_synchronized_;
   size_t vertex_count_;
-  bool started_;
 
   vector<vertex_t> nodes_;
   set<vertex_t> node_set_;
 
   std::vector<Session*> all_sessions_;
+  sync_response sync_response_;
 
   shared_ptr<RPCServer> master_server_;
 };

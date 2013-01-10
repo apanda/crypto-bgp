@@ -22,6 +22,7 @@
 #include <boost/phoenix/bind.hpp>
 #include <boost/function.hpp>
 
+#include <bgp/common.hpp>
 
 const size_t COMP_PEER_NUM = 3;
 
@@ -34,10 +35,12 @@ extern size_t VERTEX_END;
 using std::string;
 using std::vector;
 using std::set;
+using std::map;
 
 using boost::array;
 
 extern string MASTER_ADDRESS;
+extern string WHOAMI;
 
 static set<int> COMP_PEER_IDS;
 static array<string, COMP_PEER_NUM> COMP_PEER_HOSTS;
@@ -50,7 +53,8 @@ enum {
 
 enum CMD_TYPE {
   MSG = 0,
-  SYNC = 1
+  SYNC = 1,
+  INIT = 2
 };
 
 typedef int64_t share_t;
@@ -81,6 +85,33 @@ using boost::asio::io_service;
 
 typedef int64_t plaintext_t;
 typedef string symbol_t;
+
+struct sync_init {
+  vector<vertex_t> nodes_;
+  uint32_t id_;
+  string hostname_;
+
+  template<class Archive>
+  void serialize(Archive & ar, const unsigned int version)
+  {
+      ar & nodes_;
+      ar & id_;
+      ar & hostname_;
+  }
+
+};
+
+struct sync_response {
+  typedef map<uint32_t, map<uint32_t, string> > hostname_mappings_t;
+  hostname_mappings_t hostname_mappings_;
+
+  template<class Archive>
+  void serialize(Archive & ar, const unsigned int version)
+  {
+      ar & hostname_mappings_;
+
+  }
+};
 
 
 int mod( int64_t x, int m);

@@ -19,9 +19,13 @@ Peer::~Peer() {
 
 
 void Peer::publish(std::string key, int64_t value, vertex_t v) {}
-void Peer::publish(Session* session, vector<vertex_t>& nodes) {
 
-  throw std::runtime_error("not suppose to be callled!");
+void Peer::publish(Session* session, sync_init si) {
+  throw std::runtime_error("not suppose to be called!");
+}
+
+void Peer::publish(Session* session, vector<vertex_t>& nodes, size_t id) {
+  throw std::runtime_error("not suppose to be called!");
 }
 
 

@@ -17,11 +17,11 @@ MasterPeer::MasterPeer(
     size_t num,
     io_service& io) :
       Peer(io),
+      started_(false),
       graph_size_(num * COMP_PEER_NUM),
       peers_(0),
       peers_synchronized_(0),
-      vertex_count_(0),
-      started_(false)
+      vertex_count_(0)
     {
 
   master_server_ = shared_ptr<RPCServer>(new RPCServer(io, MASTER_PORT, this));
@@ -32,8 +32,38 @@ MasterPeer::MasterPeer(
 MasterPeer::~MasterPeer() {}
 
 
+void MasterPeer::publish(Session* session, sync_init si) {
 
-void MasterPeer::publish(Session* session, vector<vertex_t>& nodes) {
+  node_set_.insert( si.nodes_.begin(), si.nodes_.end() );
+
+  auto& m = sync_response_.hostname_mappings_[si.id_];
+  for(auto v: si.nodes_) {
+    m[v] = si.hostname_;
+    LOG4CXX_INFO(logger_, v << " -> " << si.hostname_);
+  }
+
+  vertex_count_ += si.nodes_.size();
+  all_sessions_.push_back(session);
+
+  LOG4CXX_INFO(logger_, "Vertex count: " << vertex_count_);
+
+  if (vertex_count_ == graph_size_) {
+
+    LOG4CXX_INFO(logger_, "Total number of peers participating: " << all_sessions_.size());
+    started_ = true;
+
+    for(auto s: master_server_->sessions_) {
+      nodes_ = vector<vertex_t>(node_set_.begin(), node_set_.end());
+      s->sync_response(sync_response_);
+    }
+
+    node_set_.clear();
+  }
+
+}
+
+
+void MasterPeer::publish(Session* session, vector<vertex_t>& nodes, size_t id) {
 
   boost::mutex::scoped_lock lock(mutex_);
 

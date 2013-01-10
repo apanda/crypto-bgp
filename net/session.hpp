@@ -43,11 +43,18 @@ public:
       const boost::system::error_code& error,
       size_t bytes_transferred);
 
+  void handle_init(
+      char* data,
+      const boost::system::error_code& error,
+      size_t bytes_transferred);
+
   void handle_sync(
       char* data,
       const boost::system::error_code& error,
       size_t bytes_transferred);
 
+
+  void sync_response(struct sync_response& sr);
   void notify(vector<vertex_t>& nodes);
 
   tcp::socket& socket();

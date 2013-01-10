@@ -8,6 +8,12 @@
 #include <net/rpc_client.hpp>
 #include <bgp/vertex.hpp>
 
+#include <boost/archive/text_oarchive.hpp>
+#include <boost/archive/text_iarchive.hpp>
+#include <boost/serialization/vector.hpp>
+#include <boost/serialization/string.hpp>
+#include <boost/serialization/map.hpp>
+
 LoggerPtr RPCClient::logger_(Logger::getLogger("all.peer.client"));
 
 class Peer;
@@ -43,6 +49,37 @@ void RPCClient::read_impl(char* data, size_t length, tcp::socket& socket) {
             boost::asio::placeholders::error,
             boost::asio::placeholders::bytes_transferred)
   );
+
+}
+
+void RPCClient::init(sync_init& si) {
+
+  std::ostringstream archive_stream;
+  boost::archive::text_oarchive archive(archive_stream);
+  archive << si;
+
+  size_t real_length = sizeof(uint32_t)*3 + archive_stream.str().size();
+  size_t length = real_length;
+
+  if (length < length_) length = length_;
+
+  char* data = new char[length];
+
+  uint32_t& command = *((uint32_t*) data);
+  uint32_t& size    = *((uint32_t*) (data + sizeof(uint32_t)));
+  char* array                      = data + sizeof(uint32_t)*3;
+
+  memcpy(array, archive_stream.str().c_str(), archive_stream.str().size());
+
+  command = CMD_TYPE::INIT;
+  size = real_length;
+
+  boost::asio::async_write(socket_,
+      boost::asio::buffer(data, length),
+      strand_.wrap(
+      boost::bind(&RPCClient::handle_write, this, data,
+          boost::asio::placeholders::error,
+          boost::asio::placeholders::bytes_transferred)));
 
 }
 
@@ -148,6 +185,25 @@ void RPCClient::handle_read(
           handle_sync(data, error, bytes_transferred);
         }
 
+
+      } else if (command == CMD_TYPE::INIT) {
+
+        uint32_t& size =  *((uint32_t*) (data + sizeof(uint32_t)));
+
+        if (size > length_) {
+
+          char* new_data = new char[size];
+          memcpy(new_data, data, length_);
+
+          boost::asio::async_read(socket_, boost::asio::buffer(new_data + length_, size - length_),
+             boost::bind(&RPCClient::handle_init, this, new_data,
+                 boost::asio::placeholders::error,
+                 boost::asio::placeholders::bytes_transferred));
+
+        } else {
+          handle_init(data, error, bytes_transferred);
+        }
+
       } else {
         throw std::runtime_error("invalid command");
       }
@@ -162,6 +218,31 @@ void RPCClient::handle_read(
   }
 
 }
+
+
+
+void RPCClient::handle_init(
+    char* data,
+    const boost::system::error_code& error,
+    size_t bytes_transferred) {
+
+  uint32_t& size    = *((uint32_t*) (data + sizeof(uint32_t) ));
+  char* array                      = data + sizeof(uint32_t) * 3;
+  const size_t object_size         = size - sizeof(uint32_t) * 3;
+
+
+  struct sync_response sr;
+
+  string object(array, object_size);
+  std::stringstream ss;
+  ss.write(array, object_size);
+  boost::archive::text_iarchive ia(ss);
+  ia >> sr;
+
+  hm_ = new sync_response::hostname_mappings_t(sr.hostname_mappings_);
+  barrier_->wait();
+}
+
 
 
 

@@ -77,15 +77,21 @@ void run_mpc() {
   bgp.master_ = master;
 
   input_peer->disseminate_bgp(comp_peer_seq, input_graph);
-  auto nodes = input_peer->start_listeners(comp_peer_seq, input_graph);
+  //auto nodes = input_peer->start_listeners(comp_peer_seq, input_graph);
 
+  sync_init init;
+  init.nodes_ = input_peer->start_listeners(comp_peer_seq, input_graph);
+  init.hostname_ = WHOAMI;
 
   master->barrier_ = new boost::barrier(2);
 
   for(auto& cp: comp_peer_seq) {
     if (COMP_PEER_IDS.find(cp->id_) == COMP_PEER_IDS.end()) continue;
+
     cp->bgp_->master_ = master;
-    master->sync(nodes);
+    init.id_ = cp->id_;
+
+    master->init(init);
   }
 
   sleep(1);
@@ -96,7 +102,7 @@ void run_mpc() {
 
   master->barrier_ = new boost::barrier(COMP_PEER_IDS.size() + 1);
 
-  input_peer->start_clients(comp_peer_seq, input_graph);
+  input_peer->start_clients(comp_peer_seq, input_graph, master->hm_);
 
   LOG4CXX_INFO(mainLogger, "All clients have been started.");
 
@@ -135,10 +141,10 @@ int main(int argc, char *argv[]) {
       ("threads", po::value<int>(), "total number of threads")
       ("tasks", po::value<int>(), "total number of tasks per iteration")
       ("master-host", po::value<string>(), "master address")
+      ("whoami", po::value<string>(), "out address")
       ("start", po::value<int>(), "staring vertex")
       ("end", po::value<int>(), "ending vertex")
       ("id", po::value<vector<int>>()->multitoken(), "computational peer id")
-      ("host", po::value<vector<string>>()->multitoken(), "hosts associated with the computational peers")
   ;
 
   po::variables_map vm;
@@ -185,11 +191,8 @@ int main(int argc, char *argv[]) {
     MASTER_ADDRESS = vm["master-host"].as<string>();
   }
 
-  if (vm.count("host")) {
-    vector<string> hosts =  vm["host"].as<vector<string>>();
-    for(size_t i = 0; i < hosts.size(); i++) {
-      COMP_PEER_HOSTS[i] = hosts[i];
-    }
+  if (vm.count("whoami")) {
+    WHOAMI = vm["whoami"].as<string>();
   }
 
   try {

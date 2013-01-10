@@ -40,7 +40,7 @@ public:
       CompPeerSeq& comp_peers);
 
   template<class CompPeerSeq>
-  void start_clients(CompPeerSeq& comp_peers, graph_t& input_graph);
+  void start_clients(CompPeerSeq& comp_peers, graph_t& input_graph, sync_response::hostname_mappings_t*);
 
   template<class CompPeerSeq>
   vector<vertex_t> start_listeners(CompPeerSeq& comp_peers, graph_t& input_graph);

@@ -6,6 +6,13 @@
  */
 
 #include <net/session.hpp>
+#include <boost/archive/text_iarchive.hpp>
+#include <boost/archive/text_oarchive.hpp>
+#include <boost/serialization/vector.hpp>
+#include <boost/serialization/string.hpp>
+#include <boost/serialization/map.hpp>
+
+#include <fstream>
 
 
 
@@ -21,6 +28,7 @@ void Session::start()  {
             boost::asio::placeholders::bytes_transferred)
   );
 }
+
 
 
 void Session::handle_msg(
@@ -44,6 +52,31 @@ void Session::handle_msg(
       sizeof(int64_t));
 
   peer_->publish(msg, value, vertex);
+}
+
+
+
+void Session::handle_init(
+    char* data,
+    const boost::system::error_code& error,
+    size_t bytes_transferred) {
+
+
+  uint32_t& size    = *((uint32_t*) (data + sizeof(uint32_t) ));
+  uint32_t& id      = *((uint32_t*) (data + sizeof(uint32_t) * 2));
+  char* array                      = data + sizeof(uint32_t) * 3;
+  const size_t object_size         = size - sizeof(uint32_t) * 3;
+
+
+  sync_init si;
+
+  string object(array, object_size);
+  std::stringstream ss;
+  ss.write(array, object_size);
+  boost::archive::text_iarchive ia(ss);
+  ia >> si;
+
+  peer_->publish(this, si);
 }
 
 
@@ -94,8 +127,27 @@ void Session::handle_read(
               boost::bind(&Session::handle_sync, this, new_data,
                   boost::asio::placeholders::error,
                   boost::asio::placeholders::bytes_transferred));
+
          } else {
            handle_sync(data, error, bytes_transferred);
+         }
+
+       } else if (command == CMD_TYPE::INIT) {
+
+         uint32_t& size =  *((uint32_t*) (data + sizeof(uint32_t)));
+
+         if (size > length_) {
+
+           char* new_data = new char[size];
+           memcpy(new_data, data, length_);
+
+           boost::asio::async_read(socket_, boost::asio::buffer(new_data + length_, size - length_),
+              boost::bind(&Session::handle_init, this, new_data,
+                  boost::asio::placeholders::error,
+                  boost::asio::placeholders::bytes_transferred));
+
+         } else {
+           handle_init(data, error, bytes_transferred);
          }
 
        } else {
@@ -114,6 +166,35 @@ void Session::handle_read(
      delete this;
    }
 
+}
+
+
+
+void Session::sync_response(struct sync_response& sr){
+
+  std::ostringstream archive_stream;
+  boost::archive::text_oarchive archive(archive_stream);
+  archive << sr;
+
+  std::cout << "archive_stream.str().size() " << archive_stream.str().size() << std::endl;
+
+  uint32_t real_length = sizeof(uint32_t)*3 + archive_stream.str().size();
+  uint32_t length = real_length;
+
+  if (length < length_) length = length_;
+
+  char* data = new char[length];
+
+  uint32_t& command = *((uint32_t*) data);
+  uint32_t& size    = *((uint32_t*) (data + sizeof(uint32_t)));
+  char* array                      = data + sizeof(uint32_t)*3;
+
+  size = real_length;
+  memcpy(array, archive_stream.str().c_str(), archive_stream.str().size());
+
+  command = CMD_TYPE::INIT;
+
+  write_impl(data, length, socket_);
 }
 
 

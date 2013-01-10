@@ -8,6 +8,7 @@ size_t VERTEX_START = 0;
 size_t VERTEX_END = 0;
 
 string MASTER_ADDRESS = "localhost";
+string WHOAMI = "";
 
 int mod( int64_t x, int m) {
     return (x%m + m)%m;

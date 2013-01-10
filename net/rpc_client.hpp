@@ -39,16 +39,23 @@ public:
       const boost::system::error_code& error,
       size_t bytes_transferred);
 
+  void handle_init(
+      char* data,
+      const boost::system::error_code& error,
+      size_t bytes_transferred);
+
   void handle_sync(
       char* data,
       const boost::system::error_code& error,
       size_t bytes_transferred);
 
+  void init(sync_init& si);
   void sync(vector<vertex_t>& nodes);
 
   boost::barrier* barrier_;
   boost::mutex m_;
 
+  sync_response::hostname_mappings_t* hm_;
   uint32_t size_;
   uint16_t* array_;
 

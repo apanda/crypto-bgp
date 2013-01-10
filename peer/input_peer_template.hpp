@@ -169,7 +169,10 @@ vector<vertex_t> InputPeer::start_listeners(CompPeerSeq& comp_peers, graph_t& in
 
 
 template<class CompPeerSeq>
-void InputPeer::start_clients(CompPeerSeq& comp_peers, graph_t& input_graph) {
+void InputPeer::start_clients(
+    CompPeerSeq& comp_peers,
+    graph_t& input_graph,
+    sync_response::hostname_mappings_t* hm) {
 
   auto iter = vertices(input_graph);
   auto last = iter.second;
@@ -190,7 +193,7 @@ void InputPeer::start_clients(CompPeerSeq& comp_peers, graph_t& input_graph) {
 
         auto cp  = comp_peers[ID - 1];
         auto sp = shared_ptr<RPCClient>(
-        new RPCClient(cp->io_service_, COMP_PEER_HOSTS[i], port));
+        new RPCClient(cp->io_service_, (*hm)[i][current_vertex], port));
 
         for(auto ccp: comp_peers) {
           Vertex& vertex = ccp->bgp_->graph_[current_vertex];
