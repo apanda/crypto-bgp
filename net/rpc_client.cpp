@@ -201,11 +201,11 @@ void RPCClient::handle_read(
              boost::bind(&RPCClient::handle_init, this, new_data,
                  boost::asio::placeholders::error,
                  boost::asio::placeholders::bytes_transferred));
-
-          return;
         } else {
           handle_init(data, error, bytes_transferred);
         }
+
+        return;
 
       } else {
         throw std::runtime_error("invalid command");
@@ -245,6 +245,12 @@ void RPCClient::handle_init(
   ia >> sr;
 
   hm_ = new sync_response::hostname_mappings_t(sr.hostname_mappings_);
+
+  boost::asio::async_read(socket_, boost::asio::buffer(data, length_),
+        boost::bind(&RPCClient::handle_read, this, data,
+            boost::asio::placeholders::error,
+            boost::asio::placeholders::bytes_transferred));
+
   barrier_->wait();
 }
 
@@ -265,6 +271,8 @@ void RPCClient::handle_sync(
   size_ = num;
 
   barrier_->wait();
+
+
 }
 
 
