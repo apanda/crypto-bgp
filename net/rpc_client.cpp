@@ -166,6 +166,7 @@ void RPCClient::handle_read(
     if (bytes_transferred == length_) {
 
       uint32_t& command =  *((uint32_t*) data);
+      std::cout << "command " << command << std::endl;
 
       if (command == CMD_TYPE::SYNC) {
 
