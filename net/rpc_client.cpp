@@ -190,6 +190,7 @@ void RPCClient::handle_read(
       } else if (command == CMD_TYPE::INIT) {
 
         uint32_t& size =  *((uint32_t*) (data + sizeof(uint32_t)));
+        std::cout << "size " << size << std::endl;
 
         if (size > length_) {
 
