@@ -202,6 +202,7 @@ void RPCClient::handle_read(
                  boost::asio::placeholders::error,
                  boost::asio::placeholders::bytes_transferred));
 
+          return;
         } else {
           handle_init(data, error, bytes_transferred);
         }
@@ -227,6 +228,8 @@ void RPCClient::handle_init(
     char* data,
     const boost::system::error_code& error,
     size_t bytes_transferred) {
+
+  printf("RPCClient::handle_init\n");
 
   uint32_t& size    = *((uint32_t*) (data + sizeof(uint32_t) ));
   char* array                      = data + sizeof(uint32_t) * 3;
