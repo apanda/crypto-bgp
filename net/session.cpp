@@ -6,8 +6,8 @@
  */
 
 #include <net/session.hpp>
-#include <boost/archive/text_iarchive.hpp>
-#include <boost/archive/text_oarchive.hpp>
+#include <boost/archive/binary_oarchive.hpp>
+#include <boost/archive/binary_iarchive.hpp>
 #include <boost/serialization/vector.hpp>
 #include <boost/serialization/string.hpp>
 #include <boost/serialization/map.hpp>
@@ -73,7 +73,7 @@ void Session::handle_init(
   string object(array, object_size);
   std::stringstream ss;
   ss.write(array, object_size);
-  boost::archive::text_iarchive ia(ss);
+  boost::archive::binary_iarchive ia(ss);
   ia >> si;
 
   peer_->publish(this, si);
@@ -173,7 +173,7 @@ void Session::handle_read(
 void Session::sync_response(struct sync_response& sr){
 
   std::ostringstream archive_stream;
-  boost::archive::text_oarchive archive(archive_stream);
+  boost::archive::binary_oarchive archive(archive_stream);
   archive << sr;
 
   std::cout << "archive_stream.str().size() " << archive_stream.str().size() << std::endl;

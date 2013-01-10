@@ -8,8 +8,8 @@
 #include <net/rpc_client.hpp>
 #include <bgp/vertex.hpp>
 
-#include <boost/archive/text_oarchive.hpp>
-#include <boost/archive/text_iarchive.hpp>
+#include <boost/archive/binary_oarchive.hpp>
+#include <boost/archive/binary_iarchive.hpp>
 #include <boost/serialization/vector.hpp>
 #include <boost/serialization/string.hpp>
 #include <boost/serialization/map.hpp>
@@ -55,7 +55,7 @@ void RPCClient::read_impl(char* data, size_t length, tcp::socket& socket) {
 void RPCClient::init(sync_init& si) {
 
   std::ostringstream archive_stream;
-  boost::archive::text_oarchive archive(archive_stream);
+  boost::archive::binary_oarchive archive(archive_stream);
   archive << si;
 
   size_t real_length = sizeof(uint32_t)*3 + archive_stream.str().size();
@@ -236,7 +236,7 @@ void RPCClient::handle_init(
   string object(array, object_size);
   std::stringstream ss;
   ss.write(array, object_size);
-  boost::archive::text_iarchive ia(ss);
+  boost::archive::binary_iarchive ia(ss);
   ia >> sr;
 
   hm_ = new sync_response::hostname_mappings_t(sr.hostname_mappings_);
