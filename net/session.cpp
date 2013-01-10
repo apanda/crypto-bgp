@@ -176,8 +176,6 @@ void Session::sync_response(struct sync_response& sr){
   boost::archive::binary_oarchive archive(archive_stream);
   archive << sr;
 
-  std::cout << "archive_stream.str().size() " << archive_stream.str().size() << std::endl;
-
   uint32_t real_length = sizeof(uint32_t)*3 + archive_stream.str().size();
   uint32_t length = real_length;
 

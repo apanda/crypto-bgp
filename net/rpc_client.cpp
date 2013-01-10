@@ -166,7 +166,6 @@ void RPCClient::handle_read(
     if (bytes_transferred == length_) {
 
       uint32_t& command =  *((uint32_t*) data);
-      std::cout << "command " << command << std::endl;
 
       if (command == CMD_TYPE::SYNC) {
 
@@ -190,7 +189,6 @@ void RPCClient::handle_read(
       } else if (command == CMD_TYPE::INIT) {
 
         uint32_t& size =  *((uint32_t*) (data + sizeof(uint32_t)));
-        std::cout << "size " << size << std::endl;
 
         if (size > length_) {
 
@@ -228,8 +226,6 @@ void RPCClient::handle_init(
     char* data,
     const boost::system::error_code& error,
     size_t bytes_transferred) {
-
-  printf("RPCClient::handle_init\n");
 
   uint32_t& size    = *((uint32_t*) (data + sizeof(uint32_t) ));
   char* array                      = data + sizeof(uint32_t) * 3;
