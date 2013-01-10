@@ -55,7 +55,6 @@ void MasterPeer::publish(Session* session, sync_init si) {
     for(auto s: master_server_->sessions_) {
       nodes_ = vector<vertex_t>(node_set_.begin(), node_set_.end());
       s->sync_response(sync_response_);
-      sleep(1);
     }
 
     node_set_.clear();
