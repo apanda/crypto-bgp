@@ -50,8 +50,6 @@ void CompPeer<Num>::publish(std::string key, int64_t value, vertex_t v) {
   Vertex& vertex = bgp_->graph_[v];
   string rkey = key.substr(0, key.size() - 2);
 
-  vertex.mutex_->lock();
-
   LOG4CXX_TRACE(logger_, " Acquired lock... " << v << ": " << rkey);
 
   int& counter = vertex.couter_map_2[rkey];
@@ -63,6 +61,7 @@ void CompPeer<Num>::publish(std::string key, int64_t value, vertex_t v) {
 
 
   vlm[key] = value;
+  vertex.mutex_->lock();
   counter++;
 
   if (counter == 3) {
@@ -473,15 +472,12 @@ void CompPeer<Num>::recombine(string recombination_key, vertex_t l) {
   for(size_t i = 0; i < Num; i++) {
     const string key = recombination_key + "_" + lexical_cast<string>(i + 1);
 
-    again:
-
     try {
 
       vlm.at(key);
     } catch (...) {
 
       LOG4CXX_FATAL(logger_, "CompPeer<Num>::recombine( " << key << " )");
-      goto again;
       //throw std::runtime_error(error);
 
     }

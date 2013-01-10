@@ -63,7 +63,6 @@ void Session::handle_init(
 
 
   uint32_t& size    = *((uint32_t*) (data + sizeof(uint32_t) ));
-  uint32_t& id      = *((uint32_t*) (data + sizeof(uint32_t) * 2));
   char* array                      = data + sizeof(uint32_t) * 3;
   const size_t object_size         = size - sizeof(uint32_t) * 3;
 
@@ -156,12 +155,9 @@ void Session::handle_read(
        }
 
        boost::asio::async_read(socket_, boost::asio::buffer(data, length_),
-           strand_.wrap(
              boost::bind(&Session::handle_read, this, data,
                  boost::asio::placeholders::error,
-                 boost::asio::placeholders::bytes_transferred)
-       )
-           );
+                 boost::asio::placeholders::bytes_transferred));
      }
 
 
