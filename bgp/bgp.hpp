@@ -48,27 +48,27 @@ public:
 
   void process_neighbors_mpc(
       const vertex_t affected_vertex,
-      tbb::concurrent_unordered_set<vertex_t>& changed_set,
-      tbb::concurrent_unordered_set<vertex_t>& new_changed_set,
-      size_t& count);
+      shared_ptr< tbb::concurrent_unordered_set<vertex_t> > changed_set_ptr,
+      shared_ptr< tbb::concurrent_unordered_set<vertex_t> > new_changed_set_ptr,
+      shared_ptr<size_t> count_ptr);
 
   void for1(
       vertex_t affected_vertex,
       vertex_t neigh_vertex,
-      tbb::concurrent_unordered_set<vertex_t>& new_changed_set,
+      shared_ptr< tbb::concurrent_unordered_set<vertex_t> > new_changed_set_ptr,
       int cmp);
 
   void for0(
       const vertex_t affected_vertex,
-      tbb::concurrent_unordered_set<vertex_t>& new_changed_set,
-      size_t& count,
-      vector<vertex_t>& n);
+      shared_ptr< tbb::concurrent_unordered_set<vertex_t> > new_changed_set_ptr,
+      shared_ptr< size_t > count_ptr,
+      shared_ptr< vector<vertex_t> > n);
 
   void next_iteration(
       vertex_t dst,
       graph_t& graph,
-      set<vertex_t>& affected_set,
-      tbb::concurrent_unordered_set<vertex_t> changed_set);
+      shared_ptr< set<vertex_t> > affected_ptr,
+      shared_ptr< tbb::concurrent_unordered_set<vertex_t> > changed_ptr);
 
   void print_state(
       graph_t& graph,

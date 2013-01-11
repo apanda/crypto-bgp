@@ -53,15 +53,19 @@ void BGPProcess::start(graph_t& graph) {
   vertex_t dst_vertex = 0;
   Vertex& dst = graph[dst_vertex];
 
-  set<vertex_t> affected;
-  tbb::concurrent_unordered_set<vertex_t> changed;
+  shared_ptr< set<vertex_t> > affected_ptr(new set<vertex_t>);
+  shared_ptr< tbb::concurrent_unordered_set<vertex_t> > changed_ptr(
+      new tbb::concurrent_unordered_set<vertex_t>);
+
+  set<vertex_t>& affected = *(affected_ptr);
+  tbb::concurrent_unordered_set<vertex_t>& changed = *changed_ptr;
 
   changed.insert(dst_vertex);
   for(const vertex_t& vertex: dst.neigh_) {
     affected.insert(vertex);
   }
 
-  next_iteration(dst_vertex, graph, affected, changed);
+  next_iteration(dst_vertex, graph, affected_ptr, changed_ptr);
 }
 
 
@@ -69,16 +73,23 @@ void BGPProcess::start(graph_t& graph) {
 void BGPProcess::next_iteration(
     const vertex_t dst_vertex,
     graph_t& graph,
-    set<vertex_t>& affected_set,
-    tbb::concurrent_unordered_set<vertex_t> changed_set) {
+    shared_ptr< set<vertex_t> > affected_set_ptr,
+    shared_ptr< tbb::concurrent_unordered_set<vertex_t> > changed_set_ptr) {
+
+  set<vertex_t>& affected_set = *(affected_set_ptr);
+  tbb::concurrent_unordered_set<vertex_t>& changed_set = *changed_set_ptr;
 
   LOG4CXX_INFO(comp_peer_->logger_,
       "Next iteration... " << affected_set.size() << ": " << changed_set.size());
 
   boost::thread_group tg;
 
-  set<vertex_t> new_affected_set;
-  tbb::concurrent_unordered_set<vertex_t> new_changed_set;
+  shared_ptr<tbb::concurrent_unordered_set<vertex_t> > new_changed_set_ptr (
+      new tbb::concurrent_unordered_set<vertex_t>);
+  tbb::concurrent_unordered_set<vertex_t>& new_changed_set = *new_changed_set_ptr;
+
+  shared_ptr<  set<vertex_t> > new_affected_set_ptr(new set<vertex_t>);
+  set<vertex_t>& new_affected_set = *new_affected_set_ptr;
 
   vector<vertex_t> batch;
   for(const auto vertex: affected_set) {
@@ -87,7 +98,10 @@ void BGPProcess::next_iteration(
 
   for(;;) {
 
-    size_t count = 0;
+    shared_ptr<size_t> count_ptr(new size_t);
+    size_t& count = *count_ptr;
+    count = 0;
+
     vector<vertex_t> current_batch;
 
     for(int i = 0; i < TASK_COUNT; i++) {
@@ -107,9 +121,9 @@ void BGPProcess::next_iteration(
         boost::bind(
             &BGPProcess::process_neighbors_mpc,
             this, vertex,
-            boost::ref(changed_set),
-            boost::ref(new_changed_set),
-            boost::ref(count))
+            changed_set_ptr,
+            new_changed_set_ptr,
+            count_ptr)
       );
     }
 
@@ -151,18 +165,23 @@ void BGPProcess::next_iteration(
     return;
   }
 
-  next_iteration(dst_vertex, graph, new_affected_set, new_changed_set);
+  next_iteration(dst_vertex, graph, new_affected_set_ptr, new_changed_set_ptr);
 }
 
 
 
 void BGPProcess::process_neighbors_mpc(
     const vertex_t affected_vertex,
-    tbb::concurrent_unordered_set<vertex_t>& changed_set,
-    tbb::concurrent_unordered_set<vertex_t>& new_changed_set,
-    size_t& count) {
+    shared_ptr< tbb::concurrent_unordered_set<vertex_t> > changed_set_ptr,
+    shared_ptr< tbb::concurrent_unordered_set<vertex_t> > new_changed_set_ptr,
+    shared_ptr<size_t> count_ptr) {
 
-  vector<vertex_t> intersection;
+
+  tbb::concurrent_unordered_set<vertex_t>& changed_set = *changed_set_ptr;
+
+  shared_ptr< vector<vertex_t> > intersection_ptr(new vector<vertex_t>);
+  vector<vertex_t>& intersection = *intersection_ptr;
+
   Vertex& affected = graph_[affected_vertex];
   auto& neighs = affected.neigh_;
 
@@ -172,7 +191,7 @@ void BGPProcess::process_neighbors_mpc(
   std::set_intersection( neighs.begin(), neighs.end(), ch.begin(), ch.end(),
       std::insert_iterator< std::vector<vertex_t> >( intersection, intersection.begin() ) );
 
-  for0(affected_vertex, new_changed_set, count, intersection);
+  for0(affected_vertex, new_changed_set_ptr, count_ptr, intersection_ptr);
 
 }
 
@@ -181,10 +200,12 @@ void BGPProcess::process_neighbors_mpc(
 
 void BGPProcess::for0(
     const vertex_t affected_vertex,
-    tbb::concurrent_unordered_set<vertex_t>& new_changed_set,
-    size_t& count,
-    vector<vertex_t>& n) {
+    shared_ptr< tbb::concurrent_unordered_set<vertex_t> > new_changed_set_ptr,
+    shared_ptr< size_t > count_ptr,
+    shared_ptr< vector<vertex_t> > n_ptr) {
 
+  vector<vertex_t>& n = *n_ptr;
+  size_t& count = *count_ptr;
 
   if (n.empty()) {
     boost::unique_lock<boost::mutex> lock(m_);
@@ -216,9 +237,9 @@ void BGPProcess::for0(
 
   auto next = boost::bind(&BGPProcess::for0, this,
         affected_vertex,
-        boost::ref(new_changed_set),
-        boost::ref(count),
-        n
+        new_changed_set_ptr,
+        count_ptr,
+        n_ptr
       );
 
   *(affected.sig_bgp_next[result]) = next;
@@ -231,7 +252,7 @@ void BGPProcess::for0(
   *(affected.sig_bgp_cnt[result]) = boost::bind(&BGPProcess::for1, this,
               affected_vertex,
               neigh_vertex,
-              boost::ref(new_changed_set),
+              new_changed_set_ptr,
               _1);
 
   LOG4CXX_DEBUG(comp_peer_->logger_, "Compare0")
@@ -250,9 +271,11 @@ void BGPProcess::for0(
 void BGPProcess::for1(
     vertex_t affected_vertex,
     vertex_t neigh_vertex,
-    tbb::concurrent_unordered_set<vertex_t>& new_changed_set,
+    shared_ptr< tbb::concurrent_unordered_set<vertex_t> > new_changed_set_ptr,
     int cmp) {
 
+
+  tbb::concurrent_unordered_set<vertex_t>& new_changed_set = *new_changed_set_ptr;
   Vertex& affected = graph_[affected_vertex];
 
   const string key1 = lexical_cast<string>(affected.next_hop_);
@@ -279,7 +302,7 @@ void BGPProcess::for1(
       << current_preference << ", " << offered_preference );
 
 
-#if 1
+
   const bool condition = offered_preference <= current_preference;
 
   if (cmp != condition) {
@@ -292,7 +315,6 @@ void BGPProcess::for1(
     LOG4CXX_FATAL(comp_peer_->logger_, "==================================================");
 
   }
-#endif
 
   if ( offered_preference <= current_preference ) {
     affected.sig_bgp_next[result]->operator()();
