@@ -50,7 +50,7 @@ public:
       const vertex_t affected_vertex,
       shared_ptr< tbb::concurrent_unordered_set<vertex_t> > changed_set_ptr,
       shared_ptr< tbb::concurrent_unordered_set<vertex_t> > new_changed_set_ptr,
-      shared_ptr<size_t> count_ptr);
+      shared_ptr< pair<size_t, size_t> > counts_ptr);
 
   void for1(
       vertex_t affected_vertex,
@@ -61,14 +61,24 @@ public:
   void for0(
       const vertex_t affected_vertex,
       shared_ptr< tbb::concurrent_unordered_set<vertex_t> > new_changed_set_ptr,
-      shared_ptr< size_t > count_ptr,
+      shared_ptr< pair<size_t, size_t> > counts_ptr,
       shared_ptr< vector<vertex_t> > n);
 
-  void next_iteration(
+  void next_iteration_start(
       vertex_t dst,
-      graph_t& graph,
       shared_ptr< set<vertex_t> > affected_ptr,
       shared_ptr< tbb::concurrent_unordered_set<vertex_t> > changed_ptr);
+
+  void next_iteration_continue(
+      const vertex_t dst_vertex,
+      shared_ptr<vector<vertex_t> > batch_ptr,
+      shared_ptr< set<vertex_t> > affected_set_ptr,
+      shared_ptr< tbb::concurrent_unordered_set<vertex_t> > changed_set_ptr,
+      shared_ptr< tbb::concurrent_unordered_set<vertex_t> > new_changed_set_ptr);
+
+  void next_iteration_finish(
+      vertex_t dst,
+      shared_ptr< tbb::concurrent_unordered_set<vertex_t> > new_changed_ptr);
 
   void print_state(
       graph_t& graph,
@@ -86,6 +96,9 @@ public:
 
   boost::mutex m_;
   boost::condition_variable cv_;
+
+  boost::function<void()> continuation_;
+  boost::function<void()> end_;
 
 };
 

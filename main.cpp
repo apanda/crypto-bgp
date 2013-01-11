@@ -45,9 +45,25 @@ void run_master() {
   worker_threads.join_all();
 }
 
+std::chrono::high_resolution_clock::time_point t1;
+
+bool measure_time() {
+
+  typedef std::chrono::high_resolution_clock clock_t;
+
+  const auto t2 = clock_t::now();
+  const auto duration = duration_cast<milliseconds>(t2 - t1).count();
+
+  LOG4CXX_INFO(mainLogger, "The execution took " << duration << " ms.");
+
+  io.stop();
+
+  return true;
+}
 
 
 void run_mpc() {
+
 
   typedef std::chrono::high_resolution_clock clock_t;
 
@@ -115,25 +131,19 @@ void run_mpc() {
 
   LOG4CXX_INFO(mainLogger, "Master has raised the barrier.");
 
+
+  functor_t f2 = boost::bind(measure_time);
+
   for (auto& cp : comp_peer_seq) {
     if (COMP_PEER_IDS.find(cp->id_) == COMP_PEER_IDS.end()) continue;
     BGPProcess* bgp = cp->bgp_.get();
-    io.post(boost::phoenix::bind(&BGPProcess::start_callback, bgp, f));
+    io.post(boost::phoenix::bind(&BGPProcess::start_callback, bgp, f2));
   }
 
-  const auto t1 = clock_t::now();
+  t1 = clock_t::now();
 
-  b->wait();
 
-  const auto t2 = clock_t::now();
-  const auto duration = duration_cast<milliseconds>(t2 - t1).count();
-
-  comp_peer_seq[0]->bgp_->print_result();
-  std::cout << "The execution took " << duration << " ms." << std::endl;
-
-  io.stop();
-  worker_threads.join_all();
-
+  io.run();
 }
 
 
