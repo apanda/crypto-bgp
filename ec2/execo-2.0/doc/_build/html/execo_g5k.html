@@ -1,0 +1,1221 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>execo_g5k &mdash; execo v2.0</title>
+    
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '2.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="shortcut icon" href="_static/execo-icon.ico"/>
+    <link rel="top" title="execo v2.0" href="index.html" />
+    <link rel="next" title="execo_engine" href="execo_engine.html" />
+    <link rel="prev" title="execo" href="execo.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="execo_engine.html" title="execo_engine"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="execo.html" title="execo"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">execo v2.0</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="module-execo_g5k">
+<span id="execo-g5k"></span><h1><a class="reference internal" href="#module-execo_g5k" title="execo_g5k"><tt class="xref py py-mod docutils literal"><span class="pre">execo_g5k</span></tt></a><a class="headerlink" href="#module-execo_g5k" title="Permalink to this headline">¶</a></h1>
+<p>Execo extension and tools for Grid5000.</p>
+<p>To use execo_g5k, passwordless, public-key based authentification must
+be used (either with appropriate public / private specific g5k keys
+shared on all your home directories, or with an appropriate ssh-agent
+forwarding configuration).</p>
+<p>The code can be run from a frontend, from a computer outside of
+Grid5000 (for this you need an appropriate configuration, see section
+<a class="reference internal" href="#running-from-outside-grid5000">Running from outside Grid5000</a>) or from g5k nodes (in this case, you
+need to explicitely refer to the local Grid5000 site / frontend by
+name, and the node running the code needs to be able to connect to all
+involved frontends)</p>
+<div class="section" id="oar-functions">
+<h2>OAR functions<a class="headerlink" href="#oar-functions" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="oarsubmission">
+<h3>OarSubmission<a class="headerlink" href="#oarsubmission" title="Permalink to this headline">¶</a></h3>
+<dl class="class">
+<dt id="execo_g5k.oar.OarSubmission">
+<em class="property">class </em><tt class="descclassname">execo_g5k.oar.</tt><tt class="descname">OarSubmission</tt><big>(</big><em>resources=None</em>, <em>walltime=None</em>, <em>job_type=None</em>, <em>sql_properties=None</em>, <em>queue=None</em>, <em>reservation_date=None</em>, <em>directory=None</em>, <em>project=None</em>, <em>name=None</em>, <em>additional_options=None</em>, <em>command=None</em><big>)</big><a class="headerlink" href="#execo_g5k.oar.OarSubmission" title="Permalink to this definition">¶</a></dt>
+<dd><p>An oar submission.</p>
+<p>POD set_style class.</p>
+<p>members are:</p>
+<ul class="simple">
+<li>resources: Set the requested resources for the job. Oar option
+-l, without the walltime.</li>
+<li>walltime: Job walltime. Walltime part of oar -l option.</li>
+<li>job_type: Job type, oar option -t: deploy, besteffort, cosystem,
+checkpoint, timesharing, allow_classic_ssh.</li>
+<li>sql_properties: constraints to properties for the job, oar
+option -p (use single quotes for literal strings).</li>
+<li>queue: the queue to submit the job to. Oar option -q.</li>
+<li>reservation_date: Request that the job starts at a specified
+time. Oar option -r.</li>
+<li>directory: Specify the directory where to launch the command
+(default is current directory). Oar option -d.</li>
+<li>project: pecify a name of a project the job belongs to. Oar
+option &#8211;project.</li>
+<li>name: Specify an arbitrary name for the job. Oar option -n.</li>
+<li>additional_options: passed directly to oarsub on the command
+line.</li>
+<li>command: run by oarsub (default: sleep a long time).</li>
+</ul>
+</dd></dl>
+
+</div>
+<div class="section" id="oarsub">
+<h3>oarsub<a class="headerlink" href="#oarsub" title="Permalink to this headline">¶</a></h3>
+<dl class="function">
+<dt id="execo_g5k.oar.oarsub">
+<tt class="descclassname">execo_g5k.oar.</tt><tt class="descname">oarsub</tt><big>(</big><em>job_specs</em>, <em>frontend_connexion_params=None</em>, <em>timeout=False</em>, <em>abort_on_error=False</em><big>)</big><a class="headerlink" href="#execo_g5k.oar.oarsub" title="Permalink to this definition">¶</a></dt>
+<dd><p>Submit jobs.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>job_specs</strong> &#8211; iterable of tuples (execo_g5k.oar.OarSubmission,
+frontend) with None for default frontend</li>
+<li><strong>frontend_connexion_params</strong> &#8211; connexion params for connecting
+to frontends if needed. Values override those in
+<a class="reference internal" href="#execo_g5k.config.default_frontend_connexion_params" title="execo_g5k.config.default_frontend_connexion_params"><tt class="xref py py-obj docutils literal"><span class="pre">execo_g5k.config.default_frontend_connexion_params</span></tt></a>.</li>
+<li><strong>timeout</strong> &#8211; timeout for submitting. Default is False, which
+means use
+<tt class="docutils literal"><span class="pre">execo_g5k.config.g5k_configuration['default_timeout']</span></tt>. None
+means no timeout.</li>
+<li><strong>abort_on_error</strong> &#8211; default False. If True, raises an exception
+on any error. If False, will returned the list of job got, even
+if incomplete (some frontends may have failed to answer).</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<p>Returns a list of tuples (oarjob id, frontend), with frontend ==
+None for default frontend. If submission error, oarjob id ==
+None. The returned list matches, in the same order, the job_specs
+parameter.</p>
+</dd></dl>
+
+</div>
+<div class="section" id="oardel">
+<h3>oardel<a class="headerlink" href="#oardel" title="Permalink to this headline">¶</a></h3>
+<dl class="function">
+<dt id="execo_g5k.oar.oardel">
+<tt class="descclassname">execo_g5k.oar.</tt><tt class="descname">oardel</tt><big>(</big><em>job_specs</em>, <em>frontend_connexion_params=None</em>, <em>timeout=False</em><big>)</big><a class="headerlink" href="#execo_g5k.oar.oardel" title="Permalink to this definition">¶</a></dt>
+<dd><p>Delete oar jobs.</p>
+<p>Ignores any error, so you can delete inexistant jobs, already
+deleted jobs, or jobs that you don&#8217;t own. Those deletions will be
+ignored.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>job_specs</strong> &#8211; iterable of tuples (job_id, frontend) with None
+for default frontend</li>
+<li><strong>frontend_connexion_params</strong> &#8211; connexion params for connecting
+to frontends if needed. Values override those in
+<a class="reference internal" href="#execo_g5k.config.default_frontend_connexion_params" title="execo_g5k.config.default_frontend_connexion_params"><tt class="xref py py-obj docutils literal"><span class="pre">execo_g5k.config.default_frontend_connexion_params</span></tt></a>.</li>
+<li><strong>timeout</strong> &#8211; timeout for deleting. Default is False, which
+means use
+<tt class="docutils literal"><span class="pre">execo_g5k.config.g5k_configuration['default_timeout']</span></tt>. None
+means no timeout.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+<div class="section" id="get-current-oar-jobs">
+<h3>get_current_oar_jobs<a class="headerlink" href="#get-current-oar-jobs" title="Permalink to this headline">¶</a></h3>
+<dl class="function">
+<dt id="execo_g5k.oar.get_current_oar_jobs">
+<tt class="descclassname">execo_g5k.oar.</tt><tt class="descname">get_current_oar_jobs</tt><big>(</big><em>frontends=None</em>, <em>start_between=None</em>, <em>end_between=None</em>, <em>frontend_connexion_params=None</em>, <em>timeout=False</em>, <em>abort_on_error=False</em><big>)</big><a class="headerlink" href="#execo_g5k.oar.get_current_oar_jobs" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a list of current active oar job ids.</p>
+<p>The list contains tuples (oarjob id, frontend).</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>frontends</strong> &#8211; an iterable of frontends to connect to. A
+frontend with value None means default frontend. If frontends ==
+None, means get current oar jobs only for default frontend.</li>
+<li><strong>start_between</strong> &#8211; a tuple (low, high) of endpoints. Filters
+and returns only jobs whose start date is in between these
+endpoints.</li>
+<li><strong>end_between</strong> &#8211; a tuple (low, high) of endpoints. Filters and
+returns only jobs whose end date is in between these endpoints.</li>
+<li><strong>frontend_connexion_params</strong> &#8211; connexion params for connecting
+to frontends if needed. Values override those in
+<a class="reference internal" href="#execo_g5k.config.default_frontend_connexion_params" title="execo_g5k.config.default_frontend_connexion_params"><tt class="xref py py-obj docutils literal"><span class="pre">execo_g5k.config.default_frontend_connexion_params</span></tt></a>.</li>
+<li><strong>timeout</strong> &#8211; timeout for retrieving. Default is False, which
+means use
+<tt class="docutils literal"><span class="pre">execo_g5k.config.g5k_configuration['default_timeout']</span></tt>. None
+means no timeout.</li>
+<li><strong>abort_on_error</strong> &#8211; default False. If True, raises an exception
+on any error. If False, will returned the list of job got, even
+if incomplete (some frontends may have failed to answer).</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+<div class="section" id="get-oar-job-info">
+<h3>get_oar_job_info<a class="headerlink" href="#get-oar-job-info" title="Permalink to this headline">¶</a></h3>
+<dl class="function">
+<dt id="execo_g5k.oar.get_oar_job_info">
+<tt class="descclassname">execo_g5k.oar.</tt><tt class="descname">get_oar_job_info</tt><big>(</big><em>oar_job_id=None</em>, <em>frontend=None</em>, <em>frontend_connexion_params=None</em>, <em>timeout=False</em>, <em>log_exit_code=True</em>, <em>log_timeout=True</em>, <em>log_error=True</em><big>)</big><a class="headerlink" href="#execo_g5k.oar.get_oar_job_info" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a dict with informations about an oar job.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>oar_job_id</strong> &#8211; the oar job id. If None given, will try to get
+it from <tt class="docutils literal"><span class="pre">OAR_JOB_ID</span></tt> environment variable.</li>
+<li><strong>frontend</strong> &#8211; the frontend of the oar job. If None given, use
+default frontend</li>
+<li><strong>frontend_connexion_params</strong> &#8211; connexion params for connecting
+to frontends if needed. Values override those in
+<a class="reference internal" href="#execo_g5k.config.default_frontend_connexion_params" title="execo_g5k.config.default_frontend_connexion_params"><tt class="xref py py-obj docutils literal"><span class="pre">execo_g5k.config.default_frontend_connexion_params</span></tt></a>.</li>
+<li><strong>timeout</strong> &#8211; timeout for retrieving. Default is False, which
+means use
+<tt class="docutils literal"><span class="pre">execo_g5k.config.g5k_configuration['default_timeout']</span></tt>. None
+means no timeout.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<p>Hash returned may contain these keys:</p>
+<ul class="simple">
+<li><tt class="docutils literal"><span class="pre">start_date</span></tt>: unix timestamp of job&#8217;s start date</li>
+<li><tt class="docutils literal"><span class="pre">walltime</span></tt>: job&#8217;s walltime (seconds)</li>
+<li><tt class="docutils literal"><span class="pre">scheduled_start</span></tt>: unix timestamp of job&#8217;s start prediction
+(may change between invocations)</li>
+<li><tt class="docutils literal"><span class="pre">state</span></tt>: job state</li>
+</ul>
+<p>But no info may be available as long as the job is not scheduled.</p>
+</dd></dl>
+
+</div>
+<div class="section" id="wait-oar-job-start">
+<h3>wait_oar_job_start<a class="headerlink" href="#wait-oar-job-start" title="Permalink to this headline">¶</a></h3>
+<dl class="function">
+<dt id="execo_g5k.oar.wait_oar_job_start">
+<tt class="descclassname">execo_g5k.oar.</tt><tt class="descname">wait_oar_job_start</tt><big>(</big><em>oar_job_id=None</em>, <em>frontend=None</em>, <em>frontend_connexion_params=None</em>, <em>timeout=None</em>, <em>prediction_callback=None</em><big>)</big><a class="headerlink" href="#execo_g5k.oar.wait_oar_job_start" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sleep until an oar job&#8217;s start time.</p>
+<p>As long as the job isn&#8217;t scheduled, wait_oar_job_start will sleep
+/ poll every
+<tt class="docutils literal"><span class="pre">execo_g5k.config.g5k_configuration['polling_interval']</span></tt> seconds
+until it is scheduled. Then, knowing its start date, it will sleep
+the amount of time necessary to wait for the job start.</p>
+<p>returns True if wait was successful, False otherwise (job
+cancelled, error)</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>oar_job_id</strong> &#8211; the oar job id. If None given, will try to get
+it from <tt class="docutils literal"><span class="pre">OAR_JOB_ID</span></tt> environment variable.</li>
+<li><strong>frontend</strong> &#8211; the frontend of the oar job. If None given, use
+default frontend.</li>
+<li><strong>frontend_connexion_params</strong> &#8211; connexion params for connecting
+to frontends if needed. Values override those in
+<a class="reference internal" href="#execo_g5k.config.default_frontend_connexion_params" title="execo_g5k.config.default_frontend_connexion_params"><tt class="xref py py-obj docutils literal"><span class="pre">execo_g5k.config.default_frontend_connexion_params</span></tt></a>.</li>
+<li><strong>timeout</strong> &#8211; timeout for retrieving. Default is None (no
+timeout).</li>
+<li><strong>prediction_callback</strong> &#8211; function taking a unix timestamp as
+parameter. This function will be called each time oar job start
+prediction changes.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+<div class="section" id="get-oar-job-nodes">
+<h3>get_oar_job_nodes<a class="headerlink" href="#get-oar-job-nodes" title="Permalink to this headline">¶</a></h3>
+<dl class="function">
+<dt id="execo_g5k.oar.get_oar_job_nodes">
+<tt class="descclassname">execo_g5k.oar.</tt><tt class="descname">get_oar_job_nodes</tt><big>(</big><em>oar_job_id=None</em>, <em>frontend=None</em>, <em>frontend_connexion_params=None</em>, <em>timeout=False</em><big>)</big><a class="headerlink" href="#execo_g5k.oar.get_oar_job_nodes" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return an iterable of <a class="reference internal" href="execo.html#execo.host.Host" title="execo.host.Host"><tt class="xref py py-obj docutils literal"><span class="pre">execo.host.Host</span></tt></a> containing the hosts of an oar job.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>oar_job_id</strong> &#8211; the oar job id. If None given, will try to get
+it from <tt class="docutils literal"><span class="pre">OAR_JOB_ID</span></tt> environment variable.</li>
+<li><strong>frontend</strong> &#8211; the frontend of the oar job. If None given, use
+default frontend.</li>
+<li><strong>frontend_connexion_params</strong> &#8211; connexion params for connecting
+to frontends if needed. Values override those in
+<a class="reference internal" href="#execo_g5k.config.default_frontend_connexion_params" title="execo_g5k.config.default_frontend_connexion_params"><tt class="xref py py-obj docutils literal"><span class="pre">execo_g5k.config.default_frontend_connexion_params</span></tt></a>.</li>
+<li><strong>timeout</strong> &#8211; timeout for retrieving. Default is False, which
+means use
+<tt class="docutils literal"><span class="pre">execo_g5k.config.g5k_configuration['default_timeout']</span></tt>. None
+means no timeout.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+<div class="section" id="get-oar-job-subnets">
+<h3>get_oar_job_subnets<a class="headerlink" href="#get-oar-job-subnets" title="Permalink to this headline">¶</a></h3>
+<dl class="function">
+<dt id="execo_g5k.oar.get_oar_job_subnets">
+<tt class="descclassname">execo_g5k.oar.</tt><tt class="descname">get_oar_job_subnets</tt><big>(</big><em>oar_job_id=None</em>, <em>frontend=None</em>, <em>frontend_connexion_params=None</em>, <em>timeout=False</em><big>)</big><a class="headerlink" href="#execo_g5k.oar.get_oar_job_subnets" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a tuple containing an iterable of IP addresses and a dict containing the subnet parameters that OAR assigned to your reservation, with keys &#8216;netmask&#8217;, &#8216;broadcast&#8217;, &#8216;gateway&#8217;.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>oar_job_id</strong> &#8211; the oar job id. If None given, will try to get
+it from <tt class="docutils literal"><span class="pre">OAR_JOB_ID</span></tt> environment variable.</li>
+<li><strong>frontend</strong> &#8211; the frontend of the oar job. If None given, use
+default frontend.</li>
+<li><strong>frontend_connexion_params</strong> &#8211; connexion params for connecting
+to frontends if needed. Values override those in
+<a class="reference internal" href="#execo_g5k.config.default_frontend_connexion_params" title="execo_g5k.config.default_frontend_connexion_params"><tt class="xref py py-obj docutils literal"><span class="pre">execo_g5k.config.default_frontend_connexion_params</span></tt></a>.</li>
+<li><strong>timeout</strong> &#8211; timeout for retrieving. Default is False, which
+means use
+<tt class="docutils literal"><span class="pre">execo_g5k.config.g5k_configuration['default_timeout']</span></tt>. None
+means no timeout.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+</div>
+<div class="section" id="oargrid-functions">
+<h2>OARGRID functions<a class="headerlink" href="#oargrid-functions" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="oargridsub">
+<h3>oargridsub<a class="headerlink" href="#oargridsub" title="Permalink to this headline">¶</a></h3>
+<dl class="function">
+<dt id="execo_g5k.oargrid.oargridsub">
+<tt class="descclassname">execo_g5k.oargrid.</tt><tt class="descname">oargridsub</tt><big>(</big><em>job_specs</em>, <em>reservation_date=None</em>, <em>walltime=None</em>, <em>job_type=None</em>, <em>queue=None</em>, <em>directory=None</em>, <em>additional_options=None</em>, <em>frontend_connexion_params=None</em>, <em>timeout=False</em><big>)</big><a class="headerlink" href="#execo_g5k.oargrid.oargridsub" title="Permalink to this definition">¶</a></dt>
+<dd><p>Submit oargrid jobs.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>job_specs</strong> &#8211; iterable of tuples (OarSubmission,
+clusteralias). Reservation date, walltime, queue, directory,
+project, additional_options, command of the OarSubmission are
+ignored.</li>
+<li><strong>reservation_date</strong> &#8211; grid job reservation date. Default: now.</li>
+<li><strong>walltime</strong> &#8211; grid job walltime.</li>
+<li><strong>job_type</strong> &#8211; type of job for all clusters: deploy, besteffort,
+cosystem, checkpoint, timesharing.</li>
+<li><strong>queue</strong> &#8211; oar queue to use.</li>
+<li><strong>directory</strong> &#8211; directory where the reservation will be
+launched.</li>
+<li><strong>additional_options</strong> &#8211; passed directly to oargridsub on the
+command line.</li>
+<li><strong>frontend_connexion_params</strong> &#8211; connexion params for connecting
+to frontends if needed. Values override those in
+<a class="reference internal" href="#execo_g5k.config.default_frontend_connexion_params" title="execo_g5k.config.default_frontend_connexion_params"><tt class="xref py py-obj docutils literal"><span class="pre">execo_g5k.config.default_frontend_connexion_params</span></tt></a>.</li>
+<li><strong>timeout</strong> &#8211; timeout for retrieving. Default is False, which
+means use
+<tt class="docutils literal"><span class="pre">execo_g5k.config.g5k_configuration['default_timeout']</span></tt>. None
+means no timeout.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<p>Returns a tuple (oargrid_job_id, ssh_key), or (None, None) if
+error.</p>
+</dd></dl>
+
+</div>
+<div class="section" id="oargriddel">
+<h3>oargriddel<a class="headerlink" href="#oargriddel" title="Permalink to this headline">¶</a></h3>
+<dl class="function">
+<dt id="execo_g5k.oargrid.oargriddel">
+<tt class="descclassname">execo_g5k.oargrid.</tt><tt class="descname">oargriddel</tt><big>(</big><em>job_ids</em>, <em>frontend_connexion_params=None</em>, <em>timeout=False</em><big>)</big><a class="headerlink" href="#execo_g5k.oargrid.oargriddel" title="Permalink to this definition">¶</a></dt>
+<dd><p>Delete oargrid jobs.</p>
+<p>Ignores any error, so you can delete inexistant jobs, already
+deleted jobs, or jobs that you don&#8217;t own. Those deletions will be
+ignored.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>job_ids</strong> &#8211; iterable of oar grid job ids.</li>
+<li><strong>frontend_connexion_params</strong> &#8211; connexion params for connecting
+to frontends if needed. Values override those in
+<a class="reference internal" href="#execo_g5k.config.default_frontend_connexion_params" title="execo_g5k.config.default_frontend_connexion_params"><tt class="xref py py-obj docutils literal"><span class="pre">execo_g5k.config.default_frontend_connexion_params</span></tt></a>.</li>
+<li><strong>timeout</strong> &#8211; timeout for retrieving. Default is False, which
+means use <tt class="docutils literal"><span class="pre">g5k_configuration['default_timeout']</span></tt>. None means no
+timeout.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+<div class="section" id="get-current-oargrid-jobs">
+<h3>get_current_oargrid_jobs<a class="headerlink" href="#get-current-oargrid-jobs" title="Permalink to this headline">¶</a></h3>
+<dl class="function">
+<dt id="execo_g5k.oargrid.get_current_oargrid_jobs">
+<tt class="descclassname">execo_g5k.oargrid.</tt><tt class="descname">get_current_oargrid_jobs</tt><big>(</big><em>start_between=None</em>, <em>end_between=None</em>, <em>frontend_connexion_params=None</em>, <em>timeout=False</em><big>)</big><a class="headerlink" href="#execo_g5k.oargrid.get_current_oargrid_jobs" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a list of current active oargrid job ids.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>start_between</strong> &#8211; a tuple (low, high) of endpoints. Filters
+and returns only jobs whose start date is in between these
+endpoints.</li>
+<li><strong>end_between</strong> &#8211; a tuple (low, high) of endpoints. Filters and
+returns only jobs whose end date is in between these endpoints.</li>
+<li><strong>frontend_connexion_params</strong> &#8211; connexion params for connecting
+to frontends if needed. Values override those in
+<a class="reference internal" href="#execo_g5k.config.default_frontend_connexion_params" title="execo_g5k.config.default_frontend_connexion_params"><tt class="xref py py-obj docutils literal"><span class="pre">execo_g5k.config.default_frontend_connexion_params</span></tt></a>.</li>
+<li><strong>timeout</strong> &#8211; timeout for retrieving. Default is False, which
+means use
+<tt class="docutils literal"><span class="pre">execo_g5k.config.g5k_configuration['default_timeout']</span></tt>. None
+means no timeout.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+<div class="section" id="get-oargrid-job-info">
+<h3>get_oargrid_job_info<a class="headerlink" href="#get-oargrid-job-info" title="Permalink to this headline">¶</a></h3>
+<dl class="function">
+<dt id="execo_g5k.oargrid.get_oargrid_job_info">
+<tt class="descclassname">execo_g5k.oargrid.</tt><tt class="descname">get_oargrid_job_info</tt><big>(</big><em>oargrid_job_id=None</em>, <em>frontend_connexion_params=None</em>, <em>timeout=False</em><big>)</big><a class="headerlink" href="#execo_g5k.oargrid.get_oargrid_job_info" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a dict with informations about an oargrid job.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>oargrid_job_id</strong> &#8211; the oargrid job id.</li>
+<li><strong>frontend_connexion_params</strong> &#8211; connexion params for connecting
+to frontends if needed. Values override those in
+<a class="reference internal" href="#execo_g5k.config.default_frontend_connexion_params" title="execo_g5k.config.default_frontend_connexion_params"><tt class="xref py py-obj docutils literal"><span class="pre">execo_g5k.config.default_frontend_connexion_params</span></tt></a>.</li>
+<li><strong>timeout</strong> &#8211; timeout for retrieving. Default is False, which
+means use
+<tt class="docutils literal"><span class="pre">execo_g5k.config.g5k_configuration['default_timeout']</span></tt>. None
+means no timeout.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<p>Hash returned contains these keys:</p>
+<ul class="simple">
+<li><tt class="docutils literal"><span class="pre">start_date</span></tt>: unix timestamp of job&#8217;s start date</li>
+<li><tt class="docutils literal"><span class="pre">walltime</span></tt>: job&#8217;s walltime in seconds</li>
+</ul>
+</dd></dl>
+
+</div>
+<div class="section" id="get-oargrid-job-oar-jobs">
+<h3>get_oargrid_job_oar_jobs<a class="headerlink" href="#get-oargrid-job-oar-jobs" title="Permalink to this headline">¶</a></h3>
+<dl class="function">
+<dt id="execo_g5k.oargrid.get_oargrid_job_oar_jobs">
+<tt class="descclassname">execo_g5k.oargrid.</tt><tt class="descname">get_oargrid_job_oar_jobs</tt><big>(</big><em>oargrid_job_id=None</em>, <em>frontend_connexion_params=None</em>, <em>timeout=False</em><big>)</big><a class="headerlink" href="#execo_g5k.oargrid.get_oargrid_job_oar_jobs" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a list of tuples (oar job id, site), the list of individual oar jobs which make an oargrid job.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>oargrid_job_id</strong> &#8211; the oargrid job id.</li>
+<li><strong>frontend_connexion_params</strong> &#8211; connexion params for connecting
+to frontends if needed. Values override those in
+<a class="reference internal" href="#execo_g5k.config.default_frontend_connexion_params" title="execo_g5k.config.default_frontend_connexion_params"><tt class="xref py py-obj docutils literal"><span class="pre">execo_g5k.config.default_frontend_connexion_params</span></tt></a>.</li>
+<li><strong>timeout</strong> &#8211; timeout for retrieving. Default is False, which
+means use
+<tt class="docutils literal"><span class="pre">execo_g5k.config.g5k_configuration['default_timeout']</span></tt>. None
+means no timeout.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+<div class="section" id="wait-oargrid-job-start">
+<h3>wait_oargrid_job_start<a class="headerlink" href="#wait-oargrid-job-start" title="Permalink to this headline">¶</a></h3>
+<dl class="function">
+<dt id="execo_g5k.oargrid.wait_oargrid_job_start">
+<tt class="descclassname">execo_g5k.oargrid.</tt><tt class="descname">wait_oargrid_job_start</tt><big>(</big><em>oargrid_job_id=None</em>, <em>frontend_connexion_params=None</em>, <em>timeout=False</em><big>)</big><a class="headerlink" href="#execo_g5k.oargrid.wait_oargrid_job_start" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sleep until an oargrid job&#8217;s start time.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>oargrid_job_id</strong> &#8211; the oargrid job id.</li>
+<li><strong>frontend_connexion_params</strong> &#8211; connexion params for connecting
+to frontends if needed. Values override those in
+<a class="reference internal" href="#execo_g5k.config.default_frontend_connexion_params" title="execo_g5k.config.default_frontend_connexion_params"><tt class="xref py py-obj docutils literal"><span class="pre">execo_g5k.config.default_frontend_connexion_params</span></tt></a>.</li>
+<li><strong>timeout</strong> &#8211; timeout for retrieving. Default is False, which
+means use
+<tt class="docutils literal"><span class="pre">execo_g5k.config.g5k_configuration['default_timeout']</span></tt>. None
+means no timeout.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+<div class="section" id="get-oargrid-job-nodes">
+<h3>get_oargrid_job_nodes<a class="headerlink" href="#get-oargrid-job-nodes" title="Permalink to this headline">¶</a></h3>
+<dl class="function">
+<dt id="execo_g5k.oargrid.get_oargrid_job_nodes">
+<tt class="descclassname">execo_g5k.oargrid.</tt><tt class="descname">get_oargrid_job_nodes</tt><big>(</big><em>oargrid_job_id</em>, <em>frontend_connexion_params=None</em>, <em>timeout=False</em><big>)</big><a class="headerlink" href="#execo_g5k.oargrid.get_oargrid_job_nodes" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return an iterable of <a class="reference internal" href="execo.html#execo.host.Host" title="execo.host.Host"><tt class="xref py py-obj docutils literal"><span class="pre">execo.host.Host</span></tt></a> containing the hosts of an oargrid job.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>oargrid_job_id</strong> &#8211; the oargrid job id.</li>
+<li><strong>frontend_connexion_params</strong> &#8211; connexion params for connecting
+to frontends if needed. Values override those in
+<a class="reference internal" href="#execo_g5k.config.default_frontend_connexion_params" title="execo_g5k.config.default_frontend_connexion_params"><tt class="xref py py-obj docutils literal"><span class="pre">execo_g5k.config.default_frontend_connexion_params</span></tt></a>.</li>
+<li><strong>timeout</strong> &#8211; timeout for retrieving. Default is False, which
+means use
+<tt class="docutils literal"><span class="pre">execo_g5k.config.g5k_configuration['default_timeout']</span></tt>. None
+means no timeout.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+</div>
+<div class="section" id="kadeploy3">
+<h2>kadeploy3<a class="headerlink" href="#kadeploy3" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="deployment">
+<h3>Deployment<a class="headerlink" href="#deployment" title="Permalink to this headline">¶</a></h3>
+<dl class="class">
+<dt id="execo_g5k.kadeploy.Deployment">
+<em class="property">class </em><tt class="descclassname">execo_g5k.kadeploy.</tt><tt class="descname">Deployment</tt><big>(</big><em>hosts=None</em>, <em>env_file=None</em>, <em>env_name=None</em>, <em>user=None</em>, <em>other_options=None</em><big>)</big><a class="headerlink" href="#execo_g5k.kadeploy.Deployment" title="Permalink to this definition">¶</a></dt>
+<dd><p>A kadeploy3 deployment.</p>
+<p>POD set_style class.</p>
+<p>members are:</p>
+<ul class="simple">
+<li>hosts: iterable of <a class="reference internal" href="execo.html#execo.host.Host" title="execo.host.Host"><tt class="xref py py-obj docutils literal"><span class="pre">execo.host.Host</span></tt></a> on which to deploy.</li>
+<li>env_file:</li>
+<li>env_name:</li>
+<li>user:</li>
+<li>other_options:</li>
+</ul>
+<p>there must be either one of env_name or env_file parameter
+given. If none given, will try to use the default environement
+from <tt class="xref py py-obj docutils literal"><span class="pre">g5k_configuration</span></tt>.</p>
+</dd></dl>
+
+</div>
+<div class="section" id="kadeployer">
+<h3>Kadeployer<a class="headerlink" href="#kadeployer" title="Permalink to this headline">¶</a></h3>
+<p class="graphviz">
+<img src="_images/inheritance-d3a8ec13e90f06f85ffa7948284f8ae178c3ed8f.png" alt="Inheritance diagram of execo_g5k.kadeploy.Kadeployer" usemap="#inheritance436653fabc" class="inheritance"/>
+<map id="inheritance436653fabc" name="inheritance436653fabc">
+<area shape="rect" id="node1" href="execo.html#execo.action.Remote" title="execo.action.Remote" alt="" coords="200,5,357,32"/>
+<area shape="rect" id="node4" href="#execo_g5k.kadeploy.Kadeployer" title="execo_g5k.kadeploy.Kadeployer" alt="" coords="407,5,631,32"/>
+<area shape="rect" id="node2" href="execo.html#execo.action.Action" title="execo.action.Action" alt="" coords="5,5,152,32"/>
+</map>
+</p>
+<dl class="class">
+<dt id="execo_g5k.kadeploy.Kadeployer">
+<em class="property">class </em><tt class="descclassname">execo_g5k.kadeploy.</tt><tt class="descname">Kadeployer</tt><big>(</big><em>deployment</em>, <em>frontend_connexion_params=None</em>, <em>out=False</em>, <em>name=None</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#execo_g5k.kadeploy.Kadeployer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="execo.html#execo.action.Remote" title="execo.action.Remote"><tt class="xref py py-class docutils literal"><span class="pre">execo.action.Remote</span></tt></a></p>
+<p>Deploy an environment with kadeploy3 on several hosts.</p>
+<p>Able to deploy in parallel to multiple frontends.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>deployment</strong> &#8211; instance of Deployment class describing the
+intended kadeployment.</li>
+<li><strong>frontend_connexion_params</strong> &#8211; connexion params for
+connecting to frontends if needed. Values override those in
+<a class="reference internal" href="#execo_g5k.config.default_frontend_connexion_params" title="execo_g5k.config.default_frontend_connexion_params"><tt class="xref py py-obj docutils literal"><span class="pre">execo_g5k.config.default_frontend_connexion_params</span></tt></a>.</li>
+<li><strong>out</strong> &#8211; if True, output kadeploy stdout / stderr to
+stdout.</li>
+<li><strong>name</strong> &#8211; action&#8217;s name</li>
+<li><strong>kwargs</strong> &#8211; passed to the instanciated processes.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="execo_g5k.kadeploy.Kadeployer.get_deployed_hosts">
+<tt class="descname">get_deployed_hosts</tt><big>(</big><big>)</big><a class="headerlink" href="#execo_g5k.kadeploy.Kadeployer.get_deployed_hosts" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return an iterable of <tt class="xref py py-obj docutils literal"><span class="pre">Host</span></tt> containing the deployed hosts.</p>
+<p>this iterable won&#8217;t be complete if
+<a class="reference internal" href="#execo_g5k.kadeploy.Kadeployer" title="execo_g5k.kadeploy.Kadeployer"><tt class="xref py py-obj docutils literal"><span class="pre">execo_g5k.kadeploy.Kadeployer</span></tt></a> has not terminated.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="execo_g5k.kadeploy.Kadeployer.get_error_hosts">
+<tt class="descname">get_error_hosts</tt><big>(</big><big>)</big><a class="headerlink" href="#execo_g5k.kadeploy.Kadeployer.get_error_hosts" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return an iterable of <tt class="xref py py-obj docutils literal"><span class="pre">Host</span></tt> containing the hosts not deployed.</p>
+<p>this iterable won&#8217;t be complete if
+<a class="reference internal" href="#execo_g5k.kadeploy.Kadeployer" title="execo_g5k.kadeploy.Kadeployer"><tt class="xref py py-obj docutils literal"><span class="pre">execo_g5k.kadeploy.Kadeployer</span></tt></a> has not terminated.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="kadeploy">
+<h3>kadeploy<a class="headerlink" href="#kadeploy" title="Permalink to this headline">¶</a></h3>
+<dl class="function">
+<dt id="execo_g5k.kadeploy.kadeploy">
+<tt class="descclassname">execo_g5k.kadeploy.</tt><tt class="descname">kadeploy</tt><big>(</big><em>deployment</em>, <em>out=False</em>, <em>frontend_connexion_params=None</em>, <em>timeout=None</em><big>)</big><a class="headerlink" href="#execo_g5k.kadeploy.kadeploy" title="Permalink to this definition">¶</a></dt>
+<dd><p>Deploy hosts with kadeploy3.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>deployment</strong> &#8211; instance of Deployment class describing the
+intended kadeployment.</li>
+<li><strong>out</strong> &#8211; if True, output kadeploy stdout / stderr to stdout.</li>
+<li><strong>frontend_connexion_params</strong> &#8211; connexion params for connecting
+to frontends if needed. Values override those in
+<a class="reference internal" href="#execo_g5k.config.default_frontend_connexion_params" title="execo_g5k.config.default_frontend_connexion_params"><tt class="xref py py-obj docutils literal"><span class="pre">execo_g5k.config.default_frontend_connexion_params</span></tt></a>.</li>
+<li><strong>timeout</strong> &#8211; deployment timeout. None (which is the default
+value) means no timeout.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<p>Returns a tuple (iterable of <a class="reference internal" href="execo.html#execo.host.Host" title="execo.host.Host"><tt class="xref py py-obj docutils literal"><span class="pre">execo.host.Host</span></tt></a> containing the
+deployed host, iterable of <a class="reference internal" href="execo.html#execo.host.Host" title="execo.host.Host"><tt class="xref py py-obj docutils literal"><span class="pre">execo.host.Host</span></tt></a> containing the nodes
+not deployed).</p>
+</dd></dl>
+
+</div>
+<div class="section" id="deploy">
+<h3>deploy<a class="headerlink" href="#deploy" title="Permalink to this headline">¶</a></h3>
+<dl class="function">
+<dt id="execo_g5k.kadeploy.deploy">
+<tt class="descclassname">execo_g5k.kadeploy.</tt><tt class="descname">deploy</tt><big>(</big><em>deployment</em>, <em>check_deployed_command=True</em>, <em>node_connexion_params=None</em>, <em>num_tries=2</em>, <em>check_enough_func=None</em>, <em>out=False</em>, <em>frontend_connexion_params=None</em>, <em>deploy_timeout=None</em>, <em>check_timeout=30</em>, <em>timeout=False</em><big>)</big><a class="headerlink" href="#execo_g5k.kadeploy.deploy" title="Permalink to this definition">¶</a></dt>
+<dd><p>Deploy nodes, many times if needed, checking which of these nodes are already deployed with a user-supplied command. If no command given for checking if nodes deployed, rely on kadeploy to know which nodes are deployed.</p>
+<ul class="simple">
+<li>loop <tt class="xref py py-obj docutils literal"><span class="pre">num_tries</span></tt> times:<ul>
+<li>if <tt class="docutils literal"><span class="pre">check_deployed_command</span></tt> given, try to connect to these
+hosts using the supplied <tt class="xref py py-obj docutils literal"><span class="pre">node_connexion_params</span></tt> (or the
+default ones), and to execute <tt class="docutils literal"><span class="pre">check_deployed_command</span></tt>. If
+connexion succeeds and the command returns 0, the host is
+assumed to be deployed, else it is assumed to be undeployed.</li>
+<li>optionnaly call user-supplied <tt class="docutils literal"><span class="pre">check_enough_func</span></tt>, passing
+to it the list of deployed and undeployed hosts, to let user
+code decide if enough nodes deployed. Otherwise, try as long
+as there are undeployed nodes.</li>
+<li>deploy the undeployed nodes</li>
+</ul>
+</li>
+</ul>
+<p>returns a tuple with the list of deployed hosts and the list of
+undeployed hosts.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>deployment</strong> &#8211; instance of <tt class="xref py py-obj docutils literal"><span class="pre">execo.kadeploy.Deployment</span></tt> class
+describing the intended kadeployment.</li>
+<li><strong>check_deployed_command</strong> &#8211; command to perform remotely to
+check node deployement. May be a String, True, False or None. If
+String: the actual command to be used (This command should
+return 0 if the node is correctly deployed, or another value
+otherwise). If True, the default command value will be used
+(from <a class="reference internal" href="#execo_g5k.config.g5k_configuration" title="execo_g5k.config.g5k_configuration"><tt class="xref py py-obj docutils literal"><span class="pre">execo_g5k.config.g5k_configuration</span></tt></a>). If None or False,
+no check is made and deployed/undeployed status will be taken
+from kadeploy&#8217;s output.</li>
+<li><strong>node_connexion_params</strong> &#8211; a dict similar to
+<a class="reference internal" href="execo.html#execo.config.default_connexion_params" title="execo.config.default_connexion_params"><tt class="xref py py-obj docutils literal"><span class="pre">execo.config.default_connexion_params</span></tt></a> whose values will
+override those in <a class="reference internal" href="execo.html#execo.config.default_connexion_params" title="execo.config.default_connexion_params"><tt class="xref py py-obj docutils literal"><span class="pre">execo.config.default_connexion_params</span></tt></a> when
+connecting to check node deployment with
+<tt class="docutils literal"><span class="pre">check_deployed_command</span></tt> (see below).</li>
+<li><strong>num_tries</strong> &#8211; number of deploy tries</li>
+<li><strong>check_enough_func</strong> &#8211; a function taking as parameter a list of
+deployed hosts and a list of undeployed hosts, which will be
+called at each deployment iteration end, and that should return
+a boolean indicating if there is already enough nodes (in this
+case, no further deployement will be attempted).</li>
+<li><strong>out</strong> &#8211; if True, output kadeploy stdout / stderr to stdout.</li>
+<li><strong>frontend_connexion_params</strong> &#8211; connexion params for connecting
+to frontends if needed. Values override those in
+<a class="reference internal" href="#execo_g5k.config.default_frontend_connexion_params" title="execo_g5k.config.default_frontend_connexion_params"><tt class="xref py py-obj docutils literal"><span class="pre">execo_g5k.config.default_frontend_connexion_params</span></tt></a>.</li>
+<li><strong>deploy_timeout</strong> &#8211; timeout for deployement. Default is None,
+which means no timeout.</li>
+<li><strong>check_timeout</strong> &#8211; timeout for node deployment checks. Default
+is 30 seconds.</li>
+<li><strong>timeout</strong> &#8211; timeout for g5k operations, except deployment.
+Default is False, which means use
+<tt class="docutils literal"><span class="pre">execo_g5k.config.g5k_configuration['default_timeout']</span></tt>. None
+means no timeout.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+</div>
+<div class="section" id="utilities">
+<h2>Utilities<a class="headerlink" href="#utilities" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="format-oar-date">
+<h3>format_oar_date<a class="headerlink" href="#format-oar-date" title="Permalink to this headline">¶</a></h3>
+<dl class="function">
+<dt id="execo_g5k.oar.format_oar_date">
+<tt class="descclassname">execo_g5k.oar.</tt><tt class="descname">format_oar_date</tt><big>(</big><em>date</em><big>)</big><a class="headerlink" href="#execo_g5k.oar.format_oar_date" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a string with the formatted date (year, month, day, hour, min, sec, ms) formatted for oar/oargrid.</p>
+<p>timezone is discarded since oar doesn&#8217;t know about them.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>date</strong> &#8211; a date in one of the formats handled.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+<div class="section" id="format-oar-duration">
+<h3>format_oar_duration<a class="headerlink" href="#format-oar-duration" title="Permalink to this headline">¶</a></h3>
+<dl class="function">
+<dt id="execo_g5k.oar.format_oar_duration">
+<tt class="descclassname">execo_g5k.oar.</tt><tt class="descname">format_oar_duration</tt><big>(</big><em>duration</em><big>)</big><a class="headerlink" href="#execo_g5k.oar.format_oar_duration" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a string with a formatted duration (hours, mins, secs, ms) formatted for oar/oargrid.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>duration</strong> &#8211; a duration in one of the formats handled.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+<div class="section" id="oar-date-to-unixts">
+<h3>oar_date_to_unixts<a class="headerlink" href="#oar-date-to-unixts" title="Permalink to this headline">¶</a></h3>
+<dl class="function">
+<dt id="execo_g5k.oar.oar_date_to_unixts">
+<tt class="descclassname">execo_g5k.oar.</tt><tt class="descname">oar_date_to_unixts</tt><big>(</big><em>date</em><big>)</big><a class="headerlink" href="#execo_g5k.oar.oar_date_to_unixts" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convert a date in the format returned by oar/oargrid to an unix timestamp.</p>
+</dd></dl>
+
+</div>
+<div class="section" id="oar-duration-to-seconds">
+<h3>oar_duration_to_seconds<a class="headerlink" href="#oar-duration-to-seconds" title="Permalink to this headline">¶</a></h3>
+<dl class="function">
+<dt id="execo_g5k.oar.oar_duration_to_seconds">
+<tt class="descclassname">execo_g5k.oar.</tt><tt class="descname">oar_duration_to_seconds</tt><big>(</big><em>duration</em><big>)</big><a class="headerlink" href="#execo_g5k.oar.oar_duration_to_seconds" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convert a duration in the format returned by oar/oargrid to a number of seconds.</p>
+</dd></dl>
+
+</div>
+</div>
+<div class="section" id="module-execo_g5k.api_utils">
+<span id="grid5000-api-utilities"></span><h2>Grid5000 API utilities<a class="headerlink" href="#module-execo_g5k.api_utils" title="Permalink to this headline">¶</a></h2>
+<p>Functions for wrapping the grid5000 REST API. The functions which
+query the reference api cache their results for the life of the
+module.</p>
+<p>All queries to the Grid5000 REST API are done with or without
+credentials, depending on key <tt class="docutils literal"><span class="pre">api_username</span></tt> of
+<a class="reference internal" href="#execo_g5k.config.g5k_configuration" title="execo_g5k.config.g5k_configuration"><tt class="xref py py-obj docutils literal"><span class="pre">execo_g5k.config.g5k_configuration</span></tt></a>. If credentials are used, the
+password is interactively asked and if the keyring module is
+available, the password will then be stored in the keyring through
+this module and will not be asked in subsequent executions. (the
+keyring python module allows to access the system keyring services
+like gnome-keyring or kwallet. If a password needs to be changed, do
+it from the keyring GUI).</p>
+<p>This module is currently not thread-safe.</p>
+<div class="section" id="get-g5k-sites">
+<h3>get_g5k_sites<a class="headerlink" href="#get-g5k-sites" title="Permalink to this headline">¶</a></h3>
+<dl class="function">
+<dt id="execo_g5k.api_utils.get_g5k_sites">
+<tt class="descclassname">execo_g5k.api_utils.</tt><tt class="descname">get_g5k_sites</tt><big>(</big><big>)</big><a class="headerlink" href="#execo_g5k.api_utils.get_g5k_sites" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the list of Grid5000 sites. Returns an iterable.</p>
+</dd></dl>
+
+</div>
+<div class="section" id="get-site-clusters">
+<h3>get_site_clusters<a class="headerlink" href="#get-site-clusters" title="Permalink to this headline">¶</a></h3>
+<dl class="function">
+<dt id="execo_g5k.api_utils.get_site_clusters">
+<tt class="descclassname">execo_g5k.api_utils.</tt><tt class="descname">get_site_clusters</tt><big>(</big><em>site</em><big>)</big><a class="headerlink" href="#execo_g5k.api_utils.get_site_clusters" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the list of clusters from a site. Returns an iterable.</p>
+</dd></dl>
+
+</div>
+<div class="section" id="get-cluster-hosts">
+<h3>get_cluster_hosts<a class="headerlink" href="#get-cluster-hosts" title="Permalink to this headline">¶</a></h3>
+<dl class="function">
+<dt id="execo_g5k.api_utils.get_cluster_hosts">
+<tt class="descclassname">execo_g5k.api_utils.</tt><tt class="descname">get_cluster_hosts</tt><big>(</big><em>cluster</em><big>)</big><a class="headerlink" href="#execo_g5k.api_utils.get_cluster_hosts" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the list of hosts from a cluster. Returns an iterable.</p>
+</dd></dl>
+
+</div>
+<div class="section" id="get-g5k-clusters">
+<h3>get_g5k_clusters<a class="headerlink" href="#get-g5k-clusters" title="Permalink to this headline">¶</a></h3>
+<dl class="function">
+<dt id="execo_g5k.api_utils.get_g5k_clusters">
+<tt class="descclassname">execo_g5k.api_utils.</tt><tt class="descname">get_g5k_clusters</tt><big>(</big><big>)</big><a class="headerlink" href="#execo_g5k.api_utils.get_g5k_clusters" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the list of all g5k clusters. Returns an iterable.</p>
+</dd></dl>
+
+</div>
+<div class="section" id="get-g5k-hosts">
+<h3>get_g5k_hosts<a class="headerlink" href="#get-g5k-hosts" title="Permalink to this headline">¶</a></h3>
+<dl class="function">
+<dt id="execo_g5k.api_utils.get_g5k_hosts">
+<tt class="descclassname">execo_g5k.api_utils.</tt><tt class="descname">get_g5k_hosts</tt><big>(</big><big>)</big><a class="headerlink" href="#execo_g5k.api_utils.get_g5k_hosts" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the list of all g5k hosts. Returns an iterable.</p>
+</dd></dl>
+
+</div>
+<div class="section" id="get-cluster-site">
+<h3>get_cluster_site<a class="headerlink" href="#get-cluster-site" title="Permalink to this headline">¶</a></h3>
+<dl class="function">
+<dt id="execo_g5k.api_utils.get_cluster_site">
+<tt class="descclassname">execo_g5k.api_utils.</tt><tt class="descname">get_cluster_site</tt><big>(</big><em>cluster</em><big>)</big><a class="headerlink" href="#execo_g5k.api_utils.get_cluster_site" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the site of a cluster.</p>
+</dd></dl>
+
+</div>
+</div>
+<div class="section" id="configuration">
+<h2>Configuration<a class="headerlink" href="#configuration" title="Permalink to this headline">¶</a></h2>
+<p>This module may be configured at import time by defining two dicts
+<tt class="xref py py-obj docutils literal"><span class="pre">g5k_configuration</span></tt> and <tt class="xref py py-obj docutils literal"><span class="pre">default_frontend_connexion_params</span></tt> in the
+file <tt class="docutils literal"><span class="pre">~/.execo.conf.py</span></tt></p>
+<p>The <tt class="xref py py-obj docutils literal"><span class="pre">g5k_configuration</span></tt> dict contains global g5k configuration
+parameters.</p>
+<dl class="data">
+<dt id="execo_g5k.config.g5k_configuration">
+<tt class="descclassname">execo_g5k.config.</tt><tt class="descname">g5k_configuration</tt><em class="property"> = {'default_env_name': None, 'no_ssh_for_local_frontend': False, 'api_username': 'mimbert', 'default_frontend': 'rennes', 'kadeploy3': 'kadeploy3', 'default_timeout': 900, 'tiny_polling_interval': 10, 'api_uri': 'https://api.grid5000.fr/2.0', 'check_deployed_command': &quot;! (mount | grep -E '^/dev/[[:alpha:]]+2 on / ')&quot;, 'oar_job_key_file': '/home/mimbert/.oar_key', 'default_env_file': None, 'kadeploy3_options': '-k -d', 'polling_interval': 20}</em><a class="headerlink" href="#execo_g5k.config.g5k_configuration" title="Permalink to this definition">¶</a></dt>
+<dd><p>Global Grid5000 configuration parameters.</p>
+<ul class="simple">
+<li><tt class="docutils literal"><span class="pre">kadeploy3</span></tt>: kadeploy3 command.</li>
+<li><tt class="docutils literal"><span class="pre">kadeploy3_options</span></tt>: a string with kadeploy3 command line options.</li>
+<li><tt class="docutils literal"><span class="pre">default_env_name</span></tt>: a default environment name to use for
+deployments (as registered to kadeploy3).</li>
+<li><tt class="docutils literal"><span class="pre">default_env_file</span></tt>: a default environment file to use for
+deployments (for kadeploy3).</li>
+<li><tt class="docutils literal"><span class="pre">default_timeout</span></tt>: default timeout for all calls to g5k services
+(except deployments).</li>
+<li><tt class="docutils literal"><span class="pre">check_deployed_command</span></tt>: default shell command used by
+<a class="reference internal" href="#execo_g5k.kadeploy.deploy" title="execo_g5k.kadeploy.deploy"><tt class="xref py py-obj docutils literal"><span class="pre">execo_g5k.kadeploy.deploy</span></tt></a> to check that the nodes are correctly
+deployed. This command should return 0 if the node is correctly
+deployed, or another value otherwise. The default checks that the
+root is not on the second partition of the disk.</li>
+<li><tt class="docutils literal"><span class="pre">no_ssh_for_local_frontend</span></tt>: if True, don&#8217;t use ssh to issue g5k
+commands for local site. If False, always use ssh, both for remote
+frontends and local site. Set it to True if you are sure that your
+scripts always run on the local frontend.</li>
+<li><tt class="docutils literal"><span class="pre">polling_interval</span></tt>: time interval between pollings for various
+operations, eg. wait oar job start.</li>
+<li><tt class="docutils literal"><span class="pre">tiny_polling_interval</span></tt>: small time interval between pollings for
+various operations. Used for example when waiting for a job start,
+and start date of the job is over but the job is not yet in running
+state.</li>
+<li><tt class="docutils literal"><span class="pre">default_frontend</span></tt>: address of default frontend.</li>
+<li><tt class="docutils literal"><span class="pre">api_uri</span></tt>: base uri for g5k api serverr.</li>
+<li><tt class="docutils literal"><span class="pre">api_username</span></tt>: username to use for requests to the Grid5000 REST
+API. If None, no credentials will be used, which is fine when
+running on a Grid5000 frontend.</li>
+<li><tt class="docutils literal"><span class="pre">oar_job_key_file</span></tt>: ssh key to use for oar. If defined, takes
+precedence over environment variable OAR_JOB_KEY_FILE.</li>
+</ul>
+</dd></dl>
+
+<p>Its default values are:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">g5k_configuration</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s">&#39;kadeploy3&#39;</span><span class="p">:</span> <span class="s">&#39;kadeploy3&#39;</span><span class="p">,</span>
+    <span class="s">&#39;kadeploy3_options&#39;</span><span class="p">:</span> <span class="s">&#39;-k -d&#39;</span><span class="p">,</span>
+    <span class="s">&#39;default_env_name&#39;</span><span class="p">:</span> <span class="bp">None</span><span class="p">,</span>
+    <span class="s">&#39;default_env_file&#39;</span><span class="p">:</span> <span class="bp">None</span><span class="p">,</span>
+    <span class="s">&#39;default_timeout&#39;</span><span class="p">:</span> <span class="mi">900</span><span class="p">,</span>
+    <span class="s">&#39;check_deployed_command&#39;</span><span class="p">:</span> <span class="s">&quot;! (mount | grep -E &#39;^/dev/[[:alpha:]]+2 on / &#39;)&quot;</span><span class="p">,</span>
+    <span class="s">&#39;no_ssh_for_local_frontend&#39;</span> <span class="p">:</span> <span class="bp">False</span><span class="p">,</span>
+    <span class="s">&#39;polling_interval&#39;</span> <span class="p">:</span> <span class="mi">20</span><span class="p">,</span>
+    <span class="s">&#39;tiny_polling_interval&#39;</span> <span class="p">:</span> <span class="mi">10</span><span class="p">,</span>
+    <span class="s">&#39;default_frontend&#39;</span> <span class="p">:</span> <span class="bp">None</span><span class="p">,</span>
+    <span class="s">&#39;api_uri&#39;</span><span class="p">:</span> <span class="s">&quot;https://api.grid5000.fr/2.0&quot;</span><span class="p">,</span>
+    <span class="s">&#39;api_username&#39;</span><span class="p">:</span> <span class="bp">None</span><span class="p">,</span>
+    <span class="s">&#39;oar_job_key_file&#39;</span><span class="p">:</span> <span class="bp">None</span><span class="p">,</span>
+    <span class="p">}</span>
+</pre></div>
+</div>
+<p>The <tt class="xref py py-obj docutils literal"><span class="pre">default_frontend_connexion_params</span></tt> dict contains default
+parameters for remote connexions to grid5000 frontends.</p>
+<dl class="data">
+<dt id="execo_g5k.config.default_frontend_connexion_params">
+<tt class="descclassname">execo_g5k.config.</tt><tt class="descname">default_frontend_connexion_params</tt><em class="property"> = {'host_rewrite_func': &lt;function frontend_rewrite_func at 0x4785488&gt;, 'taktuk': 'taktuk', 'user': None, 'pty': True, 'scp': 'scp', 'ssh': 'ssh', 'taktuk_connector_options': ('-o', 'BatchMode=yes', '-o', 'PasswordAuthentication=no', '-o', 'StrictHostKeyChecking=no', '-o', 'UserKnownHostsFile=/dev/null', '-o', 'ConnectTimeout=20'), 'taktuk_connector': 'ssh', 'taktuk_gateway': None, 'ssh_options': ('-tt', '-o', 'BatchMode=yes', '-o', 'PasswordAuthentication=no', '-o', 'StrictHostKeyChecking=no', '-o', 'UserKnownHostsFile=/dev/null', '-o', 'ConnectTimeout=20'), 'port': None, 'scp_options': ('-o', 'BatchMode=yes', '-o', 'PasswordAuthentication=no', '-o', 'StrictHostKeyChecking=no', '-o', 'UserKnownHostsFile=/dev/null', '-o', 'ConnectTimeout=20', '-rp'), 'taktuk_gateway_connexion_params': None, 'keyfile': None, 'taktuk_options': ('-s',)}</em><a class="headerlink" href="#execo_g5k.config.default_frontend_connexion_params" title="Permalink to this definition">¶</a></dt>
+<dd><p>Default connexion params when connecting to a Grid5000 frontend.</p>
+</dd></dl>
+
+<p>Its default values are:</p>
+<div class="highlight-python"><div class="highlight"><pre>    <span class="n">default_frontend_connexion_params</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s">&#39;user&#39;</span><span class="p">:</span>        <span class="bp">None</span><span class="p">,</span>
+        <span class="s">&#39;keyfile&#39;</span><span class="p">:</span>     <span class="bp">None</span><span class="p">,</span>
+        <span class="s">&#39;port&#39;</span><span class="p">:</span>        <span class="bp">None</span><span class="p">,</span>
+        <span class="s">&#39;ssh&#39;</span><span class="p">:</span>         <span class="s">&#39;ssh&#39;</span><span class="p">,</span>
+        <span class="s">&#39;scp&#39;</span><span class="p">:</span>         <span class="s">&#39;scp&#39;</span><span class="p">,</span>
+        <span class="s">&#39;taktuk&#39;</span><span class="p">:</span>      <span class="s">&#39;taktuk&#39;</span><span class="p">,</span>
+        <span class="s">&#39;ssh_options&#39;</span><span class="p">:</span> <span class="p">(</span> <span class="s">&#39;-tt&#39;</span><span class="p">,</span>
+                         <span class="s">&#39;-o&#39;</span><span class="p">,</span> <span class="s">&#39;BatchMode=yes&#39;</span><span class="p">,</span>
+                         <span class="s">&#39;-o&#39;</span><span class="p">,</span> <span class="s">&#39;PasswordAuthentication=no&#39;</span><span class="p">,</span>
+                         <span class="s">&#39;-o&#39;</span><span class="p">,</span> <span class="s">&#39;StrictHostKeyChecking=no&#39;</span><span class="p">,</span>
+                         <span class="s">&#39;-o&#39;</span><span class="p">,</span> <span class="s">&#39;UserKnownHostsFile=/dev/null&#39;</span><span class="p">,</span>
+                         <span class="s">&#39;-o&#39;</span><span class="p">,</span> <span class="s">&#39;ConnectTimeout=20&#39;</span> <span class="p">),</span>
+        <span class="s">&#39;scp_options&#39;</span><span class="p">:</span> <span class="p">(</span> <span class="s">&#39;-o&#39;</span><span class="p">,</span> <span class="s">&#39;BatchMode=yes&#39;</span><span class="p">,</span>
+                         <span class="s">&#39;-o&#39;</span><span class="p">,</span> <span class="s">&#39;PasswordAuthentication=no&#39;</span><span class="p">,</span>
+                         <span class="s">&#39;-o&#39;</span><span class="p">,</span> <span class="s">&#39;StrictHostKeyChecking=no&#39;</span><span class="p">,</span>
+                         <span class="s">&#39;-o&#39;</span><span class="p">,</span> <span class="s">&#39;UserKnownHostsFile=/dev/null&#39;</span><span class="p">,</span>
+                         <span class="s">&#39;-o&#39;</span><span class="p">,</span> <span class="s">&#39;ConnectTimeout=20&#39;</span><span class="p">,</span>
+                         <span class="s">&#39;-rp&#39;</span> <span class="p">),</span>
+        <span class="s">&#39;taktuk_options&#39;</span><span class="p">:</span> <span class="p">(</span> <span class="s">&#39;-s&#39;</span><span class="p">,</span> <span class="p">),</span>
+        <span class="s">&#39;taktuk_connector&#39;</span><span class="p">:</span> <span class="s">&#39;ssh&#39;</span><span class="p">,</span>
+        <span class="s">&#39;taktuk_connector_options&#39;</span><span class="p">:</span> <span class="p">(</span> <span class="s">&#39;-o&#39;</span><span class="p">,</span> <span class="s">&#39;BatchMode=yes&#39;</span><span class="p">,</span>
+                                      <span class="s">&#39;-o&#39;</span><span class="p">,</span> <span class="s">&#39;PasswordAuthentication=no&#39;</span><span class="p">,</span>
+                                      <span class="s">&#39;-o&#39;</span><span class="p">,</span> <span class="s">&#39;StrictHostKeyChecking=no&#39;</span><span class="p">,</span>
+                                      <span class="s">&#39;-o&#39;</span><span class="p">,</span> <span class="s">&#39;UserKnownHostsFile=/dev/null&#39;</span><span class="p">,</span>
+                                      <span class="s">&#39;-o&#39;</span><span class="p">,</span> <span class="s">&#39;ConnectTimeout=20&#39;</span><span class="p">),</span>
+        <span class="s">&#39;taktuk_gateway&#39;</span><span class="p">:</span> <span class="bp">None</span><span class="p">,</span>
+        <span class="s">&#39;taktuk_gateway_connexion_params&#39;</span><span class="p">:</span> <span class="bp">None</span><span class="p">,</span>
+        <span class="s">&#39;pty&#39;</span><span class="p">:</span> <span class="bp">True</span><span class="p">,</span>
+        <span class="s">&#39;host_rewrite_func&#39;</span><span class="p">:</span> <span class="k">lambda</span> <span class="n">host</span><span class="p">:</span> <span class="n">host</span> <span class="o">+</span> <span class="s">&quot;.grid5000.fr&quot;</span>
+        <span class="p">}</span>
+</pre></div>
+</div>
+<p>in default_frontend_connexion_params, the <tt class="docutils literal"><span class="pre">host_rewrite_func</span></tt>
+configuration variable is set to automatically map a site name to its
+corresponding frontend, so that all commands are run on the proper
+frontends.</p>
+<p><tt class="xref py py-obj docutils literal"><span class="pre">default_oarsh_oarcp_params</span></tt> contains default connexion parameters
+suitable to connect to grid5000 nodes with oarsh / oarcp.</p>
+<dl class="data">
+<dt id="execo_g5k.config.default_oarsh_oarcp_params">
+<tt class="descclassname">execo_g5k.config.</tt><tt class="descname">default_oarsh_oarcp_params</tt><em class="property"> = {'host_rewrite_func': &lt;function host_rewrite_func at 0x4508c80&gt;, 'taktuk': 'taktuk', 'user': 'oar', 'pty': True, 'scp': 'scp', 'ssh': 'ssh', 'taktuk_connector_options': ('-o', 'BatchMode=yes', '-o', 'PasswordAuthentication=no', '-o', 'StrictHostKeyChecking=no', '-o', 'UserKnownHostsFile=/dev/null', '-o', 'ConnectTimeout=20'), 'taktuk_connector': 'ssh', 'taktuk_gateway': None, 'ssh_options': ('-tt', '-o', 'BatchMode=yes', '-o', 'PasswordAuthentication=no', '-o', 'StrictHostKeyChecking=no', '-o', 'UserKnownHostsFile=/dev/null', '-o', 'ConnectTimeout=20'), 'port': 6667, 'scp_options': ('-o', 'BatchMode=yes', '-o', 'PasswordAuthentication=no', '-o', 'StrictHostKeyChecking=no', '-o', 'UserKnownHostsFile=/dev/null', '-o', 'ConnectTimeout=20', '-rp'), 'taktuk_gateway_connexion_params': None, 'keyfile': '/home/mimbert/.ssh/oar_key', 'taktuk_options': ('-s',)}</em><a class="headerlink" href="#execo_g5k.config.default_oarsh_oarcp_params" title="Permalink to this definition">¶</a></dt>
+<dd><p>A convenient, predefined connexion paramaters dict with oarsh / oarcp configuration.</p>
+<p>See <tt class="xref py py-obj docutils literal"><span class="pre">execo.config.make_default_connexion_params</span></tt></p>
+</dd></dl>
+
+<p>Its default values are:</p>
+<div class="highlight-python"><div class="highlight"><pre>    <span class="n">default_oarsh_oarcp_params</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s">&#39;user&#39;</span><span class="p">:</span>        <span class="bp">None</span><span class="p">,</span>
+        <span class="s">&#39;keyfile&#39;</span><span class="p">:</span>     <span class="bp">None</span><span class="p">,</span>
+        <span class="s">&#39;port&#39;</span><span class="p">:</span>        <span class="bp">None</span><span class="p">,</span>
+        <span class="s">&#39;ssh&#39;</span><span class="p">:</span>         <span class="s">&#39;oarsh&#39;</span><span class="p">,</span>
+        <span class="s">&#39;scp&#39;</span><span class="p">:</span>         <span class="s">&#39;oarcp&#39;</span><span class="p">,</span>
+        <span class="s">&#39;taktuk&#39;</span><span class="p">:</span>      <span class="s">&#39;taktuk&#39;</span><span class="p">,</span>
+        <span class="s">&#39;ssh_options&#39;</span><span class="p">:</span> <span class="p">(</span> <span class="s">&#39;-tt&#39;</span><span class="p">,</span>
+                         <span class="s">&#39;-o&#39;</span><span class="p">,</span> <span class="s">&#39;BatchMode=yes&#39;</span><span class="p">,</span>
+                         <span class="s">&#39;-o&#39;</span><span class="p">,</span> <span class="s">&#39;PasswordAuthentication=no&#39;</span><span class="p">,</span>
+                         <span class="s">&#39;-o&#39;</span><span class="p">,</span> <span class="s">&#39;StrictHostKeyChecking=no&#39;</span><span class="p">,</span>
+                         <span class="s">&#39;-o&#39;</span><span class="p">,</span> <span class="s">&#39;UserKnownHostsFile=/dev/null&#39;</span><span class="p">,</span>
+                         <span class="s">&#39;-o&#39;</span><span class="p">,</span> <span class="s">&#39;ConnectTimeout=20&#39;</span> <span class="p">),</span>
+        <span class="s">&#39;scp_options&#39;</span><span class="p">:</span> <span class="p">(</span> <span class="s">&#39;-o&#39;</span><span class="p">,</span> <span class="s">&#39;BatchMode=yes&#39;</span><span class="p">,</span>
+                         <span class="s">&#39;-o&#39;</span><span class="p">,</span> <span class="s">&#39;PasswordAuthentication=no&#39;</span><span class="p">,</span>
+                         <span class="s">&#39;-o&#39;</span><span class="p">,</span> <span class="s">&#39;StrictHostKeyChecking=no&#39;</span><span class="p">,</span>
+                         <span class="s">&#39;-o&#39;</span><span class="p">,</span> <span class="s">&#39;UserKnownHostsFile=/dev/null&#39;</span><span class="p">,</span>
+                         <span class="s">&#39;-o&#39;</span><span class="p">,</span> <span class="s">&#39;ConnectTimeout=20&#39;</span><span class="p">,</span>
+                         <span class="s">&#39;-rp&#39;</span> <span class="p">),</span>
+        <span class="s">&#39;taktuk_options&#39;</span><span class="p">:</span> <span class="p">(</span> <span class="s">&#39;-s&#39;</span><span class="p">,</span> <span class="p">),</span>
+        <span class="s">&#39;taktuk_connector&#39;</span><span class="p">:</span> <span class="s">&#39;oarsh&#39;</span><span class="p">,</span>
+        <span class="s">&#39;taktuk_connector_options&#39;</span><span class="p">:</span> <span class="p">(</span> <span class="s">&#39;-o&#39;</span><span class="p">,</span> <span class="s">&#39;BatchMode=yes&#39;</span><span class="p">,</span>
+                                      <span class="s">&#39;-o&#39;</span><span class="p">,</span> <span class="s">&#39;PasswordAuthentication=no&#39;</span><span class="p">,</span>
+                                      <span class="s">&#39;-o&#39;</span><span class="p">,</span> <span class="s">&#39;StrictHostKeyChecking=no&#39;</span><span class="p">,</span>
+                                      <span class="s">&#39;-o&#39;</span><span class="p">,</span> <span class="s">&#39;UserKnownHostsFile=/dev/null&#39;</span><span class="p">,</span>
+                                      <span class="s">&#39;-o&#39;</span><span class="p">,</span> <span class="s">&#39;ConnectTimeout=20&#39;</span><span class="p">),</span>
+        <span class="s">&#39;taktuk_gateway&#39;</span><span class="p">:</span> <span class="bp">None</span><span class="p">,</span>
+        <span class="s">&#39;taktuk_gateway_connexion_params&#39;</span><span class="p">:</span> <span class="bp">None</span><span class="p">,</span>
+        <span class="s">&#39;pty&#39;</span><span class="p">:</span> <span class="bp">True</span><span class="p">,</span>
+        <span class="s">&#39;host_rewrite_func&#39;</span><span class="p">:</span> <span class="bp">None</span>
+        <span class="p">}</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="oar-keys">
+<h2>OAR keys<a class="headerlink" href="#oar-keys" title="Permalink to this headline">¶</a></h2>
+<p>Oar/oargrid by default generate job specific ssh keys. So by default,
+one has to retrieve these keys and explicitely use them for connecting
+to the jobs, which is painfull. Another possibility is to tell
+oar/oargrid to use specific keys. Oar can automatically use the key
+pointed to by the environement variable <tt class="docutils literal"><span class="pre">OAR_JOB_KEY_FILE</span></tt> if it is
+defined. Oargrid does not automatically use this key, but execo also
+takes care of explicitely telling oargrid to use it if it is
+defined. So the most convenient way to use execo/oar/oargrid, is to
+set <tt class="docutils literal"><span class="pre">OAR_JOB_KEY_FILE</span></tt> in your <tt class="docutils literal"><span class="pre">~/.profile</span></tt> to point to your
+internal Grid5000 ssh key and export this environment variable, or use
+the <tt class="docutils literal"><span class="pre">oar_job_key_file</span></tt> in <a class="reference internal" href="#execo_g5k.config.g5k_configuration" title="execo_g5k.config.g5k_configuration"><tt class="xref py py-obj docutils literal"><span class="pre">execo_g5k.config.g5k_configuration</span></tt></a>.</p>
+</div>
+<div class="section" id="running-from-another-host-than-a-frontend">
+<h2>Running from another host than a frontend<a class="headerlink" href="#running-from-another-host-than-a-frontend" title="Permalink to this headline">¶</a></h2>
+<p>Note that when running a script from another host than a frontend
+(from a node or from your laptop outside Grid5000), everything will
+work except <tt class="docutils literal"><span class="pre">oarsh</span></tt> / <tt class="docutils literal"><span class="pre">oarcp</span></tt> connexions, since these executables
+only exist on frontends. In this case you can still connect by using
+<tt class="docutils literal"><span class="pre">ssh</span></tt> / <tt class="docutils literal"><span class="pre">scp</span></tt> as user <tt class="docutils literal"><span class="pre">oar</span></tt> on port 6667 (ie. use
+<tt class="docutils literal"><span class="pre">connexion_params</span> <span class="pre">=</span> <span class="pre">{'user':</span> <span class="pre">'oar',</span> <span class="pre">'port':</span> <span class="pre">6667}</span></tt>). This is the
+port where an oar-specific ssh server is listening. This server will
+then change user from oar to the user currently owning the node.</p>
+</div>
+<div class="section" id="running-from-outside-grid5000">
+<h2>Running from outside Grid5000<a class="headerlink" href="#running-from-outside-grid5000" title="Permalink to this headline">¶</a></h2>
+<p>Execo scripts can be run from outside grid5000 with a subtle
+configuration of both execo and ssh.</p>
+<p>First, in <tt class="docutils literal"><span class="pre">~/.ssh/config</span></tt>, declare aliases for g5k connexion
+(through the access machine). For example, here is an alias <tt class="docutils literal"><span class="pre">g5k</span></tt>
+for connecting through the lyon access:</p>
+<div class="highlight-python"><pre>Host *.g5k g5k
+  ProxyCommand ssh access.grid5000.fr "nc -q 0 `echo %h | sed -ne 's/\.g5k$//p;s/^g5k$/lyon/p'` %p"</pre>
+</div>
+<p>Then in <tt class="docutils literal"><span class="pre">~/.execo.conf.py</span></tt> put this code:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">import</span> <span class="nn">re</span>
+
+<span class="n">default_connexion_params</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s">&#39;host_rewrite_func&#39;</span><span class="p">:</span> <span class="k">lambda</span> <span class="n">host</span><span class="p">:</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="s">&quot;\.grid5000\.fr$&quot;</span><span class="p">,</span> <span class="s">&quot;.g5k&quot;</span><span class="p">,</span> <span class="n">host</span><span class="p">),</span>
+    <span class="s">&#39;taktuk_gateway&#39;</span><span class="p">:</span> <span class="s">&#39;g5k&#39;</span>
+    <span class="p">}</span>
+
+
+<span class="n">default_frontend_connexion_params</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s">&#39;host_rewrite_func&#39;</span><span class="p">:</span> <span class="k">lambda</span> <span class="n">host</span><span class="p">:</span> <span class="n">host</span> <span class="o">+</span> <span class="s">&quot;.g5k&quot;</span>
+    <span class="p">}</span>
+
+<span class="n">g5k_configuration</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s">&#39;api_username&#39;</span><span class="p">:</span> <span class="s">&#39;&lt;g5k_username&gt;&#39;</span><span class="p">,</span>
+    <span class="p">}</span>
+</pre></div>
+</div>
+<p>Now, every time execo tries to connect to a host, the host name is
+rewritten as to be reached through the Grid5000 ssh proxy connexion
+alias, and the same for the frontends.</p>
+</div>
+<div class="section" id="the-perfect-grid5000-connexion-configuration">
+<span id="execo-g5k-perfect-configuration"></span><h2>The perfect grid5000 connexion configuration<a class="headerlink" href="#the-perfect-grid5000-connexion-configuration" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li>use separate ssh keys for connecting from outside to grid5000 and
+inside grid5000:<ul>
+<li>use your regular ssh key for connecting from outside grid5000 to
+inside grid5000 by adding your regular public key to
+<tt class="docutils literal"><span class="pre">~/.ssh/authorized_keys</span></tt> on each site&#8217;s nfs.</li>
+<li>generate (with <tt class="docutils literal"><span class="pre">ssh-keygen</span></tt>)a specific grid5000 private/public
+key pair, without passphrase, for navigating inside
+grid5000. replicate <tt class="docutils literal"><span class="pre">~/.ssh/id_dsa</span></tt> and <tt class="docutils literal"><span class="pre">~/.ssh/id_dsa.pub</span></tt>
+(for a dsa key pair, or the equivalent rsa keys for an rsa key
+pair) to <tt class="docutils literal"><span class="pre">~/.ssh/</span></tt> on each site&#8217;s nfs and add
+<tt class="docutils literal"><span class="pre">~/.ssh/id_dsa.pub</span></tt> to <tt class="docutils literal"><span class="pre">~/.ssh/authorized_keys</span></tt> on each site&#8217;s
+nfs.</li>
+</ul>
+</li>
+<li>add <tt class="docutils literal"><span class="pre">export</span> <span class="pre">OAR_JOB_KEY_FILE=~/.ssh/id_dsa</span></tt> (or id_rsa) to each
+site&#8217;s <tt class="docutils literal"><span class="pre">~/.bash_profile</span></tt></li>
+<li>Connexions should then work directly with oarsh/oarcp if you use
+<a class="reference internal" href="#execo_g5k.config.default_oarsh_oarcp_params" title="execo_g5k.config.default_oarsh_oarcp_params"><tt class="xref py py-obj docutils literal"><span class="pre">execo_g5k.config.default_oarsh_oarcp_params</span></tt></a> connexion
+parameters. Connexions should also work directly with ssh for nodes
+reserved with the <tt class="docutils literal"><span class="pre">allow_classic_ssh</span></tt> option. Finally, for
+deployed nodes, connexions should work directly because option
+<tt class="docutils literal"><span class="pre">-k</span></tt> is passed to kadeploy3 by default.</li>
+</ul>
+<p>TODO: Currently, due to an ongoing bug or misconfiguration (see
+<a class="reference external" href="https://www.grid5000.fr/cgi-bin/bugzilla3/show_bug.cgi?id=3302">https://www.grid5000.fr/cgi-bin/bugzilla3/show_bug.cgi?id=3302</a>), oar
+fails to access the ssh keys if they are not world-readable, so you
+need to make them so.</p>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="index.html">
+              <img class="logo" src="_static/execo.png" alt="Logo"/>
+            </a></p>
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#"><tt class="docutils literal"><span class="pre">execo_g5k</span></tt></a><ul>
+<li><a class="reference internal" href="#oar-functions">OAR functions</a><ul>
+<li><a class="reference internal" href="#oarsubmission">OarSubmission</a></li>
+<li><a class="reference internal" href="#oarsub">oarsub</a></li>
+<li><a class="reference internal" href="#oardel">oardel</a></li>
+<li><a class="reference internal" href="#get-current-oar-jobs">get_current_oar_jobs</a></li>
+<li><a class="reference internal" href="#get-oar-job-info">get_oar_job_info</a></li>
+<li><a class="reference internal" href="#wait-oar-job-start">wait_oar_job_start</a></li>
+<li><a class="reference internal" href="#get-oar-job-nodes">get_oar_job_nodes</a></li>
+<li><a class="reference internal" href="#get-oar-job-subnets">get_oar_job_subnets</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#oargrid-functions">OARGRID functions</a><ul>
+<li><a class="reference internal" href="#oargridsub">oargridsub</a></li>
+<li><a class="reference internal" href="#oargriddel">oargriddel</a></li>
+<li><a class="reference internal" href="#get-current-oargrid-jobs">get_current_oargrid_jobs</a></li>
+<li><a class="reference internal" href="#get-oargrid-job-info">get_oargrid_job_info</a></li>
+<li><a class="reference internal" href="#get-oargrid-job-oar-jobs">get_oargrid_job_oar_jobs</a></li>
+<li><a class="reference internal" href="#wait-oargrid-job-start">wait_oargrid_job_start</a></li>
+<li><a class="reference internal" href="#get-oargrid-job-nodes">get_oargrid_job_nodes</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#kadeploy3">kadeploy3</a><ul>
+<li><a class="reference internal" href="#deployment">Deployment</a></li>
+<li><a class="reference internal" href="#kadeployer">Kadeployer</a></li>
+<li><a class="reference internal" href="#kadeploy">kadeploy</a></li>
+<li><a class="reference internal" href="#deploy">deploy</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#utilities">Utilities</a><ul>
+<li><a class="reference internal" href="#format-oar-date">format_oar_date</a></li>
+<li><a class="reference internal" href="#format-oar-duration">format_oar_duration</a></li>
+<li><a class="reference internal" href="#oar-date-to-unixts">oar_date_to_unixts</a></li>
+<li><a class="reference internal" href="#oar-duration-to-seconds">oar_duration_to_seconds</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#module-execo_g5k.api_utils">Grid5000 API utilities</a><ul>
+<li><a class="reference internal" href="#get-g5k-sites">get_g5k_sites</a></li>
+<li><a class="reference internal" href="#get-site-clusters">get_site_clusters</a></li>
+<li><a class="reference internal" href="#get-cluster-hosts">get_cluster_hosts</a></li>
+<li><a class="reference internal" href="#get-g5k-clusters">get_g5k_clusters</a></li>
+<li><a class="reference internal" href="#get-g5k-hosts">get_g5k_hosts</a></li>
+<li><a class="reference internal" href="#get-cluster-site">get_cluster_site</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#configuration">Configuration</a></li>
+<li><a class="reference internal" href="#oar-keys">OAR keys</a></li>
+<li><a class="reference internal" href="#running-from-another-host-than-a-frontend">Running from another host than a frontend</a></li>
+<li><a class="reference internal" href="#running-from-outside-grid5000">Running from outside Grid5000</a></li>
+<li><a class="reference internal" href="#the-perfect-grid5000-connexion-configuration">The perfect grid5000 connexion configuration</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="execo.html"
+                        title="previous chapter"><tt class="docutils literal docutils literal"><span class="pre">execo</span></tt></a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="execo_engine.html"
+                        title="next chapter"><tt class="docutils literal docutils literal"><span class="pre">execo_engine</span></tt></a></p>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="execo_engine.html" title="execo_engine"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="execo.html" title="execo"
+             >previous</a> |</li>
+        <li><a href="index.html">execo v2.0</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2009-2012, INRIA Rhone-Alpes, Service Experimentation et Developpement.
+      Last updated on Nov 21, 2012.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>

@@ -1,0 +1,98 @@
+********************************************
+Readme / documentation for the execo package
+********************************************
+
+Execo offers a Python API for local or remote, standalone or parallel,
+processes execution. It is especially well suited for scripting
+workflows of parallel/distributed operations on local or remote hosts:
+automate a scientific workflow, conducting computer science
+experiments, performing automated tests, etc. The core python package
+is ``execo``. The ``execo_g5k`` package provides a set of tools and
+extensions for Grid5000. The ``execo_engine`` package and
+``execo-run`` script provide an extendable experiment engine.
+
+license
+=======
+
+Execo is copyright INRIA Rhone-Alpes, Service Experimentation et
+Developpement.
+
+Execo is free software: you can redistribute it and/or modify it under
+the terms of the GNU General Public License as published by the Free
+Software Foundation, either version 3 of the License, or (at your
+option) any later version.
+
+Execo is distributed in the hope that it will be useful, but WITHOUT
+ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+for more details.
+
+You should have received a copy of the GNU General Public License
+along with Execo.  If not, see <http://www.gnu.org/licenses/>
+
+versions
+========
+
+latest stable version: v2.0 (2012-11-21)
+
+installation instructions
+=========================
+
+links
+-----
+
+- home page:  http://execo.gforge.inria.fr
+
+- project page on INRIA Forge: http://gforge.inria.fr/projects/execo/
+
+- package download: http://execo.gforge.inria.fr/downloads or
+  https://gforge.inria.fr/frs/?group_id=2901
+
+- code repository: git://scm.gforge.inria.fr/execo/execo.git
+
+- tutorial: http://execo.gforge.inria.fr/doc/tutorial.html
+
+- documentation: http://execo.gforge.inria.fr/doc/
+  http://execo.gforge.inria.fr/epydoc/
+
+- contribs:
+  https://gforge.inria.fr/plugins/scmgit/cgi-bin/gitweb.cgi?p=execo/execo.git;a=tree;f=contrib
+
+prerequisites
+-------------
+
+execo installation requires make, python (>= 2.6), python-httplib2 and
+optionnaly python-keyring.
+
+building the documentation requires sphinx, graphviz and optionnaly
+epydoc.
+
+At runtime, connecting to remote hosts requires ssh, scp or similar
+connexion tools, and optionnaly taktuk (probably version >=
+3.6. http://taktuk.gforge.inria.fr/).
+
+installation
+------------
+
+makefile targets:
+
+- build
+
+- install. Pass option PREFIX=... for installing in a non-default
+  location (default PREFIX is /usr/local).
+
+- doc: to build sphinx documentation
+
+- epydoc: to build epydoc documentation
+
+- check: to run unittests and doctests
+
+- clean
+
+- dist: to create the execo package in dist/
+
+usage
+=====
+
+See html documentation for module execo and execo_g5k at
+http://execo.gforge.inria.fr/doc/

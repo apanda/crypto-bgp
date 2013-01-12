@@ -1,0 +1,7 @@
+include execo.conf.py.sample.in
+include execo-run.in
+include MANIFEST.in
+include COPYING
+include makefile
+include doc/conf.py doc/*.rst doc/execo.png doc/_static/execo-icon.ico
+graft doc/_build/html

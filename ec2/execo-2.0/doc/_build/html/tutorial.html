@@ -1,0 +1,488 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>execo tutorial &mdash; execo v2.0</title>
+    
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '2.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="shortcut icon" href="_static/execo-icon.ico"/>
+    <link rel="top" title="execo v2.0" href="index.html" />
+    <link rel="next" title="execo" href="execo.html" />
+    <link rel="prev" title="Readme / documentation for the execo package" href="readme.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="execo.html" title="execo"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="readme.html" title="Readme / documentation for the execo package"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">execo v2.0</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="execo-tutorial">
+<h1>execo tutorial<a class="headerlink" href="#execo-tutorial" title="Permalink to this headline">¶</a></h1>
+<p>In this tutorial, the code can be executed from python source files,
+but it can also be run interactively in a python shell, such as
+<tt class="docutils literal"><span class="pre">ipython</span></tt>, which is very convenient to inspect the execo objects.</p>
+<div class="section" id="installation">
+<h2>Installation<a class="headerlink" href="#installation" title="Permalink to this headline">¶</a></h2>
+<p>Prerequisites: you need (debian package names, adapt for other
+distributions): <tt class="docutils literal"><span class="pre">make</span></tt>, <tt class="docutils literal"><span class="pre">python</span></tt> (&gt;= 2.6), <tt class="docutils literal"><span class="pre">python-httplib2</span></tt> and
+optionnaly <tt class="docutils literal"><span class="pre">python-keyring</span></tt>. You also need <tt class="docutils literal"><span class="pre">ssh</span></tt> and optionnaly
+<tt class="docutils literal"><span class="pre">taktuk</span></tt>.</p>
+<p>In this tutorial it is shown how to install execo in subdirectory
+<tt class="docutils literal"><span class="pre">.local/</span></tt> of your home, allowing installation on computers where you
+are not root or when you don&#8217;t want to mix manually installed packages
+with packages managed by your distribution package manager.</p>
+<p>Install from a release tar.gz package:</p>
+<div class="highlight-python"><pre>$ wget http://execo.gforge.inria.fr/downloads/execo-2.0.tar.gz
+$ tar xzf execo-2.0.tar.gz
+$ cd execo-2.0/
+$ make install PREFIX=$HOME/.local</pre>
+</div>
+<p>Or install from source repository if you want the very latest
+version:</p>
+<div class="highlight-python"><pre>$ git clone git://scm.gforge.inria.fr/execo/execo.git
+$ cd execo
+$ make install PREFIX=$HOME/.local</pre>
+</div>
+<p>To add directory <tt class="docutils literal"><span class="pre">~/.local/</span></tt> to python search path (i assume bash
+shell here, adapt for other shells):</p>
+<div class="highlight-python"><pre>$ PYTHONHOMEPATH="$HOME/.local/"$(python -c "import sys,os; print os.sep.join(['lib', 'python' + sys.version[:3], 'site-packages'])")
+$ export PYTHONPATH="$PYTHONHOMEPATH${PYTHONPATH:+:${PYTHONPATH}}"</pre>
+</div>
+<p>You can put these two lines in your <tt class="docutils literal"><span class="pre">~/.profile</span></tt> to have your
+environment setup automatically in all shells.</p>
+</div>
+<div class="section" id="execo">
+<h2>execo<a class="headerlink" href="#execo" title="Permalink to this headline">¶</a></h2>
+<p>Core module. Handles launching of several operating system level
+processes in parallel and controlling them <em>asynchronously</em>.  Handles
+remote executions and file copies with ssh/scp and taktuk.</p>
+<ul class="simple">
+<li>Standalone processes: <a class="reference internal" href="execo.html#execo.process.Process" title="execo.process.Process"><tt class="xref py py-obj docutils literal"><span class="pre">execo.process.Process</span></tt></a>, <a class="reference internal" href="execo.html#execo.process.SshProcess" title="execo.process.SshProcess"><tt class="xref py py-obj docutils literal"><span class="pre">execo.process.SshProcess</span></tt></a></li>
+<li>Parallel processes: <a class="reference internal" href="execo.html#execo.action.Action" title="execo.action.Action"><tt class="xref py py-obj docutils literal"><span class="pre">execo.action.Action</span></tt></a></li>
+</ul>
+<div class="section" id="processes">
+<h3>Processes<a class="headerlink" href="#processes" title="Permalink to this headline">¶</a></h3>
+<ul class="simple">
+<li><a class="reference internal" href="execo.html#execo.process.Process" title="execo.process.Process"><tt class="xref py py-obj docutils literal"><span class="pre">execo.process.Process</span></tt></a>: abstraction of an operating system
+process. Fine grain asynchronous lifecycle handling:<ul>
+<li>start, wait, kill</li>
+<li>stdout, stderr, error, pid, exit code</li>
+<li>start date, end date</li>
+<li>timeout handling</li>
+<li>callbacks</li>
+<li>shell; pty</li>
+</ul>
+</li>
+<li><a class="reference internal" href="execo.html#execo.process.SshProcess" title="execo.process.SshProcess"><tt class="xref py py-obj docutils literal"><span class="pre">execo.process.SshProcess</span></tt></a>: Same thing but through ssh. Additional
+parameter: Host, ConnexionParams<ul>
+<li>Host: abstraction of a remote host: address, user, keyfile, port</li>
+<li>ConnexionParams: connexion parameters, ssh options, ssh path,
+keyfile, port, user, etc.</li>
+</ul>
+</li>
+</ul>
+<div class="section" id="process-examples">
+<h4>Process examples<a class="headerlink" href="#process-examples" title="Permalink to this headline">¶</a></h4>
+<div class="section" id="local-process">
+<h5>Local process<a class="headerlink" href="#local-process" title="Permalink to this headline">¶</a></h5>
+<p>List all files in the root directory:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">execo</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="n">process</span> <span class="o">=</span> <span class="n">Process</span><span class="p">(</span><span class="s">&quot;ls /&quot;</span><span class="p">)</span>
+<span class="n">process</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
+<span class="k">print</span> <span class="s">&quot;process:</span><span class="se">\n</span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">process</span><span class="p">)</span>
+<span class="k">print</span> <span class="s">&quot;process stdout:</span><span class="se">\n</span><span class="s">&quot;</span> <span class="o">+</span> <span class="n">process</span><span class="o">.</span><span class="n">stdout</span><span class="p">()</span>
+<span class="k">print</span> <span class="s">&quot;process stderr:</span><span class="se">\n</span><span class="s">&quot;</span> <span class="o">+</span> <span class="n">process</span><span class="o">.</span><span class="n">stderr</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>The <tt class="docutils literal"><span class="pre">ls</span></tt> process was directly spawned, not using a subshell. Use
+option <tt class="docutils literal"><span class="pre">shell</span> <span class="pre">=</span> <span class="pre">True</span></tt> if a full shell environment is needed (e.g. to
+expand environment variables or to use pipes). To find all files
+in /tmp belonging to me:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">process</span> <span class="o">=</span> <span class="n">Process</span><span class="p">(</span><span class="s">&quot;find /tmp -user $USERNAME&quot;</span><span class="p">,</span> <span class="n">shell</span> <span class="o">=</span> <span class="bp">True</span><span class="p">)</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>Here a warning log was probably displayed, because if you are not
+root, there are probably some directories in <tt class="docutils literal"><span class="pre">/tmp</span></tt> that <tt class="docutils literal"><span class="pre">find</span></tt>
+could not visit (lack of permissions), <tt class="docutils literal"><span class="pre">find</span></tt> does not return 0 in
+this case. The default behavior of execo is to issue warning logs when
+processes are in error, do not return 0, or timeout. If needed we can
+instruct execo to ignore the exit code with option <tt class="docutils literal"><span class="pre">ignore_exit_code</span>
+<span class="pre">=</span> <span class="pre">True</span></tt>.</p>
+</div>
+<div class="section" id="remote-process-over-ssh">
+<h5>Remote process over ssh<a class="headerlink" href="#remote-process-over-ssh" title="Permalink to this headline">¶</a></h5>
+<p>On one host <em>host1</em> Start an <a class="reference internal" href="execo.html#execo.process.SshProcess" title="execo.process.SshProcess"><tt class="xref py py-obj docutils literal"><span class="pre">execo.process.SshProcess</span></tt></a> <em>process_A</em>
+running a listening netcat, then wait 1 seconds, then on another host
+<em>host2</em> start an <a class="reference internal" href="execo.html#execo.process.SshProcess" title="execo.process.SshProcess"><tt class="xref py py-obj docutils literal"><span class="pre">execo.process.SshProcess</span></tt></a> <em>process_B</em> running netcat
+sender, then wait wait for <em>process_B</em> termination, then kill
+<em>process_A</em>:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">execo</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="n">process_A</span> <span class="o">=</span> <span class="n">SshProcess</span><span class="p">(</span><span class="s">&quot;nc -l -p 6543&quot;</span><span class="p">,</span> <span class="s">&quot;&lt;host1&gt;&quot;</span><span class="p">)</span>
+<span class="n">process_B</span> <span class="o">=</span> <span class="n">SshProcess</span><span class="p">(</span><span class="s">&quot;echo &#39;hi there!&#39; | nc -i 1 -q 0 &lt;host1&gt; 6543&quot;</span><span class="p">,</span> <span class="s">&quot;&lt;host2&gt;&quot;</span><span class="p">)</span>
+<span class="n">process_A</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+<span class="n">process_B</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
+<span class="n">process_A</span><span class="o">.</span><span class="n">wait</span><span class="p">()</span>
+<span class="k">print</span> <span class="n">process_A</span><span class="o">.</span><span class="n">stdout</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>The netcat option <tt class="docutils literal"><span class="pre">-i</span> <span class="pre">1</span></tt> is important in this example because as
+process_A and process_B are started almost simultaneously, we want to
+introduce a little delay (1 second) before process_B tries to connect
+to process_A, to be sure that process_A has finished its
+initialization and is ready to receive incoming connexions.</p>
+<p>This example shows the asynchronous control of processes: while a
+process is running (the netcat receiver), the code can do something
+else (run the netcat sender), and later get back control of the first
+process, waiting for it (it could also kill it).</p>
+</div>
+</div>
+</div>
+<div class="section" id="actions">
+<h3>Actions<a class="headerlink" href="#actions" title="Permalink to this headline">¶</a></h3>
+<ul class="simple">
+<li><a class="reference internal" href="execo.html#execo.action.Action" title="execo.action.Action"><tt class="xref py py-obj docutils literal"><span class="pre">execo.action.Action</span></tt></a>: abstraction of a set of parallel
+Process. Asynchronous lifecycle handling:<ul>
+<li>start, kill, wait</li>
+<li>access to individual Process</li>
+<li>callbacks</li>
+<li>timeout</li>
+<li>errors</li>
+</ul>
+</li>
+<li><a class="reference internal" href="execo.html#execo.action.Local" title="execo.action.Local"><tt class="xref py py-obj docutils literal"><span class="pre">execo.action.Local</span></tt></a>: A set of parallel local Process</li>
+<li><a class="reference internal" href="execo.html#execo.action.Remote" title="execo.action.Remote"><tt class="xref py py-obj docutils literal"><span class="pre">execo.action.Remote</span></tt></a>: A set of parallel remote SshProcess</li>
+<li><a class="reference internal" href="execo.html#execo.action.TaktukRemote" title="execo.action.TaktukRemote"><tt class="xref py py-obj docutils literal"><span class="pre">execo.action.TaktukRemote</span></tt></a>: Same as Remote but using taktuk instead
+of plain ssh</li>
+<li><a class="reference internal" href="execo.html#execo.action.Put" title="execo.action.Put"><tt class="xref py py-obj docutils literal"><span class="pre">execo.action.Put</span></tt></a>, <a class="reference internal" href="execo.html#execo.action.Get" title="execo.action.Get"><tt class="xref py py-obj docutils literal"><span class="pre">execo.action.Get</span></tt></a>: send files or get files in
+parallel to/from remote hosts</li>
+<li><a class="reference internal" href="execo.html#execo.action.TaktukPut" title="execo.action.TaktukPut"><tt class="xref py py-obj docutils literal"><span class="pre">execo.action.TaktukPut</span></tt></a>, <a class="reference internal" href="execo.html#execo.action.TaktukGet" title="execo.action.TaktukGet"><tt class="xref py py-obj docutils literal"><span class="pre">execo.action.TaktukGet</span></tt></a>: same using
+taktuk</li>
+<li><a class="reference internal" href="execo.html#execo.report.Report" title="execo.report.Report"><tt class="xref py py-obj docutils literal"><span class="pre">execo.report.Report</span></tt></a>: aggregates the results of several Action and
+pretty-prints summary reports</li>
+</ul>
+<div class="section" id="remote-example">
+<h4>Remote example<a class="headerlink" href="#remote-example" title="Permalink to this headline">¶</a></h4>
+<p>Run an iperf client and server simultaneously on two hosts, to
+generate traffic in both directions:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">execo</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="n">hosts</span> <span class="o">=</span> <span class="p">[</span> <span class="s">&quot;host1&quot;</span><span class="p">,</span> <span class="s">&quot;host2&quot;</span> <span class="p">]</span>
+<span class="n">targets</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">reversed</span><span class="p">(</span><span class="n">hosts</span><span class="p">))</span>
+<span class="n">servers</span> <span class="o">=</span> <span class="n">Remote</span><span class="p">(</span><span class="s">&quot;./iperf -s&quot;</span><span class="p">,</span> <span class="n">hosts</span><span class="p">,</span> <span class="n">ignore_exit_code</span> <span class="o">=</span> <span class="bp">True</span><span class="p">)</span>
+<span class="n">clients</span> <span class="o">=</span> <span class="n">Remote</span><span class="p">(</span><span class="s">&quot;./iperf -c {{targets}}&quot;</span><span class="p">,</span> <span class="n">hosts</span><span class="p">)</span>
+<span class="n">servers</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+<span class="n">sleep</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+<span class="n">clients</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
+<span class="n">servers</span><span class="o">.</span><span class="n">kill</span><span class="p">()</span><span class="o">.</span><span class="n">wait</span><span class="p">()</span>
+<span class="k">print</span> <span class="n">Report</span><span class="p">([</span> <span class="n">servers</span><span class="p">,</span> <span class="n">clients</span> <span class="p">])</span><span class="o">.</span><span class="n">to_string</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>We ignore the exit code of servers because they are killed at the end,
+thus they always have a non-zero exit code.</p>
+<p>The iperf client command line shows the usage of <em>substitutions</em>: In
+the command line given for Remote and in pathes given to Get, Put,
+patterns are automatically substituted:</p>
+<ul class="simple">
+<li>all occurences of the literal string <tt class="docutils literal"><span class="pre">{{{host}}}</span></tt> are substituted by
+the address of the Host to which execo connects to.</li>
+<li>all occurences of <tt class="docutils literal"><span class="pre">{{&lt;expression&gt;}}</span></tt> are substituted in the
+following way: <tt class="docutils literal"><span class="pre">&lt;expression&gt;</span></tt> must be a python expression, which
+will be evaluated in the context (globals and locals) where the
+expression is declared, and which must return a
+sequence. <tt class="docutils literal"><span class="pre">{{&lt;expression&gt;}}</span></tt> will be replaced by
+<tt class="docutils literal"><span class="pre">&lt;expression&gt;[index</span> <span class="pre">%</span> <span class="pre">len(&lt;expression&gt;)]</span></tt>. In short, it is a
+mapping between the sequence of command lines run on the hosts and
+the sequence <tt class="docutils literal"><span class="pre">&lt;expression&gt;</span></tt>. See <a class="reference internal" href="execo.html#execo-substitutions"><em>substitutions for Remote, TaktukRemote, Get, Put</em></a>.</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="section" id="execo-g5k">
+<h2>execo_g5k<a class="headerlink" href="#execo-g5k" title="Permalink to this headline">¶</a></h2>
+<p>A layer built on top of execo. It&#8217;s purpose is to provide a convenient
+API to use Grid5000 services:</p>
+<ul class="simple">
+<li>oar<ul>
+<li>oarsub, oardel</li>
+<li>get current oar jobs</li>
+<li>wait oar job start, get oar job nodes</li>
+</ul>
+</li>
+<li>oargrid<ul>
+<li>oargridsub, oargriddel</li>
+<li>get current oargrid jobs</li>
+<li>wait oargrid job start, get oargrid job nodes</li>
+</ul>
+</li>
+<li>kadeploy3<ul>
+<li>kadeploy: basic deployment</li>
+<li>deploy: clever kadeploy: automatically avoids to deploy already
+deployed nodes, handles retries on top of kadeploy, callbacks to
+allow dynamically deciding when we have enough nodes (even for
+complex topologies)</li>
+</ul>
+</li>
+</ul>
+<p>To use execo on grid5000, you need to install it inside grid5000, for
+example on a frontend. execo dependencies are installed on grid5000
+frontends.</p>
+<div class="section" id="oarsub-example">
+<h3>oarsub example<a class="headerlink" href="#oarsub-example" title="Permalink to this headline">¶</a></h3>
+<p>Run iperf servers on a group of 4 hosts on one cluster, and iperf
+clients on a group of 4 hosts on another cluster. Each client targets
+a different server. We get nodes with an OAR submissions, and delete
+the OAR job afterwards:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">execo</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="kn">from</span> <span class="nn">execo_g5k</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="kn">import</span> <span class="nn">itertools</span>
+<span class="n">jobs</span> <span class="o">=</span> <span class="n">oarsub</span><span class="p">([</span>
+  <span class="p">(</span> <span class="n">OarSubmission</span><span class="p">(</span><span class="n">resources</span> <span class="o">=</span> <span class="s">&quot;/cluster=2/nodes=4&quot;</span><span class="p">),</span> <span class="s">&quot;nancy&quot;</span><span class="p">)</span>
+<span class="p">])</span>
+<span class="n">nodes</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="n">wait_oar_job_start</span><span class="p">(</span><span class="n">jobs</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span> <span class="n">jobs</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">1</span><span class="p">])</span>
+<span class="n">nodes</span> <span class="o">=</span> <span class="n">get_oar_job_nodes</span><span class="p">(</span><span class="n">jobs</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span> <span class="n">jobs</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">1</span><span class="p">])</span>
+<span class="c"># group nodes by cluster</span>
+<span class="n">sources</span><span class="p">,</span> <span class="n">targets</span> <span class="o">=</span> <span class="p">[</span> <span class="nb">list</span><span class="p">(</span><span class="n">n</span><span class="p">)</span> <span class="k">for</span> <span class="n">c</span><span class="p">,</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">itertools</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span>
+  <span class="nb">sorted</span><span class="p">(</span><span class="n">nodes</span><span class="p">,</span>
+         <span class="k">lambda</span> <span class="n">n1</span><span class="p">,</span> <span class="n">n2</span><span class="p">:</span> <span class="nb">cmp</span><span class="p">(</span>
+           <span class="n">g5k_host_get_cluster</span><span class="p">(</span><span class="n">n1</span><span class="p">),</span>
+           <span class="n">g5k_host_get_cluster</span><span class="p">(</span><span class="n">n2</span><span class="p">))),</span>
+  <span class="n">g5k_host_get_cluster</span><span class="p">)</span> <span class="p">]</span>
+<span class="n">servers</span> <span class="o">=</span> <span class="n">Remote</span><span class="p">(</span><span class="s">&quot;iperf -s&quot;</span><span class="p">,</span>
+                 <span class="n">targets</span><span class="p">,</span>
+                 <span class="n">connexion_params</span> <span class="o">=</span> <span class="n">default_oarsh_oarcp_params</span><span class="p">,</span>
+                 <span class="n">ignore_exit_code</span> <span class="o">=</span> <span class="bp">True</span><span class="p">)</span>
+<span class="n">clients</span> <span class="o">=</span> <span class="n">Remote</span><span class="p">(</span><span class="s">&quot;iperf -c {{[t.address for t in targets]}}&quot;</span><span class="p">,</span>
+                 <span class="n">sources</span><span class="p">,</span>
+                 <span class="n">connexion_params</span> <span class="o">=</span> <span class="n">default_oarsh_oarcp_params</span><span class="p">)</span>
+<span class="n">servers</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+<span class="n">sleep</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+<span class="n">clients</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
+<span class="n">servers</span><span class="o">.</span><span class="n">kill</span><span class="p">()</span><span class="o">.</span><span class="n">wait</span><span class="p">()</span>
+<span class="k">print</span> <span class="n">Report</span><span class="p">([</span> <span class="n">servers</span><span class="p">,</span> <span class="n">clients</span> <span class="p">])</span><span class="o">.</span><span class="n">to_string</span><span class="p">()</span>
+<span class="n">oardel</span><span class="p">([(</span><span class="n">jobs</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span> <span class="n">jobs</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">1</span><span class="p">])])</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="execo-g5k-api-utils">
+<h3>execo_g5k.api_utils<a class="headerlink" href="#execo-g5k-api-utils" title="Permalink to this headline">¶</a></h3>
+<p>This module is automatically imported only if httplib2 is available.</p>
+<p>It provides various useful function which deal with the Grid5000 API.</p>
+<p>For example, to work interactively on all grid5000 frontends at the
+same time: Here we create a directory, copy a file inside it, then
+delete the directory, on all frontends simultaneously:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">execo</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="kn">from</span> <span class="nn">execo_g5k</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="n">sites</span> <span class="o">=</span> <span class="n">get_g5k_sites</span><span class="p">()</span>
+<span class="n">Remote</span><span class="p">(</span><span class="s">&quot;mkdir -p execo_tutorial/&quot;</span><span class="p">,</span>
+       <span class="n">sites</span><span class="p">,</span>
+       <span class="n">connexion_params</span> <span class="o">=</span> <span class="n">default_frontend_connexion_params</span><span class="p">)</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
+<span class="n">Put</span><span class="p">(</span><span class="n">sites</span><span class="p">,</span>
+    <span class="p">[</span><span class="s">&quot;~/.profile&quot;</span><span class="p">],</span>
+    <span class="s">&quot;execo_tutorial/&quot;</span><span class="p">,</span>
+    <span class="n">connexion_params</span> <span class="o">=</span> <span class="n">default_frontend_connexion_params</span><span class="p">)</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
+<span class="n">Remote</span><span class="p">(</span><span class="s">&quot;rm -r execo_tutorial/&quot;</span><span class="p">,</span>
+       <span class="n">sites</span><span class="p">,</span>
+       <span class="n">connexion_params</span> <span class="o">=</span> <span class="n">default_frontend_connexion_params</span><span class="p">)</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>If ssh proxycommand and execo configuration are configured as
+described in <a class="reference internal" href="#tutorial-configuration"><em>Configuration of execo, execo_g5k</em></a>, this example can be run
+from outside grid5000.</p>
+</div>
+</div>
+<div class="section" id="more-advanced-usages">
+<h2>More advanced usages<a class="headerlink" href="#more-advanced-usages" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="configuration-of-execo-execo-g5k">
+<span id="tutorial-configuration"></span><h3>Configuration of execo, execo_g5k<a class="headerlink" href="#configuration-of-execo-execo-g5k" title="Permalink to this headline">¶</a></h3>
+<p>Execo reads configuration file <tt class="docutils literal"><span class="pre">~/.execo.conf.py</span></tt>. A sample
+configuration file <tt class="docutils literal"><span class="pre">execo.conf.py.sample</span></tt> is created in execo source
+package directory when execo is built. This file can be used as a
+canvas to overide some particular configuration variables. See
+detailed documentation in <a class="reference internal" href="execo.html#execo-configuration"><em>Configuration</em></a> and
+<a class="reference internal" href="execo_g5k.html#execo-g5k-perfect-configuration"><em>The perfect grid5000 connexion configuration</em></a>.</p>
+<p>For example, if you use ssh with a proxycommand to connect directly to
+grid5000 servers or nodes from outside, as described in
+<a class="reference external" href="https://www.grid5000.fr/mediawiki/index.php/SSH#Using_SSH_with_ssh_proxycommand_setup_to_access_hosts_inside_Grid.275000">https://www.grid5000.fr/mediawiki/index.php/SSH#Using_SSH_with_ssh_proxycommand_setup_to_access_hosts_inside_Grid.275000</a>
+the following configuration will allow to connect to grid5000 with
+execo from outside. Note that
+<tt class="docutils literal"><span class="pre">g5k_configuration['oar_job_key_file']</span></tt> is indeed the path to the
+key <em>inside</em> grid5000, because it is used at reservation time and oar
+must have access to it. <tt class="docutils literal"><span class="pre">default_oarsh_oarcp_params['keyfile']</span></tt> is
+the path to the same key <em>outside</em> grid5000, because it is used to
+connect to the nodes from outside:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">import</span> <span class="nn">re</span>
+
+<span class="k">def</span> <span class="nf">host_rewrite_func</span><span class="p">(</span><span class="n">host</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="s">&quot;\.grid5000\.fr$&quot;</span><span class="p">,</span> <span class="s">&quot;.g5k&quot;</span><span class="p">,</span> <span class="n">host</span><span class="p">)</span>
+
+<span class="k">def</span> <span class="nf">frontend_rewrite_func</span><span class="p">(</span><span class="n">host</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">host</span> <span class="o">+</span> <span class="s">&quot;.g5k&quot;</span>
+
+<span class="n">g5k_configuration</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s">&#39;oar_job_key_file&#39;</span><span class="p">:</span> <span class="s">&#39;path/to/ssh/key/inside/grid5000&#39;</span><span class="p">,</span>
+    <span class="s">&#39;default_frontend&#39;</span> <span class="p">:</span> <span class="s">&#39;lyon&#39;</span><span class="p">,</span>
+    <span class="s">&#39;api_username&#39;</span> <span class="p">:</span> <span class="s">&#39;g5k_username&#39;</span>
+    <span class="p">}</span>
+
+<span class="n">default_connexion_params</span> <span class="o">=</span> <span class="p">{</span><span class="s">&#39;host_rewrite_func&#39;</span><span class="p">:</span> <span class="n">host_rewrite_func</span><span class="p">}</span>
+<span class="n">default_frontend_connexion_params</span> <span class="o">=</span> <span class="p">{</span><span class="s">&#39;host_rewrite_func&#39;</span><span class="p">:</span> <span class="n">frontend_rewrite_func</span><span class="p">}</span>
+
+<span class="n">default_oarsh_oarcp_params</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s">&#39;user&#39;</span><span class="p">:</span>        <span class="s">&quot;oar&quot;</span><span class="p">,</span>
+    <span class="s">&#39;keyfile&#39;</span><span class="p">:</span>     <span class="s">&quot;path/to/ssh/key/outside/grid5000&quot;</span><span class="p">,</span>
+    <span class="s">&#39;port&#39;</span><span class="p">:</span>        <span class="mi">6667</span><span class="p">,</span>
+    <span class="s">&#39;ssh&#39;</span><span class="p">:</span>         <span class="s">&#39;ssh&#39;</span><span class="p">,</span>
+    <span class="s">&#39;scp&#39;</span><span class="p">:</span>         <span class="s">&#39;scp&#39;</span><span class="p">,</span>
+    <span class="s">&#39;taktuk_connector&#39;</span><span class="p">:</span> <span class="s">&#39;ssh&#39;</span><span class="p">,</span>
+    <span class="s">&#39;host_rewrite_func&#39;</span><span class="p">:</span> <span class="n">host_rewrite_func</span><span class="p">,</span>
+    <span class="p">}</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="processes-and-actions-factories">
+<h3>Processes and actions factories<a class="headerlink" href="#processes-and-actions-factories" title="Permalink to this headline">¶</a></h3>
+<p>Processes and actions can be instanciated directly, but it can be more
+convenient to use the factory methods <a class="reference internal" href="execo.html#execo.process.get_process" title="execo.process.get_process"><tt class="xref py py-obj docutils literal"><span class="pre">execo.process.get_process</span></tt></a>
+<a class="reference internal" href="execo.html#execo.action.get_remote" title="execo.action.get_remote"><tt class="xref py py-obj docutils literal"><span class="pre">execo.action.get_remote</span></tt></a>, <a class="reference internal" href="execo.html#execo.action.get_fileput" title="execo.action.get_fileput"><tt class="xref py py-obj docutils literal"><span class="pre">execo.action.get_fileput</span></tt></a>,
+<a class="reference internal" href="execo.html#execo.action.get_fileget" title="execo.action.get_fileget"><tt class="xref py py-obj docutils literal"><span class="pre">execo.action.get_fileget</span></tt></a> to instanciate the right objects:</p>
+<ul class="simple">
+<li><a class="reference internal" href="execo.html#execo.process.get_process" title="execo.process.get_process"><tt class="xref py py-obj docutils literal"><span class="pre">execo.process.get_process</span></tt></a> instanciates a Process or SshProcess
+depending on the presence of argument host different from None.</li>
+<li><a class="reference internal" href="execo.html#execo.action.get_remote" title="execo.action.get_remote"><tt class="xref py py-obj docutils literal"><span class="pre">execo.action.get_remote</span></tt></a>, <a class="reference internal" href="execo.html#execo.action.get_fileput" title="execo.action.get_fileput"><tt class="xref py py-obj docutils literal"><span class="pre">execo.action.get_fileput</span></tt></a>,
+<a class="reference internal" href="execo.html#execo.action.get_fileget" title="execo.action.get_fileget"><tt class="xref py py-obj docutils literal"><span class="pre">execo.action.get_fileget</span></tt></a> instanciate ssh or taktuk based
+instances, depending on configuration variables &#8220;remote_tool&#8221;,
+&#8220;fileput_tool&#8221;, &#8220;fileget_tool&#8221;</li>
+</ul>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="index.html">
+              <img class="logo" src="_static/execo.png" alt="Logo"/>
+            </a></p>
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">execo tutorial</a><ul>
+<li><a class="reference internal" href="#installation">Installation</a></li>
+<li><a class="reference internal" href="#execo">execo</a><ul>
+<li><a class="reference internal" href="#processes">Processes</a><ul>
+<li><a class="reference internal" href="#process-examples">Process examples</a><ul>
+<li><a class="reference internal" href="#local-process">Local process</a></li>
+<li><a class="reference internal" href="#remote-process-over-ssh">Remote process over ssh</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a class="reference internal" href="#actions">Actions</a><ul>
+<li><a class="reference internal" href="#remote-example">Remote example</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a class="reference internal" href="#execo-g5k">execo_g5k</a><ul>
+<li><a class="reference internal" href="#oarsub-example">oarsub example</a></li>
+<li><a class="reference internal" href="#execo-g5k-api-utils">execo_g5k.api_utils</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#more-advanced-usages">More advanced usages</a><ul>
+<li><a class="reference internal" href="#configuration-of-execo-execo-g5k">Configuration of execo, execo_g5k</a></li>
+<li><a class="reference internal" href="#processes-and-actions-factories">Processes and actions factories</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="readme.html"
+                        title="previous chapter">Readme / documentation for the execo package</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="execo.html"
+                        title="next chapter"><tt class="docutils literal docutils literal docutils literal"><span class="pre">execo</span></tt></a></p>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="execo.html" title="execo"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="readme.html" title="Readme / documentation for the execo package"
+             >previous</a> |</li>
+        <li><a href="index.html">execo v2.0</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2009-2012, INRIA Rhone-Alpes, Service Experimentation et Developpement.
+      Last updated on Nov 21, 2012.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>

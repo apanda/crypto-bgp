@@ -1,0 +1,5 @@
+# sample execo user configuration
+# copy this file to ~/.execo.conf.py and edit/modify it appropriately
+
+# import logging, os, sys
+

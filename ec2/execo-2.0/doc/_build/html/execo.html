@@ -1,0 +1,2161 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>execo &mdash; execo v2.0</title>
+    
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '2.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="shortcut icon" href="_static/execo-icon.ico"/>
+    <link rel="top" title="execo v2.0" href="index.html" />
+    <link rel="next" title="execo_g5k" href="execo_g5k.html" />
+    <link rel="prev" title="execo tutorial" href="tutorial.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="execo_g5k.html" title="execo_g5k"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="tutorial.html" title="execo tutorial"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">execo v2.0</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="module-execo">
+<span id="execo"></span><h1><a class="reference internal" href="#module-execo" title="execo"><tt class="xref py py-mod docutils literal"><span class="pre">execo</span></tt></a><a class="headerlink" href="#module-execo" title="Permalink to this headline">¶</a></h1>
+<p>Handles launch and control of several OS level processes concurrently.</p>
+<p>Handles remote executions and file copies with ssh or similar tools.</p>
+<div class="section" id="overview">
+<h2>Overview<a class="headerlink" href="#overview" title="Permalink to this headline">¶</a></h2>
+<p>This module offers a high level API for parallel local or remote
+processes execution with the <a class="reference internal" href="#execo.action.Action" title="execo.action.Action"><tt class="xref py py-obj docutils literal"><span class="pre">execo.action.Action</span></tt></a> class hierarchy,
+and a lower level API with the <a class="reference internal" href="#execo.process.Process" title="execo.process.Process"><tt class="xref py py-obj docutils literal"><span class="pre">execo.process.Process</span></tt></a> class
+hierarchy, for handling individual local or remote subprocesses.</p>
+</div>
+<div class="section" id="process-class-hierarchy">
+<h2>Process class hierarchy<a class="headerlink" href="#process-class-hierarchy" title="Permalink to this headline">¶</a></h2>
+<p>A <a class="reference internal" href="#execo.process.Process" title="execo.process.Process"><tt class="xref py py-obj docutils literal"><span class="pre">execo.process.Process</span></tt></a> and its subclass <a class="reference internal" href="#execo.process.SshProcess" title="execo.process.SshProcess"><tt class="xref py py-obj docutils literal"><span class="pre">execo.process.SshProcess</span></tt></a>
+are abstractions of local or remote operating system process, similar
+to the <tt class="xref py py-obj docutils literal"><span class="pre">subprocess.Popen</span></tt> class in the python standard library
+(actually execo <a class="reference internal" href="#execo.process.Process" title="execo.process.Process"><tt class="xref py py-obj docutils literal"><span class="pre">execo.process.Process</span></tt></a> use them internally). The main
+differences is that a background thread (which is started when execo
+module is imported) takes care of reading asynchronously stdout and
+stderr, and of handling the lifecycle of the process. This allows
+writing easily code in a style appropriate for conducting several
+processes in parallel.</p>
+<p>You can automatically instanciate the right class
+<a class="reference internal" href="#execo.process.Process" title="execo.process.Process"><tt class="xref py py-obj docutils literal"><span class="pre">execo.process.Process</span></tt></a> or <a class="reference internal" href="#execo.process.SshProcess" title="execo.process.SshProcess"><tt class="xref py py-obj docutils literal"><span class="pre">execo.process.SshProcess</span></tt></a> with the
+&#8220;factory&#8221; function <a class="reference internal" href="#execo.process.get_process" title="execo.process.get_process"><tt class="xref py py-obj docutils literal"><span class="pre">execo.process.get_process</span></tt></a>.</p>
+<p><a class="reference internal" href="#execo.process.ProcessBase" title="execo.process.ProcessBase"><tt class="xref py py-obj docutils literal"><span class="pre">execo.process.ProcessBase</span></tt></a> and <a class="reference internal" href="#execo.process.TaktukProcess" title="execo.process.TaktukProcess"><tt class="xref py py-obj docutils literal"><span class="pre">execo.process.TaktukProcess</span></tt></a> are used
+internally and should probably not be used, unless for developing code
+similar to <a class="reference internal" href="#execo.action.TaktukRemote" title="execo.action.TaktukRemote"><tt class="xref py py-obj docutils literal"><span class="pre">execo.action.TaktukRemote</span></tt></a>.</p>
+<div class="section" id="get-process">
+<h3>get_process<a class="headerlink" href="#get-process" title="Permalink to this headline">¶</a></h3>
+<dl class="function">
+<dt id="execo.process.get_process">
+<tt class="descclassname">execo.process.</tt><tt class="descname">get_process</tt><big>(</big><em>*args</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#execo.process.get_process" title="Permalink to this definition">¶</a></dt>
+<dd><p>Instanciates a <a class="reference internal" href="#execo.process.Process" title="execo.process.Process"><tt class="xref py py-obj docutils literal"><span class="pre">execo.process.Process</span></tt></a> or <a class="reference internal" href="#execo.process.SshProcess" title="execo.process.SshProcess"><tt class="xref py py-obj docutils literal"><span class="pre">execo.process.SshProcess</span></tt></a>, depending on the existence of host keyword argument</p>
+</dd></dl>
+
+</div>
+<div class="section" id="processbase">
+<h3>ProcessBase<a class="headerlink" href="#processbase" title="Permalink to this headline">¶</a></h3>
+<p class="graphviz">
+<img src="_images/inheritance-94ae6038f5fff2492c268b0762b840f95ca22905.png" alt="Inheritance diagram of execo.process.ProcessBase" usemap="#inheritanceba3c48e6b1" class="inheritance"/>
+<map id="inheritanceba3c48e6b1" name="inheritanceba3c48e6b1">
+<area shape="rect" id="node1" href="#execo.process.ProcessBase" title="execo.process.ProcessBase" alt="" coords="5,5,205,32"/>
+</map>
+</p>
+<dl class="class">
+<dt id="execo.process.ProcessBase">
+<em class="property">class </em><tt class="descclassname">execo.process.</tt><tt class="descname">ProcessBase</tt><big>(</big><em>cmd</em>, <em>timeout=None</em>, <em>stdout_handler=None</em>, <em>stderr_handler=None</em>, <em>ignore_exit_code=False</em>, <em>log_exit_code=None</em>, <em>ignore_timeout=False</em>, <em>log_timeout=None</em>, <em>ignore_error=False</em>, <em>log_error=None</em>, <em>default_stdout_handler=True</em>, <em>default_stderr_handler=True</em>, <em>process_lifecycle_handler=None</em><big>)</big><a class="headerlink" href="#execo.process.ProcessBase" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
+<p>An almost abstract base class for all kinds of processes.</p>
+<p>There are no abstract methods, but a <a class="reference internal" href="#execo.process.ProcessBase" title="execo.process.ProcessBase"><tt class="xref py py-obj docutils literal"><span class="pre">execo.process.ProcessBase</span></tt></a>
+by itself is almost useless, it only provides accessors to data
+shared with all subclasses, but no way to start it or stop
+it. These methods have to be implemented in concrete subclasses.</p>
+<p>It is possible to register custom lifecycle and output handlers to
+the process, in order to provide specific actions or stdout/stderr
+parsing when needed. See <a class="reference internal" href="#execo.process.ProcessLifecycleHandler" title="execo.process.ProcessLifecycleHandler"><tt class="xref py py-obj docutils literal"><span class="pre">execo.process.ProcessLifecycleHandler</span></tt></a>
+and <a class="reference internal" href="#execo.process.ProcessOutputHandler" title="execo.process.ProcessOutputHandler"><tt class="xref py py-obj docutils literal"><span class="pre">execo.process.ProcessOutputHandler</span></tt></a>.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>cmd</strong> &#8211; string or tuple containing the command and args to
+run.</li>
+<li><strong>timeout</strong> &#8211; timeout (in seconds, or None for no timeout)
+after which the process will automatically be sent a SIGTERM</li>
+<li><strong>stdout_handler</strong> &#8211; instance of
+<a class="reference internal" href="#execo.process.ProcessOutputHandler" title="execo.process.ProcessOutputHandler"><tt class="xref py py-obj docutils literal"><span class="pre">execo.process.ProcessOutputHandler</span></tt></a> for handling activity
+on process stdout</li>
+<li><strong>stderr_handler</strong> &#8211; instance of
+<a class="reference internal" href="#execo.process.ProcessOutputHandler" title="execo.process.ProcessOutputHandler"><tt class="xref py py-obj docutils literal"><span class="pre">execo.process.ProcessOutputHandler</span></tt></a> for handling activity
+on process stderr</li>
+<li><strong>ignore_exit_code</strong> &#8211; if True, a process with a return code
+!= 0 will still be considered ok</li>
+<li><strong>log_exit_code</strong> &#8211; if True, termination of a process with a
+return code != 0 will cause a warning in logs</li>
+<li><strong>ignore_timeout</strong> &#8211; if True, a process which reaches its
+timeout will be sent a SIGTERM, but will still be considered
+ok (but it will most probably have an exit code != 0)</li>
+<li><strong>log_timeout</strong> &#8211; if True, a process which reaches its
+timeout and is sent a SIGTERM will cause a warning in logs</li>
+<li><strong>ignore_error</strong> &#8211; if True, a process raising an OS level
+error will still be considered ok</li>
+<li><strong>log_error</strong> &#8211; if True, a process raising an OS level
+error will cause a warning in logs</li>
+<li><strong>default_stdout_handler</strong> &#8211; if True, a default handler
+sends stdout stream output to the member string accessed
+with self.stdout(). Default: True.</li>
+<li><strong>default_stderr_handler</strong> &#8211; if True, a default handler
+sends stderr stream output to the member string accessed
+with self.stderr(). Default: True.</li>
+<li><strong>process_lifecycle_handler</strong> &#8211; instance of
+<a class="reference internal" href="#execo.process.ProcessLifecycleHandler" title="execo.process.ProcessLifecycleHandler"><tt class="xref py py-obj docutils literal"><span class="pre">execo.process.ProcessLifecycleHandler</span></tt></a> for being notified
+of process lifecycle events.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="execo.process.ProcessBase.cmd">
+<tt class="descname">cmd</tt><big>(</big><big>)</big><a class="headerlink" href="#execo.process.ProcessBase.cmd" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the process command line.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="execo.process.ProcessBase.end_date">
+<tt class="descname">end_date</tt><big>(</big><big>)</big><a class="headerlink" href="#execo.process.ProcessBase.end_date" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the process end date or None if not yet ended.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="execo.process.ProcessBase.ended">
+<tt class="descname">ended</tt><big>(</big><big>)</big><a class="headerlink" href="#execo.process.ProcessBase.ended" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a boolean indicating if the process ended or not.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="execo.process.ProcessBase.error">
+<tt class="descname">error</tt><big>(</big><big>)</big><a class="headerlink" href="#execo.process.ProcessBase.error" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a boolean indicating if there was an error starting the process.</p>
+<p>This is <em>not</em> the process&#8217;s return code.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="execo.process.ProcessBase.error_reason">
+<tt class="descname">error_reason</tt><big>(</big><big>)</big><a class="headerlink" href="#execo.process.ProcessBase.error_reason" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the operating system level errno, if there was an error starting the process, or None.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="execo.process.ProcessBase.exit_code">
+<tt class="descname">exit_code</tt><big>(</big><big>)</big><a class="headerlink" href="#execo.process.ProcessBase.exit_code" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the process exit code.</p>
+<p>If available (if the process ended correctly from the OS point
+of view), or None.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="execo.process.ProcessBase.finished_ok">
+<tt class="descname">finished_ok</tt><big>(</big><em>*args</em>, <em>**kw</em><big>)</big><a class="headerlink" href="#execo.process.ProcessBase.finished_ok" title="Permalink to this definition">¶</a></dt>
+<dd><p>Check process has ran and is ok.</p>
+<p>A process is finished_ok if it has started and ended and
+it is ok.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="execo.process.ProcessBase.forced_kill">
+<tt class="descname">forced_kill</tt><big>(</big><big>)</big><a class="headerlink" href="#execo.process.ProcessBase.forced_kill" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a boolean indicating if the process was killed forcibly.</p>
+<p>When a process is killed with SIGTERM (either manually or
+automatically, due to reaching a timeout), execo will wait
+some time (constant set in execo source) and if after this
+timeout the process is still running, it will be killed
+forcibly with a SIGKILL.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="execo.process.ProcessBase.ok">
+<tt class="descname">ok</tt><big>(</big><em>*args</em>, <em>**kw</em><big>)</big><a class="headerlink" href="#execo.process.ProcessBase.ok" title="Permalink to this definition">¶</a></dt>
+<dd><p>Check process is ok.</p>
+<p>A process is ok, if:</p>
+<ul class="simple">
+<li>it is not yet started or not yet ended</li>
+<li>it started and ended and:<ul>
+<li>has no error (or was instructed to ignore them)</li>
+<li>did not timeout (or was instructed to ignore it)</li>
+<li>returned 0 (or was instructed to ignore a non zero exit
+code)</li>
+</ul>
+</li>
+</ul>
+</dd></dl>
+
+<dl class="method">
+<dt id="execo.process.ProcessBase.reset">
+<tt class="descname">reset</tt><big>(</big><big>)</big><a class="headerlink" href="#execo.process.ProcessBase.reset" title="Permalink to this definition">¶</a></dt>
+<dd><p>Reinitialize a process so that it can later be restarted.</p>
+<p>If it is running, this method will first kill it then wait for
+its termination before reseting;</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="execo.process.ProcessBase.running">
+<tt class="descname">running</tt><big>(</big><em>*args</em>, <em>**kw</em><big>)</big><a class="headerlink" href="#execo.process.ProcessBase.running" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a boolean indicating if the process is currently running.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="execo.process.ProcessBase.start_date">
+<tt class="descname">start_date</tt><big>(</big><big>)</big><a class="headerlink" href="#execo.process.ProcessBase.start_date" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the process start date or None if not yet started.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="execo.process.ProcessBase.started">
+<tt class="descname">started</tt><big>(</big><big>)</big><a class="headerlink" href="#execo.process.ProcessBase.started" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a boolean indicating if the process was started or not.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="execo.process.ProcessBase.stderr">
+<tt class="descname">stderr</tt><big>(</big><big>)</big><a class="headerlink" href="#execo.process.ProcessBase.stderr" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a string containing the process stderr.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="execo.process.ProcessBase.stderr_handler">
+<tt class="descname">stderr_handler</tt><big>(</big><big>)</big><a class="headerlink" href="#execo.process.ProcessBase.stderr_handler" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return this process stderr <a class="reference internal" href="#execo.process.ProcessOutputHandler" title="execo.process.ProcessOutputHandler"><tt class="xref py py-obj docutils literal"><span class="pre">execo.process.ProcessOutputHandler</span></tt></a>.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="execo.process.ProcessBase.stdout">
+<tt class="descname">stdout</tt><big>(</big><big>)</big><a class="headerlink" href="#execo.process.ProcessBase.stdout" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a string containing the process stdout.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="execo.process.ProcessBase.stdout_handler">
+<tt class="descname">stdout_handler</tt><big>(</big><big>)</big><a class="headerlink" href="#execo.process.ProcessBase.stdout_handler" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return this process stdout <a class="reference internal" href="#execo.process.ProcessOutputHandler" title="execo.process.ProcessOutputHandler"><tt class="xref py py-obj docutils literal"><span class="pre">execo.process.ProcessOutputHandler</span></tt></a>.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="execo.process.ProcessBase.timeout">
+<tt class="descname">timeout</tt><big>(</big><big>)</big><a class="headerlink" href="#execo.process.ProcessBase.timeout" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the timeout in seconds after which the process would be killed.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="execo.process.ProcessBase.timeout_date">
+<tt class="descname">timeout_date</tt><big>(</big><big>)</big><a class="headerlink" href="#execo.process.ProcessBase.timeout_date" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the date at which the process will reach its timeout.</p>
+<p>Or none if not available.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="execo.process.ProcessBase.timeouted">
+<tt class="descname">timeouted</tt><big>(</big><big>)</big><a class="headerlink" href="#execo.process.ProcessBase.timeouted" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a boolean indicating if the process has reached its timeout.</p>
+<p>Or None if we don&#8217;t know yet (process still running, timeout
+not reached).</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="process">
+<h3>Process<a class="headerlink" href="#process" title="Permalink to this headline">¶</a></h3>
+<p class="graphviz">
+<img src="_images/inheritance-5262c64fef3bda96f072b5c74e74f44a5069f5c8.png" alt="Inheritance diagram of execo.process.Process" usemap="#inheritance18e94fdf9b" class="inheritance"/>
+<map id="inheritance18e94fdf9b" name="inheritance18e94fdf9b">
+<area shape="rect" id="node1" href="#execo.process.ProcessBase" title="execo.process.ProcessBase" alt="" coords="5,5,205,32"/>
+<area shape="rect" id="node2" href="#execo.process.Process" title="execo.process.Process" alt="" coords="253,5,421,32"/>
+</map>
+</p>
+<dl class="class">
+<dt id="execo.process.Process">
+<em class="property">class </em><tt class="descclassname">execo.process.</tt><tt class="descname">Process</tt><big>(</big><em>cmd</em>, <em>close_stdin=None</em>, <em>shell=False</em>, <em>pty=False</em>, <em>kill_subprocesses=None</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#execo.process.Process" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#execo.process.ProcessBase" title="execo.process.ProcessBase"><tt class="xref py py-class docutils literal"><span class="pre">execo.process.ProcessBase</span></tt></a></p>
+<p>Handle an operating system process.</p>
+<p>In coordination with the internal _Conductor I/O and process
+lifecycle management thread which is started when execo is
+imported, this class allows creation, start, interruption (kill),
+and waiting (for the termination) of an operating system
+process. The subprocess output streams (stdout, stderr), as well
+as various informations about the subprocess and its state can be
+accessed asynchronously.</p>
+<p>Example usage of the process class: run an iperf server, and
+connect to it with an iperf client:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">server</span> <span class="o">=</span> <span class="n">Process</span><span class="p">(</span><span class="s">&#39;iperf -s&#39;</span><span class="p">,</span> <span class="n">ignore_exit_code</span> <span class="o">=</span> <span class="bp">True</span><span class="p">)</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">client</span> <span class="o">=</span> <span class="n">Process</span><span class="p">(</span><span class="s">&#39;iperf -c localhost -t 2&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">client</span><span class="o">.</span><span class="n">started</span><span class="p">()</span>
+<span class="go">True</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">client</span><span class="o">.</span><span class="n">ended</span><span class="p">()</span>
+<span class="go">False</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">client</span><span class="o">.</span><span class="n">wait</span><span class="p">()</span>
+<span class="go">Process(&#39;iperf -c localhost -t 2&#39;, close_stdin=True)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">client</span><span class="o">.</span><span class="n">ended</span><span class="p">()</span>
+<span class="go">True</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">server</span><span class="o">.</span><span class="n">ended</span><span class="p">()</span>
+<span class="go">False</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">server</span><span class="o">.</span><span class="n">kill</span><span class="p">()</span>
+<span class="go">Process(&#39;iperf -s&#39;, ignore_exit_code=True, close_stdin=True)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">server</span><span class="o">.</span><span class="n">wait</span><span class="p">()</span>
+<span class="go">Process(&#39;iperf -s&#39;, ignore_exit_code=True, close_stdin=True)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">server</span><span class="o">.</span><span class="n">ended</span><span class="p">()</span>
+<span class="go">True</span>
+</pre></div>
+</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>cmd</strong> &#8211; string or tuple containing the command and args to
+run.</li>
+<li><strong>close_stdin</strong> &#8211; boolean. whether or not to close
+subprocess&#8217;s stdin. If None (default value), automatically
+choose based on pty.</li>
+<li><strong>shell</strong> &#8211; whether or not to use a shell to run the
+cmd. See <tt class="docutils literal"><span class="pre">subprocess.Popen</span></tt></li>
+<li><strong>pty</strong> &#8211; open a pseudo tty and connect process&#8217;s stdin and
+stdout to it (stderr is still connected as a pipe). Make
+process a session leader. If lacking permissions to send
+signals to the process, try to simulate sending control
+characters to its pty.</li>
+<li><strong>kill_subprocesses</strong> &#8211; if True, signals are also sent to
+subprocesses. If None, automatically decide based on
+shell = True/False.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="execo.process.Process.kill">
+<tt class="descname">kill</tt><big>(</big><em>*args</em>, <em>**kw</em><big>)</big><a class="headerlink" href="#execo.process.Process.kill" title="Permalink to this definition">¶</a></dt>
+<dd><p>Send a signal (default: SIGTERM) to the subprocess.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>sig</strong> &#8211; the signal to send</li>
+<li><strong>auto_sigterm_timeout</strong> &#8211; whether or not execo will check
+that the subprocess has terminated after a preset timeout,
+when it has received a SIGTERM, and automatically send
+SIGKILL if the subprocess is not yet terminated</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="execo.process.Process.pid">
+<tt class="descname">pid</tt><big>(</big><big>)</big><a class="headerlink" href="#execo.process.Process.pid" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the subprocess&#8217;s pid, if available (subprocess started) or None.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="execo.process.Process.run">
+<tt class="descname">run</tt><big>(</big><em>timeout=None</em><big>)</big><a class="headerlink" href="#execo.process.Process.run" title="Permalink to this definition">¶</a></dt>
+<dd><p>Start subprocess then wait for its end.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="execo.process.Process.start">
+<tt class="descname">start</tt><big>(</big><big>)</big><a class="headerlink" href="#execo.process.Process.start" title="Permalink to this definition">¶</a></dt>
+<dd><p>Start the subprocess.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="execo.process.Process.stderr_fd">
+<tt class="descname">stderr_fd</tt><big>(</big><em>*args</em>, <em>**kw</em><big>)</big><a class="headerlink" href="#execo.process.Process.stderr_fd" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the subprocess stderr filehandle.</p>
+<p>Or None if not available.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="execo.process.Process.stdin_fd">
+<tt class="descname">stdin_fd</tt><big>(</big><em>*args</em>, <em>**kw</em><big>)</big><a class="headerlink" href="#execo.process.Process.stdin_fd" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the subprocess stdin filehandle.</p>
+<p>Or None if not available.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="execo.process.Process.stdout_fd">
+<tt class="descname">stdout_fd</tt><big>(</big><em>*args</em>, <em>**kw</em><big>)</big><a class="headerlink" href="#execo.process.Process.stdout_fd" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the subprocess stdout filehandle.</p>
+<p>Or None if not available.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="execo.process.Process.wait">
+<tt class="descname">wait</tt><big>(</big><em>timeout=None</em><big>)</big><a class="headerlink" href="#execo.process.Process.wait" title="Permalink to this definition">¶</a></dt>
+<dd><p>Wait for the subprocess end.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="sshprocess">
+<h3>SshProcess<a class="headerlink" href="#sshprocess" title="Permalink to this headline">¶</a></h3>
+<p class="graphviz">
+<img src="_images/inheritance-247174f5cbab832d059f3b4bc063e44bccd5a19b.png" alt="Inheritance diagram of execo.process.SshProcess" usemap="#inheritancea639f7c6c9" class="inheritance"/>
+<map id="inheritancea639f7c6c9" name="inheritancea639f7c6c9">
+<area shape="rect" id="node1" href="#execo.process.ProcessBase" title="execo.process.ProcessBase" alt="" coords="5,5,205,32"/>
+<area shape="rect" id="node3" href="#execo.process.Process" title="execo.process.Process" alt="" coords="253,5,421,32"/>
+<area shape="rect" id="node2" href="#execo.process.SshProcess" title="execo.process.SshProcess" alt="" coords="469,5,661,32"/>
+</map>
+</p>
+<dl class="class">
+<dt id="execo.process.SshProcess">
+<em class="property">class </em><tt class="descclassname">execo.process.</tt><tt class="descname">SshProcess</tt><big>(</big><em>cmd</em>, <em>host=None</em>, <em>connexion_params=None</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#execo.process.SshProcess" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#execo.process.Process" title="execo.process.Process"><tt class="xref py py-class docutils literal"><span class="pre">execo.process.Process</span></tt></a></p>
+<p>Handle a remote command execution through ssh or similar remote execution tool.</p>
+<p>Note: the closing of the remote process upon killing of the
+SshProcess depends on the ssh (or ssh-like) command behavior. With
+openssh, this can be obtained by passing options -tt (force tty
+creation), thus these are the default options in
+<tt class="docutils literal"><span class="pre">execo.config.default_connexion_params</span></tt>.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>host</strong> &#8211; <a class="reference internal" href="#execo.host.Host" title="execo.host.Host"><tt class="xref py py-obj docutils literal"><span class="pre">execo.host.Host</span></tt></a> to connect to</li>
+<li><strong>connexion_params</strong> &#8211; connexion parameters</li>
+<li><strong>kwargs</strong> &#8211; passed to <a class="reference internal" href="#execo.process.Process" title="execo.process.Process"><tt class="xref py py-obj docutils literal"><span class="pre">execo.process.Process</span></tt></a>. Special case
+for keyword argument <tt class="docutils literal"><span class="pre">pty</span></tt>: if this keyword argument is
+not given, use the <tt class="docutils literal"><span class="pre">pty</span></tt> field of the connexion params,
+else use the <tt class="docutils literal"><span class="pre">pty</span></tt> keyword argument, which takes
+precedence. This allows setting default pty behaviors in
+connexion_params shared by various remote processes (this
+was motivated by allowing
+<a class="reference internal" href="execo_g5k.html#execo_g5k.config.default_oarsh_oarcp_params" title="execo_g5k.config.default_oarsh_oarcp_params"><tt class="xref py py-obj docutils literal"><span class="pre">execo_g5k.config.default_oarsh_oarcp_params</span></tt></a> to set pty to
+True, because oarsh/oarcp are run sudo which forbids to send
+signals).</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="execo.process.SshProcess.connexion_params">
+<tt class="descname">connexion_params</tt><big>(</big><big>)</big><a class="headerlink" href="#execo.process.SshProcess.connexion_params" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return ssh connexion parameters.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="execo.process.SshProcess.host">
+<tt class="descname">host</tt><big>(</big><big>)</big><a class="headerlink" href="#execo.process.SshProcess.host" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the remote host.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="execo.process.SshProcess.remote_cmd">
+<tt class="descname">remote_cmd</tt><big>(</big><big>)</big><a class="headerlink" href="#execo.process.SshProcess.remote_cmd" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the command line executed remotely through ssh.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="taktukprocess">
+<h3>TaktukProcess<a class="headerlink" href="#taktukprocess" title="Permalink to this headline">¶</a></h3>
+<p class="graphviz">
+<img src="_images/inheritance-f7f27551ac5e6421f4803286402f324144bb3c70.png" alt="Inheritance diagram of execo.process.TaktukProcess" usemap="#inheritance50d6551612" class="inheritance"/>
+<map id="inheritance50d6551612" name="inheritance50d6551612">
+<area shape="rect" id="node1" href="#execo.process.TaktukProcess" title="execo.process.TaktukProcess" alt="" coords="255,5,463,32"/>
+<area shape="rect" id="node2" href="#execo.process.ProcessBase" title="execo.process.ProcessBase" alt="" coords="5,5,205,32"/>
+</map>
+</p>
+<dl class="class">
+<dt id="execo.process.TaktukProcess">
+<em class="property">class </em><tt class="descclassname">execo.process.</tt><tt class="descname">TaktukProcess</tt><big>(</big><em>cmd</em>, <em>host=None</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#execo.process.TaktukProcess" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#execo.process.ProcessBase" title="execo.process.ProcessBase"><tt class="xref py py-class docutils literal"><span class="pre">execo.process.ProcessBase</span></tt></a></p>
+<p>Dummy process similar to <a class="reference internal" href="#execo.process.SshProcess" title="execo.process.SshProcess"><tt class="xref py py-obj docutils literal"><span class="pre">execo.process.SshProcess</span></tt></a>.</p>
+<dl class="method">
+<dt id="execo.process.TaktukProcess.host">
+<tt class="descname">host</tt><big>(</big><big>)</big><a class="headerlink" href="#execo.process.TaktukProcess.host" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the remote host.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="execo.process.TaktukProcess.start">
+<tt class="descname">start</tt><big>(</big><em>*args</em>, <em>**kw</em><big>)</big><a class="headerlink" href="#execo.process.TaktukProcess.start" title="Permalink to this definition">¶</a></dt>
+<dd><p>Notify TaktukProcess of actual remote process start.</p>
+<p>This method is intended to be used by
+<a class="reference internal" href="#execo.action.TaktukRemote" title="execo.action.TaktukRemote"><tt class="xref py py-obj docutils literal"><span class="pre">execo.action.TaktukRemote</span></tt></a>.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="processlifecyclehandler">
+<h3>ProcessLifecycleHandler<a class="headerlink" href="#processlifecyclehandler" title="Permalink to this headline">¶</a></h3>
+<dl class="class">
+<dt id="execo.process.ProcessLifecycleHandler">
+<em class="property">class </em><tt class="descclassname">execo.process.</tt><tt class="descname">ProcessLifecycleHandler</tt><a class="headerlink" href="#execo.process.ProcessLifecycleHandler" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
+<p>Abstract handler for <a class="reference internal" href="#execo.process.ProcessBase" title="execo.process.ProcessBase"><tt class="xref py py-obj docutils literal"><span class="pre">execo.process.ProcessBase</span></tt></a> lifecycle.</p>
+<dl class="method">
+<dt id="execo.process.ProcessLifecycleHandler.end">
+<tt class="descname">end</tt><big>(</big><em>process</em><big>)</big><a class="headerlink" href="#execo.process.ProcessLifecycleHandler.end" title="Permalink to this definition">¶</a></dt>
+<dd><p>Handle  <a class="reference internal" href="#execo.process.ProcessBase" title="execo.process.ProcessBase"><tt class="xref py py-obj docutils literal"><span class="pre">execo.process.ProcessBase</span></tt></a>&#8216;s end.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>process</strong> &#8211; The ProcessBase which ends.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="execo.process.ProcessLifecycleHandler.reset">
+<tt class="descname">reset</tt><big>(</big><em>process</em><big>)</big><a class="headerlink" href="#execo.process.ProcessLifecycleHandler.reset" title="Permalink to this definition">¶</a></dt>
+<dd><p>Handle <a class="reference internal" href="#execo.process.ProcessBase" title="execo.process.ProcessBase"><tt class="xref py py-obj docutils literal"><span class="pre">execo.process.ProcessBase</span></tt></a>&#8216;s reset.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>process</strong> &#8211; The ProcessBase which is reset.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="execo.process.ProcessLifecycleHandler.start">
+<tt class="descname">start</tt><big>(</big><em>process</em><big>)</big><a class="headerlink" href="#execo.process.ProcessLifecycleHandler.start" title="Permalink to this definition">¶</a></dt>
+<dd><p>Handle <a class="reference internal" href="#execo.process.ProcessBase" title="execo.process.ProcessBase"><tt class="xref py py-obj docutils literal"><span class="pre">execo.process.ProcessBase</span></tt></a>&#8216;s start.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>process</strong> &#8211; The ProcessBase which starts.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="processoutputhandler">
+<h3>ProcessOutputHandler<a class="headerlink" href="#processoutputhandler" title="Permalink to this headline">¶</a></h3>
+<dl class="class">
+<dt id="execo.process.ProcessOutputHandler">
+<em class="property">class </em><tt class="descclassname">execo.process.</tt><tt class="descname">ProcessOutputHandler</tt><a class="headerlink" href="#execo.process.ProcessOutputHandler" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
+<p>Abstract handler for <a class="reference internal" href="#execo.process.ProcessBase" title="execo.process.ProcessBase"><tt class="xref py py-obj docutils literal"><span class="pre">execo.process.ProcessBase</span></tt></a> output.</p>
+<p>ProcessOutputHandler constructor. Call it in inherited classes.</p>
+<dl class="method">
+<dt id="execo.process.ProcessOutputHandler.read">
+<tt class="descname">read</tt><big>(</big><em>process</em>, <em>string</em>, <em>eof=False</em>, <em>error=False</em><big>)</big><a class="headerlink" href="#execo.process.ProcessOutputHandler.read" title="Permalink to this definition">¶</a></dt>
+<dd><p>Handle string read from a <a class="reference internal" href="#execo.process.ProcessBase" title="execo.process.ProcessBase"><tt class="xref py py-obj docutils literal"><span class="pre">execo.process.ProcessBase</span></tt></a>&#8216;s stream.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>process</strong> &#8211; the ProcessBase which outputs the string</li>
+<li><strong>string</strong> &#8211; the string read</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<p>:param eof:(boolean) true if the stream is now at eof.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>error</strong> &#8211; (boolean) true if there was an error on the
+stream</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="execo.process.ProcessOutputHandler.read_line">
+<tt class="descname">read_line</tt><big>(</big><em>process</em>, <em>string</em>, <em>eof=False</em>, <em>error=False</em><big>)</big><a class="headerlink" href="#execo.process.ProcessOutputHandler.read_line" title="Permalink to this definition">¶</a></dt>
+<dd><p>Handle string read line by line from a <a class="reference internal" href="#execo.process.ProcessBase" title="execo.process.ProcessBase"><tt class="xref py py-obj docutils literal"><span class="pre">execo.process.ProcessBase</span></tt></a>&#8216;s stream.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>process</strong> &#8211; the ProcessBase which outputs the line</li>
+<li><strong>string</strong> &#8211; the line read</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<p>:param eof:(boolean) true if the stream is now at eof.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>error</strong> &#8211; (boolean) true if there was an error on the
+stream</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+</div>
+<div class="section" id="action-class-hierarchy">
+<h2>Action class hierarchy<a class="headerlink" href="#action-class-hierarchy" title="Permalink to this headline">¶</a></h2>
+<p>An <a class="reference internal" href="#execo.action.Action" title="execo.action.Action"><tt class="xref py py-obj docutils literal"><span class="pre">execo.action.Action</span></tt></a> is an abstraction of a set of parallel
+processes. It is an abstract class. Child classes are:
+<a class="reference internal" href="#execo.action.Remote" title="execo.action.Remote"><tt class="xref py py-obj docutils literal"><span class="pre">execo.action.Remote</span></tt></a>, <a class="reference internal" href="#execo.action.TaktukRemote" title="execo.action.TaktukRemote"><tt class="xref py py-obj docutils literal"><span class="pre">execo.action.TaktukRemote</span></tt></a>,
+<a class="reference internal" href="#execo.action.Get" title="execo.action.Get"><tt class="xref py py-obj docutils literal"><span class="pre">execo.action.Get</span></tt></a>, <a class="reference internal" href="#execo.action.Put" title="execo.action.Put"><tt class="xref py py-obj docutils literal"><span class="pre">execo.action.Put</span></tt></a>, <a class="reference internal" href="#execo.action.TaktukGet" title="execo.action.TaktukGet"><tt class="xref py py-obj docutils literal"><span class="pre">execo.action.TaktukGet</span></tt></a>,
+<a class="reference internal" href="#execo.action.TaktukPut" title="execo.action.TaktukPut"><tt class="xref py py-obj docutils literal"><span class="pre">execo.action.TaktukPut</span></tt></a>, <a class="reference internal" href="#execo.action.Local" title="execo.action.Local"><tt class="xref py py-obj docutils literal"><span class="pre">execo.action.Local</span></tt></a>. A
+<a class="reference internal" href="#execo.action.Remote" title="execo.action.Remote"><tt class="xref py py-obj docutils literal"><span class="pre">execo.action.Remote</span></tt></a> or <a class="reference internal" href="#execo.action.TaktukRemote" title="execo.action.TaktukRemote"><tt class="xref py py-obj docutils literal"><span class="pre">execo.action.TaktukRemote</span></tt></a> is a remote
+process execution on a group of hosts. The remote connexion is
+performed by ssh or a similar tool. <a class="reference internal" href="#execo.action.Remote" title="execo.action.Remote"><tt class="xref py py-obj docutils literal"><span class="pre">execo.action.Remote</span></tt></a> uses as many
+ssh connexions as remote hosts, whereas <a class="reference internal" href="#execo.action.TaktukRemote" title="execo.action.TaktukRemote"><tt class="xref py py-obj docutils literal"><span class="pre">execo.action.TaktukRemote</span></tt></a>
+uses taktuk internally (<a class="reference external" href="http://taktuk.gforge.inria.fr/">http://taktuk.gforge.inria.fr/</a>) to build a
+communication tree, thus is more scalable. <tt class="xref py py-obj docutils literal"><span class="pre">Put</span></tt> and <tt class="xref py py-obj docutils literal"><span class="pre">Get</span></tt> are actions
+for copying files or directories to or from groups of hosts. The copy
+is performed with scp or a similar tool. <a class="reference internal" href="#execo.action.TaktukPut" title="execo.action.TaktukPut"><tt class="xref py py-obj docutils literal"><span class="pre">execo.action.TaktukPut</span></tt></a> and
+<a class="reference internal" href="#execo.action.TaktukGet" title="execo.action.TaktukGet"><tt class="xref py py-obj docutils literal"><span class="pre">execo.action.TaktukGet</span></tt></a> also copy files or directories to or from
+groups of hosts, using taktuk (see taktuk documentation about
+limitations of using taktuk for file transfers). A
+<a class="reference internal" href="#execo.action.Local" title="execo.action.Local"><tt class="xref py py-obj docutils literal"><span class="pre">execo.action.Local</span></tt></a> is a local process (it is a very lightweight
+<a class="reference internal" href="#execo.action.Action" title="execo.action.Action"><tt class="xref py py-obj docutils literal"><span class="pre">execo.action.Action</span></tt></a> on top of a single <tt class="xref py py-obj docutils literal"><span class="pre">execo.Process.Process</span></tt>
+instance).</p>
+<p><a class="reference internal" href="#execo.action.Remote" title="execo.action.Remote"><tt class="xref py py-obj docutils literal"><span class="pre">execo.action.Remote</span></tt></a>, <a class="reference internal" href="#execo.action.TaktukRemote" title="execo.action.TaktukRemote"><tt class="xref py py-obj docutils literal"><span class="pre">execo.action.TaktukRemote</span></tt></a>,
+<a class="reference internal" href="#execo.action.Get" title="execo.action.Get"><tt class="xref py py-obj docutils literal"><span class="pre">execo.action.Get</span></tt></a>, <a class="reference internal" href="#execo.action.TaktukGet" title="execo.action.TaktukGet"><tt class="xref py py-obj docutils literal"><span class="pre">execo.action.TaktukGet</span></tt></a>, <a class="reference internal" href="#execo.action.Put" title="execo.action.Put"><tt class="xref py py-obj docutils literal"><span class="pre">execo.action.Put</span></tt></a>,
+<a class="reference internal" href="#execo.action.TaktukPut" title="execo.action.TaktukPut"><tt class="xref py py-obj docutils literal"><span class="pre">execo.action.TaktukPut</span></tt></a> require a list of remote hosts to perform
+their tasks. These hosts are passed as an iterable of instances of
+<a class="reference internal" href="#execo.host.Host" title="execo.host.Host"><tt class="xref py py-obj docutils literal"><span class="pre">execo.host.Host</span></tt></a>. The <a class="reference internal" href="#execo.host.Host" title="execo.host.Host"><tt class="xref py py-obj docutils literal"><span class="pre">execo.host.Host</span></tt></a> class instances have an
+address, and may have a ssh port, a ssh keyfile, a ssh user, if
+needed.</p>
+<p>A configurable <a class="reference internal" href="#execo.action.ActionFactory" title="execo.action.ActionFactory"><tt class="xref py py-obj docutils literal"><span class="pre">execo.action.ActionFactory</span></tt></a> can be created to choose
+which kind of actions to instanciate, <tt class="docutils literal"><span class="pre">ssh</span></tt>/<tt class="docutils literal"><span class="pre">scp</span></tt> or
+<tt class="docutils literal"><span class="pre">taktuk</span></tt>. Functions <a class="reference internal" href="#execo.action.get_remote" title="execo.action.get_remote"><tt class="xref py py-obj docutils literal"><span class="pre">execo.action.get_remote</span></tt></a>,
+<a class="reference internal" href="#execo.action.get_fileput" title="execo.action.get_fileput"><tt class="xref py py-obj docutils literal"><span class="pre">execo.action.get_fileput</span></tt></a>, <a class="reference internal" href="#execo.action.get_fileget" title="execo.action.get_fileget"><tt class="xref py py-obj docutils literal"><span class="pre">execo.action.get_fileget</span></tt></a> use a default
+<a class="reference internal" href="#execo.action.ActionFactory" title="execo.action.ActionFactory"><tt class="xref py py-obj docutils literal"><span class="pre">execo.action.ActionFactory</span></tt></a>.</p>
+<p>As an example of the usage of the <a class="reference internal" href="#execo.action.Remote" title="execo.action.Remote"><tt class="xref py py-obj docutils literal"><span class="pre">execo.action.Remote</span></tt></a> class, let&#8217;s
+launch some commands on a few remote hosts:</p>
+<div class="highlight-python"><pre>a = Remote(cmd='whoami ; uname -a',
+           hosts=(Host('nancy'), Host('Rennes'))).start()
+b = Remote(cmd='cd ~/project ; make clean ; make'
+           hosts=(Host('lille'), Host('sophia'))).start()
+a.wait()
+# do something else....
+b.wait()</pre>
+</div>
+<div class="section" id="action">
+<h3>Action<a class="headerlink" href="#action" title="Permalink to this headline">¶</a></h3>
+<p class="graphviz">
+<img src="_images/inheritance-a201ae00a28592bfcc2a4968ad9e54b87880429b.png" alt="Inheritance diagram of execo.action.Action" usemap="#inheritancec57c5b6c0f" class="inheritance"/>
+<map id="inheritancec57c5b6c0f" name="inheritancec57c5b6c0f">
+<area shape="rect" id="node1" href="#execo.action.Action" title="execo.action.Action" alt="" coords="5,5,152,32"/>
+</map>
+</p>
+<dl class="class">
+<dt id="execo.action.Action">
+<em class="property">class </em><tt class="descclassname">execo.action.</tt><tt class="descname">Action</tt><big>(</big><em>name=None</em><big>)</big><a class="headerlink" href="#execo.action.Action" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
+<p>Abstract base class. A set of parallel processes.</p>
+<p>An <a class="reference internal" href="#execo.action.Action" title="execo.action.Action"><tt class="xref py py-obj docutils literal"><span class="pre">execo.action.Action</span></tt></a> can be started
+(<a class="reference internal" href="#execo.action.Action.start" title="execo.action.Action.start"><tt class="xref py py-obj docutils literal"><span class="pre">execo.action.Action.start</span></tt></a>), killed
+(<a class="reference internal" href="#execo.action.Action.kill" title="execo.action.Action.kill"><tt class="xref py py-obj docutils literal"><span class="pre">execo.action.Action.kill</span></tt></a>). One can wait
+(<a class="reference internal" href="#execo.action.Action.wait" title="execo.action.Action.wait"><tt class="xref py py-obj docutils literal"><span class="pre">execo.action.Action.wait</span></tt></a>) for an Action, it means waiting for
+all processes in the Action to finish. An Action can be run
+(<a class="reference internal" href="#execo.action.Action.run" title="execo.action.Action.run"><tt class="xref py py-obj docutils literal"><span class="pre">execo.action.Action.run</span></tt></a>), it means start it then wait for it to
+complete.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>name</strong> &#8211; Action name, one will be generated if None given</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="execo.action.Action.add_lifecycle_handler">
+<tt class="descname">add_lifecycle_handler</tt><big>(</big><em>handler</em><big>)</big><a class="headerlink" href="#execo.action.Action.add_lifecycle_handler" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add a lifecycle handler.</p>
+<p>An instance of <a class="reference internal" href="#execo.action.ActionLifecycleHandler" title="execo.action.ActionLifecycleHandler"><tt class="xref py py-obj docutils literal"><span class="pre">execo.action.ActionLifecycleHandler</span></tt></a> for being
+notified of action lifecycle events.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="execo.action.Action.ended">
+<tt class="descname">ended</tt><big>(</big><big>)</big><a class="headerlink" href="#execo.action.Action.ended" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return whether all processes of this Action have ended (boolean).</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="execo.action.Action.finished_ok">
+<tt class="descname">finished_ok</tt><big>(</big><big>)</big><a class="headerlink" href="#execo.action.Action.finished_ok" title="Permalink to this definition">¶</a></dt>
+<dd><p>Action has started, ended, and is not in error.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="execo.action.Action.kill">
+<tt class="descname">kill</tt><big>(</big><big>)</big><a class="headerlink" href="#execo.action.Action.kill" title="Permalink to this definition">¶</a></dt>
+<dd><p>Kill all processes not yet ended.</p>
+<p>Returns immediately, without waiting for processes to be
+actually killed.</p>
+<p>return self</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="execo.action.Action.name">
+<tt class="descname">name</tt><big>(</big><big>)</big><a class="headerlink" href="#execo.action.Action.name" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the <a class="reference internal" href="#execo.report.Report" title="execo.report.Report"><tt class="xref py py-obj docutils literal"><span class="pre">execo.report.Report</span></tt></a> name.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="execo.action.Action.ok">
+<tt class="descname">ok</tt><big>(</big><big>)</big><a class="headerlink" href="#execo.action.Action.ok" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a boolean indicating if all processes are ok.</p>
+<p>refer to <a class="reference internal" href="#execo.process.ProcessBase.ok" title="execo.process.ProcessBase.ok"><tt class="xref py py-obj docutils literal"><span class="pre">execo.process.ProcessBase.ok</span></tt></a> for detailed semantics
+of being ok for a process.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="execo.action.Action.processes">
+<tt class="descname">processes</tt><big>(</big><big>)</big><a class="headerlink" href="#execo.action.Action.processes" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return an iterable of all <a class="reference internal" href="#execo.process.ProcessBase" title="execo.process.ProcessBase"><tt class="xref py py-obj docutils literal"><span class="pre">execo.process.ProcessBase</span></tt></a>.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="execo.action.Action.reset">
+<tt class="descname">reset</tt><big>(</big><big>)</big><a class="headerlink" href="#execo.action.Action.reset" title="Permalink to this definition">¶</a></dt>
+<dd><p>Reinitialize an Action so that it can later be restarted.</p>
+<p>If it is running, this method will first kill it then wait for
+its termination before reseting.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="execo.action.Action.run">
+<tt class="descname">run</tt><big>(</big><em>timeout=None</em><big>)</big><a class="headerlink" href="#execo.action.Action.run" title="Permalink to this definition">¶</a></dt>
+<dd><p>Start all processes then wait for them to complete.</p>
+<p>return self</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="execo.action.Action.start">
+<tt class="descname">start</tt><big>(</big><big>)</big><a class="headerlink" href="#execo.action.Action.start" title="Permalink to this definition">¶</a></dt>
+<dd><p>Start all processes.</p>
+<p>return self</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="execo.action.Action.started">
+<tt class="descname">started</tt><big>(</big><big>)</big><a class="headerlink" href="#execo.action.Action.started" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return whether this Action was started (boolean).</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="execo.action.Action.stats">
+<tt class="descname">stats</tt><big>(</big><big>)</big><a class="headerlink" href="#execo.action.Action.stats" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a dict summarizing the statistics of all processes
+of this Action.</p>
+<p>see <a class="reference internal" href="#execo.report.Report.stats" title="execo.report.Report.stats"><tt class="xref py py-obj docutils literal"><span class="pre">execo.report.Report.stats</span></tt></a>.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="execo.action.Action.wait">
+<tt class="descname">wait</tt><big>(</big><em>timeout=None</em><big>)</big><a class="headerlink" href="#execo.action.Action.wait" title="Permalink to this definition">¶</a></dt>
+<dd><p>Wait for all processes to complete.</p>
+<p>return self</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="remote">
+<h3>Remote<a class="headerlink" href="#remote" title="Permalink to this headline">¶</a></h3>
+<p class="graphviz">
+<img src="_images/inheritance-d985eb40ae47e6f1dae3f5f873e268b27a03430f.png" alt="Inheritance diagram of execo.action.Remote" usemap="#inheritanceebfaa1bca5" class="inheritance"/>
+<map id="inheritanceebfaa1bca5" name="inheritanceebfaa1bca5">
+<area shape="rect" id="node1" href="#execo.action.Remote" title="execo.action.Remote" alt="" coords="200,5,357,32"/>
+<area shape="rect" id="node2" href="#execo.action.Action" title="execo.action.Action" alt="" coords="5,5,152,32"/>
+</map>
+</p>
+<dl class="class">
+<dt id="execo.action.Remote">
+<em class="property">class </em><tt class="descclassname">execo.action.</tt><tt class="descname">Remote</tt><big>(</big><em>cmd</em>, <em>hosts</em>, <em>connexion_params=None</em>, <em>name=None</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#execo.action.Remote" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#execo.action.Action" title="execo.action.Action"><tt class="xref py py-class docutils literal"><span class="pre">execo.action.Action</span></tt></a></p>
+<p>Launch a command remotely on several host, with <tt class="docutils literal"><span class="pre">ssh</span></tt> or a similar remote connexion tool.</p>
+<p>One ssh process is launched for each connexion.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>cmd</strong> &#8211; the command to run remotely. substitions
+described in <a class="reference internal" href="#execo.substitutions.remote_substitute" title="execo.substitutions.remote_substitute"><tt class="xref py py-obj docutils literal"><span class="pre">execo.substitutions.remote_substitute</span></tt></a> will be
+performed.</li>
+<li><strong>hosts</strong> &#8211; iterable of <a class="reference internal" href="#execo.host.Host" title="execo.host.Host"><tt class="xref py py-obj docutils literal"><span class="pre">execo.host.Host</span></tt></a> to which to
+connect and run the command.</li>
+<li><strong>connexion_params</strong> &#8211; a dict similar to
+<a class="reference internal" href="#execo.config.default_connexion_params" title="execo.config.default_connexion_params"><tt class="xref py py-obj docutils literal"><span class="pre">execo.config.default_connexion_params</span></tt></a> whose values will
+override those in default_connexion_params for connexion.</li>
+<li><strong>name</strong> &#8211; action&#8217;s name</li>
+<li><strong>kwargs</strong> &#8211; passed to the instanciated
+<a class="reference internal" href="#execo.process.SshProcess" title="execo.process.SshProcess"><tt class="xref py py-obj docutils literal"><span class="pre">execo.process.SshProcess</span></tt></a>.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+<div class="section" id="taktukremote">
+<h3>TaktukRemote<a class="headerlink" href="#taktukremote" title="Permalink to this headline">¶</a></h3>
+<p class="graphviz">
+<img src="_images/inheritance-286617c7f9771a32d3ac036d54b6c2280d009a5e.png" alt="Inheritance diagram of execo.action.TaktukRemote" usemap="#inheritance93b34875a5" class="inheritance"/>
+<map id="inheritance93b34875a5" name="inheritance93b34875a5">
+<area shape="rect" id="node1" href="#execo.action.TaktukRemote" title="execo.action.TaktukRemote" alt="" coords="201,5,399,32"/>
+<area shape="rect" id="node2" href="#execo.action.Action" title="execo.action.Action" alt="" coords="5,5,152,32"/>
+</map>
+</p>
+<dl class="class">
+<dt id="execo.action.TaktukRemote">
+<em class="property">class </em><tt class="descclassname">execo.action.</tt><tt class="descname">TaktukRemote</tt><big>(</big><em>cmd</em>, <em>hosts</em>, <em>connexion_params=None</em>, <em>name=None</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#execo.action.TaktukRemote" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#execo.action.Action" title="execo.action.Action"><tt class="xref py py-class docutils literal"><span class="pre">execo.action.Action</span></tt></a></p>
+<p>Launch a command remotely on several host, with <tt class="docutils literal"><span class="pre">taktuk</span></tt>.</p>
+<p>One taktuk instance is ran, which itself connects to hosts through
+an <tt class="docutils literal"><span class="pre">ssh</span></tt> tree.</p>
+<p>Behavior should be identical to <a class="reference internal" href="#execo.action.Remote" title="execo.action.Remote"><tt class="xref py py-obj docutils literal"><span class="pre">execo.action.Remote</span></tt></a>. Current
+limitation are:</p>
+<ul class="simple">
+<li>we can provide per-host user with taktuk, but we cannot provide
+per-host port or keyfile, so a check is made that all hosts and
+connexion_params have the same port / keyfile (or None). If not,
+an exception is raised during initialization.</li>
+<li>remote processes are not killed when killing the
+TaktukRemote. See &#8216;hanged commands&#8217; in
+<a class="reference external" href="http://taktuk.gforge.inria.fr/taktuk.html#bugs">http://taktuk.gforge.inria.fr/taktuk.html#bugs</a>. With ssh the
+workaround is to pass options -tt but passing these options to
+taktuk connector causes immediate closing of the connector upon
+connexion.</li>
+</ul>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>hosts</strong> &#8211; iterable of <a class="reference internal" href="#execo.host.Host" title="execo.host.Host"><tt class="xref py py-obj docutils literal"><span class="pre">execo.host.Host</span></tt></a> to which to
+connect and run the command.</li>
+<li><strong>cmd</strong> &#8211; the command to run remotely. substitions
+described in <a class="reference internal" href="#execo.substitutions.remote_substitute" title="execo.substitutions.remote_substitute"><tt class="xref py py-obj docutils literal"><span class="pre">execo.substitutions.remote_substitute</span></tt></a> will be
+performed.</li>
+<li><strong>connexion_params</strong> &#8211; a dict similar to
+<a class="reference internal" href="#execo.config.default_connexion_params" title="execo.config.default_connexion_params"><tt class="xref py py-obj docutils literal"><span class="pre">execo.config.default_connexion_params</span></tt></a> whose values will
+override those in default_connexion_params for connexion.</li>
+<li><strong>name</strong> &#8211; action&#8217;s name</li>
+<li><strong>kwargs</strong> &#8211; passed to the instanciated
+<a class="reference internal" href="#execo.process.TaktukProcess" title="execo.process.TaktukProcess"><tt class="xref py py-obj docutils literal"><span class="pre">execo.process.TaktukProcess</span></tt></a>. Special case for the
+<tt class="docutils literal"><span class="pre">timeout</span></tt> keyword argument: it will be passed to the dummy
+<a class="reference internal" href="#execo.process.TaktukProcess" title="execo.process.TaktukProcess"><tt class="xref py py-obj docutils literal"><span class="pre">execo.process.TaktukProcess</span></tt></a>, but will also be used as
+timeout for the underlying real taktuk process.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+<div class="section" id="put">
+<h3>Put<a class="headerlink" href="#put" title="Permalink to this headline">¶</a></h3>
+<p class="graphviz">
+<img src="_images/inheritance-a1ae09a81823265827eb5ee51b57d5f61501b57b.png" alt="Inheritance diagram of execo.action.Put" usemap="#inheritance99a1dc49fe" class="inheritance"/>
+<map id="inheritance99a1dc49fe" name="inheritance99a1dc49fe">
+<area shape="rect" id="node1" href="#execo.action.Remote" title="execo.action.Remote" alt="" coords="200,5,357,32"/>
+<area shape="rect" id="node4" href="#execo.action.Put" title="execo.action.Put" alt="" coords="405,5,533,32"/>
+<area shape="rect" id="node2" href="#execo.action.Action" title="execo.action.Action" alt="" coords="5,5,152,32"/>
+</map>
+</p>
+<dl class="class">
+<dt id="execo.action.Put">
+<em class="property">class </em><tt class="descclassname">execo.action.</tt><tt class="descname">Put</tt><big>(</big><em>hosts</em>, <em>local_files</em>, <em>remote_location='.'</em>, <em>create_dirs=False</em>, <em>connexion_params=None</em>, <em>name=None</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#execo.action.Put" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#execo.action.Remote" title="execo.action.Remote"><tt class="xref py py-class docutils literal"><span class="pre">execo.action.Remote</span></tt></a></p>
+<p>Copy local files to several remote host, with <tt class="docutils literal"><span class="pre">scp</span></tt> or a similar connexion tool.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>hosts</strong> &#8211; iterable of <a class="reference internal" href="#execo.host.Host" title="execo.host.Host"><tt class="xref py py-obj docutils literal"><span class="pre">execo.host.Host</span></tt></a> onto which to copy
+the files.</li>
+<li><strong>local_files</strong> &#8211; an iterable of string of file
+paths. substitions described in
+<a class="reference internal" href="#execo.substitutions.remote_substitute" title="execo.substitutions.remote_substitute"><tt class="xref py py-obj docutils literal"><span class="pre">execo.substitutions.remote_substitute</span></tt></a> will be performed.</li>
+<li><strong>remote_location</strong> &#8211; the directory on the remote hosts were
+the files will be copied. substitions described in
+<a class="reference internal" href="#execo.substitutions.remote_substitute" title="execo.substitutions.remote_substitute"><tt class="xref py py-obj docutils literal"><span class="pre">execo.substitutions.remote_substitute</span></tt></a> will be performed.</li>
+<li><strong>create_dirs</strong> &#8211; boolean indicating if remote_location is a
+directory to be created</li>
+<li><strong>connexion_params</strong> &#8211; a dict similar to
+<a class="reference internal" href="#execo.config.default_connexion_params" title="execo.config.default_connexion_params"><tt class="xref py py-obj docutils literal"><span class="pre">execo.config.default_connexion_params</span></tt></a> whose values will
+override those in default_connexion_params for connexion.</li>
+<li><strong>name</strong> &#8211; action&#8217;s name</li>
+<li><strong>kwargs</strong> &#8211; passed to the instanciated processes. Special
+case: do not use the shell keyword argument, as it is used
+internally.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+<div class="section" id="taktukput">
+<h3>TaktukPut<a class="headerlink" href="#taktukput" title="Permalink to this headline">¶</a></h3>
+<p class="graphviz">
+<img src="_images/inheritance-0466c38dfc3fecf099bed8774c90811718a30698.png" alt="Inheritance diagram of execo.action.TaktukPut" usemap="#inheritanced1eed8cda0" class="inheritance"/>
+<map id="inheritanced1eed8cda0" name="inheritanced1eed8cda0">
+<area shape="rect" id="node1" href="#execo.action.TaktukRemote" title="execo.action.TaktukRemote" alt="" coords="201,5,399,32"/>
+<area shape="rect" id="node4" href="#execo.action.TaktukPut" title="execo.action.TaktukPut" alt="" coords="449,5,617,32"/>
+<area shape="rect" id="node2" href="#execo.action.Action" title="execo.action.Action" alt="" coords="5,5,152,32"/>
+</map>
+</p>
+<dl class="class">
+<dt id="execo.action.TaktukPut">
+<em class="property">class </em><tt class="descclassname">execo.action.</tt><tt class="descname">TaktukPut</tt><big>(</big><em>hosts</em>, <em>local_files</em>, <em>remote_location='.'</em>, <em>connexion_params=None</em>, <em>name=None</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#execo.action.TaktukPut" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#execo.action.TaktukRemote" title="execo.action.TaktukRemote"><tt class="xref py py-class docutils literal"><span class="pre">execo.action.TaktukRemote</span></tt></a></p>
+<p>Copy local files to several remote host, with <tt class="docutils literal"><span class="pre">taktuk</span></tt>.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>hosts</strong> &#8211; iterable of <a class="reference internal" href="#execo.host.Host" title="execo.host.Host"><tt class="xref py py-obj docutils literal"><span class="pre">execo.host.Host</span></tt></a> onto which to copy
+the files.</li>
+<li><strong>local_files</strong> &#8211; an iterable of string of file
+paths. substitions described in
+<a class="reference internal" href="#execo.substitutions.remote_substitute" title="execo.substitutions.remote_substitute"><tt class="xref py py-obj docutils literal"><span class="pre">execo.substitutions.remote_substitute</span></tt></a> will not be
+performed, but taktuk substitutions can be used (see
+<a class="reference external" href="http://taktuk.gforge.inria.fr/taktuk.html#item_put__2a_src__2a__2a_dest__2a">http://taktuk.gforge.inria.fr/taktuk.html#item_put__2a_src__2a__2a_dest__2a</a>)</li>
+<li><strong>remote_location</strong> &#8211; the directory on the remote hosts were
+the files will be copied. substitions described in
+<a class="reference internal" href="#execo.substitutions.remote_substitute" title="execo.substitutions.remote_substitute"><tt class="xref py py-obj docutils literal"><span class="pre">execo.substitutions.remote_substitute</span></tt></a> will not be
+performed, but taktuk substitutions can be used (see
+<a class="reference external" href="http://taktuk.gforge.inria.fr/taktuk.html#item_put__2a_src__2a__2a_dest__2a">http://taktuk.gforge.inria.fr/taktuk.html#item_put__2a_src__2a__2a_dest__2a</a>)</li>
+<li><strong>connexion_params</strong> &#8211; a dict similar to
+<a class="reference internal" href="#execo.config.default_connexion_params" title="execo.config.default_connexion_params"><tt class="xref py py-obj docutils literal"><span class="pre">execo.config.default_connexion_params</span></tt></a> whose values will
+override those in default_connexion_params for connexion.</li>
+<li><strong>name</strong> &#8211; action&#8217;s name</li>
+<li><strong>kwargs</strong> &#8211; passed to the instanciated
+<a class="reference internal" href="#execo.process.TaktukProcess" title="execo.process.TaktukProcess"><tt class="xref py py-obj docutils literal"><span class="pre">execo.process.TaktukProcess</span></tt></a>. Special case for the
+<tt class="docutils literal"><span class="pre">timeout</span></tt> keyword argument: it will be passed to the dummy
+<a class="reference internal" href="#execo.process.TaktukProcess" title="execo.process.TaktukProcess"><tt class="xref py py-obj docutils literal"><span class="pre">execo.process.TaktukProcess</span></tt></a>, but will also be used as
+timeout for the underlying real taktuk process.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+<div class="section" id="get">
+<h3>Get<a class="headerlink" href="#get" title="Permalink to this headline">¶</a></h3>
+<p class="graphviz">
+<img src="_images/inheritance-4a32526733f62754e35b323d84b60cff5d5681c7.png" alt="Inheritance diagram of execo.action.Get" usemap="#inheritance2e39db8c76" class="inheritance"/>
+<map id="inheritance2e39db8c76" name="inheritance2e39db8c76">
+<area shape="rect" id="node1" href="#execo.action.Remote" title="execo.action.Remote" alt="" coords="200,5,357,32"/>
+<area shape="rect" id="node4" href="#execo.action.Get" title="execo.action.Get" alt="" coords="405,5,536,32"/>
+<area shape="rect" id="node2" href="#execo.action.Action" title="execo.action.Action" alt="" coords="5,5,152,32"/>
+</map>
+</p>
+<dl class="class">
+<dt id="execo.action.Get">
+<em class="property">class </em><tt class="descclassname">execo.action.</tt><tt class="descname">Get</tt><big>(</big><em>hosts</em>, <em>remote_files</em>, <em>local_location='.'</em>, <em>create_dirs=False</em>, <em>connexion_params=None</em>, <em>name=None</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#execo.action.Get" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#execo.action.Remote" title="execo.action.Remote"><tt class="xref py py-class docutils literal"><span class="pre">execo.action.Remote</span></tt></a></p>
+<p>Copy remote files from several remote host to a local directory, with <tt class="docutils literal"><span class="pre">scp</span></tt> or a similar connexion tool.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>hosts</strong> &#8211; iterable of <a class="reference internal" href="#execo.host.Host" title="execo.host.Host"><tt class="xref py py-obj docutils literal"><span class="pre">execo.host.Host</span></tt></a> from which to get
+the files.</li>
+<li><strong>remote_files</strong> &#8211; an iterable of string of file
+paths. substitions described in
+<a class="reference internal" href="#execo.substitutions.remote_substitute" title="execo.substitutions.remote_substitute"><tt class="xref py py-obj docutils literal"><span class="pre">execo.substitutions.remote_substitute</span></tt></a> will be performed.</li>
+<li><strong>local_location</strong> &#8211; the local directory were the files will
+be copied. substitions described in
+<a class="reference internal" href="#execo.substitutions.remote_substitute" title="execo.substitutions.remote_substitute"><tt class="xref py py-obj docutils literal"><span class="pre">execo.substitutions.remote_substitute</span></tt></a> will be performed.</li>
+<li><strong>create_dirs</strong> &#8211; boolean indicating if local_location is a
+directory to be created</li>
+<li><strong>connexion_params</strong> &#8211; a dict similar to
+<a class="reference internal" href="#execo.config.default_connexion_params" title="execo.config.default_connexion_params"><tt class="xref py py-obj docutils literal"><span class="pre">execo.config.default_connexion_params</span></tt></a> whose values will
+override those in default_connexion_params for connexion.</li>
+<li><strong>name</strong> &#8211; action&#8217;s name</li>
+<li><strong>kwargs</strong> &#8211; passed to the instanciated processes. Special
+case: do not use the shell keyword argument, as it is used
+internally.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+<div class="section" id="taktukget">
+<h3>TaktukGet<a class="headerlink" href="#taktukget" title="Permalink to this headline">¶</a></h3>
+<p class="graphviz">
+<img src="_images/inheritance-9be4856d661804d0d270151cf65f37fe40c497c3.png" alt="Inheritance diagram of execo.action.TaktukGet" usemap="#inheritance22526d6673" class="inheritance"/>
+<map id="inheritance22526d6673" name="inheritance22526d6673">
+<area shape="rect" id="node1" href="#execo.action.TaktukRemote" title="execo.action.TaktukRemote" alt="" coords="201,5,399,32"/>
+<area shape="rect" id="node4" href="#execo.action.TaktukGet" title="execo.action.TaktukGet" alt="" coords="448,5,619,32"/>
+<area shape="rect" id="node2" href="#execo.action.Action" title="execo.action.Action" alt="" coords="5,5,152,32"/>
+</map>
+</p>
+<dl class="class">
+<dt id="execo.action.TaktukGet">
+<em class="property">class </em><tt class="descclassname">execo.action.</tt><tt class="descname">TaktukGet</tt><big>(</big><em>hosts</em>, <em>remote_files</em>, <em>local_location='.'</em>, <em>connexion_params=None</em>, <em>name=None</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#execo.action.TaktukGet" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#execo.action.TaktukRemote" title="execo.action.TaktukRemote"><tt class="xref py py-class docutils literal"><span class="pre">execo.action.TaktukRemote</span></tt></a></p>
+<p>Copy remote files from several remote host to a local directory, with <tt class="docutils literal"><span class="pre">taktuk</span></tt>.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>hosts</strong> &#8211; iterable of <a class="reference internal" href="#execo.host.Host" title="execo.host.Host"><tt class="xref py py-obj docutils literal"><span class="pre">execo.host.Host</span></tt></a> from which to get
+the files.</li>
+<li><strong>remote_files</strong> &#8211; an iterable of string of file
+paths. Substitions described in
+<a class="reference internal" href="#execo.substitutions.remote_substitute" title="execo.substitutions.remote_substitute"><tt class="xref py py-obj docutils literal"><span class="pre">execo.substitutions.remote_substitute</span></tt></a> will not be
+performed, but taktuk substitutions can be used (see
+<a class="reference external" href="http://taktuk.gforge.inria.fr/taktuk.html#item_get__2a_src__2a__2a_dest__2a">http://taktuk.gforge.inria.fr/taktuk.html#item_get__2a_src__2a__2a_dest__2a</a>)</li>
+<li><strong>local_location</strong> &#8211; the local directory were the files will
+be copied. Substitions described in
+<a class="reference internal" href="#execo.substitutions.remote_substitute" title="execo.substitutions.remote_substitute"><tt class="xref py py-obj docutils literal"><span class="pre">execo.substitutions.remote_substitute</span></tt></a> will not be
+performed, but taktuk substitutions can be used (see
+<a class="reference external" href="http://taktuk.gforge.inria.fr/taktuk.html#item_get__2a_src__2a__2a_dest__2a">http://taktuk.gforge.inria.fr/taktuk.html#item_get__2a_src__2a__2a_dest__2a</a>)</li>
+<li><strong>connexion_params</strong> &#8211; a dict similar to
+<a class="reference internal" href="#execo.config.default_connexion_params" title="execo.config.default_connexion_params"><tt class="xref py py-obj docutils literal"><span class="pre">execo.config.default_connexion_params</span></tt></a> whose values will
+override those in default_connexion_params for connexion.</li>
+<li><strong>name</strong> &#8211; action&#8217;s name</li>
+<li><strong>kwargs</strong> &#8211; passed to the instanciated
+<a class="reference internal" href="#execo.process.TaktukProcess" title="execo.process.TaktukProcess"><tt class="xref py py-obj docutils literal"><span class="pre">execo.process.TaktukProcess</span></tt></a>. Special case for the
+<tt class="docutils literal"><span class="pre">timeout</span></tt> keyword argument: it will be passed to the dummy
+<a class="reference internal" href="#execo.process.TaktukProcess" title="execo.process.TaktukProcess"><tt class="xref py py-obj docutils literal"><span class="pre">execo.process.TaktukProcess</span></tt></a>, but will also be used as
+timeout for the underlying real taktuk process.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+<div class="section" id="local">
+<h3>Local<a class="headerlink" href="#local" title="Permalink to this headline">¶</a></h3>
+<p class="graphviz">
+<img src="_images/inheritance-36a44f45f0221b971ec183b432948875358c4df8.png" alt="Inheritance diagram of execo.action.Local" usemap="#inheritance30d140fef0" class="inheritance"/>
+<map id="inheritance30d140fef0" name="inheritance30d140fef0">
+<area shape="rect" id="node1" href="#execo.action.Local" title="execo.action.Local" alt="" coords="201,5,340,32"/>
+<area shape="rect" id="node2" href="#execo.action.Action" title="execo.action.Action" alt="" coords="5,5,152,32"/>
+</map>
+</p>
+<dl class="class">
+<dt id="execo.action.Local">
+<em class="property">class </em><tt class="descclassname">execo.action.</tt><tt class="descname">Local</tt><big>(</big><em>cmd</em>, <em>name=None</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#execo.action.Local" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#execo.action.Action" title="execo.action.Action"><tt class="xref py py-class docutils literal"><span class="pre">execo.action.Action</span></tt></a></p>
+<p>Launch a command localy.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>cmd</strong> &#8211; the command to run.</li>
+<li><strong>name</strong> &#8211; action&#8217;s name</li>
+<li><strong>kwargs</strong> &#8211; passed to the instanciated
+<a class="reference internal" href="#execo.process.Process" title="execo.process.Process"><tt class="xref py py-obj docutils literal"><span class="pre">execo.process.Process</span></tt></a>.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+<div class="section" id="parallelactions">
+<h3>ParallelActions<a class="headerlink" href="#parallelactions" title="Permalink to this headline">¶</a></h3>
+<p class="graphviz">
+<img src="_images/inheritance-ae8e5794019e29bf76fe349426c3346068f6edab.png" alt="Inheritance diagram of execo.action.ParallelActions" usemap="#inheritance7d4e64d161" class="inheritance"/>
+<map id="inheritance7d4e64d161" name="inheritance7d4e64d161">
+<area shape="rect" id="node1" href="#execo.action.ParallelActions" title="execo.action.ParallelActions" alt="" coords="200,5,400,32"/>
+<area shape="rect" id="node2" href="#execo.action.Action" title="execo.action.Action" alt="" coords="5,5,152,32"/>
+</map>
+</p>
+<dl class="class">
+<dt id="execo.action.ParallelActions">
+<em class="property">class </em><tt class="descclassname">execo.action.</tt><tt class="descname">ParallelActions</tt><big>(</big><em>actions</em>, <em>name=None</em><big>)</big><a class="headerlink" href="#execo.action.ParallelActions" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#execo.action.Action" title="execo.action.Action"><tt class="xref py py-class docutils literal"><span class="pre">execo.action.Action</span></tt></a></p>
+<p>An <a class="reference internal" href="#execo.action.Action" title="execo.action.Action"><tt class="xref py py-obj docutils literal"><span class="pre">execo.action.Action</span></tt></a> running several sub-Actions in parallel.</p>
+<p>Will start, kill, wait, run every action in parallel.</p>
+<dl class="method">
+<dt id="execo.action.ParallelActions.actions">
+<tt class="descname">actions</tt><big>(</big><big>)</big><a class="headerlink" href="#execo.action.ParallelActions.actions" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return an iterable of <a class="reference internal" href="#execo.action.Action" title="execo.action.Action"><tt class="xref py py-obj docutils literal"><span class="pre">execo.action.Action</span></tt></a> that this ParallelActions gathers.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="sequentialactions">
+<h3>SequentialActions<a class="headerlink" href="#sequentialactions" title="Permalink to this headline">¶</a></h3>
+<p class="graphviz">
+<img src="_images/inheritance-d4c9eccbe5a0b1211e8894d7f7d76da5f9124ccd.png" alt="Inheritance diagram of execo.action.SequentialActions" usemap="#inheritancea4e1a19714" class="inheritance"/>
+<map id="inheritancea4e1a19714" name="inheritancea4e1a19714">
+<area shape="rect" id="node1" href="#execo.action.SequentialActions" title="execo.action.SequentialActions" alt="" coords="201,5,423,32"/>
+<area shape="rect" id="node2" href="#execo.action.Action" title="execo.action.Action" alt="" coords="5,5,152,32"/>
+</map>
+</p>
+<dl class="class">
+<dt id="execo.action.SequentialActions">
+<em class="property">class </em><tt class="descclassname">execo.action.</tt><tt class="descname">SequentialActions</tt><big>(</big><em>actions</em>, <em>name=None</em><big>)</big><a class="headerlink" href="#execo.action.SequentialActions" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#execo.action.Action" title="execo.action.Action"><tt class="xref py py-class docutils literal"><span class="pre">execo.action.Action</span></tt></a></p>
+<p>An <a class="reference internal" href="#execo.action.Action" title="execo.action.Action"><tt class="xref py py-obj docutils literal"><span class="pre">execo.action.Action</span></tt></a> running several sub-actions sequentially.</p>
+<p>Will start, kill, wait, run every Action sequentially.</p>
+<dl class="method">
+<dt id="execo.action.SequentialActions.actions">
+<tt class="descname">actions</tt><big>(</big><big>)</big><a class="headerlink" href="#execo.action.SequentialActions.actions" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return an iterable of <a class="reference internal" href="#execo.action.Action" title="execo.action.Action"><tt class="xref py py-obj docutils literal"><span class="pre">execo.action.Action</span></tt></a> that this SequentialActions gathers.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="actionlifecyclehandler">
+<h3>ActionLifecycleHandler<a class="headerlink" href="#actionlifecyclehandler" title="Permalink to this headline">¶</a></h3>
+<p class="graphviz">
+<img src="_images/inheritance-ba31c005ec0e21360889b9f025e3005da06bdf73.png" alt="Inheritance diagram of execo.action.ActionLifecycleHandler" usemap="#inheritanceb43b83de79" class="inheritance"/>
+<map id="inheritanceb43b83de79" name="inheritanceb43b83de79">
+<area shape="rect" id="node1" href="#execo.action.ActionLifecycleHandler" title="execo.action.ActionLifecycleHandler" alt="" coords="5,5,256,32"/>
+</map>
+</p>
+<dl class="class">
+<dt id="execo.action.ActionLifecycleHandler">
+<em class="property">class </em><tt class="descclassname">execo.action.</tt><tt class="descname">ActionLifecycleHandler</tt><a class="headerlink" href="#execo.action.ActionLifecycleHandler" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
+<p>Abstract handler for <a class="reference internal" href="#execo.action.Action" title="execo.action.Action"><tt class="xref py py-obj docutils literal"><span class="pre">execo.action.Action</span></tt></a> lifecycle.</p>
+<dl class="method">
+<dt id="execo.action.ActionLifecycleHandler.end">
+<tt class="descname">end</tt><big>(</big><em>action</em><big>)</big><a class="headerlink" href="#execo.action.ActionLifecycleHandler.end" title="Permalink to this definition">¶</a></dt>
+<dd><p>Handle <a class="reference internal" href="#execo.action.Action" title="execo.action.Action"><tt class="xref py py-obj docutils literal"><span class="pre">execo.action.Action</span></tt></a>&#8216;s end.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>action</strong> &#8211; The Action which ends.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="execo.action.ActionLifecycleHandler.reset">
+<tt class="descname">reset</tt><big>(</big><em>action</em><big>)</big><a class="headerlink" href="#execo.action.ActionLifecycleHandler.reset" title="Permalink to this definition">¶</a></dt>
+<dd><p>Handle <a class="reference internal" href="#execo.action.Action" title="execo.action.Action"><tt class="xref py py-obj docutils literal"><span class="pre">execo.action.Action</span></tt></a>&#8216;s reset.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>action</strong> &#8211; the Action which is reset.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="execo.action.ActionLifecycleHandler.start">
+<tt class="descname">start</tt><big>(</big><em>action</em><big>)</big><a class="headerlink" href="#execo.action.ActionLifecycleHandler.start" title="Permalink to this definition">¶</a></dt>
+<dd><p>Handle <a class="reference internal" href="#execo.action.Action" title="execo.action.Action"><tt class="xref py py-obj docutils literal"><span class="pre">execo.action.Action</span></tt></a>&#8216;s start.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>action</strong> &#8211; The Action which starts.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="wait-multiple-actions">
+<h3>wait_multiple_actions<a class="headerlink" href="#wait-multiple-actions" title="Permalink to this headline">¶</a></h3>
+<dl class="function">
+<dt id="execo.action.wait_multiple_actions">
+<tt class="descclassname">execo.action.</tt><tt class="descname">wait_multiple_actions</tt><big>(</big><em>actions</em>, <em>timeout=None</em><big>)</big><a class="headerlink" href="#execo.action.wait_multiple_actions" title="Permalink to this definition">¶</a></dt>
+<dd><p>Wait for any of the actions given to terminate.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>actions</strong> &#8211; An iterable of <a class="reference internal" href="#execo.action.Action" title="execo.action.Action"><tt class="xref py py-obj docutils literal"><span class="pre">execo.action.Action</span></tt></a>.</li>
+<li><strong>timeout</strong> &#8211; Optional timeout in any type supported by
+<a class="reference internal" href="#execo.time_utils.get_seconds" title="execo.time_utils.get_seconds"><tt class="xref py py-obj docutils literal"><span class="pre">execo.time_utils.get_seconds</span></tt></a>.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<p>returns: iterable of <a class="reference internal" href="#execo.action.Action" title="execo.action.Action"><tt class="xref py py-obj docutils literal"><span class="pre">execo.action.Action</span></tt></a> which have terminated.</p>
+</dd></dl>
+
+</div>
+<div class="section" id="wait-all-actions">
+<h3>wait_all_actions<a class="headerlink" href="#wait-all-actions" title="Permalink to this headline">¶</a></h3>
+<dl class="function">
+<dt id="execo.action.wait_all_actions">
+<tt class="descclassname">execo.action.</tt><tt class="descname">wait_all_actions</tt><big>(</big><em>actions</em>, <em>timeout=None</em><big>)</big><a class="headerlink" href="#execo.action.wait_all_actions" title="Permalink to this definition">¶</a></dt>
+<dd><p>Wait for all of the actions given to terminate.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>actions</strong> &#8211; An iterable of <a class="reference internal" href="#execo.action.Action" title="execo.action.Action"><tt class="xref py py-obj docutils literal"><span class="pre">execo.action.Action</span></tt></a>.</li>
+<li><strong>timeout</strong> &#8211; Optional timeout in any type supported by
+<a class="reference internal" href="#execo.time_utils.get_seconds" title="execo.time_utils.get_seconds"><tt class="xref py py-obj docutils literal"><span class="pre">execo.time_utils.get_seconds</span></tt></a>.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<p>returns: iterable of <a class="reference internal" href="#execo.action.Action" title="execo.action.Action"><tt class="xref py py-obj docutils literal"><span class="pre">execo.action.Action</span></tt></a> which have terminated.</p>
+</dd></dl>
+
+</div>
+<div class="section" id="actionfactory">
+<h3>ActionFactory<a class="headerlink" href="#actionfactory" title="Permalink to this headline">¶</a></h3>
+<dl class="class">
+<dt id="execo.action.ActionFactory">
+<em class="property">class </em><tt class="descclassname">execo.action.</tt><tt class="descname">ActionFactory</tt><big>(</big><em>remote_tool=None</em>, <em>fileput_tool=None</em>, <em>fileget_tool=None</em><big>)</big><a class="headerlink" href="#execo.action.ActionFactory" title="Permalink to this definition">¶</a></dt>
+<dd><p>Instanciate multiple remote process execution and file copies using configurable connector tools: <tt class="docutils literal"><span class="pre">ssh</span></tt>, <tt class="docutils literal"><span class="pre">scp</span></tt>, <tt class="docutils literal"><span class="pre">taktuk</span></tt></p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>remote_tool</strong> &#8211; can be <tt class="xref py py-obj docutils literal"><span class="pre">execo.config.SSH</span></tt> or
+<tt class="xref py py-obj docutils literal"><span class="pre">execo.config.TAKTUK</span></tt></li>
+<li><strong>fileput_tool</strong> &#8211; can be <tt class="xref py py-obj docutils literal"><span class="pre">execo.config.SCP</span></tt> or
+<tt class="xref py py-obj docutils literal"><span class="pre">execo.config.TAKTUK</span></tt></li>
+<li><strong>fileget_tool</strong> &#8211; can be <tt class="xref py py-obj docutils literal"><span class="pre">execo.config.SCP</span></tt> or
+<tt class="xref py py-obj docutils literal"><span class="pre">execo.config.TAKTUK</span></tt></li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="execo.action.ActionFactory.fileget">
+<tt class="descname">fileget</tt><big>(</big><em>*args</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#execo.action.ActionFactory.fileget" title="Permalink to this definition">¶</a></dt>
+<dd><p>Instanciates a <a class="reference internal" href="#execo.action.Get" title="execo.action.Get"><tt class="xref py py-obj docutils literal"><span class="pre">execo.action.Get</span></tt></a> or <a class="reference internal" href="#execo.action.TaktukGet" title="execo.action.TaktukGet"><tt class="xref py py-obj docutils literal"><span class="pre">execo.action.TaktukGet</span></tt></a></p>
+</dd></dl>
+
+<dl class="method">
+<dt id="execo.action.ActionFactory.fileput">
+<tt class="descname">fileput</tt><big>(</big><em>*args</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#execo.action.ActionFactory.fileput" title="Permalink to this definition">¶</a></dt>
+<dd><p>Instanciates a <a class="reference internal" href="#execo.action.Put" title="execo.action.Put"><tt class="xref py py-obj docutils literal"><span class="pre">execo.action.Put</span></tt></a> or <a class="reference internal" href="#execo.action.TaktukPut" title="execo.action.TaktukPut"><tt class="xref py py-obj docutils literal"><span class="pre">execo.action.TaktukPut</span></tt></a></p>
+</dd></dl>
+
+<dl class="method">
+<dt id="execo.action.ActionFactory.remote">
+<tt class="descname">remote</tt><big>(</big><em>*args</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#execo.action.ActionFactory.remote" title="Permalink to this definition">¶</a></dt>
+<dd><p>Instanciates a <a class="reference internal" href="#execo.action.Remote" title="execo.action.Remote"><tt class="xref py py-obj docutils literal"><span class="pre">execo.action.Remote</span></tt></a> or <a class="reference internal" href="#execo.action.TaktukRemote" title="execo.action.TaktukRemote"><tt class="xref py py-obj docutils literal"><span class="pre">execo.action.TaktukRemote</span></tt></a></p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="get-remote">
+<h3>get_remote<a class="headerlink" href="#get-remote" title="Permalink to this headline">¶</a></h3>
+<dl class="function">
+<dt id="execo.action.get_remote">
+<tt class="descclassname">execo.action.</tt><tt class="descname">get_remote</tt><big>(</big><em>*args</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#execo.action.get_remote" title="Permalink to this definition">¶</a></dt>
+<dd><p>Instanciates a <a class="reference internal" href="#execo.action.Remote" title="execo.action.Remote"><tt class="xref py py-obj docutils literal"><span class="pre">execo.action.Remote</span></tt></a> or <a class="reference internal" href="#execo.action.TaktukRemote" title="execo.action.TaktukRemote"><tt class="xref py py-obj docutils literal"><span class="pre">execo.action.TaktukRemote</span></tt></a> with the default factory</p>
+</dd></dl>
+
+</div>
+<div class="section" id="get-fileput">
+<h3>get_fileput<a class="headerlink" href="#get-fileput" title="Permalink to this headline">¶</a></h3>
+<dl class="function">
+<dt id="execo.action.get_fileput">
+<tt class="descclassname">execo.action.</tt><tt class="descname">get_fileput</tt><big>(</big><em>*args</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#execo.action.get_fileput" title="Permalink to this definition">¶</a></dt>
+<dd><p>Instanciates a <a class="reference internal" href="#execo.action.Put" title="execo.action.Put"><tt class="xref py py-obj docutils literal"><span class="pre">execo.action.Put</span></tt></a> or <a class="reference internal" href="#execo.action.TaktukPut" title="execo.action.TaktukPut"><tt class="xref py py-obj docutils literal"><span class="pre">execo.action.TaktukPut</span></tt></a> with the default factory</p>
+</dd></dl>
+
+</div>
+<div class="section" id="get-fileget">
+<h3>get_fileget<a class="headerlink" href="#get-fileget" title="Permalink to this headline">¶</a></h3>
+<dl class="function">
+<dt id="execo.action.get_fileget">
+<tt class="descclassname">execo.action.</tt><tt class="descname">get_fileget</tt><big>(</big><em>*args</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#execo.action.get_fileget" title="Permalink to this definition">¶</a></dt>
+<dd><p>Instanciates a <a class="reference internal" href="#execo.action.Get" title="execo.action.Get"><tt class="xref py py-obj docutils literal"><span class="pre">execo.action.Get</span></tt></a> or <a class="reference internal" href="#execo.action.TaktukGet" title="execo.action.TaktukGet"><tt class="xref py py-obj docutils literal"><span class="pre">execo.action.TaktukGet</span></tt></a> with the default factory</p>
+</dd></dl>
+
+</div>
+<div class="section" id="substitutions-for-remote-taktukremote-get-put">
+<span id="execo-substitutions"></span><h3>substitutions for Remote, TaktukRemote, Get, Put<a class="headerlink" href="#substitutions-for-remote-taktukremote-get-put" title="Permalink to this headline">¶</a></h3>
+<p>In the command line given for a <a class="reference internal" href="#execo.action.Remote" title="execo.action.Remote"><tt class="xref py py-obj docutils literal"><span class="pre">execo.action.Remote</span></tt></a>,
+<a class="reference internal" href="#execo.action.TaktukRemote" title="execo.action.TaktukRemote"><tt class="xref py py-obj docutils literal"><span class="pre">execo.action.TaktukRemote</span></tt></a>, as well as in pathes given to
+<a class="reference internal" href="#execo.action.Get" title="execo.action.Get"><tt class="xref py py-obj docutils literal"><span class="pre">execo.action.Get</span></tt></a> and <a class="reference internal" href="#execo.action.Put" title="execo.action.Put"><tt class="xref py py-obj docutils literal"><span class="pre">execo.action.Put</span></tt></a>, some patterns are
+automatically substituted:</p>
+<ul class="simple">
+<li>all occurences of the literal string <tt class="docutils literal"><span class="pre">{{{host}}}</span></tt> are substituted
+by the address of the <a class="reference internal" href="#execo.host.Host" title="execo.host.Host"><tt class="xref py py-obj docutils literal"><span class="pre">execo.host.Host</span></tt></a> to which execo connects to.</li>
+<li>all occurences of <tt class="docutils literal"><span class="pre">{{&lt;expression&gt;}}</span></tt> are substituted in the
+following way: <tt class="docutils literal"><span class="pre">&lt;expression&gt;</span></tt> must be a python expression, which
+will be evaluated in the context (globals and locals) where the
+<a class="reference internal" href="#execo.action.Remote" title="execo.action.Remote"><tt class="xref py py-obj docutils literal"><span class="pre">execo.action.Remote</span></tt></a>, <a class="reference internal" href="#execo.action.Put" title="execo.action.Put"><tt class="xref py py-obj docutils literal"><span class="pre">execo.action.Put</span></tt></a>, <a class="reference internal" href="#execo.action.Get" title="execo.action.Get"><tt class="xref py py-obj docutils literal"><span class="pre">execo.action.Get</span></tt></a> is
+instanciated, and which must return a sequence. <tt class="docutils literal"><span class="pre">{{&lt;expression&gt;}}</span></tt>
+will be replaced by <tt class="docutils literal"><span class="pre">&lt;expression&gt;[index</span> <span class="pre">%</span> <span class="pre">len(&lt;expression&gt;)]</span></tt>.</li>
+</ul>
+<p>For example, in the following code:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">execo</span><span class="o">.</span><span class="n">Remote</span><span class="p">(</span><span class="n">hosts1</span><span class="p">,</span> <span class="s">&#39;iperf -c {{[host.address for host in hosts2]}}&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>When execo runs this command on all hosts of <tt class="docutils literal"><span class="pre">hosts1</span></tt>, it will
+produce a different command line for each host, each command line
+connecting a host from <tt class="docutils literal"><span class="pre">hosts1</span></tt> to a host from <tt class="docutils literal"><span class="pre">hosts2</span></tt></p>
+<p>if <tt class="docutils literal"><span class="pre">hosts1</span></tt> contains six hosts <tt class="docutils literal"><span class="pre">a</span></tt>, <tt class="docutils literal"><span class="pre">b</span></tt>, <tt class="docutils literal"><span class="pre">c</span></tt>, <tt class="docutils literal"><span class="pre">d</span></tt>, <tt class="docutils literal"><span class="pre">e</span></tt>,
+<tt class="docutils literal"><span class="pre">f</span></tt> and hosts2 contains 3 hosts <tt class="docutils literal"><span class="pre">1</span></tt>, <tt class="docutils literal"><span class="pre">2</span></tt>, <tt class="docutils literal"><span class="pre">3</span></tt> the mapping
+between hosts1 and hosts2 could be:</p>
+<ul class="simple">
+<li><tt class="docutils literal"><span class="pre">a</span></tt> -&gt; <tt class="docutils literal"><span class="pre">1</span></tt></li>
+<li><tt class="docutils literal"><span class="pre">b</span></tt> -&gt; <tt class="docutils literal"><span class="pre">2</span></tt></li>
+<li><tt class="docutils literal"><span class="pre">c</span></tt> -&gt; <tt class="docutils literal"><span class="pre">3</span></tt></li>
+<li><tt class="docutils literal"><span class="pre">d</span></tt> -&gt; <tt class="docutils literal"><span class="pre">1</span></tt></li>
+<li><tt class="docutils literal"><span class="pre">e</span></tt> -&gt; <tt class="docutils literal"><span class="pre">2</span></tt></li>
+<li><tt class="docutils literal"><span class="pre">f</span></tt> -&gt; <tt class="docutils literal"><span class="pre">3</span></tt></li>
+</ul>
+<p><a class="reference internal" href="#execo.substitutions.remote_substitute" title="execo.substitutions.remote_substitute"><tt class="xref py py-obj docutils literal"><span class="pre">execo.substitutions.remote_substitute</span></tt></a> is the function used
+internally by execo to perform these substitutions:</p>
+<dl class="function">
+<dt id="execo.substitutions.remote_substitute">
+<tt class="descclassname">execo.substitutions.</tt><tt class="descname">remote_substitute</tt><big>(</big><em>string</em>, <em>all_hosts</em>, <em>index</em>, <em>frame_context</em><big>)</big><a class="headerlink" href="#execo.substitutions.remote_substitute" title="Permalink to this definition">¶</a></dt>
+<dd><p>Perform some tag substitutions in a specific context.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>string</strong> &#8211; the string onto which to perfom the substitution.</li>
+<li><strong>all_hosts</strong> &#8211; an iterable of <a class="reference internal" href="#execo.host.Host" title="execo.host.Host"><tt class="xref py py-obj docutils literal"><span class="pre">execo.host.Host</span></tt></a> which is the
+context into which the substitution will be
+made. all_hosts[index] is the <a class="reference internal" href="#execo.host.Host" title="execo.host.Host"><tt class="xref py py-obj docutils literal"><span class="pre">execo.host.Host</span></tt></a> to which this
+string applies.</li>
+<li><strong>index</strong> &#8211; the index in all_hosts of the <a class="reference internal" href="#execo.host.Host" title="execo.host.Host"><tt class="xref py py-obj docutils literal"><span class="pre">execo.host.Host</span></tt></a> to
+which this string applies.</li>
+<li><strong>frame_context</strong> &#8211; a tuple of mappings (globals, locals) in the
+context of which the expressions (if any) will be evaluated.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<ul class="simple">
+<li>Replaces all occurences of the literal string <tt class="docutils literal"><span class="pre">{{{host}}}</span></tt> by
+the <a class="reference internal" href="#execo.host.Host" title="execo.host.Host"><tt class="xref py py-obj docutils literal"><span class="pre">execo.host.Host</span></tt></a> address itself.</li>
+<li>Replaces all occurences of <tt class="docutils literal"><span class="pre">{{&lt;expression&gt;}}</span></tt> in the following
+way: <tt class="docutils literal"><span class="pre">&lt;expression&gt;</span></tt> must be a python expression, which will be
+evaluated in the context of frame_context (globals and locals),
+and which must return a sequence. <tt class="docutils literal"><span class="pre">{{&lt;expression&gt;}}</span></tt> will be
+replaced by <tt class="docutils literal"><span class="pre">&lt;expression&gt;[index</span> <span class="pre">%</span> <span class="pre">len(&lt;expression&gt;)]</span></tt>.</li>
+</ul>
+</dd></dl>
+
+</div>
+</div>
+<div class="section" id="miscellaneous-classes">
+<h2>Miscellaneous classes<a class="headerlink" href="#miscellaneous-classes" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="host">
+<h3>Host<a class="headerlink" href="#host" title="Permalink to this headline">¶</a></h3>
+<dl class="class">
+<dt id="execo.host.Host">
+<em class="property">class </em><tt class="descclassname">execo.host.</tt><tt class="descname">Host</tt><big>(</big><em>address</em>, <em>user=False</em>, <em>keyfile=False</em>, <em>port=False</em><big>)</big><a class="headerlink" href="#execo.host.Host" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
+<p>A host to connect to.</p>
+<ul class="simple">
+<li>Has an address (mandatory)</li>
+<li>Can optionaly have a user, a keyfile, a port, which are used for
+remote connexion and authentification (with a ssh like remote
+connexion tool).</li>
+</ul>
+<p>Has an intuitive comparison and hashing behavior: two <a class="reference internal" href="#execo.host.Host" title="execo.host.Host"><tt class="xref py py-obj docutils literal"><span class="pre">execo.host.Host</span></tt></a> with
+the same members (address, user, keyfile, port) will hash equally
+and will be seen as identical keys in a set or dict.</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">h1</span> <span class="o">=</span> <span class="n">Host</span><span class="p">(</span><span class="s">&#39;localhost&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">h1</span><span class="o">.</span><span class="n">user</span> <span class="o">=</span> <span class="s">&#39;root&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">h1</span>
+<span class="go">Host(&#39;localhost&#39;, user=&#39;root&#39;)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">h2</span> <span class="o">=</span> <span class="n">Host</span><span class="p">(</span><span class="s">&#39;localhost&#39;</span><span class="p">,</span> <span class="n">user</span> <span class="o">=</span> <span class="s">&#39;root&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">h1</span> <span class="o">==</span> <span class="n">h2</span>
+<span class="go">True</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">d</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">d</span><span class="p">[</span><span class="n">h1</span><span class="p">]</span> <span class="o">=</span> <span class="bp">True</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">d</span><span class="p">[</span><span class="n">h2</span><span class="p">]</span>
+<span class="go">True</span>
+</pre></div>
+</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>address</strong> &#8211; (string or <a class="reference internal" href="#execo.host.Host" title="execo.host.Host"><tt class="xref py py-obj docutils literal"><span class="pre">execo.host.Host</span></tt></a>) the host address
+or another <a class="reference internal" href="#execo.host.Host" title="execo.host.Host"><tt class="xref py py-obj docutils literal"><span class="pre">execo.host.Host</span></tt></a> instance which will be copied
+into this new instance</li>
+<li><strong>user</strong> &#8211; (string) optional user whith which to connect. If
+False (default value), means use the default user. If None,
+means don&#8217;t use any user.</li>
+<li><strong>keyfile</strong> &#8211; (string) optional keyfile whith which to
+connect. If False (default value), means use the default
+keyfile. If None, means don&#8217;t use any keyfile.</li>
+<li><strong>port</strong> &#8211; (integer) optional port to which to connect. If
+False (default value), means use the default port. If None,
+means don&#8217;t use any port.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+<div class="section" id="report">
+<h3>Report<a class="headerlink" href="#report" title="Permalink to this headline">¶</a></h3>
+<dl class="class">
+<dt id="execo.report.Report">
+<em class="property">class </em><tt class="descclassname">execo.report.</tt><tt class="descname">Report</tt><big>(</big><em>stats_objects=None</em>, <em>name=None</em><big>)</big><a class="headerlink" href="#execo.report.Report" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
+<p>Summary of one or more <a class="reference internal" href="#execo.action.Action" title="execo.action.Action"><tt class="xref py py-obj docutils literal"><span class="pre">execo.action.Action</span></tt></a>.</p>
+<p>A Report gathers the results of actions or (recursively) of other
+reports.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>stats_objects</strong> &#8211; </td>
+</tr>
+</tbody>
+</table>
+<dl class="docutils">
+<dt>:param name a name given to this report. If None, a default</dt>
+<dd>name will be given.</dd>
+</dl>
+<dl class="method">
+<dt id="execo.report.Report.add">
+<tt class="descname">add</tt><big>(</big><em>stats_objects</em><big>)</big><a class="headerlink" href="#execo.report.Report.add" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add some sub-<a class="reference internal" href="#execo.report.Report" title="execo.report.Report"><tt class="xref py py-obj docutils literal"><span class="pre">execo.report.Report</span></tt></a> or <a class="reference internal" href="#execo.action.Action" title="execo.action.Action"><tt class="xref py py-obj docutils literal"><span class="pre">execo.action.Action</span></tt></a> to this report.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>stats_objects</strong> &#8211; </td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="execo.report.Report.empty_stats">
+<em class="property">static </em><tt class="descname">empty_stats</tt><big>(</big><big>)</big><a class="headerlink" href="#execo.report.Report.empty_stats" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a stats initialized to zero.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="execo.report.Report.stats">
+<tt class="descname">stats</tt><big>(</big><big>)</big><a class="headerlink" href="#execo.report.Report.stats" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a dict summarizing the statistics of all <a class="reference internal" href="#execo.action.Action" title="execo.action.Action"><tt class="xref py py-obj docutils literal"><span class="pre">execo.action.Action</span></tt></a> and sub-<a class="reference internal" href="#execo.report.Report" title="execo.report.Report"><tt class="xref py py-obj docutils literal"><span class="pre">execo.report.Report</span></tt></a> registered to this report.</p>
+<p>This stats dict contains the following metrics:</p>
+<ul class="simple">
+<li><tt class="docutils literal"><span class="pre">start_date</span></tt>: earliest start date (unix timestamp) of all
+<tt class="xref py py-obj docutils literal"><span class="pre">Action</span></tt> or None if none have started yet.</li>
+<li><tt class="docutils literal"><span class="pre">end_date</span></tt>: latest end date (unix timestamp) of all
+<tt class="xref py py-obj docutils literal"><span class="pre">Action</span></tt> or None if not available (not all started, not all
+ended).</li>
+<li><tt class="docutils literal"><span class="pre">num_processes</span></tt>: number of processes in all <tt class="xref py py-obj docutils literal"><span class="pre">Action</span></tt>.</li>
+<li><tt class="docutils literal"><span class="pre">num_started</span></tt>: number of processes that have started.</li>
+<li><tt class="docutils literal"><span class="pre">num_ended</span></tt>: number of processes that have ended.</li>
+<li><tt class="docutils literal"><span class="pre">num_errors</span></tt>: number of processes that went in error
+when started.</li>
+<li><tt class="docutils literal"><span class="pre">num_timeouts</span></tt>: number of processes that had to be killed
+(SIGTERM) after reaching their timeout.</li>
+<li><tt class="docutils literal"><span class="pre">num_forced_kills</span></tt>: number of processes that had to be
+forcibly killed (SIGKILL) after not responding for some
+time.</li>
+<li><tt class="docutils literal"><span class="pre">num_non_zero_exit_codes</span></tt>: number of processes that ran
+correctly but whose return code was != 0.</li>
+<li><tt class="docutils literal"><span class="pre">num_ok</span></tt>: number of processes which:<ul>
+<li>did not started</li>
+<li>started and not yet ended</li>
+<li>started and ended and did not went in error (or where
+launched with flag ignore_error) , did not timeout (or
+where launched with flag ignore_timeout), and had an exit
+code == 0 (or where launched with flag ignore_exit_code).</li>
+</ul>
+</li>
+<li><tt class="docutils literal"><span class="pre">num_finished_ok</span></tt>: number of processes which started,
+ended, and are ok.</li>
+</ul>
+</dd></dl>
+
+<dl class="method">
+<dt id="execo.report.Report.to_string">
+<tt class="descname">to_string</tt><big>(</big><em>wide=False</em>, <em>brief=False</em><big>)</big><a class="headerlink" href="#execo.report.Report.to_string" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a formatted string with a human-readable stats of all <tt class="xref py py-obj docutils literal"><span class="pre">Action</span></tt> results.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>wide</strong> &#8211; if False (default), report format is designed for
+80 columns display. If True, output a (175 characters) wide
+report.</li>
+<li><strong>brief</strong> &#8211; when True, only the Total stats is output, not
+each <tt class="xref py py-obj docutils literal"><span class="pre">Action</span></tt> or <tt class="xref py py-obj docutils literal"><span class="pre">Report</span></tt> stats. Default is False.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="timer">
+<h3>Timer<a class="headerlink" href="#timer" title="Permalink to this headline">¶</a></h3>
+<dl class="class">
+<dt id="execo.time_utils.Timer">
+<em class="property">class </em><tt class="descclassname">execo.time_utils.</tt><tt class="descname">Timer</tt><big>(</big><em>timeout=None</em><big>)</big><a class="headerlink" href="#execo.time_utils.Timer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
+<p>Keep track of elapsed time.</p>
+<p>Create and start the Timer.</p>
+<dl class="method">
+<dt id="execo.time_utils.Timer.elapsed">
+<tt class="descname">elapsed</tt><big>(</big><big>)</big><a class="headerlink" href="#execo.time_utils.Timer.elapsed" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return this Timer&#8217;s instance elapsed time since start.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="execo.time_utils.Timer.remaining">
+<tt class="descname">remaining</tt><big>(</big><big>)</big><a class="headerlink" href="#execo.time_utils.Timer.remaining" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the remaining time before the timeout.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="execo.time_utils.Timer.start_date">
+<tt class="descname">start_date</tt><big>(</big><big>)</big><a class="headerlink" href="#execo.time_utils.Timer.start_date" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return this Timer&#8217;s instance start time.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="execo.time_utils.Timer.wait_elapsed">
+<tt class="descname">wait_elapsed</tt><big>(</big><em>elapsed</em><big>)</big><a class="headerlink" href="#execo.time_utils.Timer.wait_elapsed" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sleep until the given amount of time has elapsed since the Timer&#8217;s start.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>elapsed</strong> &#8211; the delay to sleep in one of the formats
+handled (or None) (see <a class="reference internal" href="#execo.time_utils.get_seconds" title="execo.time_utils.get_seconds"><tt class="xref py py-obj docutils literal"><span class="pre">execo.time_utils.get_seconds</span></tt></a>).</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+</div>
+<div class="section" id="exceptions">
+<h2>Exceptions<a class="headerlink" href="#exceptions" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="execo.exception.ProcessesFailed">
+<em class="property">class </em><tt class="descclassname">execo.exception.</tt><tt class="descname">ProcessesFailed</tt><big>(</big><em>processes</em><big>)</big><a class="headerlink" href="#execo.exception.ProcessesFailed" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">exceptions.Exception</span></tt></p>
+<p>Raised when one or more <a class="reference internal" href="#execo.process.Process" title="execo.process.Process"><tt class="xref py py-obj docutils literal"><span class="pre">execo.process.Process</span></tt></a> have failed.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>processes</strong> &#8211; iterable of failed processes</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+<div class="section" id="utilities">
+<h2>Utilities<a class="headerlink" href="#utilities" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="sleep">
+<h3>sleep<a class="headerlink" href="#sleep" title="Permalink to this headline">¶</a></h3>
+<dl class="function">
+<dt id="execo.time_utils.sleep">
+<tt class="descclassname">execo.time_utils.</tt><tt class="descname">sleep</tt><big>(</big><em>delay=None</em>, <em>until=None</em><big>)</big><a class="headerlink" href="#execo.time_utils.sleep" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sleep until a given delay has elapsed or until a given date.</p>
+<p>If both present, will sleep at least for the delay and at least
+until the date.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>delay</strong> &#8211; the delay to sleep in one of the formats handled (or
+None) (see <a class="reference internal" href="#execo.time_utils.get_seconds" title="execo.time_utils.get_seconds"><tt class="xref py py-obj docutils literal"><span class="pre">execo.time_utils.get_seconds</span></tt></a>).</li>
+<li><strong>until</strong> &#8211; the date until which to sleep in one of the formats
+handled (or None) (see <a class="reference internal" href="#execo.time_utils.get_unixts" title="execo.time_utils.get_unixts"><tt class="xref py py-obj docutils literal"><span class="pre">execo.time_utils.get_unixts</span></tt></a>).</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+<div class="section" id="get-unixts">
+<h3>get_unixts<a class="headerlink" href="#get-unixts" title="Permalink to this headline">¶</a></h3>
+<dl class="function">
+<dt id="execo.time_utils.get_unixts">
+<tt class="descclassname">execo.time_utils.</tt><tt class="descname">get_unixts</tt><big>(</big><em>d</em><big>)</big><a class="headerlink" href="#execo.time_utils.get_unixts" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convert a date to a unix timestamp (float).</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>d</strong> &#8211; <p>a date in one of the supported types. if date == None,
+returns None. Supported types</p>
+<ul class="simple">
+<li><tt class="docutils literal"><span class="pre">datetime.datetime</span></tt></li>
+<li>string: see <tt class="xref py py-obj docutils literal"><span class="pre">execo.time_utils.str_date_to_unixts</span></tt></li>
+<li>numeric type: see <tt class="xref py py-obj docutils literal"><span class="pre">execo.time_utils.numeric_date_to_unixts</span></tt></li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+<div class="section" id="get-seconds">
+<h3>get_seconds<a class="headerlink" href="#get-seconds" title="Permalink to this headline">¶</a></h3>
+<dl class="function">
+<dt id="execo.time_utils.get_seconds">
+<tt class="descclassname">execo.time_utils.</tt><tt class="descname">get_seconds</tt><big>(</big><em>duration</em><big>)</big><a class="headerlink" href="#execo.time_utils.get_seconds" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convert a duration to a number of seconds (float).</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>duration</strong> &#8211; <p>a duration in one of the supported types. if
+duration == None, returns None. Supported types</p>
+<ul class="simple">
+<li><tt class="docutils literal"><span class="pre">datetime.timedelta</span></tt></li>
+<li>string: see <tt class="xref py py-obj docutils literal"><span class="pre">execo.time_utils.str_duration_to_seconds</span></tt></li>
+<li>numeric type: see
+<tt class="xref py py-obj docutils literal"><span class="pre">execo.time_utils.numeric_duration_to_seconds</span></tt></li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+<div class="section" id="format-unixts">
+<h3>format_unixts<a class="headerlink" href="#format-unixts" title="Permalink to this headline">¶</a></h3>
+<dl class="function">
+<dt id="execo.time_utils.format_unixts">
+<tt class="descclassname">execo.time_utils.</tt><tt class="descname">format_unixts</tt><big>(</big><em>secs</em>, <em>showms=False</em><big>)</big><a class="headerlink" href="#execo.time_utils.format_unixts" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a string with the formatted date (year, month, day, hour, min, sec, ms) for pretty printing.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>secs</strong> &#8211; a unix timestamp (integer or float) (or None).</li>
+<li><strong>showms</strong> &#8211; whether to show ms or not. Default False.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+<div class="section" id="format-seconds">
+<h3>format_seconds<a class="headerlink" href="#format-seconds" title="Permalink to this headline">¶</a></h3>
+<dl class="function">
+<dt id="execo.time_utils.format_seconds">
+<tt class="descclassname">execo.time_utils.</tt><tt class="descname">format_seconds</tt><big>(</big><em>secs</em>, <em>showms=False</em><big>)</big><a class="headerlink" href="#execo.time_utils.format_seconds" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a string with a formatted duration (days, hours, mins, secs, ms) for pretty printing.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>secs</strong> &#8211; a duration in seconds (integer or float) (or None).</li>
+<li><strong>showms</strong> &#8211; whether to show ms or not. Default False.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+<div class="section" id="format-date">
+<h3>format_date<a class="headerlink" href="#format-date" title="Permalink to this headline">¶</a></h3>
+<dl class="function">
+<dt id="execo.time_utils.format_date">
+<tt class="descclassname">execo.time_utils.</tt><tt class="descname">format_date</tt><big>(</big><em>d</em>, <em>showms=False</em><big>)</big><a class="headerlink" href="#execo.time_utils.format_date" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a string with the formatted date (year, month, day, hour, min, sec, ms) for pretty printing.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>d</strong> &#8211; a date in one of the formats handled (or None) (see
+<a class="reference internal" href="#execo.time_utils.get_unixts" title="execo.time_utils.get_unixts"><tt class="xref py py-obj docutils literal"><span class="pre">execo.time_utils.get_unixts</span></tt></a>).</li>
+<li><strong>showms</strong> &#8211; whether to show ms or not. Default False.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+<div class="section" id="format-duration">
+<h3>format_duration<a class="headerlink" href="#format-duration" title="Permalink to this headline">¶</a></h3>
+<dl class="function">
+<dt id="execo.time_utils.format_duration">
+<tt class="descclassname">execo.time_utils.</tt><tt class="descname">format_duration</tt><big>(</big><em>duration</em>, <em>showms=False</em><big>)</big><a class="headerlink" href="#execo.time_utils.format_duration" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a string with a formatted duration (days, hours, mins, secs, ms) for pretty printing.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>duration</strong> &#8211; a duration in one of the formats handled (or
+None) (see <a class="reference internal" href="#execo.time_utils.get_seconds" title="execo.time_utils.get_seconds"><tt class="xref py py-obj docutils literal"><span class="pre">execo.time_utils.get_seconds</span></tt></a>).</li>
+<li><strong>showms</strong> &#8211; whether to show ms or not. Default False.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+<div class="section" id="get-hosts-list">
+<h3>get_hosts_list<a class="headerlink" href="#get-hosts-list" title="Permalink to this headline">¶</a></h3>
+<dl class="function">
+<dt id="execo.host.get_hosts_list">
+<tt class="descclassname">execo.host.</tt><tt class="descname">get_hosts_list</tt><big>(</big><em>hosts</em><big>)</big><a class="headerlink" href="#execo.host.get_hosts_list" title="Permalink to this definition">¶</a></dt>
+<dd><p>Deep copy an iterable of <a class="reference internal" href="#execo.host.Host" title="execo.host.Host"><tt class="xref py py-obj docutils literal"><span class="pre">execo.host.Host</span></tt></a> to a list of <a class="reference internal" href="#execo.host.Host" title="execo.host.Host"><tt class="xref py py-obj docutils literal"><span class="pre">execo.host.Host</span></tt></a>.</p>
+<p>order is preserved</p>
+</dd></dl>
+
+</div>
+<div class="section" id="get-hosts-set">
+<h3>get_hosts_set<a class="headerlink" href="#get-hosts-set" title="Permalink to this headline">¶</a></h3>
+<dl class="function">
+<dt id="execo.host.get_hosts_set">
+<tt class="descclassname">execo.host.</tt><tt class="descname">get_hosts_set</tt><big>(</big><em>hosts</em><big>)</big><a class="headerlink" href="#execo.host.get_hosts_set" title="Permalink to this definition">¶</a></dt>
+<dd><p>Deep copy an iterable of <a class="reference internal" href="#execo.host.Host" title="execo.host.Host"><tt class="xref py py-obj docutils literal"><span class="pre">execo.host.Host</span></tt></a> to a set of <a class="reference internal" href="#execo.host.Host" title="execo.host.Host"><tt class="xref py py-obj docutils literal"><span class="pre">execo.host.Host</span></tt></a>.</p>
+</dd></dl>
+
+</div>
+</div>
+<div class="section" id="logging">
+<h2>Logging<a class="headerlink" href="#logging" title="Permalink to this headline">¶</a></h2>
+<p>execo uses the standard <tt class="xref py py-obj docutils literal"><span class="pre">logging</span></tt> module for logging. By default, logs
+are sent to stderr, logging level is <tt class="xref py py-obj docutils literal"><span class="pre">logging.WARNING</span></tt>, so no logs
+should be output when everything works correctly. Some logs will
+appear if some processes don&#8217;t exit with a zero return code (unless
+they were created with flag ignore_non_zer_exit_code), or if some
+processes timeout (unless they were created with flag ignore_timeout),
+or if process instanciation resulted in a operating system error
+(unless they were created with flag ignore_error).</p>
+<div class="section" id="logger">
+<h3>logger<a class="headerlink" href="#logger" title="Permalink to this headline">¶</a></h3>
+<dl class="data">
+<dt id="execo.execo.log.logger">
+<tt class="descclassname">execo.log.</tt><tt class="descname">logger</tt><a class="headerlink" href="#execo.execo.log.logger" title="Permalink to this definition">¶</a></dt>
+<dd><p>The execo logger.</p>
+</dd></dl>
+
+</div>
+</div>
+<div class="section" id="configuration">
+<span id="execo-configuration"></span><h2>Configuration<a class="headerlink" href="#configuration" title="Permalink to this headline">¶</a></h2>
+<p>This module may be configured at import time by modifiing execo module
+variables <a class="reference internal" href="#execo.config.configuration" title="execo.config.configuration"><tt class="xref py py-obj docutils literal"><span class="pre">execo.config.configuration</span></tt></a>,
+<a class="reference internal" href="#execo.config.default_connexion_params" title="execo.config.default_connexion_params"><tt class="xref py py-obj docutils literal"><span class="pre">execo.config.default_connexion_params</span></tt></a> or by defining two dicts
+<tt class="xref py py-obj docutils literal"><span class="pre">configuration</span></tt> and <tt class="xref py py-obj docutils literal"><span class="pre">default_connexion_params</span></tt> in the file
+<tt class="docutils literal"><span class="pre">~/.execo.conf.py</span></tt></p>
+<div class="section" id="id1">
+<h3>configuration<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h3>
+<p>The <tt class="xref py py-obj docutils literal"><span class="pre">configuration</span></tt> dict contains global configuration parameters.</p>
+<dl class="data">
+<dt id="execo.config.configuration">
+<tt class="descclassname">execo.config.</tt><tt class="descname">configuration</tt><em class="property"> = {'compact_output_threshold': 4096, 'style_report_warn': ('magenta',), 'kill_timeout': 5, 'style_log_level': ('magenta',), 'style_log_header': ('yellow',), 'remote_tool': 0, 'style_object_repr': ('blue', 'bold'), 'color_mode': True, 'log_level': 30, 'fileput_tool': 1, 'style_report_error': ('red', 'bold'), 'style_emph': ('magenta', 'bold'), 'fileget_tool': 1}</em><a class="headerlink" href="#execo.config.configuration" title="Permalink to this definition">¶</a></dt>
+<dd><p>Global execo configuration parameters.</p>
+<ul class="simple">
+<li><tt class="docutils literal"><span class="pre">log_level</span></tt>: the log level (see module <tt class="xref py py-obj docutils literal"><span class="pre">logging</span></tt>)</li>
+<li><tt class="docutils literal"><span class="pre">remote_tool</span></tt>: default tool to use when instanciating remote
+processes. Can be <tt class="xref py py-obj docutils literal"><span class="pre">execo.config.SSH</span></tt> or <tt class="xref py py-obj docutils literal"><span class="pre">execo.config.TAKTUK</span></tt></li>
+<li><tt class="docutils literal"><span class="pre">fileput_tool</span></tt>: default tool to use to put files remotely. Can be
+<tt class="xref py py-obj docutils literal"><span class="pre">execo.config.SCP</span></tt> or <tt class="xref py py-obj docutils literal"><span class="pre">execo.config.TAKTUK</span></tt></li>
+<li><tt class="docutils literal"><span class="pre">fileget_tool</span></tt>: default tool to use to get remote files. Can be
+<tt class="xref py py-obj docutils literal"><span class="pre">execo.config.SCP</span></tt> or <tt class="xref py py-obj docutils literal"><span class="pre">execo.config.TAKTUK</span></tt></li>
+<li><tt class="docutils literal"><span class="pre">compact_output_threshold</span></tt>: only beginning and end of stdout /
+stderr are displayed by <tt class="xref py py-obj docutils literal"><span class="pre">execo.process.ProcessBase.dump</span></tt> when their
+size is greater than this threshold. 0 for no threshold</li>
+<li><tt class="docutils literal"><span class="pre">kill_timeout</span></tt>: number of seconds to wait after a clean SIGTERM
+kill before assuming that the process is not responsive and killing
+it with SIGKILL</li>
+<li><tt class="docutils literal"><span class="pre">color_mode</span></tt>: whether to colorize output (with ansi escape
+sequences)</li>
+<li><tt class="docutils literal"><span class="pre">style_log_header</span></tt>, <tt class="docutils literal"><span class="pre">style_log_level</span></tt>, <tt class="docutils literal"><span class="pre">style_object_repr</span></tt>,
+<tt class="docutils literal"><span class="pre">style_emph</span></tt>, <tt class="docutils literal"><span class="pre">style_report_warn</span></tt>, <tt class="docutils literal"><span class="pre">style_report_error</span></tt>:
+iterables of ansi attributes identifiers (those found in
+<tt class="xref py py-obj docutils literal"><span class="pre">execo.log._ansi_styles</span></tt>)</li>
+</ul>
+</dd></dl>
+
+<p>Its default values are:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">configuration</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s">&#39;log_level&#39;</span><span class="p">:</span> <span class="n">logging</span><span class="o">.</span><span class="n">WARNING</span><span class="p">,</span>
+    <span class="s">&#39;remote_tool&#39;</span><span class="p">:</span> <span class="n">SSH</span><span class="p">,</span>
+    <span class="s">&#39;fileput_tool&#39;</span><span class="p">:</span> <span class="n">SCP</span><span class="p">,</span>
+    <span class="s">&#39;fileget_tool&#39;</span><span class="p">:</span> <span class="n">SCP</span><span class="p">,</span>
+    <span class="s">&#39;compact_output_threshold&#39;</span><span class="p">:</span> <span class="mi">4096</span><span class="p">,</span>
+    <span class="s">&#39;kill_timeout&#39;</span><span class="p">:</span> <span class="mi">5</span><span class="p">,</span>
+    <span class="s">&#39;color_mode&#39;</span><span class="p">:</span> <span class="n">checktty</span><span class="p">(</span><span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="p">)</span>
+                  <span class="ow">and</span> <span class="n">checktty</span><span class="p">(</span><span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="p">),</span>
+    <span class="s">&#39;style_log_header&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s">&#39;yellow&#39;</span><span class="p">,),</span>
+    <span class="s">&#39;style_log_level&#39;</span> <span class="p">:</span> <span class="p">(</span><span class="s">&#39;magenta&#39;</span><span class="p">,),</span>
+    <span class="s">&#39;style_object_repr&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s">&#39;blue&#39;</span><span class="p">,</span> <span class="s">&#39;bold&#39;</span><span class="p">),</span>
+    <span class="s">&#39;style_emph&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s">&#39;magenta&#39;</span><span class="p">,</span> <span class="s">&#39;bold&#39;</span><span class="p">),</span>
+    <span class="s">&#39;style_report_warn&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s">&#39;magenta&#39;</span><span class="p">,),</span>
+    <span class="s">&#39;style_report_error&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s">&#39;red&#39;</span><span class="p">,</span> <span class="s">&#39;bold&#39;</span><span class="p">),</span>
+    <span class="p">}</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="default-connexion-params">
+<h3>default_connexion_params<a class="headerlink" href="#default-connexion-params" title="Permalink to this headline">¶</a></h3>
+<p>The <tt class="xref py py-obj docutils literal"><span class="pre">default_connexion_params</span></tt> dict contains default parameters for
+remote connexions.</p>
+<dl class="data">
+<dt id="execo.config.default_connexion_params">
+<tt class="descclassname">execo.config.</tt><tt class="descname">default_connexion_params</tt><em class="property"> = {'host_rewrite_func': &lt;function host_rewrite_func at 0x33605f0&gt;, 'taktuk': 'taktuk', 'user': None, 'pty': False, 'scp': 'scp', 'ssh': 'ssh', 'taktuk_connector_options': ('-o', 'BatchMode=yes', '-o', 'PasswordAuthentication=no', '-o', 'StrictHostKeyChecking=no', '-o', 'UserKnownHostsFile=/dev/null', '-o', 'ConnectTimeout=20'), 'taktuk_connector': 'ssh', 'taktuk_gateway': None, 'ssh_options': ('-tt', '-o', 'BatchMode=yes', '-o', 'PasswordAuthentication=no', '-o', 'StrictHostKeyChecking=no', '-o', 'UserKnownHostsFile=/dev/null', '-o', 'ConnectTimeout=20'), 'port': None, 'scp_options': ('-o', 'BatchMode=yes', '-o', 'PasswordAuthentication=no', '-o', 'StrictHostKeyChecking=no', '-o', 'UserKnownHostsFile=/dev/null', '-o', 'ConnectTimeout=20', '-rp'), 'taktuk_gateway_connexion_params': None, 'keyfile': None, 'taktuk_options': ('-s',)}</em><a class="headerlink" href="#execo.config.default_connexion_params" title="Permalink to this definition">¶</a></dt>
+<dd><p>Default connexion params for <tt class="docutils literal"><span class="pre">ssh</span></tt>/<tt class="docutils literal"><span class="pre">scp</span></tt>/<tt class="docutils literal"><span class="pre">taktuk</span></tt> connexions.</p>
+<ul class="simple">
+<li><tt class="docutils literal"><span class="pre">user</span></tt>: the user to connect with.</li>
+<li><tt class="docutils literal"><span class="pre">keyfile</span></tt>: the keyfile to connect with.</li>
+<li><tt class="docutils literal"><span class="pre">port</span></tt>: the port to connect to.</li>
+<li><tt class="docutils literal"><span class="pre">ssh</span></tt>: the ssh or ssh-like command.</li>
+<li><tt class="docutils literal"><span class="pre">scp</span></tt>: the scp or scp-like command.</li>
+<li><tt class="docutils literal"><span class="pre">taktuk</span></tt>: the taktuk command.</li>
+<li><tt class="docutils literal"><span class="pre">ssh_options</span></tt>: tuple of options passed to ssh.</li>
+<li><tt class="docutils literal"><span class="pre">scp_options</span></tt>: tuple of options passed to scp.</li>
+<li><tt class="docutils literal"><span class="pre">taktuk_options</span></tt>: tuple of options passed to taktuk.</li>
+<li><tt class="docutils literal"><span class="pre">taktuk_connector</span></tt>: the ssh-like connector command for taktuk.</li>
+<li><tt class="docutils literal"><span class="pre">taktuk_connector_options</span></tt>: tuple of options passed to
+taktuk_connector.</li>
+<li><tt class="docutils literal"><span class="pre">taktuk_gateway</span></tt>: hostname or <a class="reference internal" href="#execo.host.Host" title="execo.host.Host"><tt class="xref py py-obj docutils literal"><span class="pre">execo.host.Host</span></tt></a> instance on which
+to launch the taktuk command.</li>
+<li><tt class="docutils literal"><span class="pre">taktuk_gateway_connexion_params</span></tt>: connexion parameters (if
+needed) to connect to taktuk_gateway.</li>
+<li><tt class="docutils literal"><span class="pre">pty</span></tt>: boolean. Wether to allocate or not a pty for
+ssh/scp.</li>
+<li><tt class="docutils literal"><span class="pre">host_rewrite_func</span></tt>: function called to rewrite hosts
+addresses. Takes a host address, returns a host address.</li>
+</ul>
+</dd></dl>
+
+<p>Its default values are:</p>
+<div class="highlight-python"><div class="highlight"><pre>    <span class="n">default_connexion_params</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s">&#39;user&#39;</span><span class="p">:</span>        <span class="bp">None</span><span class="p">,</span>
+        <span class="s">&#39;keyfile&#39;</span><span class="p">:</span>     <span class="bp">None</span><span class="p">,</span>
+        <span class="s">&#39;port&#39;</span><span class="p">:</span>        <span class="bp">None</span><span class="p">,</span>
+        <span class="s">&#39;ssh&#39;</span><span class="p">:</span>         <span class="s">&#39;ssh&#39;</span><span class="p">,</span>
+        <span class="s">&#39;scp&#39;</span><span class="p">:</span>         <span class="s">&#39;scp&#39;</span><span class="p">,</span>
+        <span class="s">&#39;taktuk&#39;</span><span class="p">:</span>      <span class="s">&#39;taktuk&#39;</span><span class="p">,</span>
+        <span class="s">&#39;ssh_options&#39;</span><span class="p">:</span> <span class="p">(</span> <span class="s">&#39;-tt&#39;</span><span class="p">,</span>
+                         <span class="s">&#39;-o&#39;</span><span class="p">,</span> <span class="s">&#39;BatchMode=yes&#39;</span><span class="p">,</span>
+                         <span class="s">&#39;-o&#39;</span><span class="p">,</span> <span class="s">&#39;PasswordAuthentication=no&#39;</span><span class="p">,</span>
+                         <span class="s">&#39;-o&#39;</span><span class="p">,</span> <span class="s">&#39;StrictHostKeyChecking=no&#39;</span><span class="p">,</span>
+                         <span class="s">&#39;-o&#39;</span><span class="p">,</span> <span class="s">&#39;UserKnownHostsFile=/dev/null&#39;</span><span class="p">,</span>
+                         <span class="s">&#39;-o&#39;</span><span class="p">,</span> <span class="s">&#39;ConnectTimeout=20&#39;</span> <span class="p">),</span>
+        <span class="s">&#39;scp_options&#39;</span><span class="p">:</span> <span class="p">(</span> <span class="s">&#39;-o&#39;</span><span class="p">,</span> <span class="s">&#39;BatchMode=yes&#39;</span><span class="p">,</span>
+                         <span class="s">&#39;-o&#39;</span><span class="p">,</span> <span class="s">&#39;PasswordAuthentication=no&#39;</span><span class="p">,</span>
+                         <span class="s">&#39;-o&#39;</span><span class="p">,</span> <span class="s">&#39;StrictHostKeyChecking=no&#39;</span><span class="p">,</span>
+                         <span class="s">&#39;-o&#39;</span><span class="p">,</span> <span class="s">&#39;UserKnownHostsFile=/dev/null&#39;</span><span class="p">,</span>
+                         <span class="s">&#39;-o&#39;</span><span class="p">,</span> <span class="s">&#39;ConnectTimeout=20&#39;</span><span class="p">,</span>
+                         <span class="s">&#39;-rp&#39;</span> <span class="p">),</span>
+        <span class="s">&#39;taktuk_options&#39;</span><span class="p">:</span> <span class="p">(</span> <span class="s">&#39;-s&#39;</span><span class="p">,</span> <span class="p">),</span>
+        <span class="s">&#39;taktuk_connector&#39;</span><span class="p">:</span> <span class="s">&#39;ssh&#39;</span><span class="p">,</span>
+        <span class="s">&#39;taktuk_connector_options&#39;</span><span class="p">:</span> <span class="p">(</span> <span class="s">&#39;-o&#39;</span><span class="p">,</span> <span class="s">&#39;BatchMode=yes&#39;</span><span class="p">,</span>
+                                      <span class="s">&#39;-o&#39;</span><span class="p">,</span> <span class="s">&#39;PasswordAuthentication=no&#39;</span><span class="p">,</span>
+                                      <span class="s">&#39;-o&#39;</span><span class="p">,</span> <span class="s">&#39;StrictHostKeyChecking=no&#39;</span><span class="p">,</span>
+                                      <span class="s">&#39;-o&#39;</span><span class="p">,</span> <span class="s">&#39;UserKnownHostsFile=/dev/null&#39;</span><span class="p">,</span>
+                                      <span class="s">&#39;-o&#39;</span><span class="p">,</span> <span class="s">&#39;ConnectTimeout=20&#39;</span><span class="p">),</span>
+        <span class="s">&#39;taktuk_gateway&#39;</span><span class="p">:</span> <span class="bp">None</span><span class="p">,</span>
+        <span class="s">&#39;taktuk_gateway_connexion_params&#39;</span><span class="p">:</span> <span class="bp">None</span><span class="p">,</span>
+        <span class="s">&#39;pty&#39;</span><span class="p">:</span> <span class="bp">False</span><span class="p">,</span>
+        <span class="s">&#39;host_rewrite_func&#39;</span><span class="p">:</span> <span class="bp">None</span>
+        <span class="p">}</span>
+</pre></div>
+</div>
+<p>These default connexion parameters are the ones used when no other
+specific connexion parameters are given to <a class="reference internal" href="#execo.process.SshProcess" title="execo.process.SshProcess"><tt class="xref py py-obj docutils literal"><span class="pre">execo.process.SshProcess</span></tt></a>,
+<a class="reference internal" href="#execo.action.Remote" title="execo.action.Remote"><tt class="xref py py-obj docutils literal"><span class="pre">execo.action.Remote</span></tt></a>, <a class="reference internal" href="#execo.action.TaktukRemote" title="execo.action.TaktukRemote"><tt class="xref py py-obj docutils literal"><span class="pre">execo.action.TaktukRemote</span></tt></a>,
+<a class="reference internal" href="#execo.action.Get" title="execo.action.Get"><tt class="xref py py-obj docutils literal"><span class="pre">execo.action.Get</span></tt></a>, <a class="reference internal" href="#execo.action.TaktukGet" title="execo.action.TaktukGet"><tt class="xref py py-obj docutils literal"><span class="pre">execo.action.TaktukGet</span></tt></a>, <a class="reference internal" href="#execo.action.Put" title="execo.action.Put"><tt class="xref py py-obj docutils literal"><span class="pre">execo.action.Put</span></tt></a>,
+<a class="reference internal" href="#execo.action.TaktukPut" title="execo.action.TaktukPut"><tt class="xref py py-obj docutils literal"><span class="pre">execo.action.TaktukPut</span></tt></a>, or given to the <a class="reference internal" href="#execo.host.Host" title="execo.host.Host"><tt class="xref py py-obj docutils literal"><span class="pre">execo.host.Host</span></tt></a>. When
+connecting to a remote host, the connexion parameters are first taken
+from the <a class="reference internal" href="#execo.host.Host" title="execo.host.Host"><tt class="xref py py-obj docutils literal"><span class="pre">execo.host.Host</span></tt></a> instance to which the connexion is made,
+then from the <tt class="docutils literal"><span class="pre">connexion_params</span></tt> given to the
+<a class="reference internal" href="#execo.process.SshProcess" title="execo.process.SshProcess"><tt class="xref py py-obj docutils literal"><span class="pre">execo.process.SshProcess</span></tt></a> / <a class="reference internal" href="#execo.action.TaktukRemote" title="execo.action.TaktukRemote"><tt class="xref py py-obj docutils literal"><span class="pre">execo.action.TaktukRemote</span></tt></a> /
+<a class="reference internal" href="#execo.action.Remote" title="execo.action.Remote"><tt class="xref py py-obj docutils literal"><span class="pre">execo.action.Remote</span></tt></a> / <a class="reference internal" href="#execo.action.Get" title="execo.action.Get"><tt class="xref py py-obj docutils literal"><span class="pre">execo.action.Get</span></tt></a> / <a class="reference internal" href="#execo.action.TaktukGet" title="execo.action.TaktukGet"><tt class="xref py py-obj docutils literal"><span class="pre">execo.action.TaktukGet</span></tt></a>
+/ <a class="reference internal" href="#execo.action.Put" title="execo.action.Put"><tt class="xref py py-obj docutils literal"><span class="pre">execo.action.Put</span></tt></a> / <a class="reference internal" href="#execo.action.TaktukPut" title="execo.action.TaktukPut"><tt class="xref py py-obj docutils literal"><span class="pre">execo.action.TaktukPut</span></tt></a>, if there are some,
+then from the <tt class="xref py py-obj docutils literal"><span class="pre">default_connexion_params</span></tt>, which has default values
+which can be changed by directly modifying its global value, or in
+<tt class="docutils literal"><span class="pre">~/.execo.conf.py</span></tt></p>
+</div>
+<div class="section" id="ssh-scp-configuration-for-sshprocess-remote-taktukremote-get-taktukget-put-taktukput">
+<h3>ssh/scp configuration for SshProcess, Remote, TaktukRemote, Get, TaktukGet, Put, TaktukPut<a class="headerlink" href="#ssh-scp-configuration-for-sshprocess-remote-taktukremote-get-taktukget-put-taktukput" title="Permalink to this headline">¶</a></h3>
+<p>For <a class="reference internal" href="#execo.process.SshProcess" title="execo.process.SshProcess"><tt class="xref py py-obj docutils literal"><span class="pre">execo.process.SshProcess</span></tt></a>, <a class="reference internal" href="#execo.action.Remote" title="execo.action.Remote"><tt class="xref py py-obj docutils literal"><span class="pre">execo.action.Remote</span></tt></a>,
+<a class="reference internal" href="#execo.action.TaktukRemote" title="execo.action.TaktukRemote"><tt class="xref py py-obj docutils literal"><span class="pre">execo.action.TaktukRemote</span></tt></a>, <a class="reference internal" href="#execo.action.Get" title="execo.action.Get"><tt class="xref py py-obj docutils literal"><span class="pre">execo.action.Get</span></tt></a>,
+<a class="reference internal" href="#execo.action.TaktukGet" title="execo.action.TaktukGet"><tt class="xref py py-obj docutils literal"><span class="pre">execo.action.TaktukGet</span></tt></a>, <a class="reference internal" href="#execo.action.Put" title="execo.action.Put"><tt class="xref py py-obj docutils literal"><span class="pre">execo.action.Put</span></tt></a>, <a class="reference internal" href="#execo.action.TaktukPut" title="execo.action.TaktukPut"><tt class="xref py py-obj docutils literal"><span class="pre">execo.action.TaktukPut</span></tt></a>
+to work correctly, ssh/scp connexions need to be fully automatic: No
+password has to be asked. The default configuration in execo is to
+force a passwordless, public key based authentification. As this tool
+is growing in a cluster/grid environment where servers are frequently
+redeployed, default configuration also disables strict key checking,
+and the recording of hosts keys to <tt class="docutils literal"><span class="pre">~/.ssh/know_hosts</span></tt>. This may be
+a security hole in a different context.</p>
+</div>
+</div>
+<div class="section" id="miscellaneous-notes">
+<h2>Miscellaneous notes<a class="headerlink" href="#miscellaneous-notes" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="timestamps">
+<h3>Timestamps<a class="headerlink" href="#timestamps" title="Permalink to this headline">¶</a></h3>
+<p>Internally all dates are unix timestamps, ie. number of seconds
+elapsed since the unix epoch (00:00:00 on Jan 1 1970), possibly with
+or without subsecond precision (float or integer). All durations are
+in seconds. When passing parameters to execo api, all dates and
+duration can be given in various formats (see
+<a class="reference internal" href="#execo.time_utils.get_unixts" title="execo.time_utils.get_unixts"><tt class="xref py py-obj docutils literal"><span class="pre">execo.time_utils.get_unixts</span></tt></a>, <a class="reference internal" href="#execo.time_utils.get_seconds" title="execo.time_utils.get_seconds"><tt class="xref py py-obj docutils literal"><span class="pre">execo.time_utils.get_seconds</span></tt></a>) and
+will be automatically converted to dates as unix timestamps, and
+durations in seconds.</p>
+</div>
+<div class="section" id="exceptions-at-shutdown">
+<h3>Exceptions at shutdown<a class="headerlink" href="#exceptions-at-shutdown" title="Permalink to this headline">¶</a></h3>
+<p>Some exceptions may sometimes be triggered at python shutdown, with
+the message <tt class="docutils literal"><span class="pre">most</span> <span class="pre">likely</span> <span class="pre">raised</span> <span class="pre">during</span> <span class="pre">interpreter</span> <span class="pre">shutdown</span></tt>. They
+are most likely caused by a bug in shutdown code&#8217;s handling of threads
+termination, and thus can be ignored. See
+<a class="reference external" href="http://bugs.python.org/issue1856">http://bugs.python.org/issue1856</a></p>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="index.html">
+              <img class="logo" src="_static/execo.png" alt="Logo"/>
+            </a></p>
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#"><tt class="docutils literal"><span class="pre">execo</span></tt></a><ul>
+<li><a class="reference internal" href="#overview">Overview</a></li>
+<li><a class="reference internal" href="#process-class-hierarchy">Process class hierarchy</a><ul>
+<li><a class="reference internal" href="#get-process">get_process</a></li>
+<li><a class="reference internal" href="#processbase">ProcessBase</a></li>
+<li><a class="reference internal" href="#process">Process</a></li>
+<li><a class="reference internal" href="#sshprocess">SshProcess</a></li>
+<li><a class="reference internal" href="#taktukprocess">TaktukProcess</a></li>
+<li><a class="reference internal" href="#processlifecyclehandler">ProcessLifecycleHandler</a></li>
+<li><a class="reference internal" href="#processoutputhandler">ProcessOutputHandler</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#action-class-hierarchy">Action class hierarchy</a><ul>
+<li><a class="reference internal" href="#action">Action</a></li>
+<li><a class="reference internal" href="#remote">Remote</a></li>
+<li><a class="reference internal" href="#taktukremote">TaktukRemote</a></li>
+<li><a class="reference internal" href="#put">Put</a></li>
+<li><a class="reference internal" href="#taktukput">TaktukPut</a></li>
+<li><a class="reference internal" href="#get">Get</a></li>
+<li><a class="reference internal" href="#taktukget">TaktukGet</a></li>
+<li><a class="reference internal" href="#local">Local</a></li>
+<li><a class="reference internal" href="#parallelactions">ParallelActions</a></li>
+<li><a class="reference internal" href="#sequentialactions">SequentialActions</a></li>
+<li><a class="reference internal" href="#actionlifecyclehandler">ActionLifecycleHandler</a></li>
+<li><a class="reference internal" href="#wait-multiple-actions">wait_multiple_actions</a></li>
+<li><a class="reference internal" href="#wait-all-actions">wait_all_actions</a></li>
+<li><a class="reference internal" href="#actionfactory">ActionFactory</a></li>
+<li><a class="reference internal" href="#get-remote">get_remote</a></li>
+<li><a class="reference internal" href="#get-fileput">get_fileput</a></li>
+<li><a class="reference internal" href="#get-fileget">get_fileget</a></li>
+<li><a class="reference internal" href="#substitutions-for-remote-taktukremote-get-put">substitutions for Remote, TaktukRemote, Get, Put</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#miscellaneous-classes">Miscellaneous classes</a><ul>
+<li><a class="reference internal" href="#host">Host</a></li>
+<li><a class="reference internal" href="#report">Report</a></li>
+<li><a class="reference internal" href="#timer">Timer</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#exceptions">Exceptions</a></li>
+<li><a class="reference internal" href="#utilities">Utilities</a><ul>
+<li><a class="reference internal" href="#sleep">sleep</a></li>
+<li><a class="reference internal" href="#get-unixts">get_unixts</a></li>
+<li><a class="reference internal" href="#get-seconds">get_seconds</a></li>
+<li><a class="reference internal" href="#format-unixts">format_unixts</a></li>
+<li><a class="reference internal" href="#format-seconds">format_seconds</a></li>
+<li><a class="reference internal" href="#format-date">format_date</a></li>
+<li><a class="reference internal" href="#format-duration">format_duration</a></li>
+<li><a class="reference internal" href="#get-hosts-list">get_hosts_list</a></li>
+<li><a class="reference internal" href="#get-hosts-set">get_hosts_set</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#logging">Logging</a><ul>
+<li><a class="reference internal" href="#logger">logger</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#configuration">Configuration</a><ul>
+<li><a class="reference internal" href="#id1">configuration</a></li>
+<li><a class="reference internal" href="#default-connexion-params">default_connexion_params</a></li>
+<li><a class="reference internal" href="#ssh-scp-configuration-for-sshprocess-remote-taktukremote-get-taktukget-put-taktukput">ssh/scp configuration for SshProcess, Remote, TaktukRemote, Get, TaktukGet, Put, TaktukPut</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#miscellaneous-notes">Miscellaneous notes</a><ul>
+<li><a class="reference internal" href="#timestamps">Timestamps</a></li>
+<li><a class="reference internal" href="#exceptions-at-shutdown">Exceptions at shutdown</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="tutorial.html"
+                        title="previous chapter">execo tutorial</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="execo_g5k.html"
+                        title="next chapter"><tt class="docutils literal"><span class="pre">execo_g5k</span></tt></a></p>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="execo_g5k.html" title="execo_g5k"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="tutorial.html" title="execo tutorial"
+             >previous</a> |</li>
+        <li><a href="index.html">execo v2.0</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2009-2012, INRIA Rhone-Alpes, Service Experimentation et Developpement.
+      Last updated on Nov 21, 2012.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>

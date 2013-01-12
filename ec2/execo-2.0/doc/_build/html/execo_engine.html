@@ -1,0 +1,533 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>execo_engine &mdash; execo v2.0</title>
+    
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '2.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="shortcut icon" href="_static/execo-icon.ico"/>
+    <link rel="top" title="execo v2.0" href="index.html" />
+    <link rel="prev" title="execo_g5k" href="execo_g5k.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="execo_g5k.html" title="execo_g5k"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">execo v2.0</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="module-execo_engine">
+<span id="execo-engine"></span><h1><a class="reference internal" href="#module-execo_engine" title="execo_engine"><tt class="xref py py-mod docutils literal"><span class="pre">execo_engine</span></tt></a><a class="headerlink" href="#module-execo_engine" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="overview">
+<h2>Overview<a class="headerlink" href="#overview" title="Permalink to this headline">¶</a></h2>
+<p>The <a class="reference internal" href="#module-execo_engine" title="execo_engine"><tt class="xref py py-obj docutils literal"><span class="pre">execo_engine</span></tt></a> module provides tools for the development of
+experiments.</p>
+</div>
+<div class="section" id="parameter-sweeping">
+<h2>Parameter sweeping<a class="headerlink" href="#parameter-sweeping" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="sweep">
+<h3>sweep<a class="headerlink" href="#sweep" title="Permalink to this headline">¶</a></h3>
+<dl class="function">
+<dt id="execo_engine.utils.sweep">
+<tt class="descclassname">execo_engine.utils.</tt><tt class="descname">sweep</tt><big>(</big><em>parameters</em><big>)</big><a class="headerlink" href="#execo_engine.utils.sweep" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generates all combinations of parameters.</p>
+<p>The aim of this function is, given a list of experiment parameters
+(named factors), and for each parameter (factor), the list of
+their possible values (named levels), to generate the cartesian
+product of all parameter values (called a full factorial design in
+<em>The Art Of Computer Systems Performance Analysis, R. Jain, Wiley
+1991</em>).</p>
+<p>More formally: given a a dict associating factors as keys and the
+list of their possible levels as values, this function will return
+a list of dict corresponding to all cartesian product of all level
+combinations. Each dict in the returned list associates the
+factors as keys, and one of its possible levels as value.</p>
+<p>In the given factors dict, if for a factor X (key), the value
+associated is a dict instead of a list of levels, then it will use
+the keys of the sub-dict as levels for the factor X, and the
+values of the sub-dict must also be some dict for factor / levels
+combinations which will be explored only for the corresponding
+levels of factor X. This is kind of recursive sub-sweep and it
+allows to explore some factor / level combinations only for some
+levels of a given factor.</p>
+<p>The returned list contains <a class="reference internal" href="#execo_engine.utils.HashableDict" title="execo_engine.utils.HashableDict"><tt class="xref py py-obj docutils literal"><span class="pre">execo_engine.utils.HashableDict</span></tt></a>
+instead of dict, which is a simple subclass of dict, so that
+parameters combinations can be used as dict keys (but don&#8217;t modify
+them in such cases)</p>
+<p>Examples:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">sweep</span><span class="p">({</span>
+<span class="gp">... </span>    <span class="s">&quot;param 1&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s">&quot;a&quot;</span><span class="p">,</span> <span class="s">&quot;b&quot;</span><span class="p">],</span>
+<span class="gp">... </span>    <span class="s">&quot;param 2&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">]</span>
+<span class="gp">... </span>    <span class="p">})</span>
+<span class="go">[{&#39;param 1&#39;: &#39;a&#39;, &#39;param 2&#39;: 1}, {&#39;param 1&#39;: &#39;a&#39;, &#39;param 2&#39;: 2}, {&#39;param 1&#39;: &#39;b&#39;, &#39;param 2&#39;: 1}, {&#39;param 1&#39;: &#39;b&#39;, &#39;param 2&#39;: 2}]</span>
+</pre></div>
+</div>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">sweep</span><span class="p">({</span>
+<span class="gp">... </span>    <span class="s">&quot;param 1&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s">&quot;a&quot;</span><span class="p">,</span> <span class="s">&quot;b&quot;</span><span class="p">],</span>
+<span class="gp">... </span>    <span class="s">&quot;param 2&quot;</span><span class="p">:</span> <span class="p">{</span>
+<span class="gp">... </span>        <span class="mi">1</span><span class="p">:</span> <span class="p">{</span>
+<span class="gp">... </span>            <span class="s">&quot;param 1 1&quot;</span><span class="p">:</span> <span class="p">[</span> <span class="s">&quot;x&quot;</span><span class="p">,</span> <span class="s">&quot;y&quot;</span> <span class="p">],</span>
+<span class="gp">... </span>            <span class="s">&quot;param 1 2&quot;</span><span class="p">:</span> <span class="p">[</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">1.0</span> <span class="p">]</span>
+<span class="gp">... </span>            <span class="p">},</span>
+<span class="gp">... </span>        <span class="mi">2</span><span class="p">:</span> <span class="p">{</span>
+<span class="gp">... </span>            <span class="s">&quot;param 2 1&quot;</span><span class="p">:</span> <span class="p">[</span> <span class="o">-</span><span class="mi">10</span><span class="p">,</span> <span class="mi">10</span> <span class="p">]</span>
+<span class="gp">... </span>            <span class="p">}</span>
+<span class="gp">... </span>        <span class="p">}</span>
+<span class="gp">... </span>    <span class="p">})</span>
+<span class="go">[{&#39;param 1 2&#39;: 0.0, &#39;param 1 1&#39;: &#39;x&#39;, &#39;param 1&#39;: &#39;a&#39;, &#39;param 2&#39;: 1}, {&#39;param 1 2&#39;: 0.0, &#39;param 1 1&#39;: &#39;y&#39;, &#39;param 1&#39;: &#39;a&#39;, &#39;param 2&#39;: 1}, {&#39;param 1 2&#39;: 1.0, &#39;param 1 1&#39;: &#39;x&#39;, &#39;param 1&#39;: &#39;a&#39;, &#39;param 2&#39;: 1}, {&#39;param 1 2&#39;: 1.0, &#39;param 1 1&#39;: &#39;y&#39;, &#39;param 1&#39;: &#39;a&#39;, &#39;param 2&#39;: 1}, {&#39;param 2 1&#39;: -10, &#39;param 1&#39;: &#39;a&#39;, &#39;param 2&#39;: 2}, {&#39;param 2 1&#39;: 10, &#39;param 1&#39;: &#39;a&#39;, &#39;param 2&#39;: 2}, {&#39;param 1 2&#39;: 0.0, &#39;param 1 1&#39;: &#39;x&#39;, &#39;param 1&#39;: &#39;b&#39;, &#39;param 2&#39;: 1}, {&#39;param 1 2&#39;: 0.0, &#39;param 1 1&#39;: &#39;y&#39;, &#39;param 1&#39;: &#39;b&#39;, &#39;param 2&#39;: 1}, {&#39;param 1 2&#39;: 1.0, &#39;param 1 1&#39;: &#39;x&#39;, &#39;param 1&#39;: &#39;b&#39;, &#39;param 2&#39;: 1}, {&#39;param 1 2&#39;: 1.0, &#39;param 1 1&#39;: &#39;y&#39;, &#39;param 1&#39;: &#39;b&#39;, &#39;param 2&#39;: 1}, {&#39;param 2 1&#39;: -10, &#39;param 1&#39;: &#39;b&#39;, &#39;param 2&#39;: 2}, {&#39;param 2 1&#39;: 10, &#39;param 1&#39;: &#39;b&#39;, &#39;param 2&#39;: 2}]</span>
+</pre></div>
+</div>
+</dd></dl>
+
+</div>
+<div class="section" id="paramsweeper">
+<h3>ParamSweeper<a class="headerlink" href="#paramsweeper" title="Permalink to this headline">¶</a></h3>
+<dl class="class">
+<dt id="execo_engine.utils.ParamSweeper">
+<em class="property">class </em><tt class="descclassname">execo_engine.utils.</tt><tt class="descname">ParamSweeper</tt><big>(</big><em>sweeps</em>, <em>persistence_file</em>, <em>name=None</em><big>)</big><a class="headerlink" href="#execo_engine.utils.ParamSweeper" title="Permalink to this definition">¶</a></dt>
+<dd><p>Threadsafe and persistent iterable container to iterate over a list of experiment parameters (or whatever, actually).</p>
+<p>The aim of this class is to provide a convenient way to iterate
+over several experiment configurations (or anything else). It is
+an iterable container with the following characteristics:</p>
+<ul class="simple">
+<li>each element of the iterable has three states:<ul>
+<li><em>todo</em></li>
+<li><em>done</em></li>
+<li><em>skipped</em></li>
+</ul>
+</li>
+<li>at beginning, each element is in state <em>todo</em></li>
+<li>client code can mark any element <em>done</em> or <em>skipped</em></li>
+<li>when iterating over it, you always get the next item in <em>todo</em>
+state</li>
+<li>this container is threadsafe</li>
+<li>this container has automatic persistence of the element states
+<em>done</em> (but not state <em>skipped</em>) to disk: If later you
+instanciate a container with the same persistence file (path to
+this file is given to constructor), then the elements of the
+container will be taken from the constructor argument, but those
+marked <em>done</em> in the last stored in the persistent file will be
+marked <em>done</em></li>
+</ul>
+<p>This container is intended to be used in the following way: at the
+beginning of the experiment, you initialize a ParamSweeper with
+the list of experiment configurations (which can result from a
+call to <a class="reference internal" href="#execo_engine.utils.sweep" title="execo_engine.utils.sweep"><tt class="xref py py-obj docutils literal"><span class="pre">execo_engine.utils.sweep</span></tt></a>, but not necessarily) and a
+filename for the persistence. During execution, you request
+(possibly from several threads) new experiment configurations with
+<a class="reference internal" href="#execo_engine.utils.ParamSweeper.get_next" title="execo_engine.utils.ParamSweeper.get_next"><tt class="xref py py-obj docutils literal"><span class="pre">execo_engine.utils.ParamSweeper.get_next</span></tt></a>, mark them <em>done</em> or
+<em>skipped</em> with <a class="reference internal" href="#execo_engine.utils.ParamSweeper.done" title="execo_engine.utils.ParamSweeper.done"><tt class="xref py py-obj docutils literal"><span class="pre">execo_engine.utils.ParamSweeper.done</span></tt></a> and
+<a class="reference internal" href="#execo_engine.utils.ParamSweeper.skip" title="execo_engine.utils.ParamSweeper.skip"><tt class="xref py py-obj docutils literal"><span class="pre">execo_engine.utils.ParamSweeper.skip</span></tt></a>. At a later date, you can
+relaunch the same script, it will continue from where it left,
+also retrying the skipped configurations. This works well when
+used with <a class="reference internal" href="#execo_engine.engine.Engine" title="execo_engine.engine.Engine"><tt class="xref py py-obj docutils literal"><span class="pre">execo_engine.engine.Engine</span></tt></a> startup option <tt class="docutils literal"><span class="pre">-c</span></tt>
+(continue experiment in a given directory).</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>sweeps</strong> &#8211; what to iterate on</li>
+<li><strong>persistence_file</strong> &#8211; path to persistence file</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="execo_engine.utils.ParamSweeper.done">
+<tt class="descname">done</tt><big>(</big><em>combination</em><big>)</big><a class="headerlink" href="#execo_engine.utils.ParamSweeper.done" title="Permalink to this definition">¶</a></dt>
+<dd><p>mark the given element <em>done</em></p>
+</dd></dl>
+
+<dl class="method">
+<dt id="execo_engine.utils.ParamSweeper.get_next">
+<tt class="descname">get_next</tt><big>(</big><big>)</big><a class="headerlink" href="#execo_engine.utils.ParamSweeper.get_next" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the next element which is <em>todo</em>. Returns None if reached end.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="execo_engine.utils.ParamSweeper.num_done">
+<tt class="descname">num_done</tt><big>(</big><big>)</big><a class="headerlink" href="#execo_engine.utils.ParamSweeper.num_done" title="Permalink to this definition">¶</a></dt>
+<dd><p>returns the current number of <em>done</em> elements</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="execo_engine.utils.ParamSweeper.num_inprogress">
+<tt class="descname">num_inprogress</tt><big>(</big><big>)</big><a class="headerlink" href="#execo_engine.utils.ParamSweeper.num_inprogress" title="Permalink to this definition">¶</a></dt>
+<dd><p>returns the current number of elements which were obtained by a call to <a class="reference internal" href="#execo_engine.utils.ParamSweeper.get_next" title="execo_engine.utils.ParamSweeper.get_next"><tt class="xref py py-obj docutils literal"><span class="pre">execo_engine.utils.ParamSweeper.get_next</span></tt></a>, not yet marked <em>done</em> or <em>skipped</em></p>
+</dd></dl>
+
+<dl class="method">
+<dt id="execo_engine.utils.ParamSweeper.num_remaining">
+<tt class="descname">num_remaining</tt><big>(</big><big>)</big><a class="headerlink" href="#execo_engine.utils.ParamSweeper.num_remaining" title="Permalink to this definition">¶</a></dt>
+<dd><p>returns the current number of <em>todo</em> elements</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="execo_engine.utils.ParamSweeper.num_skipped">
+<tt class="descname">num_skipped</tt><big>(</big><big>)</big><a class="headerlink" href="#execo_engine.utils.ParamSweeper.num_skipped" title="Permalink to this definition">¶</a></dt>
+<dd><p>returns the current number of <em>skipped</em> elements</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="execo_engine.utils.ParamSweeper.num_total">
+<tt class="descname">num_total</tt><big>(</big><big>)</big><a class="headerlink" href="#execo_engine.utils.ParamSweeper.num_total" title="Permalink to this definition">¶</a></dt>
+<dd><p>returns the total number of elements</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="execo_engine.utils.ParamSweeper.reset">
+<tt class="descname">reset</tt><big>(</big><big>)</big><a class="headerlink" href="#execo_engine.utils.ParamSweeper.reset" title="Permalink to this definition">¶</a></dt>
+<dd><p>reset container: iteration will start from beginning, state <em>skipped</em> are forgotten, state <em>done</em> are <strong>not</strong> forgotten</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="execo_engine.utils.ParamSweeper.set_sweeps">
+<tt class="descname">set_sweeps</tt><big>(</big><em>sweeps</em><big>)</big><a class="headerlink" href="#execo_engine.utils.ParamSweeper.set_sweeps" title="Permalink to this definition">¶</a></dt>
+<dd><p>Change the list of what to iterate on</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="execo_engine.utils.ParamSweeper.skip">
+<tt class="descname">skip</tt><big>(</big><em>combination</em><big>)</big><a class="headerlink" href="#execo_engine.utils.ParamSweeper.skip" title="Permalink to this definition">¶</a></dt>
+<dd><p>mark the given element <em>skipped</em></p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+</div>
+<div class="section" id="engine">
+<h2>Engine<a class="headerlink" href="#engine" title="Permalink to this headline">¶</a></h2>
+<p>The <a class="reference internal" href="#execo_engine.engine.Engine" title="execo_engine.engine.Engine"><tt class="xref py py-obj docutils literal"><span class="pre">execo_engine.engine.Engine</span></tt></a> class hierarchy and <tt class="docutils literal"><span class="pre">execo-run</span></tt>
+command-line tool are the base for reusable experiment engines. The
+<a class="reference internal" href="#execo_engine.engine.Engine" title="execo_engine.engine.Engine"><tt class="xref py py-obj docutils literal"><span class="pre">execo_engine.engine.Engine</span></tt></a> class is the base class for classes which
+act as experiment engines. <tt class="docutils literal"><span class="pre">execo_run</span></tt> is the launcher for those
+experiment engines.</p>
+<div class="section" id="id1">
+<h3>Engine<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h3>
+<dl class="class">
+<dt id="execo_engine.engine.Engine">
+<em class="property">class </em><tt class="descclassname">execo_engine.engine.</tt><tt class="descname">Engine</tt><a class="headerlink" href="#execo_engine.engine.Engine" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
+<p>Basic class for execo Engine.</p>
+<p>Subclass it to develop your own engines, possibly reusable.</p>
+<p>This class offers basic facilities:</p>
+<ul class="simple">
+<li>central handling of options and arguments</li>
+<li>automatic experiment directory creation</li>
+<li>various ways to handle stdout / stderr</li>
+<li>support for continuing a previously stopped experiment</li>
+<li>log level selection</li>
+</ul>
+<p>The instanciation of the class is done with the <tt class="docutils literal"><span class="pre">execo-run</span></tt>
+command line tool. The name of the engine (the name of the class
+inheriting from <a class="reference internal" href="#execo_engine.engine.Engine" title="execo_engine.engine.Engine"><tt class="xref py py-obj docutils literal"><span class="pre">execo_engine.engine.Engine</span></tt></a>) is given as first
+argument to <tt class="docutils literal"><span class="pre">execo-run</span></tt>, which will try to instanciate the class
+from file <tt class="docutils literal"><span class="pre">&lt;classname&gt;.py</span></tt> in the search path (run <tt class="docutils literal"><span class="pre">execo-run</span></tt>
+without arguments to see the search path). Further arguments are
+passed to the engine&#8217;s option parser.</p>
+<p>A subclass of Engine can access the following member variables
+which are automatically defined and initialized at the right time
+by the base class <a class="reference internal" href="#execo_engine.engine.Engine" title="execo_engine.engine.Engine"><tt class="xref py py-obj docutils literal"><span class="pre">execo_engine.engine.Engine</span></tt></a>:</p>
+<ul class="simple">
+<li><a class="reference internal" href="#execo_engine.engine.Engine.result_dir" title="execo_engine.engine.Engine.result_dir"><tt class="xref py py-obj docutils literal"><span class="pre">execo_engine.engine.Engine.result_dir</span></tt></a></li>
+<li><a class="reference internal" href="#execo_engine.engine.Engine.options_parser" title="execo_engine.engine.Engine.options_parser"><tt class="xref py py-obj docutils literal"><span class="pre">execo_engine.engine.Engine.options_parser</span></tt></a></li>
+<li><a class="reference internal" href="#execo_engine.engine.Engine.options" title="execo_engine.engine.Engine.options"><tt class="xref py py-obj docutils literal"><span class="pre">execo_engine.engine.Engine.options</span></tt></a></li>
+<li><a class="reference internal" href="#execo_engine.engine.Engine.args" title="execo_engine.engine.Engine.args"><tt class="xref py py-obj docutils literal"><span class="pre">execo_engine.engine.Engine.args</span></tt></a></li>
+<li><a class="reference internal" href="#execo_engine.engine.Engine.run_name" title="execo_engine.engine.Engine.run_name"><tt class="xref py py-obj docutils literal"><span class="pre">execo_engine.engine.Engine.run_name</span></tt></a></li>
+<li><a class="reference internal" href="#execo_engine.engine.Engine.result_dir" title="execo_engine.engine.Engine.result_dir"><tt class="xref py py-obj docutils literal"><span class="pre">execo_engine.engine.Engine.result_dir</span></tt></a></li>
+</ul>
+<p>A subclass of Engine can override the following methods:</p>
+<ul class="simple">
+<li><a class="reference internal" href="#execo_engine.engine.Engine.init" title="execo_engine.engine.Engine.init"><tt class="xref py py-obj docutils literal"><span class="pre">execo_engine.engine.Engine.init</span></tt></a></li>
+<li><a class="reference internal" href="#execo_engine.engine.Engine.run" title="execo_engine.engine.Engine.run"><tt class="xref py py-obj docutils literal"><span class="pre">execo_engine.engine.Engine.run</span></tt></a></li>
+<li><a class="reference internal" href="#execo_engine.engine.Engine.setup_run_name" title="execo_engine.engine.Engine.setup_run_name"><tt class="xref py py-obj docutils literal"><span class="pre">execo_engine.engine.Engine.setup_run_name</span></tt></a></li>
+<li><a class="reference internal" href="#execo_engine.engine.Engine.setup_result_dir" title="execo_engine.engine.Engine.setup_result_dir"><tt class="xref py py-obj docutils literal"><span class="pre">execo_engine.engine.Engine.setup_result_dir</span></tt></a></li>
+</ul>
+<p>A typical, non-reusable engine would override
+<a class="reference internal" href="#execo_engine.engine.Engine.init" title="execo_engine.engine.Engine.init"><tt class="xref py py-obj docutils literal"><span class="pre">execo_engine.engine.Engine.init</span></tt></a>, adding options / arguments to
+<a class="reference internal" href="#execo_engine.engine.Engine.options_parser" title="execo_engine.engine.Engine.options_parser"><tt class="xref py py-obj docutils literal"><span class="pre">execo_engine.engine.Engine.options_parser</span></tt></a>, and override
+<a class="reference internal" href="#execo_engine.engine.Engine.run" title="execo_engine.engine.Engine.run"><tt class="xref py py-obj docutils literal"><span class="pre">execo_engine.engine.Engine.run</span></tt></a>, putting all the experiment code
+inside it, being sure that all initializations are done when
+<tt class="docutils literal"><span class="pre">run</span></tt> is called: results directory is initialized and created
+(possibly reusing a previous results directory, to restart from a
+previously stopped experiment), log level is set, stdout / stderr
+are redirected as needed, and options and arguments are in
+<a class="reference internal" href="#execo_engine.engine.Engine.options" title="execo_engine.engine.Engine.options"><tt class="xref py py-obj docutils literal"><span class="pre">execo_engine.engine.Engine.options</span></tt></a> and
+<a class="reference internal" href="#execo_engine.engine.Engine.args" title="execo_engine.engine.Engine.args"><tt class="xref py py-obj docutils literal"><span class="pre">execo_engine.engine.Engine.args</span></tt></a>.</p>
+<p>A typical usage of a <a class="reference internal" href="#execo_engine.utils.ParamSweeper" title="execo_engine.utils.ParamSweeper"><tt class="xref py py-obj docutils literal"><span class="pre">execo_engine.utils.ParamSweeper</span></tt></a> in an
+engine would be to intialize one at the beggining of
+<a class="reference internal" href="#execo_engine.engine.Engine.run" title="execo_engine.engine.Engine.run"><tt class="xref py py-obj docutils literal"><span class="pre">execo_engine.engine.Engine.run</span></tt></a>, using a persistence file in the
+results directory. example code:</p>
+<div class="highlight-python"><pre>def run(self):
+    sweeps = sweep({&lt;parameters and their values&gt;})
+    sweeper = ParamSweeper(sweeps, os.path.join(self.result_dir, "sweeps"))
+    [...]</pre>
+</div>
+<dl class="attribute">
+<dt id="execo_engine.engine.Engine.args">
+<tt class="descname">args</tt><em class="property"> = None</em><a class="headerlink" href="#execo_engine.engine.Engine.args" title="Permalink to this definition">¶</a></dt>
+<dd><p>Arguments given on the command line. Available after the
+command line has been parsed, in
+<a class="reference internal" href="#execo_engine.engine.Engine.run" title="execo_engine.engine.Engine.run"><tt class="xref py py-obj docutils literal"><span class="pre">execo_engine.engine.Engine.run</span></tt></a> (not in
+<a class="reference internal" href="#execo_engine.engine.Engine.init" title="execo_engine.engine.Engine.init"><tt class="xref py py-obj docutils literal"><span class="pre">execo_engine.engine.Engine.init</span></tt></a>)</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="execo_engine.engine.Engine.engine_dir">
+<tt class="descname">engine_dir</tt><em class="property"> = None</em><a class="headerlink" href="#execo_engine.engine.Engine.engine_dir" title="Permalink to this definition">¶</a></dt>
+<dd><p>Full path of the engine directory. Available to client
+code, should not be modified (why would you want?)</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="execo_engine.engine.Engine.init">
+<tt class="descname">init</tt><big>(</big><big>)</big><a class="headerlink" href="#execo_engine.engine.Engine.init" title="Permalink to this definition">¶</a></dt>
+<dd><p>Experiment init method</p>
+<p>Override this method with the experiment init code. Default
+implementation does nothing.</p>
+<p>The base class <a class="reference internal" href="#execo_engine.engine.Engine" title="execo_engine.engine.Engine"><tt class="xref py py-obj docutils literal"><span class="pre">execo_engine.engine.Engine</span></tt></a> takes care that
+all <a class="reference internal" href="#execo_engine.engine.Engine.init" title="execo_engine.engine.Engine.init"><tt class="xref py py-obj docutils literal"><span class="pre">execo_engine.engine.Engine.init</span></tt></a> methods of its subclass
+hierarchy are called, in the order ancestor method before
+subclass method. This order is chosen so that generic engines
+inheriting from <a class="reference internal" href="#execo_engine.engine.Engine" title="execo_engine.engine.Engine"><tt class="xref py py-obj docutils literal"><span class="pre">execo_engine.engine.Engine</span></tt></a> can easily
+implement common functionnalities. For example a generic
+engine can declare its own options and arguments in <tt class="docutils literal"><span class="pre">init</span></tt>,
+which will be executed before a particular experiment subclass
+<tt class="docutils literal"><span class="pre">init</span></tt> method.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="execo_engine.engine.Engine.options">
+<tt class="descname">options</tt><em class="property"> = None</em><a class="headerlink" href="#execo_engine.engine.Engine.options" title="Permalink to this definition">¶</a></dt>
+<dd><p>Options given on the command line. Available after the
+command line has been parsed, in
+<a class="reference internal" href="#execo_engine.engine.Engine.run" title="execo_engine.engine.Engine.run"><tt class="xref py py-obj docutils literal"><span class="pre">execo_engine.engine.Engine.run</span></tt></a> (not in
+<a class="reference internal" href="#execo_engine.engine.Engine.init" title="execo_engine.engine.Engine.init"><tt class="xref py py-obj docutils literal"><span class="pre">execo_engine.engine.Engine.init</span></tt></a>)</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="execo_engine.engine.Engine.options_parser">
+<tt class="descname">options_parser</tt><em class="property"> = None</em><a class="headerlink" href="#execo_engine.engine.Engine.options_parser" title="Permalink to this definition">¶</a></dt>
+<dd><p>An instance of
+<a class="reference internal" href="#execo_engine.engine.ArgsOptionParser" title="execo_engine.engine.ArgsOptionParser"><tt class="xref py py-obj docutils literal"><span class="pre">execo_engine.engine.ArgsOptionParser</span></tt></a>. Subclasses of
+<a class="reference internal" href="#execo_engine.engine.Engine" title="execo_engine.engine.Engine"><tt class="xref py py-obj docutils literal"><span class="pre">execo_engine.engine.Engine</span></tt></a> can register options and args to
+this options parser in <a class="reference internal" href="#execo_engine.engine.Engine.init" title="execo_engine.engine.Engine.init"><tt class="xref py py-obj docutils literal"><span class="pre">execo_engine.engine.Engine.init</span></tt></a>.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="execo_engine.engine.Engine.result_dir">
+<tt class="descname">result_dir</tt><em class="property"> = None</em><a class="headerlink" href="#execo_engine.engine.Engine.result_dir" title="Permalink to this definition">¶</a></dt>
+<dd><p>full path to the current engine&#8217;s execution results
+directory, where results should be written, where stdout /
+stderr are output, where <a class="reference internal" href="#execo_engine.utils.ParamSweeper" title="execo_engine.utils.ParamSweeper"><tt class="xref py py-obj docutils literal"><span class="pre">execo_engine.utils.ParamSweeper</span></tt></a>
+persistence files should be written, and where more generally
+any file pertaining to a particular execution of the
+experiment should be located.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="execo_engine.engine.Engine.run">
+<tt class="descname">run</tt><big>(</big><big>)</big><a class="headerlink" href="#execo_engine.engine.Engine.run" title="Permalink to this definition">¶</a></dt>
+<dd><p>Experiment run method</p>
+<p>Override this method with the experiment code. Default
+implementation does nothing.</p>
+<p>The base class <a class="reference internal" href="#execo_engine.engine.Engine" title="execo_engine.engine.Engine"><tt class="xref py py-obj docutils literal"><span class="pre">execo_engine.engine.Engine</span></tt></a> takes care that
+all <a class="reference internal" href="#execo_engine.engine.Engine.run" title="execo_engine.engine.Engine.run"><tt class="xref py py-obj docutils literal"><span class="pre">execo_engine.engine.Engine.run</span></tt></a> methods of its subclass
+hierarchy are called, in the order ancestor method before
+subclass method. This order is chosen so that generic engines
+inheriting from <a class="reference internal" href="#execo_engine.engine.Engine" title="execo_engine.engine.Engine"><tt class="xref py py-obj docutils literal"><span class="pre">execo_engine.engine.Engine</span></tt></a> can easily
+implement common functionnalities. For example a generic
+engine can prepare an experiment environment in its <tt class="docutils literal"><span class="pre">run</span></tt>
+method, which will be executed before a particular experiment
+subclass <tt class="docutils literal"><span class="pre">run</span></tt> method.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="execo_engine.engine.Engine.run_name">
+<tt class="descname">run_name</tt><em class="property"> = None</em><a class="headerlink" href="#execo_engine.engine.Engine.run_name" title="Permalink to this definition">¶</a></dt>
+<dd><p>Name of the current experiment. If you want to modify it,
+override <a class="reference internal" href="#execo_engine.engine.Engine.setup_run_name" title="execo_engine.engine.Engine.setup_run_name"><tt class="xref py py-obj docutils literal"><span class="pre">execo_engine.engine.Engine.setup_run_name</span></tt></a></p>
+</dd></dl>
+
+<dl class="method">
+<dt id="execo_engine.engine.Engine.setup_result_dir">
+<tt class="descname">setup_result_dir</tt><big>(</big><big>)</big><a class="headerlink" href="#execo_engine.engine.Engine.setup_result_dir" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set the experiment run result directory name.</p>
+<p>Default implementation: subdirectory with the experiment run
+name in the current directory. Override this method to change
+the name of the result directory. This method is called before
+<a class="reference internal" href="#execo_engine.engine.Engine.run" title="execo_engine.engine.Engine.run"><tt class="xref py py-obj docutils literal"><span class="pre">execo_engine.engine.Engine.run</span></tt></a> and
+<a class="reference internal" href="#execo_engine.engine.Engine.init" title="execo_engine.engine.Engine.init"><tt class="xref py py-obj docutils literal"><span class="pre">execo_engine.engine.Engine.init</span></tt></a>. Note that if option <tt class="docutils literal"><span class="pre">-c</span></tt>
+is given to the engine, the name given on command line will
+take precedence, and this method won&#8217;t be called.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="execo_engine.engine.Engine.setup_run_name">
+<tt class="descname">setup_run_name</tt><big>(</big><big>)</big><a class="headerlink" href="#execo_engine.engine.Engine.setup_run_name" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set the experiment run name.</p>
+<p>Default implementation: concatenation of class name and
+date. Override this method to change the name of the
+experiment. This method is called before
+<a class="reference internal" href="#execo_engine.engine.Engine.run" title="execo_engine.engine.Engine.run"><tt class="xref py py-obj docutils literal"><span class="pre">execo_engine.engine.Engine.run</span></tt></a> and
+<a class="reference internal" href="#execo_engine.engine.Engine.init" title="execo_engine.engine.Engine.init"><tt class="xref py py-obj docutils literal"><span class="pre">execo_engine.engine.Engine.init</span></tt></a></p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+</div>
+<div class="section" id="misc">
+<h2>Misc<a class="headerlink" href="#misc" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="logger">
+<h3>logger<a class="headerlink" href="#logger" title="Permalink to this headline">¶</a></h3>
+<p>Default and convenient logger for engines.
+Inherits its properties from the execo logger.</p>
+</div>
+<div class="section" id="hashabledict">
+<h3>HashableDict<a class="headerlink" href="#hashabledict" title="Permalink to this headline">¶</a></h3>
+<dl class="class">
+<dt id="execo_engine.utils.HashableDict">
+<em class="property">class </em><tt class="descclassname">execo_engine.utils.</tt><tt class="descname">HashableDict</tt><a class="headerlink" href="#execo_engine.utils.HashableDict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Hashable dictionnary. Beware: must not mutate it after its first use as a key.</p>
+</dd></dl>
+
+</div>
+<div class="section" id="argsoptionparser">
+<h3>ArgsOptionParser<a class="headerlink" href="#argsoptionparser" title="Permalink to this headline">¶</a></h3>
+<dl class="class">
+<dt id="execo_engine.engine.ArgsOptionParser">
+<em class="property">class </em><tt class="descclassname">execo_engine.engine.</tt><tt class="descname">ArgsOptionParser</tt><big>(</big><em>*args</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#execo_engine.engine.ArgsOptionParser" title="Permalink to this definition">¶</a></dt>
+<dd><p>optparse.OptionParser subclass which keeps tracks of arguments for proper help string generation.</p>
+<p>This class is a rather quick and dirty hack. Using <tt class="docutils literal"><span class="pre">argparse</span></tt>
+would be better but it&#8217;s only available in python 2.7.</p>
+<dl class="method">
+<dt id="execo_engine.engine.ArgsOptionParser.add_argument">
+<tt class="descname">add_argument</tt><big>(</big><em>arg_name</em>, <em>description</em><big>)</big><a class="headerlink" href="#execo_engine.engine.ArgsOptionParser.add_argument" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add an arg_name to the arg_name list.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="execo_engine.engine.ArgsOptionParser.num_arguments">
+<tt class="descname">num_arguments</tt><big>(</big><big>)</big><a class="headerlink" href="#execo_engine.engine.ArgsOptionParser.num_arguments" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the number of expected arguments.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="index.html">
+              <img class="logo" src="_static/execo.png" alt="Logo"/>
+            </a></p>
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#"><tt class="docutils literal"><span class="pre">execo_engine</span></tt></a><ul>
+<li><a class="reference internal" href="#overview">Overview</a></li>
+<li><a class="reference internal" href="#parameter-sweeping">Parameter sweeping</a><ul>
+<li><a class="reference internal" href="#sweep">sweep</a></li>
+<li><a class="reference internal" href="#paramsweeper">ParamSweeper</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#engine">Engine</a><ul>
+<li><a class="reference internal" href="#id1">Engine</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#misc">Misc</a><ul>
+<li><a class="reference internal" href="#logger">logger</a></li>
+<li><a class="reference internal" href="#hashabledict">HashableDict</a></li>
+<li><a class="reference internal" href="#argsoptionparser">ArgsOptionParser</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="execo_g5k.html"
+                        title="previous chapter"><tt class="docutils literal docutils literal"><span class="pre">execo_g5k</span></tt></a></p>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="execo_g5k.html" title="execo_g5k"
+             >previous</a> |</li>
+        <li><a href="index.html">execo v2.0</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2009-2012, INRIA Rhone-Alpes, Service Experimentation et Developpement.
+      Last updated on Nov 21, 2012.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>

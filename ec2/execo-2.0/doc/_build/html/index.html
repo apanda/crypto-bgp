@@ -1,0 +1,300 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Welcome to execo &mdash; execo v2.0</title>
+    
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '2.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="shortcut icon" href="_static/execo-icon.ico"/>
+    <link rel="top" title="execo v2.0" href="#" />
+    <link rel="next" title="Readme / documentation for the execo package" href="readme.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="readme.html" title="Readme / documentation for the execo package"
+             accesskey="N">next</a> |</li>
+        <li><a href="#">execo v2.0</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="welcome-to-execo">
+<h1>Welcome to execo<a class="headerlink" href="#welcome-to-execo" title="Permalink to this headline">¶</a></h1>
+<p>Contents:</p>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="readme.html">Readme / documentation for the execo package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="readme.html#license">license</a></li>
+<li class="toctree-l2"><a class="reference internal" href="readme.html#versions">versions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="readme.html#installation-instructions">installation instructions</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="readme.html#links">links</a></li>
+<li class="toctree-l3"><a class="reference internal" href="readme.html#prerequisites">prerequisites</a></li>
+<li class="toctree-l3"><a class="reference internal" href="readme.html#installation">installation</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="readme.html#usage">usage</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="tutorial.html">execo tutorial</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="tutorial.html#installation">Installation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorial.html#execo">execo</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="tutorial.html#processes">Processes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tutorial.html#actions">Actions</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="tutorial.html#execo-g5k">execo_g5k</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="tutorial.html#oarsub-example">oarsub example</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tutorial.html#execo-g5k-api-utils">execo_g5k.api_utils</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="tutorial.html#more-advanced-usages">More advanced usages</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="tutorial.html#configuration-of-execo-execo-g5k">Configuration of execo, execo_g5k</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tutorial.html#processes-and-actions-factories">Processes and actions factories</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="execo.html"><tt class="docutils literal"><span class="pre">execo</span></tt></a><ul>
+<li class="toctree-l2"><a class="reference internal" href="execo.html#overview">Overview</a></li>
+<li class="toctree-l2"><a class="reference internal" href="execo.html#process-class-hierarchy">Process class hierarchy</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="execo.html#get-process">get_process</a></li>
+<li class="toctree-l3"><a class="reference internal" href="execo.html#processbase">ProcessBase</a></li>
+<li class="toctree-l3"><a class="reference internal" href="execo.html#process">Process</a></li>
+<li class="toctree-l3"><a class="reference internal" href="execo.html#sshprocess">SshProcess</a></li>
+<li class="toctree-l3"><a class="reference internal" href="execo.html#taktukprocess">TaktukProcess</a></li>
+<li class="toctree-l3"><a class="reference internal" href="execo.html#processlifecyclehandler">ProcessLifecycleHandler</a></li>
+<li class="toctree-l3"><a class="reference internal" href="execo.html#processoutputhandler">ProcessOutputHandler</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="execo.html#action-class-hierarchy">Action class hierarchy</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="execo.html#action">Action</a></li>
+<li class="toctree-l3"><a class="reference internal" href="execo.html#remote">Remote</a></li>
+<li class="toctree-l3"><a class="reference internal" href="execo.html#taktukremote">TaktukRemote</a></li>
+<li class="toctree-l3"><a class="reference internal" href="execo.html#put">Put</a></li>
+<li class="toctree-l3"><a class="reference internal" href="execo.html#taktukput">TaktukPut</a></li>
+<li class="toctree-l3"><a class="reference internal" href="execo.html#get">Get</a></li>
+<li class="toctree-l3"><a class="reference internal" href="execo.html#taktukget">TaktukGet</a></li>
+<li class="toctree-l3"><a class="reference internal" href="execo.html#local">Local</a></li>
+<li class="toctree-l3"><a class="reference internal" href="execo.html#parallelactions">ParallelActions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="execo.html#sequentialactions">SequentialActions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="execo.html#actionlifecyclehandler">ActionLifecycleHandler</a></li>
+<li class="toctree-l3"><a class="reference internal" href="execo.html#wait-multiple-actions">wait_multiple_actions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="execo.html#wait-all-actions">wait_all_actions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="execo.html#actionfactory">ActionFactory</a></li>
+<li class="toctree-l3"><a class="reference internal" href="execo.html#get-remote">get_remote</a></li>
+<li class="toctree-l3"><a class="reference internal" href="execo.html#get-fileput">get_fileput</a></li>
+<li class="toctree-l3"><a class="reference internal" href="execo.html#get-fileget">get_fileget</a></li>
+<li class="toctree-l3"><a class="reference internal" href="execo.html#substitutions-for-remote-taktukremote-get-put">substitutions for Remote, TaktukRemote, Get, Put</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="execo.html#miscellaneous-classes">Miscellaneous classes</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="execo.html#host">Host</a></li>
+<li class="toctree-l3"><a class="reference internal" href="execo.html#report">Report</a></li>
+<li class="toctree-l3"><a class="reference internal" href="execo.html#timer">Timer</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="execo.html#exceptions">Exceptions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="execo.html#utilities">Utilities</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="execo.html#sleep">sleep</a></li>
+<li class="toctree-l3"><a class="reference internal" href="execo.html#get-unixts">get_unixts</a></li>
+<li class="toctree-l3"><a class="reference internal" href="execo.html#get-seconds">get_seconds</a></li>
+<li class="toctree-l3"><a class="reference internal" href="execo.html#format-unixts">format_unixts</a></li>
+<li class="toctree-l3"><a class="reference internal" href="execo.html#format-seconds">format_seconds</a></li>
+<li class="toctree-l3"><a class="reference internal" href="execo.html#format-date">format_date</a></li>
+<li class="toctree-l3"><a class="reference internal" href="execo.html#format-duration">format_duration</a></li>
+<li class="toctree-l3"><a class="reference internal" href="execo.html#get-hosts-list">get_hosts_list</a></li>
+<li class="toctree-l3"><a class="reference internal" href="execo.html#get-hosts-set">get_hosts_set</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="execo.html#logging">Logging</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="execo.html#logger">logger</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="execo.html#configuration">Configuration</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="execo.html#id1">configuration</a></li>
+<li class="toctree-l3"><a class="reference internal" href="execo.html#default-connexion-params">default_connexion_params</a></li>
+<li class="toctree-l3"><a class="reference internal" href="execo.html#ssh-scp-configuration-for-sshprocess-remote-taktukremote-get-taktukget-put-taktukput">ssh/scp configuration for SshProcess, Remote, TaktukRemote, Get, TaktukGet, Put, TaktukPut</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="execo.html#miscellaneous-notes">Miscellaneous notes</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="execo.html#timestamps">Timestamps</a></li>
+<li class="toctree-l3"><a class="reference internal" href="execo.html#exceptions-at-shutdown">Exceptions at shutdown</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="execo_g5k.html"><tt class="docutils literal"><span class="pre">execo_g5k</span></tt></a><ul>
+<li class="toctree-l2"><a class="reference internal" href="execo_g5k.html#oar-functions">OAR functions</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="execo_g5k.html#oarsubmission">OarSubmission</a></li>
+<li class="toctree-l3"><a class="reference internal" href="execo_g5k.html#oarsub">oarsub</a></li>
+<li class="toctree-l3"><a class="reference internal" href="execo_g5k.html#oardel">oardel</a></li>
+<li class="toctree-l3"><a class="reference internal" href="execo_g5k.html#get-current-oar-jobs">get_current_oar_jobs</a></li>
+<li class="toctree-l3"><a class="reference internal" href="execo_g5k.html#get-oar-job-info">get_oar_job_info</a></li>
+<li class="toctree-l3"><a class="reference internal" href="execo_g5k.html#wait-oar-job-start">wait_oar_job_start</a></li>
+<li class="toctree-l3"><a class="reference internal" href="execo_g5k.html#get-oar-job-nodes">get_oar_job_nodes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="execo_g5k.html#get-oar-job-subnets">get_oar_job_subnets</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="execo_g5k.html#oargrid-functions">OARGRID functions</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="execo_g5k.html#oargridsub">oargridsub</a></li>
+<li class="toctree-l3"><a class="reference internal" href="execo_g5k.html#oargriddel">oargriddel</a></li>
+<li class="toctree-l3"><a class="reference internal" href="execo_g5k.html#get-current-oargrid-jobs">get_current_oargrid_jobs</a></li>
+<li class="toctree-l3"><a class="reference internal" href="execo_g5k.html#get-oargrid-job-info">get_oargrid_job_info</a></li>
+<li class="toctree-l3"><a class="reference internal" href="execo_g5k.html#get-oargrid-job-oar-jobs">get_oargrid_job_oar_jobs</a></li>
+<li class="toctree-l3"><a class="reference internal" href="execo_g5k.html#wait-oargrid-job-start">wait_oargrid_job_start</a></li>
+<li class="toctree-l3"><a class="reference internal" href="execo_g5k.html#get-oargrid-job-nodes">get_oargrid_job_nodes</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="execo_g5k.html#kadeploy3">kadeploy3</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="execo_g5k.html#deployment">Deployment</a></li>
+<li class="toctree-l3"><a class="reference internal" href="execo_g5k.html#kadeployer">Kadeployer</a></li>
+<li class="toctree-l3"><a class="reference internal" href="execo_g5k.html#kadeploy">kadeploy</a></li>
+<li class="toctree-l3"><a class="reference internal" href="execo_g5k.html#deploy">deploy</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="execo_g5k.html#utilities">Utilities</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="execo_g5k.html#format-oar-date">format_oar_date</a></li>
+<li class="toctree-l3"><a class="reference internal" href="execo_g5k.html#format-oar-duration">format_oar_duration</a></li>
+<li class="toctree-l3"><a class="reference internal" href="execo_g5k.html#oar-date-to-unixts">oar_date_to_unixts</a></li>
+<li class="toctree-l3"><a class="reference internal" href="execo_g5k.html#oar-duration-to-seconds">oar_duration_to_seconds</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="execo_g5k.html#module-execo_g5k.api_utils">Grid5000 API utilities</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="execo_g5k.html#get-g5k-sites">get_g5k_sites</a></li>
+<li class="toctree-l3"><a class="reference internal" href="execo_g5k.html#get-site-clusters">get_site_clusters</a></li>
+<li class="toctree-l3"><a class="reference internal" href="execo_g5k.html#get-cluster-hosts">get_cluster_hosts</a></li>
+<li class="toctree-l3"><a class="reference internal" href="execo_g5k.html#get-g5k-clusters">get_g5k_clusters</a></li>
+<li class="toctree-l3"><a class="reference internal" href="execo_g5k.html#get-g5k-hosts">get_g5k_hosts</a></li>
+<li class="toctree-l3"><a class="reference internal" href="execo_g5k.html#get-cluster-site">get_cluster_site</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="execo_g5k.html#configuration">Configuration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="execo_g5k.html#oar-keys">OAR keys</a></li>
+<li class="toctree-l2"><a class="reference internal" href="execo_g5k.html#running-from-another-host-than-a-frontend">Running from another host than a frontend</a></li>
+<li class="toctree-l2"><a class="reference internal" href="execo_g5k.html#running-from-outside-grid5000">Running from outside Grid5000</a></li>
+<li class="toctree-l2"><a class="reference internal" href="execo_g5k.html#the-perfect-grid5000-connexion-configuration">The perfect grid5000 connexion configuration</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="execo_engine.html"><tt class="docutils literal"><span class="pre">execo_engine</span></tt></a><ul>
+<li class="toctree-l2"><a class="reference internal" href="execo_engine.html#overview">Overview</a></li>
+<li class="toctree-l2"><a class="reference internal" href="execo_engine.html#parameter-sweeping">Parameter sweeping</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="execo_engine.html#sweep">sweep</a></li>
+<li class="toctree-l3"><a class="reference internal" href="execo_engine.html#paramsweeper">ParamSweeper</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="execo_engine.html#engine">Engine</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="execo_engine.html#id1">Engine</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="execo_engine.html#misc">Misc</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="execo_engine.html#logger">logger</a></li>
+<li class="toctree-l3"><a class="reference internal" href="execo_engine.html#hashabledict">HashableDict</a></li>
+<li class="toctree-l3"><a class="reference internal" href="execo_engine.html#argsoptionparser">ArgsOptionParser</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+<div class="section" id="indices-and-tables">
+<h1>Indices and tables<a class="headerlink" href="#indices-and-tables" title="Permalink to this headline">¶</a></h1>
+<ul class="simple">
+<li><a class="reference internal" href="genindex.html"><em>Index</em></a></li>
+<li><a class="reference internal" href="py-modindex.html"><em>Module Index</em></a></li>
+<li><a class="reference internal" href="search.html"><em>Search Page</em></a></li>
+</ul>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="#">
+              <img class="logo" src="_static/execo.png" alt="Logo"/>
+            </a></p>
+  <h3><a href="#">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Welcome to execo</a><ul>
+</ul>
+</li>
+<li><a class="reference internal" href="#indices-and-tables">Indices and tables</a></li>
+</ul>
+
+  <h4>Next topic</h4>
+  <p class="topless"><a href="readme.html"
+                        title="next chapter">Readme / documentation for the execo package</a></p>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="readme.html" title="Readme / documentation for the execo package"
+             >next</a> |</li>
+        <li><a href="#">execo v2.0</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2009-2012, INRIA Rhone-Alpes, Service Experimentation et Developpement.
+      Last updated on Nov 21, 2012.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>

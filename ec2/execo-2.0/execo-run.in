@@ -1,0 +1,51 @@
+#!/usr/bin/env python
+
+# Copyright 2009-2011 INRIA Rhone-Alpes, Service Experimentation et
+# Developpement
+# This file is part of Execo, released under the GNU Lesser Public
+# License, version 3 or later.
+
+import sys, os, optparse, subprocess
+
+execo_engine_search_dir = "@prefix@/share/execo/engines/"
+
+def _get_search_dirs(path):
+    search_dirs = []
+    for (dirpath, dirnames, filenames) in os.walk(path):
+        if len(filenames) > 0 and True in map(lambda s: s.endswith(".py") or s.endswith(".pyc"), filenames):
+            search_dirs.append(dirpath)
+    return search_dirs
+
+if __name__ == "__main__":
+
+    progname = os.path.basename(sys.argv[0])
+    additional_search_pathes = ["."]
+    additional_search_pathes += _get_search_dirs(os.path.abspath(os.path.dirname(sys.argv[0])) + "/engines")
+    if os.environ.has_key('HOME'):
+        additional_search_pathes += _get_search_dirs(os.environ['HOME'] + "/.execo/engines")
+    additional_search_pathes += _get_search_dirs(execo_engine_search_dir)
+
+    usage = """usage: %s <engine> [options] <arguments>
+
+instanciate <engine> from python module <engine>.py and call method
+start() on it.
+
+if <engine> is of the form <engine_module_name:engine_class_name> then
+instanciate <engine_class_name> from python module
+<engine_module_name>
+
+module search path is:
+  %s, default python directories""" % (progname, ", ".join(additional_search_pathes))
+
+    sys.path[1:1] = additional_search_pathes
+    if len(sys.argv) < 2:
+        print "ERROR: missing argument"
+        print usage,
+        exit(1)
+
+    module_name, _, class_name = sys.argv[1].partition(":")
+    if not class_name: class_name = module_name
+    engine_module = __import__(module_name)
+    engine_class = getattr(engine_module, class_name)
+    engine_instance = engine_class()
+    engine_instance._start()

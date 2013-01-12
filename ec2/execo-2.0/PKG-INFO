@@ -1,0 +1,21 @@
+Metadata-Version: 1.1
+Name: execo
+Version: 2.0
+Summary: API for parallel local or remote processes execution
+Home-page: http://execo.gforge.inria.fr
+Author: Matthieu Imbert
+Author-email: matthieu.imbert@inria.fr
+License: GNU GPL v3
+Description: This module offers a high level API for parallellocal or remote processes execution with the `Action` class hierarchy,and a lower level API with the `Process` class, for handling individualsubprocesses.
+Platform: UNKNOWN
+Classifier: Development Status :: 4 - Beta
+Classifier: Environment :: Console
+Classifier: Intended Audience :: Developers
+Classifier: Intended Audience :: Information Technology
+Classifier: Intended Audience :: Science/Research
+Classifier: Intended Audience :: System Administrators
+Classifier: Operating System :: POSIX :: Linux
+Classifier: Programming Language :: Python :: 2.5
+Classifier: Topic :: Software Development
+Classifier: Topic :: System :: Clustering
+Classifier: Topic :: System :: Distributed Computing

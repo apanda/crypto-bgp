@@ -1,0 +1,5 @@
+<map id="inheritancea639f7c6c9" name="inheritancea639f7c6c9">
+<area shape="rect" id="node1" href="#execo.process.ProcessBase" title="execo.process.ProcessBase" alt="" coords="5,5,205,32"/>
+<area shape="rect" id="node3" href="#execo.process.Process" title="execo.process.Process" alt="" coords="253,5,421,32"/>
+<area shape="rect" id="node2" href="#execo.process.SshProcess" title="execo.process.SshProcess" alt="" coords="469,5,661,32"/>
+</map>
