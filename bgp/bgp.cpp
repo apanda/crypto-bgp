@@ -108,15 +108,8 @@ void BGPProcess::next_iteration_continue(
     shared_ptr< tbb::concurrent_unordered_set<vertex_t> > changed_set_ptr,
     shared_ptr< tbb::concurrent_unordered_set<vertex_t> > new_changed_set_ptr) {
 
-  LOG4CXX_TRACE(comp_peer_->logger_, "next_iteration_continue");
 
   vector<vertex_t>& batch = *batch_ptr;
-  if (batch.empty()) {
-    LOG4CXX_INFO(comp_peer_->logger_, "batch.empty");
-    next_iteration_finish(dst_vertex, new_changed_set_ptr);
-    return;
-  }
-
 
   shared_ptr< pair<size_t, size_t> > counts_ptr(new pair<size_t, size_t>);
   size_t& count = counts_ptr->first;
@@ -139,7 +132,6 @@ void BGPProcess::next_iteration_continue(
   }
 
   if (current_batch.empty()) {
-    LOG4CXX_INFO(comp_peer_->logger_, "batch.empty");
     next_iteration_finish(dst_vertex, new_changed_set_ptr);
     return;
   }
@@ -164,8 +156,6 @@ void BGPProcess::next_iteration_continue(
 void BGPProcess::next_iteration_finish(
     const vertex_t dst_vertex,
     shared_ptr< tbb::concurrent_unordered_set<vertex_t> > new_changed_set_ptr) {
-
-  LOG4CXX_TRACE(comp_peer_->logger_, "next_iteration_finish");
 
   tbb::concurrent_unordered_set<vertex_t>& new_changed_set = *new_changed_set_ptr;
 
@@ -209,8 +199,6 @@ void BGPProcess::process_neighbors_mpc(
     shared_ptr< tbb::concurrent_unordered_set<vertex_t> > changed_set_ptr,
     shared_ptr< tbb::concurrent_unordered_set<vertex_t> > new_changed_set_ptr,
     shared_ptr< pair<size_t, size_t> > counts_ptr) {
-
-  printf("process_neighbors_mpc\n");
 
   tbb::concurrent_unordered_set<vertex_t>& changed_set = *changed_set_ptr;
 
@@ -295,9 +283,6 @@ void BGPProcess::for0(
               new_changed_set_ptr,
               _1);
 
-  LOG4CXX_DEBUG(comp_peer_->logger_, "Compare0")
-
-  printf("compare0\n");
   comp_peer_->compare0(
       lexical_cast<string>(affected.next_hop_),
       lexical_cast<string>(neigh_vertex),
