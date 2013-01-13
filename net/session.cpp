@@ -117,12 +117,12 @@ void Session::handle_read(
 
        if(command == CMD_TYPE::MSG) {
 
+         handle_msg(data, error, bytes_transferred);
+
          boost::asio::async_read(socket_, boost::asio::buffer(data, length_),
                boost::bind(&Session::handle_read, this, data,
                    boost::asio::placeholders::error,
                    boost::asio::placeholders::bytes_transferred));
-
-         handle_msg(data, error, bytes_transferred);
 
        } else if (command == CMD_TYPE::SYNC) {
 
