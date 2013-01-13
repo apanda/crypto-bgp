@@ -106,6 +106,8 @@ void run_mpc() {
     cp->bgp_->master_ = master;
     init.id_ = cp->id_;
 
+    LOG4CXX_INFO(mainLogger, "master->init(init))");
+    sleep(1);
     master->init(init);
   }
 

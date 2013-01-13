@@ -107,7 +107,6 @@ void BGPProcess::next_iteration_continue(
     shared_ptr< tbb::concurrent_unordered_set<vertex_t> > changed_set_ptr,
     shared_ptr< tbb::concurrent_unordered_set<vertex_t> > new_changed_set_ptr) {
 
-
   vector<vertex_t>& batch = *batch_ptr;
 
   shared_ptr< pair<size_t, size_t> > counts_ptr(new pair<size_t, size_t>);

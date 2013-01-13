@@ -110,9 +110,7 @@ void RPCClient::sync(vector<vertex_t>& nodes) {
       strand_.wrap(
       boost::bind(&RPCClient::handle_write, this, data,
           boost::asio::placeholders::error,
-          boost::asio::placeholders::bytes_transferred)
-      )
-  );
+          boost::asio::placeholders::bytes_transferred)));
 
 }
 
@@ -199,6 +197,7 @@ void RPCClient::handle_read(
              boost::bind(&RPCClient::handle_init, this, new_data,
                  boost::asio::placeholders::error,
                  boost::asio::placeholders::bytes_transferred));
+
         } else {
           handle_init(data, error, bytes_transferred);
         }
@@ -209,10 +208,6 @@ void RPCClient::handle_read(
         throw std::runtime_error("invalid command");
       }
 
-      boost::asio::async_read(socket_, boost::asio::buffer(data, length_),
-            boost::bind(&RPCClient::handle_read, this, data,
-                boost::asio::placeholders::error,
-                boost::asio::placeholders::bytes_transferred));
     }
 
 
@@ -266,9 +261,12 @@ void RPCClient::handle_sync(
   array_ = array;
   size_ = num;
 
+  boost::asio::async_read(socket_, boost::asio::buffer(data, length_),
+        boost::bind(&RPCClient::handle_read, this, data,
+            boost::asio::placeholders::error,
+            boost::asio::placeholders::bytes_transferred));
+
   barrier_->wait();
-
-
 }
 
 

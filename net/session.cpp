@@ -61,7 +61,6 @@ void Session::handle_init(
     const boost::system::error_code& error,
     size_t bytes_transferred) {
 
-
   uint32_t& size    = *((uint32_t*) (data + sizeof(uint32_t) ));
   char* array                      = data + sizeof(uint32_t) * 3;
   const size_t object_size         = size - sizeof(uint32_t) * 3;
@@ -100,6 +99,11 @@ void Session::handle_sync(
   }
 
   peer_->publish(this ,nodes);
+
+  boost::asio::async_read(socket_, boost::asio::buffer(data, length_),
+        boost::bind(&Session::handle_read, this, data,
+            boost::asio::placeholders::error,
+            boost::asio::placeholders::bytes_transferred));
 }
 
 
@@ -139,12 +143,6 @@ void Session::handle_read(
                   boost::asio::placeholders::bytes_transferred));
 
          } else {
-
-           boost::asio::async_read(socket_, boost::asio::buffer(data, length_),
-                 boost::bind(&Session::handle_read, this, data,
-                     boost::asio::placeholders::error,
-                     boost::asio::placeholders::bytes_transferred));
-
            handle_sync(data, error, bytes_transferred);
          }
 
