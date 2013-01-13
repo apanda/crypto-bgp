@@ -90,7 +90,6 @@ def startInstances(conn, numOfInstances, oneRound = False):
           print "Running only one round, finishing early."
           break;
 
-    print runningInstances
     return runningInstances
 
 
@@ -168,12 +167,12 @@ def verifyInstances(instances):
 
 
 
-def execCommand(instances, command, async = True):
+def execCommand(instances, command, async = False):
     return execCommandRange(instances, command, 0, len(instances), async);
 
 
 
-def execCommandRange(instances, command, startid, endid, async = True):
+def execCommandRange(instances, command, startid, endid, async = False):
     hosts = []        
     for i,instance in enumerate(instances):
       if(i >= startid and i <= endid):
@@ -181,8 +180,9 @@ def execCommandRange(instances, command, startid, endid, async = True):
 
     remote = Remote(command, hosts)
     remote.start()
-    if async: return remote
-    
+    if async:
+      return remote
+
     remote.wait()
     if remote.finished_ok():
         print 'All commands have executed successfully.'
@@ -204,35 +204,20 @@ def main():
         print 'Starting %d instances.' % instanceNum
         runningInstances = startInstances(conn, instanceNum)
         dumpInstances(runningInstances)
-        sys.exit()
 
     elif sys.argv[1] == 'start-one-round':
         if len(sys.argv) < 3: sys.exit("Need to specify the number of hosts.")
         instanceNum = int(sys.argv[2])
         print 'Attempting to start %d instances.' % instanceNum
-        dumpInstances([])
         runningInstances = startInstances(conn, instanceNum, True)
-        sys.exit()
+        dumpInstances(runningInstances)
 
     elif sys.argv[1] == 'add':
         if len(sys.argv) < 3: sys.exit("Need to specify the number of hosts.")
         instanceNum = int(sys.argv[2])
         print 'Starting %d instances.' % instanceNum
         runningInstances = startInstances(conn, instanceNum)
-        sys.exit()
 
-    elif sys.argv[1] == 'verify':
-        instances = loadInstances(conn)
-        faultyInstances = verifyInstances(instances)
-        sys.exit()
-        
-    elif sys.argv[1] == 'verify-and-terminate':
-        instances = loadInstances(conn)
-        faultyInstances = verifyInstances(instances)
-        terminateInstances(faultyInstances)
-        dumpInstances(instances)
-        sys.exit()
-        
     elif sys.argv[1] == 'info':
         runningInstances = loadInstances(conn)
         for instance in runningInstances:
@@ -241,14 +226,13 @@ def main():
             print '\tPublic DNS:  %s' % instance.public_dns_name
             print '\tPrivate DNS: %s' % instance.private_dns_name
             print '\tPrivate IP:  %s' % instance.private_ip_address
-        sys.exit()
         
     elif sys.argv[1] == 'terminate':
         runningInstances = loadInstances(conn)
         terminateInstances(runningInstances)
-        sys.exit()
+        dumpInstances([])
         
-    elif sys.argv[1] == 'exec-all':
+    elif sys.argv[1] == 'exec':
         if len(sys.argv) < 3: sys.exit("Need to specify a command.")
         command = sys.argv[2].replace('\'', '')
         print 'Executing command: %s' % command
@@ -257,10 +241,9 @@ def main():
 
     else:
     	  print "ERROR: unknown command:",sys.argv[1];
-    	  sys.exit();
     
     print "Process has ended."
-
+    sys.exit();
 
 
 if __name__ == "__main__":
