@@ -77,7 +77,7 @@ void run_mpc() {
   boost::barrier* b = new boost::barrier(COMP_PEER_IDS.size() + 1);
   functor_t f = boost::bind(&boost::barrier::wait, b);
 
-  for (int i = 0; i < THREAD_COUNT; i++) {
+  for (size_t i = 0; i < THREAD_COUNT; i++) {
     worker_threads.add_thread( new boost::thread(bind(&io_service::run, &io)) );
   }
 
@@ -157,8 +157,8 @@ int main(int argc, char *argv[]) {
   desc.add_options()
       ("help", "produce help message")
       ("master", "start the master peer")
-      ("threads", po::value<int>(), "total number of threads")
-      ("tasks", po::value<int>(), "total number of tasks per iteration")
+      ("threads", po::value<size_t>(), "total number of threads")
+      ("tasks", po::value<size_t>(), "total number of tasks per iteration")
       ("master-host", po::value<string>(), "master address")
       ("whoami", po::value<string>(), "out address")
       ("start", po::value<int>(), "staring vertex")
@@ -184,11 +184,11 @@ int main(int argc, char *argv[]) {
 
 
   if (vm.count("threads")) {
-    THREAD_COUNT = vm["threads"].as<int>();
+    THREAD_COUNT = vm["threads"].as<size_t>();
   }
 
   if (vm.count("tasks")) {
-    TASK_COUNT = vm["tasks"].as<int>();
+    TASK_COUNT = vm["tasks"].as<size_t>();
   }
 
   if (vm.count("start")) {

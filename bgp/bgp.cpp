@@ -83,7 +83,6 @@ void BGPProcess::next_iteration_start(
 
   shared_ptr<tbb::concurrent_unordered_set<vertex_t> > new_changed_set_ptr (
       new tbb::concurrent_unordered_set<vertex_t>);
-  tbb::concurrent_unordered_set<vertex_t>& new_changed_set = *new_changed_set_ptr;
 
   shared_ptr < vector<vertex_t> > batch_ptr(new vector<vertex_t>);
   vector<vertex_t>& batch = *batch_ptr;

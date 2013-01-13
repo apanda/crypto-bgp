@@ -1,8 +1,8 @@
 
 #include "common.hpp"
 
-int THREAD_COUNT = 4;
-int TASK_COUNT = 1;
+size_t THREAD_COUNT = 4;
+size_t TASK_COUNT = 1;
 
 size_t VERTEX_START = 0;
 size_t VERTEX_END = 0;

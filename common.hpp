@@ -26,8 +26,8 @@
 
 const size_t COMP_PEER_NUM = 3;
 
-extern int THREAD_COUNT;
-extern int TASK_COUNT;
+extern size_t THREAD_COUNT;
+extern size_t TASK_COUNT;
 
 extern size_t VERTEX_START;
 extern size_t VERTEX_END;
