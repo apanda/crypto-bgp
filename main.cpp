@@ -122,6 +122,7 @@ void run_mpc() {
   for(auto& cp: comp_peer_seq) {
     if (COMP_PEER_IDS.find(cp->id_) == COMP_PEER_IDS.end()) continue;
     LOG4CXX_INFO(mainLogger, "master->sync(nodes)");
+    usleep(200);
     master->sync(nodes);
   }
 
