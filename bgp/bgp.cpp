@@ -111,7 +111,6 @@ void BGPProcess::next_iteration_continue(
   LOG4CXX_TRACE(comp_peer_->logger_, "next_iteration_continue");
 
   vector<vertex_t>& batch = *batch_ptr;
-
   if (batch.empty()) {
     LOG4CXX_INFO(comp_peer_->logger_, "batch.empty");
     next_iteration_finish(dst_vertex, new_changed_set_ptr);
@@ -137,6 +136,12 @@ void BGPProcess::next_iteration_continue(
 
     if (vertex == dst_vertex) continue;
     current_batch.push_back(vertex);
+  }
+
+  if (current_batch.empty()) {
+    LOG4CXX_INFO(comp_peer_->logger_, "batch.empty");
+    next_iteration_finish(dst_vertex, new_changed_set_ptr);
+    return;
   }
 
   counts_ptr->second = current_batch.size();
