@@ -93,7 +93,6 @@ void run_mpc() {
   bgp.master_ = master;
 
   input_peer->disseminate_bgp(comp_peer_seq, input_graph);
-  //auto nodes = input_peer->start_listeners(comp_peer_seq, input_graph);
 
   sync_init init;
   init.nodes_ = input_peer->start_listeners(comp_peer_seq, input_graph);
@@ -122,6 +121,7 @@ void run_mpc() {
   vector<vertex_t> nodes;
   for(auto& cp: comp_peer_seq) {
     if (COMP_PEER_IDS.find(cp->id_) == COMP_PEER_IDS.end()) continue;
+    LOG4CXX_INFO(mainLogger, "master->sync(nodes)");
     master->sync(nodes);
   }
 

@@ -76,6 +76,11 @@ void Session::handle_init(
   ia >> si;
 
   peer_->publish(this, si);
+
+  boost::asio::async_read(socket_, boost::asio::buffer(data, length_),
+        boost::bind(&Session::handle_read, this, data,
+            boost::asio::placeholders::error,
+            boost::asio::placeholders::bytes_transferred));
 }
 
 
@@ -109,9 +114,16 @@ void Session::handle_read(
      if (bytes_transferred == length_) {
 
        uint32_t& command =  *((uint32_t*) data);
+       printf("command %u %u\n", command, bytes_transferred);
+
        if(command == CMD_TYPE::MSG) {
 
          handle_msg(data, error, bytes_transferred);
+
+         boost::asio::async_read(socket_, boost::asio::buffer(data, length_),
+               boost::bind(&Session::handle_read, this, data,
+                   boost::asio::placeholders::error,
+                   boost::asio::placeholders::bytes_transferred));
 
        } else if (command == CMD_TYPE::SYNC) {
 
@@ -154,10 +166,6 @@ void Session::handle_read(
          throw std::runtime_error("invalid command");
        }
 
-       boost::asio::async_read(socket_, boost::asio::buffer(data, length_),
-             boost::bind(&Session::handle_read, this, data,
-                 boost::asio::placeholders::error,
-                 boost::asio::placeholders::bytes_transferred));
      }
 
 
