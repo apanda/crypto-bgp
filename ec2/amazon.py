@@ -196,7 +196,6 @@ def execCommandRange(instances, command, startid, endid, async = False):
 def zipExecute(instances, commands):
   pairs = zip(instances, commands)
   for (instance, command) in pairs:
-    time.sleep(1)
     execCommand([instance], command, async = True)
     print instance, ' -- ', command
 
