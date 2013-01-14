@@ -64,6 +64,7 @@ bool measure_time() {
 
 void run_mpc() {
 
+  printf("run mpc\n");
 
   typedef std::chrono::high_resolution_clock clock_t;
 
@@ -194,8 +195,8 @@ int main(int argc, char *argv[]) {
   }
 
   if (vm.count("start")) {
-    std::cout << "VERTEX_START: " << VERTEX_START << std::endl;
     VERTEX_START = vm["start"].as<size_t>();
+    std::cout << "VERTEX_START: " << VERTEX_START << std::endl;
   }
 
   if (vm.count("end")) {
