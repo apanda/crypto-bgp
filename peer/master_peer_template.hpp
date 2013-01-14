@@ -34,6 +34,8 @@ MasterPeer::~MasterPeer() {}
 
 void MasterPeer::publish(Session* session, sync_init si) {
 
+  boost::mutex::scoped_lock lock(mutex_);
+
   node_set_.insert( si.nodes_.begin(), si.nodes_.end() );
 
   auto& m = sync_response_.hostname_mappings_[si.id_];
