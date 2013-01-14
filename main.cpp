@@ -96,6 +96,7 @@ void run_mpc() {
 
   sync_init init;
   init.nodes_ = input_peer->start_listeners(comp_peer_seq, input_graph);
+  std::cout << "init.nodes_ " << init.nodes_.size() << std::endl;
   init.hostname_ = WHOAMI;
 
   master->barrier_ = new boost::barrier(2);
@@ -162,8 +163,8 @@ int main(int argc, char *argv[]) {
       ("tasks", po::value<size_t>(), "total number of tasks per iteration")
       ("master-host", po::value<string>(), "master address")
       ("whoami", po::value<string>(), "out address")
-      ("start", po::value<int>(), "staring vertex")
-      ("end", po::value<int>(), "ending vertex")
+      ("start", po::value<size_t>(), "staring vertex")
+      ("end", po::value<size_t>(), "ending vertex")
       ("id", po::value<vector<int>>()->multitoken(), "computational peer id")
   ;
 
@@ -193,11 +194,12 @@ int main(int argc, char *argv[]) {
   }
 
   if (vm.count("start")) {
-    VERTEX_START = vm["start"].as<int>();
+    std::cout << "VERTEX_START: " << VERTEX_START << std::endl;
+    VERTEX_START = vm["start"].as<size_t>();
   }
 
   if (vm.count("end")) {
-    VERTEX_END = vm["end"].as<int>();
+    VERTEX_END = vm["end"].as<size_t>();
   }
 
   if (vm.count("id")) {

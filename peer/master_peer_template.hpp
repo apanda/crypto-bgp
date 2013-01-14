@@ -36,12 +36,6 @@ void MasterPeer::publish(Session* session, sync_init si) {
 
   node_set_.insert( si.nodes_.begin(), si.nodes_.end() );
 
-  auto& m = sync_response_.hostname_mappings_[si.id_];
-  for(auto v: si.nodes_) {
-    m[v] = si.hostname_;
-    LOG4CXX_INFO(logger_, v << " -> " << si.hostname_);
-  }
-
   vertex_count_ += si.nodes_.size();
   all_sessions_.push_back(session);
 

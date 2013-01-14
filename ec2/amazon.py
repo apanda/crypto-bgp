@@ -193,6 +193,54 @@ def execCommandRange(instances, command, startid, endid, async = False):
 
 
 
+def zipExecute(instances, commands):
+  pairs = zip(instances, commands)
+  for (instance, command) in pairs:
+    time.sleep(1)
+    execCommand([instance], command, async = True)
+    print instance, ' -- ', command
+
+
+
+def delegate(instances, graphSize, master):
+  peerSize = 3
+  count = len(instances)
+  assert (count % 3 == 0)
+  partitionSize = count / 3
+  assert(graphSize % partitionSize == 0)
+  partitionVertexSize = graphSize / partitionSize
+
+  MASTER = master
+  THREADS = 3
+  TASKS = 60
+  WHOAMI = '`/sbin/ifconfig eth0 | grep \'inet addr:\' | cut -d: -f2 | \
+  awk \'{ print $1}\' `'
+  
+  START_VERTEX = 0
+  END_VERTEX = partitionVertexSize -1
+
+  commands = []
+
+  for partition in xrange(partitionSize):
+    cmd = 'cd crypto-bgp && ./mpc --master-host %s \
+    --threads %d --tasks %d --whoami %s \ --start %d --end %d' % (
+    MASTER, THREADS, TASKS, WHOAMI, START_VERTEX, END_VERTEX)
+    commands.append(cmd)
+
+    START_VERTEX = START_VERTEX + partitionVertexSize
+    END_VERTEX = END_VERTEX + partitionVertexSize
+  
+  allCommands = []
+  for command in commands:
+    for i in xrange(peerSize):
+      idNum  = i + 1
+      idStr = ' --id %d > result' %(idNum)
+      allCommands.append( command + idStr )
+
+  return allCommands
+      
+
+
 def main():
     
     if len(sys.argv) < 2:
@@ -238,6 +286,13 @@ def main():
         print 'Executing command: %s' % command
         runningInstances = loadInstances(conn)
         remote = execCommand(runningInstances, command)
+
+    elif sys.argv[1] == 'smirc':
+      graphSize = int( sys.argv[2] )
+      master = sys.argv[3]
+      runningInstances = loadInstances(conn)
+      commands = delegate( runningInstances, graphSize, master )
+      zipExecute(runningInstances, commands)
 
     else:
     	  print "ERROR: unknown command:",sys.argv[1];
