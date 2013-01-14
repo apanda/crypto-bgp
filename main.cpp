@@ -64,8 +64,6 @@ bool measure_time() {
 
 void run_mpc() {
 
-  printf("run mpc\n");
-
   typedef std::chrono::high_resolution_clock clock_t;
 
   array<shared_ptr<comp_peer_t>, COMP_PEER_NUM> comp_peer_seq;
@@ -97,7 +95,6 @@ void run_mpc() {
 
   sync_init init;
   init.nodes_ = input_peer->start_listeners(comp_peer_seq, input_graph);
-  std::cout << "init.nodes_ " << init.nodes_.size() << std::endl;
   init.hostname_ = WHOAMI;
 
   master->barrier_ = new boost::barrier(2);
@@ -196,7 +193,6 @@ int main(int argc, char *argv[]) {
 
   if (vm.count("start")) {
     VERTEX_START = vm["start"].as<size_t>();
-    std::cout << "VERTEX_START: " << VERTEX_START << std::endl;
   }
 
   if (vm.count("end")) {
