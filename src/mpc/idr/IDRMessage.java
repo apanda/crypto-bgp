@@ -35,21 +35,21 @@ public class IDRMessage extends MessageBase implements Serializable {
 	private boolean isInitialSharesMessage = false;
 	/** indicates if the message contains the final results */
 	private boolean isFinalResultMessage = false;
-	
+
 	/** contains all IDRNodeInfos */
 	private IDRNodeInfo[] nodeInfos;
-	
+
 	/** contains the initial shares */
 	//private long[] neighborList = null; // [numberOfNeighbors]
 	//private long[] initialPrefShares = null; // [numberOfNeighbors]
 	//private long[][] initialExportShares = null; //[numberOfNeighbors][numberOfNeighbors
-	
+
 	/** contains the final results */
-	private long[] finalResults;
-	
+	private long[][] finalResults;
+
 	/** is this an ISP? */
 	private boolean isp = false;
-	
+
 	/** ID of the destination */
 	private long destination;
 
@@ -83,18 +83,18 @@ public class IDRMessage extends MessageBase implements Serializable {
 		this.isFinalResultMessage = isFinalResultMessage;
 	}
 
-	public long[] getFinalResults() {
+	public long[][] getFinalResults() {
 		return finalResults;
 	}
 
-	public void setFinalResults(long[] finalResults) {
+	public void setFinalResults(long[][] finalResults) {
 		this.finalResults = finalResults;
 	}
 
 	public void setIsISP(boolean isp) {
 		this.isp = isp;
 	}
-	
+
 	public boolean isISP() {
 		return isp;
 	}
@@ -102,39 +102,49 @@ public class IDRMessage extends MessageBase implements Serializable {
 	public void setDestination(long destination) {
 		this.destination = destination;
 	}
-	
+
 	public long getDestination() {
 		return destination;
 	}
-	
+
 	public int getNumberOfNodes() {
 		return nodeInfos.length;
 	}
-	
+
 	public void setNodeInfos(IDRNodeInfo[] nodeInfos) {
 		this.nodeInfos = nodeInfos;
 	}
-	
+
 	public IDRNodeInfo[] getNodeInfos() {
 		return nodeInfos;
 	}
-	
-	public void setInitialPrefShares(long[][] initialPrefShares) {
-		for (int i = 0; i < initialPrefShares.length; i++) {
-			nodeInfos[i].setInitialPrefShares(initialPrefShares[i]);
+
+	public void setInitialClassificationShares(long[][] initialClassificationShares) {
+		for (int i = 0; i < initialClassificationShares.length; i++) {
+			nodeInfos[i].setInitialClassificationShares(initialClassificationShares[i]);
 		}
 	}
-	
+
 	public void setInitialExportShares(long[][][] initialExportShares) {
 		for (int i = 0; i < initialExportShares.length; i++) {
 			nodeInfos[i].setInitialExportShares(initialExportShares[i]);
 		}
 	}
-	
-	public void setInitialMatchesShares(long[][][] initialMatchesShares) {
-		for (int i = 0; i < initialMatchesShares.length; i++) {
-			nodeInfos[i].setInitialMatchesShares(initialMatchesShares[i]);
+
+	/*
+	 * Set it so that all nodes have a route that's all zeroes and a path length of zero
+	 * Note that this means that the node will always fail the "has next hop"  part of
+	 * the algorithm, unless it's the destination
+	 */
+	public void setRoutes(long[][] zeroShares) {
+		for (int i = 0; i < zeroShares.length; i++) {
+			long[] route = new long[zeroShares[i].length - 1];
+			for (int j = 1; j < zeroShares[i].length; j++) { //starting at 1 deliberately; we will use j=0 in a sec
+				route[j-1] = zeroShares[i][j];
+			}
+			nodeInfos[i].setPathLength(zeroShares[i][0]); //see?
+			nodeInfos[i].setRoute(route);
 		}
 	}
-	
+
 }

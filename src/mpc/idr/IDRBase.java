@@ -36,8 +36,13 @@ import events.ExceptionEvent;
  */
 public abstract class IDRBase extends PrimitivesEnabledPeer {
 
+	/* VERY IMPORTANT:
+	 * M must always be greater than the number of rounds we run for,
+	 * to ensure correctness of program.
+	 */
+	public static final int M = IDRProtocolPrivacyPeerToPP.V1_STEPS + 1;
 	public static final String PROP_IDR_TOPO_FILE = "mpc.idr.topofile";
-	
+
 	protected String inputFolder;
 	protected String outputFolder;
 	protected int inputTimeout;
@@ -52,13 +57,13 @@ public abstract class IDRBase extends PrimitivesEnabledPeer {
 	protected long shamirSharesFieldOrder = 0;
 	/** the degree of the polynomials to use*/
 	protected int degreeT = -1;
-	
+
 	/** filename of file with interesting data in it */
 	protected String topo_filename;
 
 	/** contains the final result */
-	protected long[] finalResult;
-	
+	protected long[][] finalResult;
+
 	/**
 	 * Creates a new MPC IDR peer instance
 	 * 
@@ -76,11 +81,11 @@ public abstract class IDRBase extends PrimitivesEnabledPeer {
 	 */
 	protected synchronized void initProperties() throws Exception {
 		Properties properties = ConfigFile.getInstance().getProperties();
-		
-        inputFolder = properties.getProperty(ConfigFile.PROP_INPUT_DIR, ConfigFile.DEFAULT_INPUT_DIR);
-        outputFolder = properties.getProperty(ConfigFile.PROP_OUTPUT_DIR, ConfigFile.DEFAULT_OUTPUT_DIR);
-    	inputTimeout = Integer.valueOf(properties.getProperty(ConfigFile.PROP_INPUT_TIMEOUT, ConfigFile.DEFAULT_INPUT_TIMEOUT));
-		
+
+		inputFolder = properties.getProperty(ConfigFile.PROP_INPUT_DIR, ConfigFile.DEFAULT_INPUT_DIR);
+		outputFolder = properties.getProperty(ConfigFile.PROP_OUTPUT_DIR, ConfigFile.DEFAULT_OUTPUT_DIR);
+		inputTimeout = Integer.valueOf(properties.getProperty(ConfigFile.PROP_INPUT_TIMEOUT, ConfigFile.DEFAULT_INPUT_TIMEOUT));
+
 		randomAlgorithm = properties.getProperty(ConfigFile.PROP_PRG, ConfigFile.DEFAULT_PRG);
 		random = new Random();
 
@@ -93,14 +98,14 @@ public abstract class IDRBase extends PrimitivesEnabledPeer {
 		degreeT = Integer.valueOf(properties.getProperty(ConfigFile.PROP_DEGREE, "-1"));
 
 		topo_filename = properties.getProperty(PROP_IDR_TOPO_FILE);
-		
-        myAlphaIndex = Collections.binarySearch(connectionManager.getConfiguredPrivacyPeerIDs(), getMyPeerID());
-        
+
+		myAlphaIndex = Collections.binarySearch(connectionManager.getConfiguredPrivacyPeerIDs(), getMyPeerID());
+
 		/*
 		 * Properties specific to the IDR protocol.
 		 */
 
-        
+
 		// output properties to log
 		logger.log(Level.INFO, "The following properties were set:");
 		logger.log(Level.INFO, "time slot count: " + timeSlotCount);
@@ -134,12 +139,12 @@ public abstract class IDRBase extends PrimitivesEnabledPeer {
 	public void update(Observable observable, Object object) {
 		ExceptionEvent exceptionEvent;
 		String errorMessage;
-		
+
 		if(object==null) {
 			logger.severe("Received a null message from observable: " + observable.getClass().getName());
 			return;
 		}
-		
+
 		logger.log(Level.INFO, "Received notification from observable: " + observable.getClass().getName() + " (object is of type: " + object.getClass().getName() + ")");
 
 		try {

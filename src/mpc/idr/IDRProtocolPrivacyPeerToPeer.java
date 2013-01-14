@@ -19,7 +19,6 @@ import java.util.logging.Level;
 
 import services.Stopper;
 import services.Utils;
-import connections.InputPeerConnectionManager;
 import connections.PrivacyViolationException;
 
 /**
@@ -94,7 +93,7 @@ public class IDRProtocolPrivacyPeerToPeer extends IDRProtocol {
 		messageToSend.setIsFinalResultMessage(true);
 		messageToSend.setFinalResults(privacyPeer.getFinalResult(otherPeerIndex));
 		sendMessage();
-		
+
 		privacyPeer.finalResultIsSent();
 
 	}

@@ -32,7 +32,7 @@ public class IDRProtocolPeer extends IDRProtocol {
 
 	/** reference to the IDR peer object that started this protocol instance */
 	private IDRPeer inputPeer;
-	private int privacyPeerIndex;
+	protected int privacyPeerIndex;
 
 
 	/**
@@ -52,15 +52,15 @@ public class IDRProtocolPeer extends IDRProtocol {
 
 
 	/**
-     * Run the Topk protocol for the peer
-     * 
-     * One round of communication looks as follows:
-     * <ul>
-     * <li>Send Shares
-     * <li>Receive Final Result (zeros if peer was disqualified)
-     * </ul> 
-     */
-    public void run() {
+	 * Run the Topk protocol for the peer
+	 * 
+	 * One round of communication looks as follows:
+	 * <ul>
+	 * <li>Send Shares
+	 * <li>Receive Final Result (zeros if peer was disqualified)
+	 * </ul> 
+	 */
+	public void run() {
 		// Send the initial shares
 		try {
 			createInitialSharesMessage();
@@ -79,7 +79,7 @@ public class IDRProtocolPeer extends IDRProtocol {
 			logger.severe(Utils.getStackTrace(e));
 			return;
 		}
-    }
+	}
 
 
 	/**
@@ -109,10 +109,10 @@ public class IDRProtocolPeer extends IDRProtocol {
 		messageToSend.setIsInitialSharesMessage(true);
 		messageToSend.setDestination(inputPeer.destination);
 		messageToSend.setNodeInfos(inputPeer.nodeInfos);
-		messageToSend.setInitialPrefShares(inputPeer.getInitialPrefSharesForPP(otherPeerIndex));
+		messageToSend.setInitialClassificationShares(inputPeer.getInitialClassificationSharesForPP(otherPeerIndex));
 		messageToSend.setInitialExportShares(inputPeer.getInitialExportSharesForPP(otherPeerIndex));
-		messageToSend.setInitialMatchesShares(inputPeer.getInitialMatchesSharesForPP(otherPeerIndex));
+		messageToSend.setRoutes(inputPeer.getZeroSharesForPP(otherPeerIndex));
 	}
-	
+
 
 }

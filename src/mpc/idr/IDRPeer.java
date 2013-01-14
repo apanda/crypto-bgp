@@ -25,7 +25,6 @@ import java.util.Properties;
 import java.util.Vector;
 import java.util.concurrent.CyclicBarrier;
 import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import mpc.ShamirSharing;
 import mpc.VectorData;
@@ -42,7 +41,7 @@ import events.FinalResultEvent;
  * @author Dilip Many
  *
  */
-public class IDRPeer extends IDRBase {
+public class IDRPeer extends IDRBase { 
 
 	/** vector of protocols (between this peer and the privacy peers) */
 	private Vector<IDRProtocolPeer> peerProtocolThreads = null;
@@ -53,21 +52,19 @@ public class IDRPeer extends IDRBase {
 	private CyclicBarrier protocolThreadsBarrier = null;
 
 	/** array containing my initial shares; dimensions [numberOfNodes][numberOfPrivacyPeers][numberOfNeighbors] */
-	private long[][][] initialPrefShares = null;
+	private long[][][] initialClassificationShares = null;
 	/** array containing initial shares; dimensions [numberOfNodes][numberOfNeighbors][numberOfPrivacyPeers][numberOfNeighbors] */
 	private long[][][][] initialExportShares = null;
-	/** array containing initial shares of the matches arrays; dimensions [numberOfNodes][numberOfNeighbors][numberOfNeighbors][numberOfPrivacyPeers] */
-	private long[][][][] initialMatchesShares = null;
+	/** array containing M+1 zero shares/node; dimensions [numberOfNodes][numberOfPrivacyPeers][M+1] */
+	private long[][][] initialZeroShares = null;
 
-	/**
-	 * Matches array: matches[i][j] = 1 iff neighbor[i] = prefList[j]
-	 */
-	
 	public static final String PROP_IDR_INPUT = "mpc.idr.input";
-	
+
 	public static final String PROP_DESTINATION = "Destination";
 	public static final String PROP_N_ITEMS = "nitems";
-	public static final String PROP_PREFERENCES = "Preferences";
+	public static final String PROP_PROVIDERS = "providers";
+	public static final String PROP_PEERS = "peers";
+	public static final String PROP_CUSTOMERS = "customers";
 	public static final String ID = "peerID";
 	public static final String PROP_TYPE = "peerType";
 
@@ -81,29 +78,18 @@ public class IDRPeer extends IDRBase {
 	/** ID of the destination */
 	protected long destination;
 
-	/** ID number-order list of neighbors; dimensions[numberOfNeighbors] */
-	//protected long[] neighborList;
-
-	/** Preference-order list of neighbors for each node; dimensions [numberOfNodes][numberOfNeighbors] */
-	protected long[][] neighborPreferenceLists;
+	/** Lists of customers, peers, proivders for each node; dimensions [numberOfNodes][3][numberOfNeighbors] */
+	protected long[][][] neighborClassificationLists;
 
 	/** Array of lists of who can be routed through each neighbor; dimensions [numberOfNodes][numberOfNeighbors][numberOfNeighbors]
-	 * Example: neighborExports[0][0] is the list of which neighbors can receive routes through
-	 *     neighborPreferenceList[0] for node 0
+	 * Example: neighborExports[1][2] is the list of which neighbors can receive routes through
+	 *     neighbor[2] for node 1
 	 */
 	protected long[][][] neighborExports;
-	
+
 	private Properties properties;
 	private boolean readOperationSuccessful;
 
-	/**
-	 * constructs a new topk peer object
-	 *
-	 * @param myPeerIndex	This peer's number/index
-	 * @param stopper		Stopper (can be used to stop this thread)
-	 * @param cm the connection manager
-	 * @throws Exception
-	 */
 	public IDRPeer(int myPeerIndex, ConnectionManager cm, Stopper stopper) throws Exception {
 		super(myPeerIndex, cm, stopper);
 		peerProtocolThreads = new Vector<IDRProtocolPeer>();
@@ -148,13 +134,14 @@ public class IDRPeer extends IDRBase {
 		// Init state variables
 		finalResult = null;
 		finalResultsToDo = numberOfPrivacyPeers;
-		neighborPreferenceLists = null;
+		neighborClassificationLists = null;
 		neighborExports = null;
 		nodeInfos = null;
 
 		readPrivateData(input_filename);
 		readTopology(topo_filename);
-		
+
+
 		if (!readOperationSuccessful) {
 			logger.severe("Could not read private input from " + topo_filename + " -- returning");
 			return;
@@ -189,10 +176,27 @@ public class IDRPeer extends IDRBase {
 	 */
 	public void generateInitialShares() {
 		logger.log(Level.INFO, "Generating initial shares...");
-		
-		initialPrefShares = new long[numberOfNodes][numberOfPrivacyPeers][];
+
+		initialClassificationShares = new long[numberOfNodes][numberOfPrivacyPeers][];
+		// What's going on here:
+		// For each neighbor of i, we search for it in the customer/peer/provider list for i.
+		// If we find it, we save the number of the list we found it in (0, 1, or 2) to i's classList 
+		// multiplied by M 
 		for (int i = 0; i < numberOfNodes; i++) {
-			initialPrefShares[i] = mpcShamirSharing.generateShares(neighborPreferenceLists[i]);
+			long[] classList = new long[nodeInfos[i].getNeighbors().length];
+			for (int h = 0; h < nodeInfos[i].getNeighbors().length; h++) {
+				classList[h] = Integer.MAX_VALUE/2;
+				for (int j = 0; j < 3; j++) {
+					for (int k = 0; k < neighborClassificationLists[i][j].length; k++) {
+						if (neighborClassificationLists[i][j][k] == nodeInfos[i].getNeighbors()[h]) {
+							classList[h] = j * M;
+							j = 4; // break out of two loops
+							break;
+						}
+					}
+				}
+			}
+			initialClassificationShares[i] = mpcShamirSharing.generateShares(classList);
 		}
 
 		initialExportShares = new long[numberOfNodes][][][];
@@ -203,19 +207,12 @@ public class IDRPeer extends IDRBase {
 				initialExportShares[i][j] = mpcShamirSharing.generateShares(neighborExports[i][j]);
 			}
 		}
-		
-		initialMatchesShares = new long[numberOfNodes][][][];
-		
-		for (int n = 0; n < numberOfNodes; n++) {
-			long[] neighbors = nodeInfos[n].getNeighbors();
-			initialMatchesShares[n] = new long[neighbors.length][neighborPreferenceLists[n].length][];
-			for (int i = 0; i < neighbors.length; i++) {
-				for (int j = 0; j < neighborPreferenceLists[n].length; j++) {
-					initialMatchesShares[n][i][j] = mpcShamirSharing.generateShare(
-							neighbors[i] == neighborPreferenceLists[n][j] ? 1 : 0);
-				}
-			}
+
+		initialZeroShares = new long[numberOfNodes][numberOfPrivacyPeers][M+1];
+		for(int i = 0; i < numberOfNodes; i++) {
+			initialZeroShares[i] = mpcShamirSharing.generateShares(new long[M+1]);
 		}
+
 	}
 
 
@@ -260,9 +257,8 @@ public class IDRPeer extends IDRBase {
 					finalResultEvent.setVerificationSuccessful(true);
 					sendNotification(finalResultEvent);
 
-					writeOutputToFile();
-
-					System.out.println("NextHop: " + finalResult.toString()); // This is for debugging only
+					// Note that this prints to both STDOUT and the file
+					System.out.println(writeOutputToFile());
 
 					// check if there are more time slots to process
 					if(currentTimeSlot < timeSlotCount) {
@@ -287,6 +283,38 @@ public class IDRPeer extends IDRBase {
 		}
 	}
 
+	private static long[] concatAll(long[] first, long[]... rest) {
+		int totalLength = first.length;
+		for (long[] array : rest) {
+			totalLength += array.length;
+		}
+		long[] result = Arrays.copyOf(first, totalLength);
+		int offset = first.length;
+		for (long[] array : rest) {
+			System.arraycopy(array, 0, result, offset, array.length);
+			offset += array.length;
+		}
+		return result;
+		//lol
+	}
+
+
+	/* UNCOMMENT THIS IF NEEDED
+	private static <T> T[] concatAll(T[] first, T[]... rest) {
+		int totalLength = first.length;
+		for (T[] array : rest) {
+			totalLength += array.length;
+		}
+		T[] result = Arrays.copyOf(first, totalLength);
+		int offset = first.length;
+		for (T[] array : rest) {
+			System.arraycopy(array, 0, result, offset, array.length);
+			offset += array.length;
+		}
+		return result;
+	}
+	 */
+
 	/**
 	 * Read the private data from the file.
 	 * @param filename
@@ -301,7 +329,7 @@ public class IDRPeer extends IDRBase {
 			numberOfNodes = Integer.parseInt(properties.getProperty(PROP_N_ITEMS));
 			nodeInfos = new IDRNodeInfo[numberOfNodes];
 			destination = Long.parseLong(properties.getProperty(PROP_DESTINATION));
-			neighborPreferenceLists = new long[numberOfNodes][];
+			neighborClassificationLists = new long[numberOfNodes][3][];
 			neighborExports = new long[numberOfNodes][][];
 			for (int i = 0; i < nodeInfos.length; i++) {
 				String prefix = (i+1) + "_";
@@ -309,12 +337,43 @@ public class IDRPeer extends IDRBase {
 				nodeInfos[i].setISP(properties.getProperty(prefix + PROP_TYPE).equals("1"));
 				if (nodeInfos[i].getID() == destination)
 					nodeInfos[i].setDestination(true);
-				String[] prefStrings = properties.getProperty(prefix + PROP_PREFERENCES).split("\\D");
-				neighborPreferenceLists[i] = new long[prefStrings.length];
-				for (int j = 0; j < neighborPreferenceLists[i].length; j++)
-					neighborPreferenceLists[i][j] = Long.parseLong(prefStrings[j]);
-				long[] neighborList = neighborPreferenceLists[i].clone();
+
+				String customers = properties.getProperty(prefix + PROP_CUSTOMERS);
+				String peers = properties.getProperty(prefix + PROP_PEERS);
+				String providers = properties.getProperty(prefix + PROP_PROVIDERS);
+
+				if (customers.equals("")) {
+					neighborClassificationLists[i][0] = new long[0];
+				} else {
+					String[] custStrings = customers.split("\\D");
+					neighborClassificationLists[i][0] = new long[custStrings.length];
+					for (int j = 0; j < neighborClassificationLists[i][0].length; j++)
+						neighborClassificationLists[i][0][j] = Long.parseLong(custStrings[j]);
+				}
+
+				if (peers.equals("")) {
+					neighborClassificationLists[i][1] = new long[0];
+				} else {
+					String[] peerStrings = peers.split("\\D");
+					neighborClassificationLists[i][1] = new long[peerStrings.length];
+					for (int j = 0; j < neighborClassificationLists[i][1].length; j++)
+						neighborClassificationLists[i][1][j] = Long.parseLong(peerStrings[j]);
+				}
+
+				if (providers.equals("")) {
+					neighborClassificationLists[i][2] = new long[0];
+				} else {
+					String[] provStrings = providers.split("\\D");
+					neighborClassificationLists[i][2] = new long[provStrings.length];
+					for (int j = 0; j < neighborClassificationLists[i][2].length; j++)
+						neighborClassificationLists[i][2][j] = Long.parseLong(provStrings[j]);
+				}
+
+				long[] neighborList = concatAll(neighborClassificationLists[i][0],
+						neighborClassificationLists[i][1], neighborClassificationLists[i][2]);
+
 				Arrays.sort(neighborList);
+
 				neighborExports[i] = new long[neighborList.length][neighborList.length];
 				if (nodeInfos[i].isISP()) {
 					for (int j = 0; j < neighborList.length; j++) {
@@ -364,19 +423,24 @@ public class IDRPeer extends IDRBase {
 		}
 		return readOperationSuccessful;
 	}
-	
+
 	/**
 	 * Write the output to a file.
 	 * @throws Exception 
 	 */
-	protected void writeOutputToFile() throws Exception {
+	protected String writeOutputToFile() throws Exception {
 		String fileName = outputFolder + "/" + "idr_output_"
 				+ "_round" + String.format("%03d", currentTimeSlot)+ ".txt";
 		String output = "";
-		for (int i = 0; i < numberOfNodes; i++) {
-			output += "Next Hop for " + nodeInfos[i].getID() + ": " + finalResult[i] + "\n";
+		for (int i = 0; i < nodeInfos.length; i++) {
+			IDRNodeInfo node = nodeInfos[i];
+			output += "Route for domain " + node.getID() + ":\n";
+			output += "AS_PATH Length: " + finalResult[i][0] + "\n";
+			output += "NextHop: " + finalResult[i][1] + "\n\n";
 		}
+
 		Services.writeFile(output, fileName);
+		return output;
 	}
 
 	/**
@@ -408,10 +472,10 @@ public class IDRPeer extends IDRBase {
 	 * @param ppNr the PP number
 	 * @return the shares. Dimensions: [numberOfNodes][numberOfNeighbors]
 	 */
-	public long[][] getInitialPrefSharesForPP(int ppNr) {
+	public long[][] getInitialClassificationSharesForPP(int ppNr) {
 		long [][] shares = new long[numberOfNodes][];
 		for (int i = 0; i < numberOfNodes; i++) {
-			shares[i] = initialPrefShares[i][ppNr];
+			shares[i] = initialClassificationShares[i][ppNr];
 		}
 		return shares;		
 	}
@@ -429,26 +493,21 @@ public class IDRPeer extends IDRBase {
 				shares[i][j] = initialExportShares[i][j][ppNr];
 			}
 		}
-		return shares;		
-	}
-	
-	/**
-	 * Returns the matches array shares for each node.
-	 * @param ppNr the PP number
-	 * @return the shares. Dimensions: [numberOfNodes][numberOfNeighbors][numberOfNeighbors]
-	 */
-	public long[][][] getInitialMatchesSharesForPP(int ppNr) {
-		long[][][] shares = new long[initialMatchesShares.length][][];
-		for (int i = 0; i < initialMatchesShares.length; i++) {
-			shares[i] = new long[initialMatchesShares[i].length][];
-			for (int j = 0; j < initialMatchesShares[i].length; j++) {
-				shares[i][j] = new long[initialMatchesShares[i][j].length];
-				for (int k = 0; k < initialMatchesShares[i][j].length; k++) {
-					shares[i][j][k] = initialMatchesShares[i][j][k][ppNr];
-				}
-			}
-		}
 		return shares;
 	}
+
+	/**
+	 *  Returns shares of M+1 zeroes for each node.
+	 * @param ppNr the PP number
+	 * @return the shares. Dimensions: [numberOfNodes][M+1]
+	 */
+	public long[][] getZeroSharesForPP(int ppNr) {
+		long [][] shares = new long[numberOfNodes][];
+		for (int i = 0; i < numberOfNodes; i++) {
+			shares[i] = initialZeroShares[i][ppNr];
+		}
+		return shares;		
+	}
+
 
 }

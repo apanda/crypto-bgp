@@ -31,7 +31,6 @@ import java.util.Properties;
 import java.util.Random;
 import java.util.Vector;
 import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import mpc.CountingBarrier;
 import mpc.VectorData;
@@ -96,10 +95,11 @@ public class IDRPrivacyPeer extends IDRBase {
 	private ObjectOutputStream outStream;// = new ObjectOutputStream(s.getOutputStream());
 	private ObjectInputStream inStream;// = new ObjectInputStream(s.getInputStream());
 
-	private long [] useHop;
-	private long [] dontUseHop;
+	//private long [] useHop;
+	//private long [] dontUseHop;
 
-	private long nextHop = -1;
+	private long[] route = null;
+	private long pathLength = -1;
 
 	private Random rand = null;
 
@@ -292,15 +292,15 @@ public class IDRPrivacyPeer extends IDRBase {
 			properties.load(in);
 			in.close();
 			int nItems = Integer.parseInt(properties.getProperty(PROP_N_ITEMS));
-            /* int numNodes = 0;
+			/* int numNodes = 0;
 			while (nItems > numNodes) {
 				nodeInfos.add(null);
 				topology.add(new long[]{});
                 numNodes++;
 			} */
-            if (nItems != numberOfNodes) {
-                return false;
-            }
+			if (nItems != numberOfNodes) {
+				return false;
+			}
 			for (int i = 0; i < nItems; i++) {
 				String nodeName = (i+1) + "";
 				String[] neighborStrings = properties.getProperty(nodeName,"").split("\\D");
@@ -360,7 +360,7 @@ public class IDRPrivacyPeer extends IDRBase {
 					}
 					if (fakeDaemon) {
 						// for worst case analysis we set it so everyone always has some neighbor
-						node.setNextHop(getNeighborsByID(id)[0]);
+						node.setFinalNextHop(getNeighborsByID(id)[0]);
 					}
 					nodeInfos.set((int) node.getID()-1, node);
 				}
@@ -486,6 +486,14 @@ public class IDRPrivacyPeer extends IDRBase {
 		return null;
 	}
 
+	/**
+	 * 
+	 * @return True if we have a random number generator setup, False else
+	 */
+	protected boolean randomReady() {
+		return !(rand == null);
+	}
+
 
 	/**
 	 * Wait until the privacy peer is ready for the next PeerProtocol step. 
@@ -565,23 +573,6 @@ public class IDRPrivacyPeer extends IDRBase {
 	}
 	 */
 
-	private long[] getExportVector(IDRNodeInfo node) {
-		if (node.getNextHop() == -1) {
-			return new long[]{};
-		} else if (node.isDestination()) {
-			return node.getInitialPrefShares(); // in other words, the complete list of neighbors in share form 
-		} else {
-			// This part would be faster if we used a hash table, but is it worth it?
-			long[] neighborList = getNeighborsByID(node.getID());
-			for (int i = 0; i < neighborList.length; i++) {
-				if (neighborList[i] == node.getNextHop()) {
-					return node.getInitialExportShares()[i];
-				}
-			}
-		}
-		return new long[]{}; // should never get to here
-	}
-
 	/**
 	 * Check to see if we should bother running the steps for our node this round.
 	 * @param useISPs
@@ -625,58 +616,54 @@ public class IDRPrivacyPeer extends IDRBase {
 		rand = new Random(primitives.getResult(0)[0]);
 	}
 
-	private int[] shareSizes = null;
-	private boolean[] lookupTable = null;
-
 	private long roundTimer, timer, totalTimer, firstTimer = 0;
 	private int rounds = 0;
 
+	/*
+	 * Idea:
+	 * 	For each neighbor Y:
+	 * 		For each neighbor Z of neighbor Y:
+	 * 			Compute whether Z is Y's next hop (Step 1)
+	 * 			Multiply above by whether Y would send routes through Z to X (Step 2)
+	 * 		Now we have a 0/1 share array for Y
+	 * 		Sum this array to get A, A is 1 iff Y is sharing a route
+	 * 		Force A to 1 if Y is the destination 
+	 * 		Add Y's pathLength to X's classification for it to get B
+	 * 		For each domain Z in Y's path:
+	 * 			Check if Z=X (Step 3)
+	 * 		Sum results of above to get C, C is 1 iff Y would be a loop
+	 * 		Multiply (1-A+C) * 4M + B to get Y's score S
+	 * 	Calculate the lowest S value s.t. S < 4M (Step 4)
+	 *  Figure out which neighbors actually have this lowest S (Step 5)
+	 *  Obtain the location of the first among those neighbors (Step 6)
+	 *  Pick out the next hop / route and path length of that neighbor (Step 7)
+	 *  Collect results (Step 8)
+	 *  
+	 */
 
 	public void runStep1(boolean useISPs) {
 		roundTimer = System.currentTimeMillis();
 		timer = System.currentTimeMillis();
 
+		IDRNodeInfo node = getNodeByID(nodeID);
 		int opX = 0;
-		// get shares
-
-
-		long[] nList = getNeighborsByID(nodeID);
-		long[][] shares = new long[nList.length][];
-		//long[] pList = new long[numberOfNodes];
-
-		lookupTable = new boolean[nList.length];
-		shareSizes = new int[nList.length];
-
-		for(int j=0; j<nList.length; j++) { // for each neighbour Y of X
-			IDRNodeInfo Y = getNodeByID(nList[j]);
-
-			long[] eList = getExportVector(Y); // assuming that this contains nodeIDs
-
-			shares[j] = new long[eList.length];
-			shareSizes[j] = eList.length;
-			lookupTable[j] = false;
-
-			// search for X in eList
-			// (eventually) store result in lookupTable
-			for(int k=0; k<eList.length; k++) { // search for X [in Y's export list]
-				shares[j][k] = eList[k];
-				opX++;
-			}
+		for (long nbID : node.getNeighbors()) {
+			IDRNodeInfo neighbor = getNodeByID(nbID);
+			opX += neighbor.getNeighbors().length;
 		}
 
-		// run equality check
 		initializeNewOperationSet(opX);
 		operationIDs = new int[opX];
 		opX = 0;
-		for(int j=0; j<shares.length; j++) {
-			for(int k=0; k<shares[j].length; k++) {
+
+
+		for (long nbID : node.getNeighbors()) {
+			IDRNodeInfo neighbor = getNodeByID(nbID);
+			for (long nbnbID : neighbor.getNeighbors()) {
 				operationIDs[opX] = opX;
-				// if we get true for any k
-				// lookupTable[j] = true
-				primitives.equal( opX++, new long[]{  shares[j][k], nodeID  } );
+				primitives.equal(opX++, new long[]{neighbor.getNextHop(), nbnbID});
 			}
 		}
-
 	}
 
 	public void runStep2(boolean useISPs) {
@@ -686,109 +673,169 @@ public class IDRPrivacyPeer extends IDRBase {
 		long[] equalShares = new long[operationIDs.length];
 
 		for(int i=0; i < operationIDs.length; i++) {
-			equalShares[i] = primitives.getResult(i)[0]; // operationIDs[i] == i
+			equalShares[i] = primitives.getResult(i)[0];
 		}
 
-		initializeNewOperationSet(equalShares.length);
-		operationIDs = new int[equalShares.length];
-		long[] data = null;
-		for(int i = 0; i < equalShares.length; i++) {
-			// create reconstruction operation for result of equal operation
-			operationIDs[i] = i;
-			data = new long[1];
-			data[0] = equalShares[i];
-			if(!primitives.reconstruct(operationIDs[i], data)) {
-				logger.log(Level.SEVERE, "reconstruct operation arguments are invalid: id="+operationIDs[i]+", data="+data[0]);
-			}
-		}
-
-	}
-
-
-	public void runStep3(boolean useISPs) {
-		logger.log(Level.INFO, Services.getFilterPassingLogPrefix() + "Step 2 took " + (System.currentTimeMillis() - timer) + " ms");
-		timer = System.currentTimeMillis();
-
-		int opX = 0;
-
-		for(int j=0; j<lookupTable.length; j++) {
-			for(int k=0; k<shareSizes[j]; k++) {
-				if(primitives.getResult(opX++)[0]==1) {
-					lookupTable[j] = true; // false has already been set in 1
-				}
-			}
-		}
-
-	}
-
-
-	protected void runStep4(boolean useISPs) {
-		logger.log(Level.INFO, Services.getFilterPassingLogPrefix() + "Step 3 took " + (System.currentTimeMillis() - timer) + " ms");
-		timer = System.currentTimeMillis();
-
-		int opX = 0;
-		IDRNodeInfo node = getNodeByID(nodeID);
-
-		opX = node.getInitialPrefShares().length * getNeighborsByID(nodeID).length;
+		int opX = operationIDs.length;
 		initializeNewOperationSet(opX);
-		operationIDs = new int[opX]; // keep operationIDs length
-
+		operationIDs = new int[opX];
 		opX = 0;
 
+		IDRNodeInfo node = getNodeByID(nodeID);
 
-		for (int j = 0; j < node.getInitialPrefShares().length; j++) {
-			for (int k = 0; k < getNeighborsByID(nodeID).length; k++) {
-				// if pref[j] = neighbor[k] and neighbor[k] is exporting a route to i, this will be 1
-				// else it will be 0
+		for (long nbID : node.getNeighbors()) {
+			IDRNodeInfo neighbor = getNodeByID(nbID);
+			int i;
+			for (i = 0; i < neighbor.getNeighbors().length; i++) {
+				if (neighbor.getNeighbors()[i] == nodeID) {
+					break;
+				}
+			}
+			// now i is the location of this node in the neighbor's neighbor list
+			for (int j = 0; j < neighbor.getNeighbors().length; j++) {
 				operationIDs[opX] = opX;
-				long [] data = {node.getInitialMatchesShares()[k][j], lookupTable[k] ? 1 : 0}; // not sure this will work, test first
-				primitives.multiply(operationIDs[opX], data);
+				primitives.multiply(opX, new long[]{neighbor.getInitialExportShares()[i][j], equalShares[opX]}); 
 				opX++;
 			}
 		}
 	}
 
-	protected void runStep5(boolean useISPs) {
-		logger.log(Level.INFO, Services.getFilterPassingLogPrefix() + "Step 4 took " + (System.currentTimeMillis() - timer) + " ms");
+	long[] sharing;
+
+	public void runStep3(boolean useISPs) {
+		logger.log(Level.INFO, Services.getFilterPassingLogPrefix() + "Step 2 took " + (System.currentTimeMillis() - timer) + " ms");
 		timer = System.currentTimeMillis();
 
-		// useHop[j] will be a share of 1 if pref[j] corresponds to any neighbor which is
-		// exporting a route to this peer, or a share of 0 else.
-		// dontUseHop[j] = 1 - useHop[j]
-
-		// save results
-		long[] results = new long[operationIDs.length];
-		for (int i = 0; i < operationIDs.length; i++) {
-			results[i] = primitives.getResult(operationIDs[i])[0];
-		}
-
 		IDRNodeInfo node = getNodeByID(nodeID);
-		// need new operationIDs this time
-		int opX = node.getInitialPrefShares().length;
-		useHop = new long[node.getInitialPrefShares().length];
-		dontUseHop = new long[node.getInitialPrefShares().length];
+		sharing = new long[node.getNeighbors().length];
+		int opX = 0;
+
+		for (int i = 0; i < node.getNeighbors().length; i++) {
+			IDRNodeInfo neighbor = getNodeByID(node.getNeighbors()[i]);
+			for (int j = 0; j < neighbor.getNeighbors().length; j++) {
+				sharing[i] += primitives.getResult(opX++)[0];
+			}
+			// If i is the destination and it's our neighbor, then we just assume it has a route
+			if (neighbor.isDestination()) {
+				sharing[i] = 1;
+			}
+		}
+		// At this point, sharing[i] is a share of 1 iff neighbor i is sharing a route.
+
+		// Now we are going to check neighbor i's path to see if it has this node's id
+
+		opX = 0;
+
+		for (int i = 0; i < node.getNeighbors().length; i++) {
+			IDRNodeInfo neighbor = getNodeByID(node.getNeighbors()[i]);
+			for (int j = 0; j < neighbor.getRoute().length; j++) {
+				opX++;
+			}
+		}
 
 
 		initializeNewOperationSet(opX);
 		operationIDs = new int[opX];
-
 		opX = 0;
-		int opY = 0; // tracks old operations
 
-		for (int j = 0; j < node.getInitialPrefShares().length; j++) { 
-			for (int k = 0; k < getNeighborsByID(nodeID).length; k++) {
-				useHop[j] += results[opY];
-				opY++;
+		for (int i = 0; i < node.getNeighbors().length; i++) {
+			IDRNodeInfo neighbor = getNodeByID(node.getNeighbors()[i]);
+			for (int j = 0; j < neighbor.getRoute().length; j++) {
+				operationIDs[opX] = opX;
+				primitives.equal(opX++, new long[]{neighbor.getRoute()[j], nodeID});
 			}
-			dontUseHop[j] = 1 - useHop[j];
+		}
+	}	
+
+	long[] score;
+
+	public void runStep4(boolean useISPs) {
+		logger.log(Level.INFO, Services.getFilterPassingLogPrefix() + "Step 3 took " + (System.currentTimeMillis() - timer) + " ms");
+		timer = System.currentTimeMillis();
+
+		IDRNodeInfo node = getNodeByID(nodeID);
+		long[] loop = new long[node.getNeighbors().length];
+
+		int opX = 0;
+
+		for (int i = 0; i < node.getNeighbors().length; i++) {
+			IDRNodeInfo neighbor = getNodeByID(node.getNeighbors()[i]);
+			for (int j = 0; j < neighbor.getRoute().length; j++) {
+				loop[i] += primitives.getResult(opX++)[0];
+			}
+		}
+		//now loop[i] == 1 iff route through i would cause a loop
+
+		// S = (1-sharing[i]+loop[i]) *4M + B
+		score = new long[node.getNeighbors().length];
+		for (int i = 0; i < node.getNeighbors().length; i++) {
+			IDRNodeInfo neighbor = getNodeByID(node.getNeighbors()[i]);
+			long A = 0;
+			long B = node.getInitialClassificationShares()[i] + neighbor.getPathLength();
+			long C = 0;
+			// Want to do (1-sharing[i])*4M
+			// Since 4M is a constant, it is easier to add locally than multiply using SEPIA
+			for (int z = 0; z < 4*M; z++) {
+				A += 1 - sharing[i];
+				C += loop[i];
+			}
+			score[i] = A + B + C;
 		}
 
-		for (int j = 0; j < node.getInitialPrefShares().length; j++) {
-			long [] data = new long[2+j];
-			data[0] = node.getInitialPrefShares()[j];
-			data[1] = useHop[j];
-			for (int w = 0; w < j; w++) {
-				data[2 + w] = dontUseHop[w];
+		initializeNewOperationSet(1);
+		operationIDs = new int[]{0};
+		primitives.min(0, score, -1, true); // the -1 and true might need to be changed for optimization
+	}
+
+	public void runStep5(boolean useISPs) {
+		logger.log(Level.INFO, Services.getFilterPassingLogPrefix() + "Step 4 took " + (System.currentTimeMillis() - timer) + " ms");
+		timer = System.currentTimeMillis();
+		long min = primitives.getResult(0)[0];
+		// min is the score of the nextHop we are taking; now we want to know which neighbor it corresponds to
+
+		IDRNodeInfo node = getNodeByID(nodeID);
+		initializeNewOperationSet(node.getNeighbors().length);
+		operationIDs = new int[node.getNeighbors().length];
+		for (int opX = 0; opX < node.getNeighbors().length; opX++) {
+			operationIDs[opX] = opX;
+			primitives.equal(opX, new long[]{min, score[opX]});
+		}
+	}
+
+	public void runStep6(boolean useISPs) {
+		logger.log(Level.INFO, Services.getFilterPassingLogPrefix() + "Step 5 took " + (System.currentTimeMillis() - timer) + " ms");
+		timer = System.currentTimeMillis();
+
+		long [] winner = new long[operationIDs.length];
+		for (int i = 0; i < winner.length; i++) {
+			winner[i] = primitives.getResult(i)[0];
+		}
+
+		/*
+		 * Now winner is a list of shares of 0/1, 1 if this is the neighbor with the minimum score.
+		 * The problem is that there might be more than one 1 in this list.
+		 * So we have to eliminate duplicates.
+		 * In closing, the ID of the node we want to use as nextHop is the sum of the following
+		 * over all ids:
+		 * id[i] * winner[i] * sum[ (1-winner[0]), ..., (1-winner[i-1]) 
+		 */
+
+		IDRNodeInfo node = getNodeByID(nodeID);
+		initializeNewOperationSet(node.getNeighbors().length);
+		operationIDs = new int[node.getNeighbors().length];
+		int opX = 0;
+
+		for (int i = 0; i < node.getNeighbors().length; i++) {
+			long[] data;
+			if (i == 0)
+				data = new long[2];
+			else
+				data = new long[1+i];
+			data[0] = winner[i];
+			if (i == 0)
+				data[1] = 1; // dummy input
+			for (int w = 0; w < i; w++) {
+				data[1 + w] = 1-winner[w];
 			}
 			operationIDs[opX] = opX;
 			primitives.product(operationIDs[opX], data);
@@ -796,40 +843,61 @@ public class IDRPrivacyPeer extends IDRBase {
 		}
 	}
 
-	protected void runStep6(boolean useISPs) {
-		logger.log(Level.INFO, Services.getFilterPassingLogPrefix() + "Step 5 took " + (System.currentTimeMillis() - timer) + " ms");
-		timer = System.currentTimeMillis();
-
-		IDRNodeInfo node = getNodeByID(nodeID);
-		// save results
-		long[] results = new long[node.getInitialPrefShares().length];
-		for (int j = 0; j < node.getInitialPrefShares().length; j++) {
-			results[j] = primitives.getResult(operationIDs[j])[0];
-		}
-
-		// need new operationIDs this time
-		initializeNewOperationSet(1);
-		operationIDs = new int[1];
-		operationIDs[0] = 0;
-		// sum of results[i] is i's next hop!
-		long nextHop = 0;
-		for (int j = 0; j < node.getInitialPrefShares().length; j++) { 
-			nextHop += results[j];
-		}
-		primitives.reconstruct(operationIDs[0], new long[]{nextHop});
-
-	}
-
-
-	protected void runStep7(boolean useISPs) {
-
+	public void runStep7(boolean useISPs) {
 		logger.log(Level.INFO, Services.getFilterPassingLogPrefix() + "Step 6 took " + (System.currentTimeMillis() - timer) + " ms");
 		timer = System.currentTimeMillis();
 
-		nextHop = primitives.getResult(0)[0];
+		long [] winner = new long[operationIDs.length];
+		for (int i = 0; i < winner.length; i++) {
+			winner[i] = primitives.getResult(i)[0];
+		}
+		// now winner is 1 ONLY for the first result with the min score
+		// so now all we need to do is distribute this time all the routes and pathLengths
 
-		if (nextHop == 0)
-			nextHop = -1;
+
+
+		IDRNodeInfo node = getNodeByID(nodeID);
+
+		int opX = 0;
+		for (int i = 0; i < node.getNeighbors().length; i++) {
+			opX ++;
+			opX += getNodeByID(node.getNeighbors()[i]).getRoute().length;
+		}
+
+		initializeNewOperationSet(opX);
+		operationIDs = new int[opX];
+		opX = 0;
+
+		for (int i = 0; i < node.getNeighbors().length; i++) {
+			IDRNodeInfo neighbor = getNodeByID(node.getNeighbors()[i]);
+			operationIDs[opX] = opX;
+			primitives.product(opX++, new long[]{neighbor.getPathLength(), winner[i]});
+			for (int j = 0; j < neighbor.getRoute().length; j++) {
+				operationIDs[opX] = opX;
+				primitives.product(opX++, new long[]{neighbor.getRoute()[j], winner[i]});
+			}
+		}	
+	}
+
+	public void runStep8(boolean useISPs) {
+		logger.log(Level.INFO, Services.getFilterPassingLogPrefix() + "Step 7 took " + (System.currentTimeMillis() - timer) + " ms");
+		timer = System.currentTimeMillis();
+
+		IDRNodeInfo node = getNodeByID(nodeID);
+
+		pathLength = 0;
+		route = new long[M]; // because for any neighbor, neighbor.getRoute().length == M
+		int opX = 0;
+		for (int i = 0; i < node.getNeighbors().length; i++) {
+			pathLength += primitives.getResult(opX++)[0];
+			for (int j = 0; j < M; j++)
+				route[j] += primitives.getResult(opX++)[0];
+		}
+
+		// now pathLength and route are correctly shares of the new pathLength and route!
+		// note that these need to be updated to reflect the fact that we are the first thing on the path
+		// this happens later in node.addToRoute
+
 
 	}
 
@@ -846,7 +914,7 @@ public class IDRPrivacyPeer extends IDRBase {
 
 	public void setAllNextHops(boolean useISPs) {
 		if (goAhead(useISPs)) {
-			logger.log(Level.INFO, Services.getFilterPassingLogPrefix() + "Step 7 took " + (System.currentTimeMillis() - timer) + " ms");
+			logger.log(Level.INFO, Services.getFilterPassingLogPrefix() + "Step 8 took " + (System.currentTimeMillis() - timer) + " ms");
 			long roundTime = System.currentTimeMillis() - roundTimer;
 			if (rounds == 0)
 				firstTimer = roundTime;
@@ -856,10 +924,11 @@ public class IDRPrivacyPeer extends IDRBase {
 		}
 
 		// Important: If we're working for the destination node,
-		// we'll just set our nextHop to the destination
+		// path length and route never change
 		if (getNodeByID(nodeID).isDestination()) {
 			//System.out.println("Destination; sending " + nodeID);
-			nextHop = nodeID;
+			pathLength = getNodeByID(nodeID).getPathLength();
+			route = getNodeByID(nodeID).getRoute();
 		} else {
 			//System.out.println("Sending " + nextHop);
 		}
@@ -870,25 +939,37 @@ public class IDRPrivacyPeer extends IDRBase {
 				if (node == null)
 					continue;
 				if (node.getID() == nodeID){
-					node.setNextHop(nextHop);
+					node.setPathLength(pathLength);
+					node.setRoute(route);
+					node.addToRoute(nodeID);
 					continue;
 				}
 				if (node.isDestination()) {
 					continue;
 				}
 
-				long[] neighbors = getNeighborsByIndex(i);
-				node.setNextHop(neighbors[0]); // make up something
+				// make up something
+				node.setPathLength(2);
+				long[] newRoute = new long[M];
+				newRoute[0] = getNeighborsByIndex(i)[0];
+				node.setRoute(newRoute);
+				node.addToRoute(node.getID());
+
 
 			}
 		} else { // !fakeDaemon
 			try {
-				// Send this node's nextHop to the Daemon
-				outStream.writeLong(nextHop);
+				// Send this node's pathLength and nextHop to the Daemon
+				long[] toSend = new long[1+M];
+				toSend[0] = pathLength;
+				for (int i = 0; i < route.length; i++) {
+					toSend[i+1] = route[i];
+				}
+				outStream.writeObject(toSend);
 				outStream.flush();
 
-				// Wait for the Daemon to tell us a list of all nextHops
-				long[] results = (long[])inStream.readObject();
+				// Wait for the Daemon to tell us a list of all pathLengths and nextHops
+				long[][] results = (long[][])inStream.readObject();
 
 
 				// Note: The ids of the nodes should be 1...V
@@ -897,15 +978,21 @@ public class IDRPrivacyPeer extends IDRBase {
 					throw new IOException("Array of results from daemon is too large");
 				}
 
-                if (results.length < numberOfNodes + 1) {
-				    throw new IOException("Array of results from daemon is too small");
-                }
+				if (results.length < numberOfNodes + 1) {
+					throw new IOException("Array of results from daemon is too small");
+				}
 
 				for (int i = 1; i <= numberOfNodes; i++) {
 					IDRNodeInfo node = getNodeByID(i);
 					if (node == null)
 						continue;
-					node.setNextHop(results[i]);
+					node.setPathLength(results[i][0]);
+					long[] newRoute = new long[M];
+					for (int j = 0; j < newRoute.length; j++) {
+						newRoute[j] = results[i][j+1];
+					}
+					node.setRoute(newRoute);
+					node.addToRoute(node.getID());
 				}
 			} catch (IOException e) {
 				System.err.println("Error communicating with the daemon");
@@ -935,29 +1022,34 @@ public class IDRPrivacyPeer extends IDRBase {
 	 * starts the reconstruction of the final result
 	 */
 	public void scheduleFinalResultReconstruction() {
-		/*
-		 * Because we are reconstructing next hops during the algorithm, this can do nothing.
-		 * 
-		initializeNewOperationSet(numberOfInputPeers);
-		operationIDs = new int[numberOfInputPeers];
-		long[] data = null;
-		for(int i = 0; i < numberOfInputPeers; i++) {
+		initializeNewOperationSet(2 * numberOfNodes);
+		operationIDs = new int[2 * numberOfNodes];
+		int opX = 0;
+		for(int i = 0; i < numberOfNodes; i++) {
 			// create reconstruction operation for result of product operation
-			operationIDs[i] = i;
-			data = new long[1];
-			data[0] = getPeerInfoByIndex(i).getCurrentNextHop();
-			if(!primitives.reconstruct(operationIDs[i], data)) {
-				logger.log(Level.SEVERE, "reconstruct operation arguments are invalid: id="+operationIDs[i]+", data="+data[0]);
-			}
+			operationIDs[opX] = opX;
+			primitives.reconstruct(opX++, new long[]{getNodeByIndex(i).getPathLength()});
+			operationIDs[opX] = opX;
+			primitives.reconstruct(opX++, new long[]{getNodeByIndex(i).getFinalNextHop()});
 		}
-		 */
-		
+	}
+
+	public void finishFinalResultReconstruction() {
+		int opX = 0;
+		for (int i = 0; i < numberOfNodes; i++) {
+			IDRNodeInfo node = getNodeByIndex(i);
+			node.setPathLength(primitives.getResult(opX++)[0]);
+			node.setFinalNextHop(primitives.getResult(opX++)[0]);
+		}
+	}
+
+	public void reportTimings() {
 		logger.log(Level.INFO, Services.getFilterPassingLogPrefix()+"Total time for " + rounds + " round" + (rounds == 1 ? ": " : "s: ") + totalTimer + " ms");
 		logger.log(Level.INFO, Services.getFilterPassingLogPrefix()+"Average round time (all rounds): "
 				+ ((double)totalTimer / rounds) + " ms");
 		logger.log(Level.INFO, Services.getFilterPassingLogPrefix()+"Average round time (excluding first): "
 				+ ((double)(totalTimer - firstTimer) / (rounds-1)) + " ms");
-		
+
 		logger.log(Level.INFO, "thread " + Thread.currentThread().getId() + " started the final result reconstruction; (" + operationIDs.length + " reconstruction operations are in progress)");
 	}
 
@@ -975,17 +1067,18 @@ public class IDRPrivacyPeer extends IDRBase {
 	 * @param peerID
 	 * @return
 	 */
-	public long[] getFinalResult(int peerID) {
+	public long[][] getFinalResult(int peerID) {
 		IDRPeerInfo peer = getPeerInfoByIndex(peerID);
-		long[] results = new long[peer.getNodeInfos().length];
+		long[][] results = new long[peer.getNodeInfos().length][2];
 		int n = 0;
 		for (int i = 0; i < numberOfNodes && n < results.length; i++) {
-			IDRNodeInfo node = getNodeByIndex(i);
+			IDRNodeInfo node = peer.getNodeInfos()[i];
 			if (node == null)
 				continue;
 			if (!node.getPeerID().equals(peer.getID()))
 				continue;
-			results[n] = node.getNextHop();
+			results[n][0] = node.getPathLength();
+			results[n][1] = node.getFinalNextHop();
 			n++;
 		}
 		return results;

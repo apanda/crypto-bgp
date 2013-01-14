@@ -27,7 +27,7 @@ public class IDRPeerInfo {
 	private int index;
 
 	private IDRNodeInfo[] nodeInfos;
-	
+
 	/** contains the initial shares */
 	private boolean isInitialSharesReceived = false;
 
@@ -70,10 +70,10 @@ public class IDRPeerInfo {
 	public void setNodeInfos(IDRNodeInfo[] nodeInfos) {
 		this.nodeInfos = nodeInfos;
 	}
-	
+
 	public IDRNodeInfo[] getNodeInfos() {
 		return nodeInfos;
 	}
-	
-	
+
+
 }
