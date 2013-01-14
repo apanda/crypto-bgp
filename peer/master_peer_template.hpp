@@ -91,6 +91,8 @@ void MasterPeer::publish(Session* session, vector<vertex_t>& nodes, size_t id) {
     vertex_count_ += nodes.size();
     all_sessions_.push_back(session);
 
+    nodes.size();
+    LOG4CXX_INFO(logger_, "Vertex count: " << nodes.size());
     LOG4CXX_INFO(logger_, "Vertex count: " << vertex_count_);
 
     if (vertex_count_ == graph_size_) {
