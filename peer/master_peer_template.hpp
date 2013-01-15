@@ -37,6 +37,7 @@ void MasterPeer::publish(Session* session, sync_init si) {
   boost::mutex::scoped_lock lock(mutex_);
 
   node_set_.insert( si.nodes_.begin(), si.nodes_.end() );
+  LOG4CXX_INFO(logger_, "Received " << si.nodes_.size() << " nodes.");
 
   auto& m = sync_response_.hostname_mappings_[si.id_];
 
@@ -47,7 +48,6 @@ void MasterPeer::publish(Session* session, sync_init si) {
   vertex_count_ += si.nodes_.size();
   all_sessions_.push_back(session);
 
-  LOG4CXX_INFO(logger_, "Vertex count: " << si.nodes_.size());
   LOG4CXX_INFO(logger_, "Vertex count: " << vertex_count_);
 
   if (vertex_count_ == graph_size_) {
@@ -56,7 +56,6 @@ void MasterPeer::publish(Session* session, sync_init si) {
     started_ = true;
 
     for(auto s: master_server_->sessions_) {
-      nodes_ = vector<vertex_t>(node_set_.begin(), node_set_.end());
       s->sync_response(sync_response_);
     }
 
@@ -64,6 +63,7 @@ void MasterPeer::publish(Session* session, sync_init si) {
   }
 
 }
+
 
 
 void MasterPeer::publish(Session* session, vector<vertex_t>& nodes, size_t id) {
@@ -80,10 +80,12 @@ void MasterPeer::publish(Session* session, vector<vertex_t>& nodes, size_t id) {
     if (peers_synchronized_ == all_sessions_.size()) {
       peers_synchronized_ = 0;
 
-      for(auto s: master_server_->sessions_) {
-        LOG4CXX_INFO(logger_, "Raising the barrier.");
-        nodes_ = vector<vertex_t>(node_set_.begin(), node_set_.end());
-        s->notify(nodes_);
+      LOG4CXX_INFO(logger_, "Raising the barrier.");
+      nodes_ = vector<vertex_t>(node_set_.begin(), node_set_.end());
+      pair<char*, size_t> data = Session::contruct_notification(nodes_);
+
+      for(Session* s: master_server_->sessions_) {
+        s->write_impl(data.first, data.second, s->socket_);
       }
 
       node_set_.clear();
@@ -99,17 +101,17 @@ void MasterPeer::publish(Session* session, vector<vertex_t>& nodes, size_t id) {
       LOG4CXX_INFO(logger_, "Total number of peers participating: " << all_sessions_.size());
       started_ = true;
 
-      for(auto s: master_server_->sessions_) {
-        nodes_ = vector<vertex_t>(node_set_.begin(), node_set_.end());
-        s->notify(nodes_);
+      nodes_ = vector<vertex_t>(node_set_.begin(), node_set_.end());
+      pair<char*, size_t> data = Session::contruct_notification(nodes_);
+
+      for(Session* s: master_server_->sessions_) {
+        s->write_impl(data.first, data.second, s->socket_);
       }
 
       node_set_.clear();
     }
 
   }
-
-
 }
 
 

@@ -195,7 +195,7 @@ void Session::sync_response(struct sync_response& sr){
 
   uint32_t& command = *((uint32_t*) data);
   uint32_t& size    = *((uint32_t*) (data + sizeof(uint32_t)));
-  char* array                      = data + sizeof(uint32_t)*3;
+  char* array       =                data + sizeof(uint32_t)*3;
 
   size = real_length;
   memcpy(array, archive_stream.str().c_str(), archive_stream.str().size());
@@ -203,6 +203,30 @@ void Session::sync_response(struct sync_response& sr){
   command = CMD_TYPE::INIT;
 
   write_impl(data, length, socket_);
+}
+
+
+pair<char*, size_t> Session::contruct_notification(vector<vertex_t>& nodes) {
+
+  size_t real_length = sizeof(uint32_t) + sizeof(uint32_t) + nodes.size() * sizeof(uint16_t);
+  size_t length = real_length;
+
+  if (length < length_) length = length_;
+
+  char* data = new char[length];
+
+  uint32_t& command =  *((uint32_t*) data);
+  uint32_t& size =  *((uint32_t*) (data + sizeof(uint32_t)));
+  uint16_t* array = (uint16_t*) (data + sizeof(uint32_t)*2);
+
+  command = CMD_TYPE::SYNC;
+  size = real_length;
+
+  for(size_t i = 0; i < nodes.size(); i++) {
+    array[i] = nodes[i];
+  }
+
+  return std::make_pair(data, length);
 }
 
 
@@ -228,8 +252,8 @@ void Session::notify(vector<vertex_t>& nodes) {
   }
 
   write_impl(data, length, socket_);
-
 }
+
 
 
 void Session::write_impl(char* data, size_t length, tcp::socket& socket) {
@@ -238,9 +262,7 @@ void Session::write_impl(char* data, size_t length, tcp::socket& socket) {
       boost::asio::buffer(data, length),
       boost::bind(&Session::handle_write, this, data,
           boost::asio::placeholders::error,
-          boost::asio::placeholders::bytes_transferred)
-  );
-
+          boost::asio::placeholders::bytes_transferred));
 }
 
 

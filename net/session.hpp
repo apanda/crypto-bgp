@@ -56,6 +56,7 @@ public:
 
   void sync_response(struct sync_response& sr);
   void notify(vector<vertex_t>& nodes);
+  static pair<char*, size_t> contruct_notification(vector<vertex_t>& nodes);
 
   tcp::socket& socket();
 

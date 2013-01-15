@@ -40,10 +40,14 @@ void run_master() {
   MasterPeer mp(graph.m_vertices.size(), io);
 
   boost::thread_group worker_threads;
+  for (size_t i = 0; i < THREAD_COUNT - 1; i++) {
+    worker_threads.add_thread( new boost::thread(bind(&io_service::run, &io)) );
+  }
 
-  worker_threads.add_thread( new boost::thread(bind(&io_service::run, &io)) );
-  worker_threads.join_all();
+  io.run();
 }
+
+
 
 std::chrono::high_resolution_clock::time_point t1;
 
@@ -141,8 +145,6 @@ void run_mpc() {
   }
 
   t1 = clock_t::now();
-
-
   io.run();
 }
 
@@ -171,11 +173,6 @@ int main(int argc, char *argv[]) {
   po::notify(vm);
 
   log4cxx::PropertyConfigurator::configure("apache.conf");
-
-  if (vm.count("master")) {
-    run_master();
-    return 0;
-  }
 
   if (vm.count("help")) {
     std::cout << desc << std::endl;;
@@ -212,6 +209,12 @@ int main(int argc, char *argv[]) {
 
   if (vm.count("whoami")) {
     WHOAMI = vm["whoami"].as<string>();
+  }
+
+
+  if (vm.count("master")) {
+    run_master();
+    return 0;
   }
 
   try {
