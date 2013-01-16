@@ -36,7 +36,7 @@ conn = EC2Connection(
 
 AMI = 'ami-818a02e8'
 INSTANCES_FILE = "instances.dat"
-INSTANCES_TYPE = 'm1.xlarge'
+INSTANCES_TYPE = 'm3.xlarge'
 SECURITY_GROUPS = ['vjeko']
 
 def loadInstances(connection):
@@ -172,10 +172,12 @@ def execCommand(instances, command, async = False):
 
 
 
-def execCommandRange(instances, command, startid, endid, async = False):
+def execCommandRange(instances, command, startid, endid,
+  async = False, out = False):
     hosts = []        
     for i,instance in enumerate(instances):
       if(i >= startid and i <= endid):
+          print instance
           hosts.append(Host(instance.public_dns_name))
 
     remote = Remote(command, hosts)
@@ -189,6 +191,9 @@ def execCommandRange(instances, command, startid, endid, async = False):
     else:
         print 'Errors occurred.'
     
+    for process in  remote.processes():
+      print process.stdout()
+
     return remote
 
 
@@ -206,11 +211,12 @@ def delegate(instances, graphSize, master):
   count = len(instances)
   assert (count % 3 == 0)
   partitionSize = count / 3
+  print graphSize, count, partitionSize
   assert(graphSize % partitionSize == 0)
   partitionVertexSize = graphSize / partitionSize
 
   MASTER = master
-  THREADS = 3
+  THREADS = 4
   TASKS = 60
   WHOAMI = '`/sbin/ifconfig eth0 | grep \'inet addr:\' | cut -d: -f2 | \
   awk \'{ print $1}\' `'
