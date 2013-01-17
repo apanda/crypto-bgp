@@ -36,7 +36,7 @@ conn = EC2Connection(
 
 AMI = 'ami-818a02e8'
 INSTANCES_FILE = "instances.dat"
-INSTANCES_TYPE = 'm3.xlarge'
+INSTANCES_TYPE = 'm3.2xlarge'
 SECURITY_GROUPS = ['vjeko']
 
 def loadInstances(connection):
@@ -216,8 +216,8 @@ def delegate(instances, graphSize, master):
   partitionVertexSize = graphSize / partitionSize
 
   MASTER = master
-  THREADS = 4
-  TASKS = 60
+  THREADS = 8
+  TASKS = 2000
   WHOAMI = '`/sbin/ifconfig eth0 | grep \'inet addr:\' | cut -d: -f2 | \
   awk \'{ print $1}\' `'
   

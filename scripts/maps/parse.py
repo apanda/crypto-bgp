@@ -1,5 +1,14 @@
 #!/usr/bin/python
 
+from collections import deque
+
+GRAPH_SIZE = 5976
+BUCKET_SIZE = 2
+
+buckets = deque()
+for i in range(BUCKET_SIZE):
+  buckets.append( [] )
+
 def main():
   inspect()
 
@@ -9,44 +18,67 @@ def inspect():
   edges = parse()
 
   nodeMapping = {}
-  degree = {}
-  for edge in edges:
-    vertex = edge[0]
+  degrees = {}
+  for (src, dst, rel) in edges:
+    vertex = src
 
-    if vertex not in degree: degree[vertex] = 0
-    degree[vertex] = degree[vertex] + 1
+    if vertex not in degrees: degrees[vertex] = 0
+    degrees[vertex] = degrees[vertex] + 1
+
+
 
   degreeRanking = []
-  for (key, value) in degree.items():
-    degreeRanking.append( (value, key) )
+  for (vertex, degree) in degrees.items():
+    degreeRanking.append( (degree, vertex) )
 
-  degreeRanking.sort(key = lambda x: x[0], reverse = True)
+  degreeRanking.sort(key = lambda (degree, vertex): degree, reverse = True)
 
   counter = 0
-  for ranking in degreeRanking:
-    vertex = ranking[1]
+  for (ranking, vertex) in degreeRanking:
+
+    if counter > (GRAPH_SIZE):
+      assert ranking == 1
+      continue
+
+    bucket = buckets.popleft()
+    bucket.append(vertex)
+    buckets.append(bucket)
+
+    counter = counter + 1
+
+
+  bucketList = []
+  for bucket in buckets:
+    bucketList = bucketList + bucket
+
+  counter = 0
+  for vertex in bucketList:
+
+    if counter > (GRAPH_SIZE):
+      break
+
     nodeMapping[vertex] = counter
     counter = counter + 1
 
+
+
   print 'graph G {'
-  for i in range(counter):
+  for i in range( GRAPH_SIZE ):
     nodeID = '[node_id=%d]' %(i)
     line = '%d %s;' %(i, nodeID)
     print line
 
   uniqueEdges = set()
-  for edge in edges:
-    src = edge[0]
-    dst = edge[1]
-    src = nodeMapping[src]
-    dst = nodeMapping[dst]
+  for (src, dst, rel) in edges:
+    try:
+      src = nodeMapping[src]
+      dst = nodeMapping[dst]
+    except: continue
     pair = [src, dst]
     pair.sort()
     uniqueEdges.add( tuple(pair) )
 
-  for edge in uniqueEdges:
-    src = edge[0]
-    dst = edge[1]
+  for (src, dst) in uniqueEdges:
     line = '%s -- %s;' %(src, dst)
     print line
 
