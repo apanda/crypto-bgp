@@ -219,6 +219,9 @@ void InputPeer::disseminate_bgp(CompPeerSeq& comp_peers, graph_t& input_graph) {
     const auto& current_vertex = *current;
     Vertex& vertex = input_graph[current_vertex];
 
+    if (current_vertex < VERTEX_START) continue;
+    if (current_vertex > VERTEX_END) continue;
+
     for(const auto pair: vertex.preference_) {
       const auto key = pair.first;
       const auto value = pair.second;
@@ -227,6 +230,9 @@ void InputPeer::disseminate_bgp(CompPeerSeq& comp_peers, graph_t& input_graph) {
       auto shares = secret.share();
 
       for(size_t i = 0; i < COMP_PEER_NUM; i++) {
+
+        const size_t ID = i + 1;
+        if (COMP_PEER_IDS.find(ID) == COMP_PEER_IDS.end()) continue;
 
         string mpc_key;
         int64_t mpc_value;

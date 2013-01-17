@@ -95,6 +95,8 @@ void run_mpc() {
   shared_ptr<RPCClient> master( new RPCClient(io, MASTER_ADDRESS, MASTER_PORT) );
   bgp.master_ = master;
 
+  LOG4CXX_INFO(mainLogger, "Disseminating BGP information...");
+
   input_peer->disseminate_bgp(comp_peer_seq, input_graph);
 
   sync_init init;
