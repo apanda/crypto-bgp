@@ -99,6 +99,8 @@ void run_mpc() {
 
   input_peer->disseminate_bgp(comp_peer_seq, input_graph);
 
+  LOG4CXX_INFO(mainLogger, "Starting listeners...");
+
   sync_init init;
   init.nodes_ = input_peer->start_listeners(comp_peer_seq, input_graph);
   init.hostname_ = WHOAMI;
