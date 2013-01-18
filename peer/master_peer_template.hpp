@@ -75,7 +75,9 @@ void MasterPeer::publish(Session* session, vector<vertex_t>& nodes, size_t id) {
   if (started_) {
 
     peers_synchronized_ += 1;
-    LOG4CXX_INFO(logger_, "Number of synchronized peers: " << peers_synchronized_);
+    const string address = session->socket_.remote_endpoint().address().to_string();
+    LOG4CXX_INFO(logger_, "Number of synchronized peers: " << peers_synchronized_
+        << " (" << address << ")");
 
     if (peers_synchronized_ == all_sessions_.size()) {
       peers_synchronized_ = 0;
