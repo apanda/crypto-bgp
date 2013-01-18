@@ -222,7 +222,7 @@ void BGPProcess::process_neighbors_mpc(
     shared_ptr< pair<size_t, size_t> > suncounter_ptr(new pair<size_t, size_t>);
     suncounter_ptr->second = (intersection.size() + (MAX_BATCH - 1)) / MAX_BATCH;
 
-    LOG4CXX_DEBUG(comp_peer_->logger_, "intersection.size() " << intersection.size()
+    LOG4CXX_INFO(comp_peer_->logger_, "intersection.size() " << intersection.size()
         << " suncounter_ptr->second " << suncounter_ptr->second);
 
     size_t offset = 0;
@@ -250,7 +250,7 @@ void BGPProcess::compute_partial0(
     shared_ptr< vector<vertex_t> > n_ptr,
     pair<vector<vertex_t>::iterator, vector<vertex_t>::iterator> iters) {
 
-  LOG4CXX_DEBUG(comp_peer_->logger_, "compute_partial0");
+  LOG4CXX_INFO(comp_peer_->logger_, "compute_partial0");
 
 
   vector<vertex_t>& n = *n_ptr;
