@@ -47,6 +47,7 @@ def inspect():
     counter = counter + 1
 
 
+  reverseMapping = {}
   bucketList = []
   for bucket in buckets:
     bucketList = bucketList + bucket
@@ -57,10 +58,18 @@ def inspect():
     if counter > (GRAPH_SIZE):
       break
 
+    if counter == 2210: print vertex
+    reverseMapping[counter] = vertex
     nodeMapping[vertex] = counter
     counter = counter + 1
 
-
+  '''
+  lines = parse('sorted')
+  for tokens in lines:
+    vertex = int( tokens[4][:-1] )
+    count = int( tokens[5] )
+    print reverseMapping[vertex], count
+  '''
 
   print 'graph G {'
   for i in range( GRAPH_SIZE ):
@@ -84,13 +93,14 @@ def inspect():
 
   print '}'
 
+
+
 def dot():
   edges = parse()
   print 'graph G {'
   for edge in edges:
     print edge[0], '--', edge[1], ';'
   print '}'
-
 
 
 def parse(filename = 'map.20120101_nonStub'):
