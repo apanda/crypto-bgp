@@ -213,7 +213,7 @@ void BGPProcess::process_neighbors_mpc(
       std::insert_iterator< std::vector<vertex_t> >( intersection, intersection.begin() ) );
 
   LOG4CXX_INFO(comp_peer_->logger_, "Intersection size for vertex "
-      << affected.id_ << ": " << intersection.size());
+      << affected.id_ << ": " << intersection.size() << ": " << neighs.size());
 
   for0(affected_vertex, new_changed_set_ptr, counts_ptr, intersection_ptr);
 
