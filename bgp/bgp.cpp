@@ -212,11 +212,111 @@ void BGPProcess::process_neighbors_mpc(
   std::set_intersection( neighs.begin(), neighs.end(), ch.begin(), ch.end(),
       std::insert_iterator< std::vector<vertex_t> >( intersection, intersection.begin() ) );
 
-  LOG4CXX_INFO(comp_peer_->logger_, "Intersection size for vertex "
-      << affected.id_ << ": " << intersection.size() << ": " << neighs.size());
+  //LOG4CXX_INFO(comp_peer_->logger_, "Intersection size for vertex "
+  //    << affected.id_ << ": " << intersection.size() << ": " << neighs.size());
 
-  for0(affected_vertex, new_changed_set_ptr, counts_ptr, intersection_ptr);
+  if (intersection.size() < 200) {
+    for0(affected_vertex, new_changed_set_ptr, counts_ptr, intersection_ptr);
+  } else {
 
+    shared_ptr< pair<size_t, size_t> > suncounter_ptr(new pair<size_t, size_t>);
+    suncounter_ptr->second = (intersection.size() + (MAX_BATCH - 1)) / MAX_BATCH;
+
+    size_t offset = 0;
+    while (offset < intersection.size()) {
+      vector<vertex_t>::iterator start = intersection.begin() + offset;
+      vector<vertex_t>::iterator end = intersection.begin() + offset + MAX_BATCH;
+      offset += MAX_BATCH;
+
+      auto pair = std::make_pair(start, end);
+      compute_partial0(
+          affected_vertex, new_changed_set_ptr,
+          counts_ptr, suncounter_ptr, intersection_ptr, pair);
+    }
+  }
+
+}
+
+
+
+void BGPProcess::compute_partial0(
+    const vertex_t affected_vertex,
+    shared_ptr< tbb::concurrent_unordered_set<vertex_t> > new_changed_set_ptr,
+    shared_ptr< pair<size_t, size_t> > counts_ptr,
+    shared_ptr< pair<size_t, size_t> > subcounter_ptr,
+    shared_ptr< vector<vertex_t> > n_ptr,
+    pair<vector<vertex_t>::iterator, vector<vertex_t>::iterator> iters) {
+
+  vector<vertex_t>& n = *n_ptr;
+  size_t& count = counts_ptr->first;
+  size_t& batch_count = counts_ptr->second;
+
+  const bool is_end =  (iters.first == iters.second) || (iters.first == n_ptr->end());
+
+  if (is_end) {
+    m_.lock();
+    subcounter_ptr->first++;
+
+    if (subcounter_ptr->first == subcounter_ptr->second) {
+        count++;
+      if (batch_count == count) {
+        m_.unlock();
+        continuation_();
+        return;
+      }
+    }
+
+    m_.unlock();
+    return;
+  }
+
+  Vertex& affected = graph_[affected_vertex];
+  const vertex_t neigh_vertex = *(iters.first);
+  iters.first++;
+
+  const string key1 = lexical_cast<string>(affected.next_hop_);
+  const string key2 = lexical_cast<string>(neigh_vertex);
+
+  string w = ".2" + key1;
+  string x = ".2" + key2;
+  string y = ".2" + key1 + "-" + key2;
+
+  string xy = y + "*" + x;
+  string wx = x + "*" + w;
+  string wy = y + "*" + w;
+
+  string wxy2 = xy + "*" + "2" + "*" + w;
+  string result = wx + "+" + wy + "-" + wxy2 + "-" + y + "-" + x + "+" + xy;
+
+  affected.sig_bgp_next[result] =
+      shared_ptr<boost::function<void()> >(new boost::function<void()>);
+
+  auto next = boost::bind(&BGPProcess::compute_partial0, this,
+        affected_vertex,
+        new_changed_set_ptr,
+        counts_ptr,
+        subcounter_ptr,
+        n_ptr,
+        iters
+      );
+
+  *(affected.sig_bgp_next[result]) = next;
+
+  LOG4CXX_DEBUG(comp_peer_->logger_, "Vertex -> "
+      << affected_vertex << ", " << neigh_vertex );
+
+  affected.sig_bgp_cnt[result] = shared_ptr<boost::function<void(int)> >(new boost::function<void(int)>);
+
+  *(affected.sig_bgp_cnt[result]) = boost::bind(&BGPProcess::for1, this,
+              affected_vertex,
+              neigh_vertex,
+              new_changed_set_ptr,
+              _1);
+
+  comp_peer_->compare0(
+      lexical_cast<string>(affected.next_hop_),
+      lexical_cast<string>(neigh_vertex),
+      affected_vertex);
 }
 
 
@@ -288,9 +388,66 @@ void BGPProcess::for0(
       lexical_cast<string>(affected.next_hop_),
       lexical_cast<string>(neigh_vertex),
       affected_vertex);
+}
 
-  return;
 
+
+void BGPProcess::compute_partial1(
+    vertex_t affected_vertex,
+    vertex_t neigh_vertex,
+    shared_ptr< tbb::concurrent_unordered_set<vertex_t> > new_changed_set_ptr,
+    int cmp) {
+
+  tbb::concurrent_unordered_set<vertex_t>& new_changed_set = *new_changed_set_ptr;
+  Vertex& affected = graph_[affected_vertex];
+
+  const string key1 = lexical_cast<string>(affected.next_hop_);
+  const string key2 = lexical_cast<string>(neigh_vertex);
+
+  string w = ".2" + key1;
+  string x = ".2" + key2;
+  string y = ".2" + key1 + "-" + key2;
+
+  string xy = y + "*" + x;
+  string wx = x + "*" + w;
+  string wy = y + "*" + w;
+
+  string wxy2 = xy + "*" + "2" + "*" + w;
+  string result = wx + "+" + wy + "-" + wxy2 + "-" + y + "-" + x + "+" + xy;
+
+  const auto current_preference = affected.current_next_hop_preference(graph_);
+
+  auto offer_it = affected.preference_.find(neigh_vertex);
+  BOOST_ASSERT(offer_it != affected.preference_.end());
+  const auto offered_preference = offer_it->second;
+
+  LOG4CXX_DEBUG(comp_peer_->logger_, "Compare -> "
+      << current_preference << ", " << offered_preference );
+
+
+
+  const bool condition = offered_preference <= current_preference;
+
+  if (cmp != condition) {
+
+    LOG4CXX_FATAL(comp_peer_->logger_, "==================================================");
+    LOG4CXX_FATAL(comp_peer_->logger_,
+        "(Is, Should): " <<
+        "(" << cmp << ", " << condition << ") -- " <<
+        "(" << affected_vertex << ", " << neigh_vertex << ")");
+    LOG4CXX_FATAL(comp_peer_->logger_, "==================================================");
+
+  }
+
+  if ( offered_preference <= current_preference ) {
+    affected.sig_bgp_next[result]->operator()();
+    return;
+  }
+
+  affected.set_next_hop(graph_, neigh_vertex);
+  new_changed_set.insert(affected_vertex);
+
+  affected.sig_bgp_next[result]->operator ()();
 }
 
 
@@ -347,14 +504,6 @@ void BGPProcess::for1(
     return;
   }
 
-#if 0
-  if ( neigh.in_as_path(graph_, affected_vertex) ) {
-    LOG4CXX_DEBUG(comp_peer_->logger_, "In AS PATH!")
-    affected.sig_bgp_next[result]->operator()();
-    return;
-  }
-#endif
-
   affected.set_next_hop(graph_, neigh_vertex);
   new_changed_set.insert(affected_vertex);
 
@@ -371,7 +520,7 @@ void BGPProcess::load_graph(string path, graph_t& graph) {
   dp.property("node_id", get(&Vertex::id_, graph));
   dp.property("key", get(&Edge::key_, graph));
 
-  read_graphviz(file ,graph, dp,"node_id");
+  read_graphviz(file ,graph, dp, "node_id");
 }
 
 

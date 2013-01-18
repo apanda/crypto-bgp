@@ -52,17 +52,31 @@ public:
       shared_ptr< tbb::concurrent_unordered_set<vertex_t> > new_changed_set_ptr,
       shared_ptr< pair<size_t, size_t> > counts_ptr);
 
-  void for1(
-      vertex_t affected_vertex,
-      vertex_t neigh_vertex,
+  void compute_partial0(
+      const vertex_t affected_vertex,
       shared_ptr< tbb::concurrent_unordered_set<vertex_t> > new_changed_set_ptr,
-      int cmp);
+      shared_ptr< pair<size_t, size_t> > counts_ptr,
+      shared_ptr< pair<size_t, size_t> > subcounter_ptr,
+      shared_ptr< vector<vertex_t> > n,
+      pair<vector<vertex_t>::iterator, vector<vertex_t>::iterator> iters);
 
   void for0(
       const vertex_t affected_vertex,
       shared_ptr< tbb::concurrent_unordered_set<vertex_t> > new_changed_set_ptr,
       shared_ptr< pair<size_t, size_t> > counts_ptr,
       shared_ptr< vector<vertex_t> > n);
+
+  void compute_partial1(
+      vertex_t affected_vertex,
+      vertex_t neigh_vertex,
+      shared_ptr< tbb::concurrent_unordered_set<vertex_t> > new_changed_set_ptr,
+      int cmp);
+
+  void for1(
+      vertex_t affected_vertex,
+      vertex_t neigh_vertex,
+      shared_ptr< tbb::concurrent_unordered_set<vertex_t> > new_changed_set_ptr,
+      int cmp);
 
   void next_iteration_start(
       vertex_t dst,

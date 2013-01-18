@@ -32,6 +32,8 @@ extern size_t TASK_COUNT;
 extern size_t VERTEX_START;
 extern size_t VERTEX_END;
 
+extern size_t MAX_BATCH;
+
 using std::string;
 using std::vector;
 using std::set;

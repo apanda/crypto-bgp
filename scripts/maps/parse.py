@@ -33,6 +33,9 @@ def inspect():
 
   degreeRanking.sort(key = lambda (degree, vertex): degree, reverse = True)
 
+  for degree in degreeRanking:
+    print degree
+
   counter = 0
   for (ranking, vertex) in degreeRanking:
 
