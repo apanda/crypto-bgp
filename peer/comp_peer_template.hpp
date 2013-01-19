@@ -221,9 +221,6 @@ void CompPeer<Num>::compare0(string key1, string key2, vertex_t l) {
 template<const size_t Num>
 void CompPeer<Num>::compare1(string key1, string key2, vertex_t l) {
 
-  LOG4CXX_INFO( logger_,  id_ << "compare1");
-
-
   Vertex& vertex = bgp_->graph_[l];
   value_map_t& vlm = vertex.value_map_;
 
@@ -259,8 +256,6 @@ void CompPeer<Num>::compare1(string key1, string key2, vertex_t l) {
 
 template<const size_t Num>
 void CompPeer<Num>::compare2(string key1, string key2, vertex_t l) {
-
-  LOG4CXX_INFO( logger_,  id_ << "compare2");
 
   Vertex& vertex = bgp_->graph_[l];
   value_map_t& vlm = vertex.value_map_;
@@ -299,8 +294,6 @@ void CompPeer<Num>::compare2(string key1, string key2, vertex_t l) {
 template<const size_t Num>
 void CompPeer<Num>::compare3(string key1, string key2, vertex_t l) {
 
-  LOG4CXX_INFO( logger_,  id_ << "compare3");
-
   Vertex& vertex = bgp_->graph_[l];
   value_map_t& vlm = vertex.value_map_;
 
@@ -337,8 +330,6 @@ void CompPeer<Num>::compare3(string key1, string key2, vertex_t l) {
 
 template<const size_t Num>
 void CompPeer<Num>::compare4(string key1, string key2, vertex_t l) {
-
-  LOG4CXX_INFO( logger_,  id_ << "compare4");
 
   Vertex& vertex = bgp_->graph_[l];
   value_map_t& vlm = vertex.value_map_;
@@ -393,8 +384,6 @@ void CompPeer<Num>::compare4(string key1, string key2, vertex_t l) {
 
 template<const size_t Num>
 void CompPeer<Num>::compare5(string key1, string key2, vertex_t l) {
-
-  LOG4CXX_INFO( logger_,  id_ << "compare5");
 
   Vertex& vertex = bgp_->graph_[l];
   value_map_t& vlm = vertex.value_map_;
@@ -477,8 +466,6 @@ void CompPeer<Num>::multiply(
 template<const size_t Num>
 void CompPeer<Num>::recombine(string recombination_key, vertex_t l) {
 
-  LOG4CXX_INFO( logger_, "CompPeer<Num>::recombine -> " << l);
-
   Vertex& vertex = bgp_->graph_[l];
   value_map_t& vlm = vertex.value_map_;
 
@@ -489,7 +476,6 @@ void CompPeer<Num>::recombine(string recombination_key, vertex_t l) {
     const string key = recombination_key + "_" + lexical_cast<string>(i + 1);
 
     try {
-
       //vlm.at(key);
     } catch (...) {
       LOG4CXX_FATAL(logger_, "CompPeer<Num>::recombine( " << key << " )");

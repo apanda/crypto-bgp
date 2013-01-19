@@ -39,6 +39,7 @@ using std::vector;
 using std::set;
 using std::map;
 using std::pair;
+using std::deque;
 
 using boost::array;
 

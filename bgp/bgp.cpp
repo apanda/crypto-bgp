@@ -230,27 +230,31 @@ void BGPProcess::process_neighbors_mpc(
   } else {
 
     shared_ptr< pair<size_t, size_t> > suncounter_ptr(new pair<size_t, size_t>);
-    //suncounter_ptr->second = (intersection.size() + (MAX_BATCH - 1)) / MAX_BATCH;
+
 
     suncounter_ptr->second = intersection.size() / MAX_BATCH;
-    //suncounter_ptr->second = 1;
+    deque< typename vector<vertex_t>::iterator > range_stack;
 
     LOG4CXX_INFO(comp_peer_->logger_, "intersection.size() " << intersection.size()
         << " suncounter_ptr->second " << suncounter_ptr->second);
 
+    for(size_t index = 0; index <= suncounter_ptr->second; index++) {
+      const size_t offset = MAX_BATCH * index;
+      range_stack.push_back( intersection.begin() + offset );
+    }
+    range_stack.push_back( intersection.end() );
 
-    size_t offset = 0;
-    for(size_t i = 0; i < suncounter_ptr->second; i++) {
 
-      vector<vertex_t>::iterator start = intersection.begin() + offset;
-      offset += MAX_BATCH;
-      vector<vertex_t>::iterator end = intersection.begin() + offset;
+    while(range_stack.size() > 1) {
+
+      auto start = range_stack.front();
+      range_stack.pop_front();
+      auto end = range_stack.front();
       auto pair = std::make_pair(start, end);
 
       compute_partial0(
           affected_vertex, new_changed_set_ptr,
           counts_ptr, suncounter_ptr, intersection_ptr, pair);
-
     }
 
   }
@@ -267,9 +271,6 @@ void BGPProcess::compute_partial0(
     shared_ptr< vector<vertex_t> > n_ptr,
     pair<vector<vertex_t>::iterator, vector<vertex_t>::iterator> iters) {
 
-  LOG4CXX_INFO(comp_peer_->logger_, "compute_partial0");
-
-
   vector<vertex_t>& n = *n_ptr;
   size_t& count = counts_ptr->first;
   size_t& batch_count = counts_ptr->second;
@@ -277,18 +278,15 @@ void BGPProcess::compute_partial0(
   const bool is_end =  (iters.first == iters.second) || (iters.first == n_ptr->end());
 
   if (is_end) {
-    LOG4CXX_INFO(comp_peer_->logger_, "is_end");
     m_.lock();
     subcounter_ptr->first++;
 
     if (subcounter_ptr->first == subcounter_ptr->second) {
       n.clear();
-      LOG4CXX_INFO(comp_peer_->logger_, "subcounter_ptr->first == subcounter_ptr->second");
       count++;
 
 
       if (batch_count == count) {
-        LOG4CXX_INFO(comp_peer_->logger_, "batch_count == count");
         m_.unlock();
 
         continuation_();
@@ -304,10 +302,7 @@ void BGPProcess::compute_partial0(
 
   Vertex& affected = graph_[affected_vertex];
   const vertex_t neigh_vertex = *(iters.first);
-  LOG4CXX_INFO(comp_peer_->logger_, "sneigh_vertex " << neigh_vertex);
-
   iters.first++;
-  LOG4CXX_INFO(comp_peer_->logger_, "increment");
 
   const string key1 = lexical_cast<string>(affected.next_hop_);
   const string key2 = lexical_cast<string>(neigh_vertex);
@@ -436,8 +431,6 @@ void BGPProcess::compute_partial1(
     vertex_t neigh_vertex,
     shared_ptr< tbb::concurrent_unordered_set<vertex_t> > new_changed_set_ptr,
     int cmp) {
-
-  LOG4CXX_INFO(comp_peer_->logger_, "compute_partial1");
 
   tbb::concurrent_unordered_set<vertex_t>& new_changed_set = *new_changed_set_ptr;
   Vertex& affected = graph_[affected_vertex];
