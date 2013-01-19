@@ -239,7 +239,7 @@ void BGPProcess::process_neighbors_mpc(
 
 
     size_t offset = 0;
-    for(size_t i = 0; i < suncounter_ptr->second; i++) {
+    for(size_t i = 0; i < 1; i++) {
 
       vector<vertex_t>::iterator start = intersection.begin() + offset;
       offset += MAX_BATCH;
