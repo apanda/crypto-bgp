@@ -345,6 +345,8 @@ void BGPProcess::compute_partial0(
               new_changed_set_ptr,
               _1);
 
+
+  LOG4CXX_INFO(comp_peer_->logger_, "compare0");
   comp_peer_->compare0(
       lexical_cast<string>(affected.next_hop_),
       lexical_cast<string>(neigh_vertex),
@@ -417,8 +419,6 @@ void BGPProcess::for0(
               _1);
 
 
-
-  LOG4CXX_INFO(comp_peer_->logger_, "compare0");
   comp_peer_->compare0(
       lexical_cast<string>(affected.next_hop_),
       lexical_cast<string>(neigh_vertex),
