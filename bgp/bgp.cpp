@@ -118,9 +118,6 @@ void BGPProcess::next_iteration_continue(
 
   vector<vertex_t> current_batch;
 
-
-  LOG4CXX_INFO(comp_peer_->logger_, "for(;;)");
-
   for(;;) {
     if (batch.empty()) break;
     if (current_batch.size() == TASK_COUNT) break;
@@ -134,8 +131,6 @@ void BGPProcess::next_iteration_continue(
     if (vertex == dst_vertex) continue;
     current_batch.push_back(vertex);
   }
-
-  LOG4CXX_INFO(comp_peer_->logger_, "for(;;) break");
 
   if (current_batch.empty()) {
     LOG4CXX_INFO(comp_peer_->logger_, "current_batch.empty()");
@@ -177,6 +172,9 @@ void BGPProcess::next_iteration_finish(
   new_changed_set.clear();
 
   master_->sync(nodes);
+
+
+  LOG4CXX_INFO(comp_peer_->logger_, "barrier_->wait()");
   master_->barrier_->wait();
 
   LOG4CXX_INFO(comp_peer_->logger_,
