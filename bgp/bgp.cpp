@@ -416,6 +416,9 @@ void BGPProcess::for0(
               new_changed_set_ptr,
               _1);
 
+
+
+  LOG4CXX_INFO(comp_peer_->logger_, "compare0");
   comp_peer_->compare0(
       lexical_cast<string>(affected.next_hop_),
       lexical_cast<string>(neigh_vertex),
@@ -489,6 +492,9 @@ void BGPProcess::for1(
     vertex_t neigh_vertex,
     shared_ptr< tbb::concurrent_unordered_set<vertex_t> > new_changed_set_ptr,
     int cmp) {
+
+
+  LOG4CXX_INFO(comp_peer_->logger_, "for1");
 
   tbb::concurrent_unordered_set<vertex_t>& new_changed_set = *new_changed_set_ptr;
   Vertex& affected = graph_[affected_vertex];
