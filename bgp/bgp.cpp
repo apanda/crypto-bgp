@@ -220,21 +220,29 @@ void BGPProcess::process_neighbors_mpc(
   } else {
 
     shared_ptr< pair<size_t, size_t> > suncounter_ptr(new pair<size_t, size_t>);
-    suncounter_ptr->second = (intersection.size() + (MAX_BATCH - 1)) / MAX_BATCH;
+    //suncounter_ptr->second = (intersection.size() + (MAX_BATCH - 1)) / MAX_BATCH;
+
+    suncounter_ptr->second = intersection.size() / MAX_BATCH;
 
     LOG4CXX_INFO(comp_peer_->logger_, "intersection.size() " << intersection.size()
         << " suncounter_ptr->second " << suncounter_ptr->second);
 
     size_t offset = 0;
-    while (offset < intersection.size()) {
-      vector<vertex_t>::iterator start = intersection.begin() + offset;
-      vector<vertex_t>::iterator end = intersection.begin() + offset + MAX_BATCH;
-      offset += MAX_BATCH;
+    for(size_t i = 0; offset < suncounter_ptr->second; i++) {
 
+      vector<vertex_t>::iterator start = intersection.begin() + offset;
+      offset += MAX_BATCH;
+      vector<vertex_t>::iterator end = intersection.begin() + offset;
       auto pair = std::make_pair(start, end);
+
       compute_partial0(
           affected_vertex, new_changed_set_ptr,
           counts_ptr, suncounter_ptr, intersection_ptr, pair);
+
+    }
+
+    while (offset < intersection.size()) {
+
     }
   }
 
@@ -257,7 +265,7 @@ void BGPProcess::compute_partial0(
   size_t& count = counts_ptr->first;
   size_t& batch_count = counts_ptr->second;
 
-  const bool is_end =  (iters.first == iters.second) || (iters.first == n_ptr->end());
+  const bool is_end =  (iters.first == iters.second);
 
   if (is_end) {
     m_.lock();
