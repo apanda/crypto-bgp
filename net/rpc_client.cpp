@@ -105,6 +105,7 @@ void RPCClient::sync(vector<vertex_t>& nodes) {
     array[i] = nodes[i];
   }
 
+  boost::unique_lock<boost::mutex> lock(m_);
 
   boost::asio::write(socket_, boost::asio::buffer(data, length));
   /*
