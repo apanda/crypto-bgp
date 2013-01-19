@@ -276,6 +276,7 @@ void BGPProcess::compute_partial0(
 
     if (subcounter_ptr->first == subcounter_ptr->second) {
       m_.lock();
+      n.clear();
       LOG4CXX_INFO(comp_peer_->logger_, "subcounter_ptr->first == subcounter_ptr->second");
       count++;
       m_.unlock();
