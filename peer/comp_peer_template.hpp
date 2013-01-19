@@ -477,7 +477,7 @@ void CompPeer<Num>::multiply(
 template<const size_t Num>
 void CompPeer<Num>::recombine(string recombination_key, vertex_t l) {
 
-  LOG4CXX_TRACE( logger_, "CompPeer<Num>::recombine -> " << l);
+  LOG4CXX_INFO( logger_, "CompPeer<Num>::recombine -> " << l);
 
   Vertex& vertex = bgp_->graph_[l];
   value_map_t& vlm = vertex.value_map_;
