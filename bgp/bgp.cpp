@@ -434,6 +434,8 @@ void BGPProcess::compute_partial1(
     shared_ptr< tbb::concurrent_unordered_set<vertex_t> > new_changed_set_ptr,
     int cmp) {
 
+  LOG4CXX_INFO(comp_peer_->logger_, "compute_partial1");
+
   tbb::concurrent_unordered_set<vertex_t>& new_changed_set = *new_changed_set_ptr;
   Vertex& affected = graph_[affected_vertex];
 
@@ -457,7 +459,7 @@ void BGPProcess::compute_partial1(
   BOOST_ASSERT(offer_it != affected.preference_.end());
   const auto offered_preference = offer_it->second;
 
-  LOG4CXX_DEBUG(comp_peer_->logger_, "Compare -> "
+  LOG4CXX_INFO(comp_peer_->logger_, "Compare -> "
       << current_preference << ", " << offered_preference );
 
 

@@ -221,10 +221,8 @@ int main(int argc, char *argv[]) {
     return 0;
   }
 
-  run_mpc();
-
   try {
-
+    run_mpc();
   } catch (std::exception& e) {
     std::cout << "Exception: " << e.what() << std::endl;
     io.stop();
