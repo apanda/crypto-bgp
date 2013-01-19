@@ -225,7 +225,7 @@ void BGPProcess::process_neighbors_mpc(
   //LOG4CXX_INFO(comp_peer_->logger_, "Intersection size for vertex "
   //    << affected.id_ << ": " << intersection.size() << ": " << neighs.size());
 
-  if (intersection.size() < 200) {
+  if (true) {
     for0(affected_vertex, new_changed_set_ptr, counts_ptr, intersection_ptr);
   } else {
 
