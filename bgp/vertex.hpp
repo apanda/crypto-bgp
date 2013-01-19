@@ -61,11 +61,11 @@ public:
   > mutex_map_2;
   tbb::concurrent_unordered_map<string, shared_ptr<condition_variable_t> >cv_map_2;
 
-  unordered_map<string, shared_ptr<boost::function<void()> > > sig_recombine;
-  unordered_map<string, shared_ptr<boost::function<void()> > > sig_compare;
+  tbb::concurrent_unordered_map<string, shared_ptr<boost::function<void()> > > sig_recombine;
+  tbb::concurrent_unordered_map<string, shared_ptr<boost::function<void()> > > sig_compare;
 
-  unordered_map<string, shared_ptr<boost::function<void(int)> > > sig_bgp_cnt;
-  unordered_map<string, shared_ptr<boost::function<void()> > > sig_bgp_next;
+  tbb::concurrent_unordered_map<string, shared_ptr<boost::function<void(int)> > > sig_bgp_cnt;
+  tbb::concurrent_unordered_map<string, shared_ptr<boost::function<void()> > > sig_bgp_next;
 
   static const vertex_t UNDEFINED;
 };
