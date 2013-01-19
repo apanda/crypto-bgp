@@ -492,10 +492,8 @@ void CompPeer<Num>::recombine(string recombination_key, vertex_t l) {
 
       //vlm.at(key);
     } catch (...) {
-
       LOG4CXX_FATAL(logger_, "CompPeer<Num>::recombine( " << key << " )");
       //throw std::runtime_error(error);
-
     }
 
     const int64_t& value = vlm[key];

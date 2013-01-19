@@ -41,6 +41,9 @@ void Session::handle_msg(
   int64_t value;
   vertex_t vertex;
 
+  string key;
+  key.append(msg);
+
   memcpy(
       &vertex,
       msg + (msg_ - sizeof(int64_t) - sizeof(vertex_t)),
@@ -51,7 +54,7 @@ void Session::handle_msg(
       msg + (msg_ - sizeof(int64_t)),
       sizeof(int64_t));
 
-  peer_->publish(msg, value, vertex);
+  peer_->publish(key, value, vertex);
 }
 
 
