@@ -499,9 +499,6 @@ void BGPProcess::for1(
     shared_ptr< tbb::concurrent_unordered_set<vertex_t> > new_changed_set_ptr,
     int cmp) {
 
-
-  LOG4CXX_INFO(comp_peer_->logger_, "for1");
-
   tbb::concurrent_unordered_set<vertex_t>& new_changed_set = *new_changed_set_ptr;
   Vertex& affected = graph_[affected_vertex];
 
