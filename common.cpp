@@ -7,7 +7,7 @@ size_t TASK_COUNT = 1;
 size_t VERTEX_START = 0;
 size_t VERTEX_END = 0;
 
-size_t MAX_BATCH = 50;
+size_t MAX_BATCH = 100;
 
 string MASTER_ADDRESS = "localhost";
 string WHOAMI = "";
