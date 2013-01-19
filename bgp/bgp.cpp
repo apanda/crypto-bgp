@@ -232,8 +232,8 @@ void BGPProcess::process_neighbors_mpc(
     shared_ptr< pair<size_t, size_t> > suncounter_ptr(new pair<size_t, size_t>);
     //suncounter_ptr->second = (intersection.size() + (MAX_BATCH - 1)) / MAX_BATCH;
 
-    //suncounter_ptr->second = intersection.size() / MAX_BATCH;
-    suncounter_ptr->second = 1;
+    suncounter_ptr->second = intersection.size() / MAX_BATCH;
+    //suncounter_ptr->second = 1;
 
     LOG4CXX_INFO(comp_peer_->logger_, "intersection.size() " << intersection.size()
         << " suncounter_ptr->second " << suncounter_ptr->second);
@@ -304,6 +304,8 @@ void BGPProcess::compute_partial0(
 
   Vertex& affected = graph_[affected_vertex];
   const vertex_t neigh_vertex = *(iters.first);
+  LOG4CXX_INFO(comp_peer_->logger_, "sneigh_vertex " << neigh_vertex);
+
   iters.first++;
 
   const string key1 = lexical_cast<string>(affected.next_hop_);
