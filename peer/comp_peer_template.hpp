@@ -67,12 +67,7 @@ void CompPeer<Num>::publish(std::string key, int64_t value, vertex_t v) {
   if (counter == 3) {
     counter = 0;
     vertex.mutex_->unlock();
-    try {
-      vertex.sig_recombine[rkey]->operator()();
-    } catch (std::exception& e) {
-      LOG4CXX_INFO(logger_, " Unable to continue");
-      exit(0);
-    }
+    vertex.sig_recombine[rkey]->operator()();
   } else if(counter > 3) {
     throw std::runtime_error("Should never throw!");
   } else {

@@ -107,9 +107,6 @@ void BGPProcess::next_iteration_continue(
     shared_ptr< tbb::concurrent_unordered_set<vertex_t> > changed_set_ptr,
     shared_ptr< tbb::concurrent_unordered_set<vertex_t> > new_changed_set_ptr) {
 
-  LOG4CXX_INFO(comp_peer_->logger_, "next_iteration_continue");
-
-
   vector<vertex_t>& batch = *batch_ptr;
 
   shared_ptr< pair<size_t, size_t> > counts_ptr(new pair<size_t, size_t>);
@@ -133,7 +130,6 @@ void BGPProcess::next_iteration_continue(
   }
 
   if (current_batch.empty()) {
-    LOG4CXX_INFO(comp_peer_->logger_, "current_batch.empty()");
     next_iteration_finish(dst_vertex, new_changed_set_ptr);
     return;
   }
@@ -159,9 +155,6 @@ void BGPProcess::next_iteration_finish(
     const vertex_t dst_vertex,
     shared_ptr< tbb::concurrent_unordered_set<vertex_t> > new_changed_set_ptr) {
 
-  LOG4CXX_INFO(comp_peer_->logger_, "next_iteration_finish");
-
-
   tbb::concurrent_unordered_set<vertex_t>& new_changed_set = *new_changed_set_ptr;
 
   vector<vertex_t> nodes;
@@ -173,12 +166,7 @@ void BGPProcess::next_iteration_finish(
 
   master_->sync(nodes);
 
-
-  LOG4CXX_INFO(comp_peer_->logger_, "barrier_->wait()");
   master_->barrier_->wait();
-
-  LOG4CXX_INFO(comp_peer_->logger_,
-      "Syncing up with the master... size: " << master_->size_);
 
   for(size_t i = 0; i < master_->size_; i++) {
     new_changed_set.insert(master_->array_[i]);
@@ -221,9 +209,6 @@ void BGPProcess::process_neighbors_mpc(
 
   std::set_intersection( neighs.begin(), neighs.end(), ch.begin(), ch.end(),
       std::insert_iterator< std::vector<vertex_t> >( intersection, intersection.begin() ) );
-
-  //LOG4CXX_INFO(comp_peer_->logger_, "Intersection size for vertex "
-  //    << affected.id_ << ": " << intersection.size() << ": " << neighs.size());
 
   if (intersection.size() < 200) {
     for0(affected_vertex, new_changed_set_ptr, counts_ptr, intersection_ptr);
@@ -292,8 +277,6 @@ void BGPProcess::compute_partial0(
         continuation_();
         return;
       }
-    } else {
-      LOG4CXX_INFO(comp_peer_->logger_, "subcounter_ptr->first " << subcounter_ptr->first);
     }
 
     m_.unlock();
@@ -348,7 +331,6 @@ void BGPProcess::compute_partial0(
   const string _key1 = lexical_cast<string>(affected.next_hop_);
   const string _key2 = lexical_cast<string>(neigh_vertex);
 
-  LOG4CXX_INFO(comp_peer_->logger_, "compare0 " << _key1 << ", " << _key2);
   comp_peer_->compare0(_key1, _key2, affected_vertex);
 }
 
@@ -455,7 +437,7 @@ void BGPProcess::compute_partial1(
   BOOST_ASSERT(offer_it != affected.preference_.end());
   const auto offered_preference = offer_it->second;
 
-  LOG4CXX_INFO(comp_peer_->logger_, "Compare -> "
+  LOG4CXX_DEBUG(comp_peer_->logger_, "Compare -> "
       << current_preference << ", " << offered_preference );
 
 
