@@ -341,7 +341,7 @@ void BGPProcess::compute_partial0(
 
   affected.sig_bgp_cnt[result] = shared_ptr<boost::function<void(int)> >(new boost::function<void(int)>);
 
-  *(affected.sig_bgp_cnt[result]) = boost::bind(&BGPProcess::for1, this,
+  *(affected.sig_bgp_cnt[result]) = boost::bind(&BGPProcess::compute_partial1, this,
               affected_vertex,
               neigh_vertex,
               new_changed_set_ptr,
@@ -480,7 +480,7 @@ void BGPProcess::compute_partial1(
     return;
   }
 
-  affected.set_next_hop(graph_, neigh_vertex);
+  //affected.set_next_hop(graph_, neigh_vertex);
   new_changed_set.insert(affected_vertex);
 
   affected.sig_bgp_next[result]->operator ()();
