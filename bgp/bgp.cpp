@@ -232,14 +232,15 @@ void BGPProcess::process_neighbors_mpc(
     shared_ptr< pair<size_t, size_t> > suncounter_ptr(new pair<size_t, size_t>);
     //suncounter_ptr->second = (intersection.size() + (MAX_BATCH - 1)) / MAX_BATCH;
 
-    suncounter_ptr->second = intersection.size() / MAX_BATCH;
+    //suncounter_ptr->second = intersection.size() / MAX_BATCH;
+    suncounter_ptr->second = 1;
 
     LOG4CXX_INFO(comp_peer_->logger_, "intersection.size() " << intersection.size()
         << " suncounter_ptr->second " << suncounter_ptr->second);
 
 
     size_t offset = 0;
-    for(size_t i = 0; i < 1; i++) {
+    for(size_t i = 0; i < suncounter_ptr->second; i++) {
 
       vector<vertex_t>::iterator start = intersection.begin() + offset;
       offset += MAX_BATCH;
