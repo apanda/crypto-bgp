@@ -77,9 +77,12 @@ void Session::handle_init(
   peer_->publish(this, si);
 
   boost::asio::async_read(socket_, boost::asio::buffer(data, length_),
+      strand_.wrap(
         boost::bind(&Session::handle_read, this, data,
             boost::asio::placeholders::error,
-            boost::asio::placeholders::bytes_transferred));
+            boost::asio::placeholders::bytes_transferred)
+      )
+  );
 }
 
 
@@ -101,9 +104,12 @@ void Session::handle_sync(
   peer_->publish(this ,nodes);
 
   boost::asio::async_read(socket_, boost::asio::buffer(data, length_),
+      strand_.wrap(
         boost::bind(&Session::handle_read, this, data,
             boost::asio::placeholders::error,
-            boost::asio::placeholders::bytes_transferred));
+            boost::asio::placeholders::bytes_transferred)
+      )
+      );
 }
 
 
