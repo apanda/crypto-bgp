@@ -227,8 +227,9 @@ void BGPProcess::process_neighbors_mpc(
     LOG4CXX_INFO(comp_peer_->logger_, "intersection.size() " << intersection.size()
         << " suncounter_ptr->second " << suncounter_ptr->second);
 
+
     size_t offset = 0;
-    for(size_t i = 0; offset < suncounter_ptr->second; i++) {
+    for(size_t i = 0; i < suncounter_ptr->second; i++) {
 
       vector<vertex_t>::iterator start = intersection.begin() + offset;
       offset += MAX_BATCH;
@@ -265,7 +266,7 @@ void BGPProcess::compute_partial0(
   size_t& count = counts_ptr->first;
   size_t& batch_count = counts_ptr->second;
 
-  const bool is_end =  (iters.first == iters.second);
+  const bool is_end =  (iters.first == iters.second) || (iters.first == n_ptr->end());
 
   if (is_end) {
     m_.lock();
