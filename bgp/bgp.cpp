@@ -269,22 +269,25 @@ void BGPProcess::compute_partial0(
   const bool is_end =  (iters.first == iters.second) || (iters.first == n_ptr->end());
 
   if (is_end) {
+    LOG4CXX_INFO(comp_peer_->logger_, "is_end");
     m_.lock();
     subcounter_ptr->first++;
+    m_.unlock();
 
     if (subcounter_ptr->first == subcounter_ptr->second) {
-
+      m_.lock();
       LOG4CXX_INFO(comp_peer_->logger_, "subcounter_ptr->first == subcounter_ptr->second");
       count++;
+      m_.unlock();
+
       if (batch_count == count) {
         LOG4CXX_INFO(comp_peer_->logger_, "batch_count == count");
-        m_.unlock();
+
         continuation_();
         return;
       }
     }
 
-    m_.unlock();
     return;
   }
 
