@@ -105,13 +105,17 @@ void RPCClient::sync(vector<vertex_t>& nodes) {
     array[i] = nodes[i];
   }
 
+
+  boost::asio::write(socket_, boost::asio::buffer(data, length));
+  /*
   boost::asio::async_write(socket_,
       boost::asio::buffer(data, length),
       strand_.wrap(
       boost::bind(&RPCClient::handle_write, this, data,
           boost::asio::placeholders::error,
           boost::asio::placeholders::bytes_transferred)));
-
+*/
+  delete data;
 }
 
 
