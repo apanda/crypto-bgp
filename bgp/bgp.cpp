@@ -266,6 +266,8 @@ void BGPProcess::compute_partial0(
     shared_ptr< vector<vertex_t> > n_ptr,
     pair<vector<vertex_t>::iterator, vector<vertex_t>::iterator> iters) {
 
+  LOG4CXX_INFO(comp_peer_->logger_, "compute_partial0");
+
 
   vector<vertex_t>& n = *n_ptr;
   size_t& count = counts_ptr->first;
