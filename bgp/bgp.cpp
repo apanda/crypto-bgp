@@ -118,6 +118,9 @@ void BGPProcess::next_iteration_continue(
 
   vector<vertex_t> current_batch;
 
+
+  LOG4CXX_INFO(comp_peer_->logger_, "for(;;)");
+
   for(;;) {
     if (batch.empty()) break;
     if (current_batch.size() == TASK_COUNT) break;
@@ -132,7 +135,10 @@ void BGPProcess::next_iteration_continue(
     current_batch.push_back(vertex);
   }
 
+  LOG4CXX_INFO(comp_peer_->logger_, "for(;;) break");
+
   if (current_batch.empty()) {
+    LOG4CXX_INFO(comp_peer_->logger_, "current_batch.empty()");
     next_iteration_finish(dst_vertex, new_changed_set_ptr);
     return;
   }
@@ -157,6 +163,9 @@ void BGPProcess::next_iteration_continue(
 void BGPProcess::next_iteration_finish(
     const vertex_t dst_vertex,
     shared_ptr< tbb::concurrent_unordered_set<vertex_t> > new_changed_set_ptr) {
+
+  LOG4CXX_INFO(comp_peer_->logger_, "next_iteration_finish");
+
 
   tbb::concurrent_unordered_set<vertex_t>& new_changed_set = *new_changed_set_ptr;
 
