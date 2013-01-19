@@ -350,11 +350,11 @@ void BGPProcess::compute_partial0(
               _1);
 
 
-  LOG4CXX_INFO(comp_peer_->logger_, "compare0");
-  comp_peer_->compare0(
-      lexical_cast<string>(affected.next_hop_),
-      lexical_cast<string>(neigh_vertex),
-      affected_vertex);
+  const string key1 = lexical_cast<string>(affected.next_hop_);
+  const string key2 = lexical_cast<string>(neigh_vertex);
+
+  LOG4CXX_INFO(comp_peer_->logger_, "compare0 " << key1 << ", " << key2);
+  comp_peer_->compare0(key1, key2, affected_vertex);
 }
 
 
