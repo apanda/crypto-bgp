@@ -225,7 +225,7 @@ void BGPProcess::process_neighbors_mpc(
   //LOG4CXX_INFO(comp_peer_->logger_, "Intersection size for vertex "
   //    << affected.id_ << ": " << intersection.size() << ": " << neighs.size());
 
-  if (true) {
+  if (intersection.size() < 200) {
     for0(affected_vertex, new_changed_set_ptr, counts_ptr, intersection_ptr);
   } else {
 
@@ -252,9 +252,6 @@ void BGPProcess::process_neighbors_mpc(
 
     }
 
-    while (offset < intersection.size()) {
-
-    }
   }
 
 }
@@ -346,7 +343,6 @@ void BGPProcess::compute_partial0(
               _1);
 
 
-  LOG4CXX_INFO(comp_peer_->logger_, "compare0");
   comp_peer_->compare0(
       lexical_cast<string>(affected.next_hop_),
       lexical_cast<string>(neigh_vertex),
