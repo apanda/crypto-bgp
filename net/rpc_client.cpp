@@ -152,6 +152,8 @@ void RPCClient::publish(string key,  int64_t value, vertex_t vertex) {
   boost::unique_lock<boost::mutex> lock(m_);
 
   boost::asio::write(socket_, boost::asio::buffer(data, length_));
+
+  delete data;
   /*
   boost::asio::async_write(socket_,
       boost::asio::buffer(data, length_),
