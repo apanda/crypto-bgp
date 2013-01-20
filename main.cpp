@@ -169,6 +169,7 @@ int main(int argc, char *argv[]) {
       ("whoami", po::value<string>(), "out address")
       ("start", po::value<size_t>(), "staring vertex")
       ("end", po::value<size_t>(), "ending vertex")
+      ("limit", po::value<size_t>(), "per vertex limit")
       ("id", po::value<vector<int>>()->multitoken(), "computational peer id")
   ;
 
@@ -198,6 +199,10 @@ int main(int argc, char *argv[]) {
 
   if (vm.count("end")) {
     VERTEX_END = vm["end"].as<size_t>();
+  }
+
+  if (vm.count("limit")) {
+    MAX_BATCH = vm["limit"].as<size_t>();
   }
 
   if (vm.count("id")) {
