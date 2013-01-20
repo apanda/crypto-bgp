@@ -535,6 +535,7 @@ void BGPProcess::load_graph(string path, graph_t& graph) {
 
   dp.property("node_id", get(&Vertex::id_, graph));
   dp.property("key", get(&Edge::key_, graph));
+  dp.property("node_id", get(boost::vertex_index, graph));
 
   read_graphviz(file ,graph, dp, "node_id");
 }

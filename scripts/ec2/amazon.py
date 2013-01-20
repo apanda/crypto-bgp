@@ -217,7 +217,8 @@ def delegate(instances, graphSize, master):
 
   MASTER = master
   THREADS = 8
-  TASKS = 600
+  TASKS = 400
+  LIMIT = 20
   WHOAMI = '`/sbin/ifconfig eth0 | grep \'inet addr:\' | cut -d: -f2 | \
   awk \'{ print $1}\' `'
   
@@ -227,9 +228,9 @@ def delegate(instances, graphSize, master):
   commands = []
 
   for partition in xrange(partitionSize):
-    cmd = 'cd crypto-bgp && ./mpc --master-host %s \
+    cmd = 'cd crypto-bgp && ./mpc --master-host %s --limit %d \
     --threads %d --tasks %d --whoami %s --start %d --end %d' % (
-    MASTER, THREADS, TASKS, WHOAMI, START_VERTEX, END_VERTEX)
+    MASTER, LIMIT, THREADS, TASKS, WHOAMI, START_VERTEX, END_VERTEX)
     commands.append(cmd)
 
     START_VERTEX = START_VERTEX + partitionVertexSize
