@@ -10,7 +10,7 @@ BGPProcess::BGPProcess(
     string path,
     CompPeer<3> * comp_peer,
     io_service& io):
-    //graph_(GRAPH_SIZE),
+    graph_(GRAPH_SIZE),
     comp_peer_(comp_peer),
     io_service_(io) {
 
@@ -528,20 +528,40 @@ void BGPProcess::for1(
 }
 
 
-
+#include <boost/algorithm/string.hpp>
 void BGPProcess::load_graph(string path, graph_t& graph) {
 
   dynamic_properties dp;
   std::ifstream file(path);
+  string s;
 
-  for(size_t i = 0; i < 5976; i++) {
-    graph.added_vertex(i);
+  while(true) {
+    if( file.eof() ) break;
+    getline(file, s);
+
+    vector<string> tokens;
+    boost::split(tokens, s, boost::is_any_of(" -;"));
+
+    for (string token: tokens) {
+      boost::algorithm::trim(token);
+    }
+
+    if(tokens.size() != 6) continue;
+
+    //std::cout << tokens[0] << ", " << tokens[4] << std::endl;
+
+    vertex_t src = lexical_cast<size_t>(tokens[0]);
+    vertex_t dst = lexical_cast<size_t>(tokens[4]);
+
+    boost::add_edge(src, dst, graph);
   }
 
+/*
   //dp.property("node_id", get(boost::vertex_index, graph));
   dp.property("node_id", get(&Vertex::id_, graph));
 
   read_graphviz(file ,graph, dp, "node_id");
+  */
 }
 
 
