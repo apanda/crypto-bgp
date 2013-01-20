@@ -6,9 +6,11 @@
 
 #include <tbb/concurrent_unordered_map.h>
 #include <tbb/concurrent_hash_map.h>
+#include <tbb/concurrent_queue.h>
 #include <boost/thread/mutex.hpp>
 #include <boost/pool/object_pool.hpp>
 #include <boost/pool/pool_alloc.hpp>
+#include <boost/asio/buffer.hpp>
 
 #include <limits>
 #include <queue>
@@ -66,6 +68,8 @@ public:
 
   tbb::concurrent_unordered_map<string, shared_ptr<boost::function<void(int)> > > sig_bgp_cnt;
   tbb::concurrent_unordered_map<string, shared_ptr<boost::function<void()> > > sig_bgp_next;
+
+  tbb::concurrent_queue< boost::asio::mutable_buffer > data_queue;
 
   static const vertex_t UNDEFINED;
 };

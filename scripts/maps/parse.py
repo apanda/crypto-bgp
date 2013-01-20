@@ -3,7 +3,7 @@
 from collections import deque
 
 GRAPH_SIZE = 5976
-BUCKET_SIZE = 2
+BUCKET_SIZE = 8
 
 buckets = deque()
 for i in range(BUCKET_SIZE):
