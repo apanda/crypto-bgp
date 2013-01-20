@@ -17,6 +17,9 @@ void Vertex::set_neighbors(graph_t& graph) {
 
   const auto range = adjacent_vertices(id_, graph);
   neigh_ = vector<vertex_t>(range.first, range.second);
+  if (neigh_.size() > 1000) {
+    std::cout << id_ << ": " << neigh_.size() << std::endl;
+  }
   std::sort(neigh_.begin(), neigh_.end());
 }
 
