@@ -33,6 +33,7 @@ extern size_t VERTEX_START;
 extern size_t VERTEX_END;
 
 extern size_t MAX_BATCH;
+extern size_t GRAPH_SIZE;
 
 using std::string;
 using std::vector;

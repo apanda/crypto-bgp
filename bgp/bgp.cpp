@@ -10,6 +10,7 @@ BGPProcess::BGPProcess(
     string path,
     CompPeer<3> * comp_peer,
     io_service& io):
+    graph_(GRAPH_SIZE),
     comp_peer_(comp_peer),
     io_service_(io) {
 

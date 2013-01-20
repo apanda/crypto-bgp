@@ -3,6 +3,7 @@
 
 #include <boost/graph/graph_traits.hpp>
 #include <boost/graph/adjacency_list.hpp>
+#include <boost/graph/adjacency_matrix.hpp>
 #include <boost/graph/graphviz.hpp>
 
 #include <iostream>
@@ -36,9 +37,7 @@ using boost::get;
 class Vertex;
 class Edge;
 
-typedef adjacency_list<
-    boost::vecS,
-    boost::vecS,
+typedef boost::adjacency_matrix<
     boost::undirectedS,
     Vertex,
     Edge

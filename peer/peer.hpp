@@ -29,13 +29,7 @@ class Session;
 
 class Vertex;
 
-typedef boost::adjacency_list<
-    boost::vecS,
-    boost::vecS,
-    boost::undirectedS,
-    Vertex,
-    Edge
-    > graph_t;
+
 
 typedef boost::graph_traits<graph_t>::vertex_descriptor vertex_t;
 typedef boost::graph_traits<graph_t>::edge_descriptor edge_t;
