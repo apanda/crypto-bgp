@@ -33,8 +33,6 @@ def inspect():
 
   degreeRanking.sort(key = lambda (degree, vertex): degree, reverse = True)
 
-  for degree in degreeRanking:
-    print degree
 
   counter = 0
   for (ranking, vertex) in degreeRanking:
@@ -61,7 +59,6 @@ def inspect():
     if counter > (GRAPH_SIZE):
       break
 
-    if counter == 2210: print vertex
     reverseMapping[counter] = vertex
     nodeMapping[vertex] = counter
     counter = counter + 1
@@ -90,7 +87,10 @@ def inspect():
     pair.sort()
     uniqueEdges.add( tuple(pair) )
 
-  for (src, dst) in uniqueEdges:
+  nnn = list( uniqueEdges )
+  nnn.sort(key = lambda (src, dst): src)
+
+  for (src, dst) in nnn:
     line = '%s -- %s;' %(src, dst)
     print line
 

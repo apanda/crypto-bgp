@@ -39,7 +39,7 @@ void BGPProcess::init(graph_t& graph) {
   for (; current != last; ++current) {
     const auto& current_vertex = *current;
     Vertex& vertex = graph[current_vertex];
-    vertex.id_ = current_vertex;
+    //vertex.id_ = current_vertex;
 
     vertex.set_neighbors(graph);
     vertex.set_preference();
