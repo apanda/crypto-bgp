@@ -10,7 +10,7 @@ BGPProcess::BGPProcess(
     string path,
     CompPeer<3> * comp_peer,
     io_service& io):
-    graph_(GRAPH_SIZE),
+    //graph_(GRAPH_SIZE),
     comp_peer_(comp_peer),
     io_service_(io) {
 
@@ -534,9 +534,8 @@ void BGPProcess::load_graph(string path, graph_t& graph) {
   dynamic_properties dp;
   std::ifstream file(path);
 
-  dp.property("node_id", get(&Vertex::id_, graph));
-  dp.property("key", get(&Edge::key_, graph));
   dp.property("node_id", get(boost::vertex_index, graph));
+  dp.property("node_id", get(&Vertex::id_, graph));
 
   read_graphviz(file ,graph, dp, "node_id");
 }

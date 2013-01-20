@@ -37,7 +37,9 @@ using boost::get;
 class Vertex;
 class Edge;
 
-typedef boost::adjacency_matrix<
+typedef adjacency_list<
+    boost::vecS,
+    boost::vecS,
     boost::undirectedS,
     Vertex,
     Edge
