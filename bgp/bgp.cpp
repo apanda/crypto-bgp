@@ -39,7 +39,7 @@ void BGPProcess::init(graph_t& graph) {
   for (; current != last; ++current) {
     const auto& current_vertex = *current;
     Vertex& vertex = graph[current_vertex];
-    //vertex.id_ = current_vertex;
+    vertex.id_ = current_vertex;
 
     vertex.set_neighbors(graph);
     vertex.set_preference();
@@ -534,8 +534,8 @@ void BGPProcess::load_graph(string path, graph_t& graph) {
   dynamic_properties dp;
   std::ifstream file(path);
 
-  //dp.property("node_id", get(boost::vertex_index, graph));
-  dp.property("node_id", get(&Vertex::id_, graph));
+  dp.property("node_id", get(boost::vertex_index, graph));
+  //dp.property("node_id", get(&Vertex::id_, graph));
 
   read_graphviz(file ,graph, dp, "node_id");
 }
