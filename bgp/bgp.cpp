@@ -534,7 +534,7 @@ void BGPProcess::load_graph(string path, graph_t& graph) {
   dynamic_properties dp;
   std::ifstream file(path);
 
-  dp.property("node_id", get(boost::vertex_index, graph));
+  //dp.property("node_id", get(boost::vertex_index, graph));
   dp.property("node_id", get(&Vertex::id_, graph));
 
   read_graphviz(file ,graph, dp, "node_id");
