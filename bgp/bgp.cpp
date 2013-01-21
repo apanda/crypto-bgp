@@ -304,7 +304,8 @@ void BGPProcess::compute_partial0(
       //intersection.assign(local_set.begin(), local_set.end());
       std::sort(intersection_ptr2->begin(), intersection_ptr2->end());
 
-      LOG4CXX_INFO(comp_peer_->logger_, "intersection " << intersection.size());
+      largest_vertex = affected.next_hop_;
+      LOG4CXX_INFO(comp_peer_->logger_, "intersection " << local_set.size());
 
       partial_count = 0;
       partial_batch_count = 1;
