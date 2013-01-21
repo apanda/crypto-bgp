@@ -342,10 +342,72 @@ void BGPProcess::compute_partial0(
               _1);
 
 
-  const string _key1 = lexical_cast<string>(affected.next_hop_);
-  const string _key2 = lexical_cast<string>(neigh_vertex);
+  comp_peer_->compare0(key1, key2, affected_vertex);
+}
 
-  comp_peer_->compare0(_key1, _key2, affected_vertex);
+
+
+
+void BGPProcess::compute_partial1(
+    vertex_t affected_vertex,
+    vertex_t neigh_vertex,
+    shared_ptr< vertex_t > largest_vertex_ptr,
+    shared_ptr< tbb::concurrent_unordered_set<vertex_t> > new_changed_set_ptr,
+    shared_ptr< tbb::concurrent_unordered_set<vertex_t> > local_set_ptr,
+    int cmp) {
+
+  tbb::concurrent_unordered_set<vertex_t>& new_changed_set = *new_changed_set_ptr;
+  Vertex& affected = graph_[affected_vertex];
+
+  vertex_t& largest_vertex = *largest_vertex_ptr;
+
+  const string key1 = lexical_cast<string>(largest_vertex);
+  const string key2 = lexical_cast<string>(neigh_vertex);
+
+  string w = ".2" + key1;
+  string x = ".2" + key2;
+  string y = ".2" + key1 + "-" + key2;
+
+  string xy = y + "*" + x;
+  string wx = x + "*" + w;
+  string wy = y + "*" + w;
+
+  string wxy2 = xy + "*" + "2" + "*" + w;
+  string result = wx + "+" + wy + "-" + wxy2 + "-" + y + "-" + x + "+" + xy;
+
+  const auto current_preference = affected.current_next_hop_preference(graph_);
+
+  auto offer_it = affected.preference_.find(neigh_vertex);
+  BOOST_ASSERT(offer_it != affected.preference_.end());
+  const auto offered_preference = offer_it->second;
+
+  LOG4CXX_DEBUG(comp_peer_->logger_, "Compare -> "
+      << current_preference << ", " << offered_preference );
+
+
+
+  const bool condition = offered_preference <= current_preference;
+
+  if (cmp != condition) {
+
+    LOG4CXX_FATAL(comp_peer_->logger_, "==================================================");
+    LOG4CXX_FATAL(comp_peer_->logger_,
+        "(Is, Should): " <<
+        "(" << cmp << ", " << condition << ") -- " <<
+        "(" << affected_vertex << ", " << neigh_vertex << ")");
+    LOG4CXX_FATAL(comp_peer_->logger_, "==================================================");
+
+  }
+
+  if ( offered_preference <= current_preference ) {
+    affected.sig_bgp_next[result]->operator()();
+    return;
+  }
+
+  largest_vertex = neigh_vertex;
+  new_changed_set.insert(affected_vertex);
+
+  affected.sig_bgp_next[result]->operator ()();
 }
 
 
@@ -418,70 +480,6 @@ void BGPProcess::for0(
       lexical_cast<string>(affected.next_hop_),
       lexical_cast<string>(neigh_vertex),
       affected_vertex);
-}
-
-
-
-void BGPProcess::compute_partial1(
-    vertex_t affected_vertex,
-    vertex_t neigh_vertex,
-    shared_ptr< vertex_t > largest_vertex_ptr,
-    shared_ptr< tbb::concurrent_unordered_set<vertex_t> > new_changed_set_ptr,
-    shared_ptr< tbb::concurrent_unordered_set<vertex_t> > local_set_ptr,
-    int cmp) {
-
-  tbb::concurrent_unordered_set<vertex_t>& new_changed_set = *new_changed_set_ptr;
-  Vertex& affected = graph_[affected_vertex];
-
-  vertex_t& largest_vertex = *largest_vertex_ptr;
-
-  const string key1 = lexical_cast<string>(largest_vertex);
-  const string key2 = lexical_cast<string>(neigh_vertex);
-
-  string w = ".2" + key1;
-  string x = ".2" + key2;
-  string y = ".2" + key1 + "-" + key2;
-
-  string xy = y + "*" + x;
-  string wx = x + "*" + w;
-  string wy = y + "*" + w;
-
-  string wxy2 = xy + "*" + "2" + "*" + w;
-  string result = wx + "+" + wy + "-" + wxy2 + "-" + y + "-" + x + "+" + xy;
-
-  const auto current_preference = affected.current_next_hop_preference(graph_);
-
-  auto offer_it = affected.preference_.find(neigh_vertex);
-  BOOST_ASSERT(offer_it != affected.preference_.end());
-  const auto offered_preference = offer_it->second;
-
-  LOG4CXX_DEBUG(comp_peer_->logger_, "Compare -> "
-      << current_preference << ", " << offered_preference );
-
-
-
-  const bool condition = offered_preference <= current_preference;
-
-  if (cmp != condition) {
-
-    LOG4CXX_FATAL(comp_peer_->logger_, "==================================================");
-    LOG4CXX_FATAL(comp_peer_->logger_,
-        "(Is, Should): " <<
-        "(" << cmp << ", " << condition << ") -- " <<
-        "(" << affected_vertex << ", " << neigh_vertex << ")");
-    LOG4CXX_FATAL(comp_peer_->logger_, "==================================================");
-
-  }
-
-  if ( offered_preference <= current_preference ) {
-    affected.sig_bgp_next[result]->operator()();
-    return;
-  }
-
-  largest_vertex = neigh_vertex;
-  new_changed_set.insert(affected_vertex);
-
-  affected.sig_bgp_next[result]->operator ()();
 }
 
 
