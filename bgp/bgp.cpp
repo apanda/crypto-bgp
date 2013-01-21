@@ -282,13 +282,12 @@ void BGPProcess::compute_partial0(
     m_.lock();
     local_set.push_back(largest_vertex);
     partial_count++;
-    m_.unlock();
+
 
     if (partial_count == partial_batch_count) {
 
       //if (partial_batch_count == 1) {
-        m_.lock();
-        affected.set_next_hop(graph_, largest_vertex);
+        //affected.set_next_hop(graph_, largest_vertex);
         count++;
         m_.unlock();
 
@@ -298,7 +297,7 @@ void BGPProcess::compute_partial0(
         }
 
       //}
-
+        m_.unlock();
       return;
       m_.lock();
       shared_ptr< vector<vertex_t> > intersection_ptr2(new vector<vertex_t>());
