@@ -216,9 +216,8 @@ void BGPProcess::process_neighbors_mpc(
   } else {
 
     shared_ptr< pair<size_t, size_t> > suncounter_ptr(new pair<size_t, size_t>);
-
-
     suncounter_ptr->second = intersection.size() / MAX_BATCH;
+
     deque< typename vector<vertex_t>::iterator > range_stack;
 
     LOG4CXX_INFO(comp_peer_->logger_, "intersection.size() " << intersection.size()
@@ -230,8 +229,8 @@ void BGPProcess::process_neighbors_mpc(
     }
     range_stack.push_back( intersection.end() );
 
-    shared_ptr< tbb::concurrent_unordered_set<vertex_t> > local_set_ptr(
-        new tbb::concurrent_unordered_set<vertex_t>());
+    shared_ptr< tbb::concurrent_vector<vertex_t> > local_set_ptr(
+        new tbb::concurrent_vector<vertex_t>());
 
 
     while(range_stack.size() > 1) {
@@ -258,7 +257,7 @@ void BGPProcess::compute_partial0(
     const vertex_t affected_vertex,
     shared_ptr< vertex_t > largest_vertex_ptr,
     shared_ptr< tbb::concurrent_unordered_set<vertex_t> > new_changed_set_ptr,
-    shared_ptr< tbb::concurrent_unordered_set<vertex_t> > local_set_ptr,
+    shared_ptr< tbb::concurrent_vector<vertex_t> > local_set_ptr,
     shared_ptr< pair<size_t, size_t> > global_counter_ptr,
     shared_ptr< pair<size_t, size_t> > local_counter_ptr,
     shared_ptr< vector<vertex_t> > intersection_ptr,
@@ -274,11 +273,11 @@ void BGPProcess::compute_partial0(
 
   const bool is_end =  (iter_range.first == iter_range.second);
 
-  tbb::concurrent_unordered_set<vertex_t>& local_set = *local_set_ptr;
+  auto& local_set = *local_set_ptr;
 
   if (is_end) {
     m_.lock();
-    local_set.insert(largest_vertex);
+    local_set.push_back(largest_vertex);
     partial_count++;
 
     if (partial_count == partial_batch_count) {
@@ -356,7 +355,7 @@ void BGPProcess::compute_partial1(
     vertex_t neigh_vertex,
     shared_ptr< vertex_t > largest_vertex_ptr,
     shared_ptr< tbb::concurrent_unordered_set<vertex_t> > new_changed_set_ptr,
-    shared_ptr< tbb::concurrent_unordered_set<vertex_t> > local_set_ptr,
+    shared_ptr< tbb::concurrent_vector<vertex_t> > local_set_ptr,
     int cmp) {
 
   tbb::concurrent_unordered_set<vertex_t>& new_changed_set = *new_changed_set_ptr;
@@ -423,13 +422,13 @@ void BGPProcess::for0(
     const vertex_t affected_vertex,
     shared_ptr< tbb::concurrent_unordered_set<vertex_t> > new_changed_set_ptr,
     shared_ptr< pair<size_t, size_t> > counts_ptr,
-    shared_ptr< vector<vertex_t> > n_ptr) {
+    shared_ptr< vector<vertex_t> > intersection_ptr) {
 
-  vector<vertex_t>& n = *n_ptr;
+  vector<vertex_t>& intersection = *intersection_ptr;
   size_t& count = counts_ptr->first;
   size_t& batch_count = counts_ptr->second;
 
-  if (n.empty()) {
+  if (intersection.empty()) {
     {
     boost::unique_lock<boost::mutex> lock(m_);
     count++;
@@ -441,8 +440,8 @@ void BGPProcess::for0(
   }
 
   Vertex& affected = graph_[affected_vertex];
-  const vertex_t neigh_vertex = n.back();
-  n.pop_back();
+  const vertex_t neigh_vertex = intersection.back();
+  intersection.pop_back();
 
   const string key1 = lexical_cast<string>(affected.next_hop_);
   const string key2 = lexical_cast<string>(neigh_vertex);
@@ -465,7 +464,7 @@ void BGPProcess::for0(
         affected_vertex,
         new_changed_set_ptr,
         counts_ptr,
-        n_ptr
+        intersection_ptr
       );
 
   *(affected.sig_bgp_next[result]) = next;

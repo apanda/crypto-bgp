@@ -17,6 +17,7 @@
 #include <boost/graph/graphviz.hpp>
 
 #include <tbb/concurrent_unordered_set.h>
+#include <tbb/concurrent_vector.h>
 
 #include <iostream>
 #include <vector>
@@ -57,7 +58,7 @@ public:
       const vertex_t affected_vertex,
       shared_ptr< vertex_t > largest_vertex,
       shared_ptr< tbb::concurrent_unordered_set<vertex_t> > new_changed_set_ptr,
-      shared_ptr< tbb::concurrent_unordered_set<vertex_t> > local_set_ptr,
+      shared_ptr< tbb::concurrent_vector<vertex_t> > local_set_ptr,
       shared_ptr< pair<size_t, size_t> > counts_ptr,
       shared_ptr< pair<size_t, size_t> > subcounter_ptr,
       shared_ptr< vector<vertex_t> > n,
@@ -74,7 +75,7 @@ public:
       vertex_t neigh_vertex,
       shared_ptr< vertex_t > largest_vertex,
       shared_ptr< tbb::concurrent_unordered_set<vertex_t> > new_changed_set_ptr,
-      shared_ptr< tbb::concurrent_unordered_set<vertex_t> > local_set_ptr,
+      shared_ptr< tbb::concurrent_vector<vertex_t> > local_set_ptr,
       int cmp);
 
   void for1(
