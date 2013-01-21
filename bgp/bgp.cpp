@@ -274,8 +274,11 @@ void BGPProcess::compute_partial0(
 
   const bool is_end =  (iter_range.first == iter_range.second);
 
+  tbb::concurrent_unordered_set<vertex_t>& local_set = *local_set_ptr;
+
   if (is_end) {
     m_.lock();
+    local_set.insert(largest_vertex);
     partial_count++;
 
     if (partial_count == partial_batch_count) {
