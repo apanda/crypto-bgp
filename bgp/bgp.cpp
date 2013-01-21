@@ -216,14 +216,14 @@ void BGPProcess::process_neighbors_mpc(
   } else {
 
     shared_ptr< pair<size_t, size_t> > suncounter_ptr(new pair<size_t, size_t>);
-    suncounter_ptr->second = intersection.size() / MAX_BATCH;
+    suncounter_ptr->second = intersection.size() / MAX_BATCH + 1;
 
     deque< typename vector<vertex_t>::iterator > range_stack;
 
     LOG4CXX_INFO(comp_peer_->logger_, "intersection.size() " << intersection.size()
         << " suncounter_ptr->second " << suncounter_ptr->second);
 
-    for(size_t index = 0; index <= suncounter_ptr->second; index++) {
+    for(size_t index = 0; index <= intersection.size() / MAX_BATCH; index++) {
       const size_t offset = MAX_BATCH * index;
       range_stack.push_back( intersection.begin() + offset );
     }
