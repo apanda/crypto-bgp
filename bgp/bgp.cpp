@@ -281,6 +281,7 @@ void BGPProcess::compute_partial0(
       m_.unlock();
       shared_ptr<vector<vertex_t> > combined_values_ptr(
           new vector<vertex_t>());
+      combined_values_ptr->push_back(largest_vertex);
       for0(affected_vertex, new_changed_set_ptr, global_counter_ptr, combined_values_ptr);
       return;
     }
