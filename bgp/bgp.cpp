@@ -278,13 +278,11 @@ void BGPProcess::compute_partial0(
     partial_count++;
 
     if (partial_count == partial_batch_count) {
-
       m_.unlock();
       shared_ptr<vector<vertex_t> > combined_values_ptr(
-          new vector<vertex_t>(local_set.begin(), local_set.end()));
+          new vector<vertex_t>());
       for0(affected_vertex, new_changed_set_ptr, global_counter_ptr, combined_values_ptr);
       return;
-
     }
 
     m_.unlock();
