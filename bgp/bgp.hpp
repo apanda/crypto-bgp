@@ -55,6 +55,7 @@ public:
 
   void compute_partial0(
       const vertex_t affected_vertex,
+      shared_ptr< vertex_t > largest_vertex,
       shared_ptr< tbb::concurrent_unordered_set<vertex_t> > new_changed_set_ptr,
       shared_ptr< tbb::concurrent_unordered_set<vertex_t> > local_set_ptr,
       shared_ptr< pair<size_t, size_t> > counts_ptr,
@@ -71,6 +72,7 @@ public:
   void compute_partial1(
       vertex_t affected_vertex,
       vertex_t neigh_vertex,
+      shared_ptr< vertex_t > largest_vertex,
       shared_ptr< tbb::concurrent_unordered_set<vertex_t> > new_changed_set_ptr,
       shared_ptr< tbb::concurrent_unordered_set<vertex_t> > local_set_ptr,
       int cmp);

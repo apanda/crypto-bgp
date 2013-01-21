@@ -233,6 +233,8 @@ void BGPProcess::process_neighbors_mpc(
     shared_ptr< tbb::concurrent_unordered_set<vertex_t> > local_set_ptr(
         new tbb::concurrent_unordered_set<vertex_t>());
 
+    shared_ptr< vertex_t > largest_vertex(new vertex_t(affected.next_hop_));
+
     while(range_stack.size() > 1) {
 
       auto start = range_stack.front();
@@ -241,7 +243,7 @@ void BGPProcess::process_neighbors_mpc(
       auto pair = std::make_pair(start, end);
 
       compute_partial0(
-          affected_vertex, new_changed_set_ptr, local_set_ptr,
+          affected_vertex, largest_vertex, new_changed_set_ptr, local_set_ptr,
           counts_ptr, suncounter_ptr, intersection_ptr, pair);
     }
 
@@ -253,12 +255,15 @@ void BGPProcess::process_neighbors_mpc(
 
 void BGPProcess::compute_partial0(
     const vertex_t affected_vertex,
+    shared_ptr< vertex_t > largest_vertex_ptr,
     shared_ptr< tbb::concurrent_unordered_set<vertex_t> > new_changed_set_ptr,
     shared_ptr< tbb::concurrent_unordered_set<vertex_t> > local_set_ptr,
     shared_ptr< pair<size_t, size_t> > global_counter_ptr,
     shared_ptr< pair<size_t, size_t> > local_counter_ptr,
     shared_ptr< vector<vertex_t> > intersection_ptr,
     pair<vector<vertex_t>::iterator, vector<vertex_t>::iterator> iter_range) {
+
+  vertex_t& largest_vertex = *largest_vertex_ptr;
 
   size_t& count = global_counter_ptr->first;
   size_t& batch_count = global_counter_ptr->second;
@@ -291,7 +296,7 @@ void BGPProcess::compute_partial0(
   const vertex_t neigh_vertex = *(iter_range.first);
   iter_range.first++;
 
-  const string key1 = lexical_cast<string>(affected.next_hop_);
+  const string key1 = lexical_cast<string>(largest_vertex);
   const string key2 = lexical_cast<string>(neigh_vertex);
 
   string w = ".2" + key1;
@@ -310,6 +315,7 @@ void BGPProcess::compute_partial0(
 
   auto next = boost::bind(&BGPProcess::compute_partial0, this,
         affected_vertex,
+        largest_vertex_ptr,
         new_changed_set_ptr,
         local_set_ptr,
         global_counter_ptr,
@@ -329,6 +335,7 @@ void BGPProcess::compute_partial0(
               &BGPProcess::compute_partial1, this,
               affected_vertex,
               neigh_vertex,
+              largest_vertex_ptr,
               new_changed_set_ptr,
               local_set_ptr,
               _1);
@@ -417,6 +424,7 @@ void BGPProcess::for0(
 void BGPProcess::compute_partial1(
     vertex_t affected_vertex,
     vertex_t neigh_vertex,
+    shared_ptr< vertex_t > largest_vertex_ptr,
     shared_ptr< tbb::concurrent_unordered_set<vertex_t> > new_changed_set_ptr,
     shared_ptr< tbb::concurrent_unordered_set<vertex_t> > local_set_ptr,
     int cmp) {
@@ -424,7 +432,9 @@ void BGPProcess::compute_partial1(
   tbb::concurrent_unordered_set<vertex_t>& new_changed_set = *new_changed_set_ptr;
   Vertex& affected = graph_[affected_vertex];
 
-  const string key1 = lexical_cast<string>(affected.next_hop_);
+  vertex_t& largest_vertex = *largest_vertex_ptr;
+
+  const string key1 = lexical_cast<string>(largest_vertex);
   const string key2 = lexical_cast<string>(neigh_vertex);
 
   string w = ".2" + key1;
@@ -467,7 +477,7 @@ void BGPProcess::compute_partial1(
     return;
   }
 
-  //affected.set_next_hop(graph_, neigh_vertex);
+  largest_vertex = neigh_vertex;
   new_changed_set.insert(affected_vertex);
 
   affected.sig_bgp_next[result]->operator ()();
