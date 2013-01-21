@@ -223,7 +223,7 @@ void BGPProcess::process_neighbors_mpc(
     LOG4CXX_INFO(comp_peer_->logger_, "intersection.size() " << intersection.size()
         << " suncounter_ptr->second " << suncounter_ptr->second);
 
-    for(size_t index = 0; index <= intersection.size() / MAX_BATCH; index++) {
+    for(size_t index = 0; index < suncounter_ptr->second; index++) {
       const size_t offset = MAX_BATCH * index;
       range_stack.push_back( intersection.begin() + offset );
     }
@@ -287,7 +287,6 @@ void BGPProcess::compute_partial0(
     partial_count++;
 
     if (partial_batch_count == 1) {
-      LOG4CXX_INFO(comp_peer_->logger_, "second iteration "<< partial_count << " " << partial_batch_count);
 
       if (partial_count == partial_batch_count) {
         count++;
@@ -304,11 +303,10 @@ void BGPProcess::compute_partial0(
     }
 
     if (partial_count == partial_batch_count) {
+      m_.unlock();
 
       intersection.assign(local_set.begin(), local_set.end());
       std::sort(intersection.begin(), intersection.end());
-
-      LOG4CXX_INFO(comp_peer_->logger_, "intersection size " << intersection.size());
 
       partial_count = 0;
       partial_batch_count = 1;
@@ -316,7 +314,7 @@ void BGPProcess::compute_partial0(
       auto new_pair = std::make_pair(intersection.begin(), intersection.end());
 
       largest_vertex = affected.next_hop_;
-      m_.unlock();
+
 
       compute_partial0(
           affected_vertex, largest_vertex_ptr, new_changed_set_ptr, local_set_ptr,
