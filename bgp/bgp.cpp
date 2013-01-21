@@ -461,14 +461,14 @@ void BGPProcess::for0(
 
     m_.lock();
     count++;
-    m_.unlock();
-
     if (batch_count == count) {
+      m_.unlock();
 
       continuation_();
       return;
     }
 
+    m_.unlock();
     return;
   }
 
