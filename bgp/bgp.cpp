@@ -265,9 +265,6 @@ void BGPProcess::compute_partial0(
 
   vertex_t& largest_vertex = *largest_vertex_ptr;
 
-  size_t& count = global_counter_ptr->first;
-  size_t& batch_count = global_counter_ptr->second;
-
   size_t& partial_count = local_counter_ptr->first;
   size_t& partial_batch_count = local_counter_ptr->second;
 
@@ -281,14 +278,13 @@ void BGPProcess::compute_partial0(
     partial_count++;
 
     if (partial_count == partial_batch_count) {
-      count++;
 
-      if (batch_count == count) {
-        m_.unlock();
+      m_.unlock();
+      shared_ptr<vector<vertex_t> > combined_values_ptr(
+          new vector<vertex_t>(local_set.begin(), local_set.end()));
+      for0(affected_vertex, new_changed_set_ptr, global_counter_ptr, combined_values_ptr);
+      return;
 
-        continuation_();
-        return;
-      }
     }
 
     m_.unlock();
