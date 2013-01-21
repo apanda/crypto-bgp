@@ -309,8 +309,10 @@ void BGPProcess::compute_partial0(
       m_.unlock();
       //return;
 
-      shared_ptr< vector<vertex_t> > intersection_ptr2(new vector<vertex_t>(local_set.begin(), local_set.end()));
-      //intersection_ptr2->push_back(largest_vertex);
+      shared_ptr< vector<vertex_t> > intersection_ptr2(new vector<vertex_t>());
+      for (auto x: local_set) {
+        intersection_ptr2->push_back(x);
+      }
       std::sort(intersection_ptr2->begin(), intersection_ptr2->end());
 
       LOG4CXX_INFO(comp_peer_->logger_, "intersection " << intersection.size());
