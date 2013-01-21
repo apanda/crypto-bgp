@@ -296,9 +296,9 @@ void BGPProcess::compute_partial0(
           continuation_();
           return;
         }
-
       }
 
+      m_.lock();
       shared_ptr< vector<vertex_t> > intersection_ptr2(
           new vector<vertex_t>());
       //intersection.assign(local_set.begin(), local_set.end());
