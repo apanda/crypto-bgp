@@ -300,7 +300,7 @@ void BGPProcess::compute_partial0(
 
       m_.lock();
       shared_ptr< vector<vertex_t> > intersection_ptr2(
-          new vector<vertex_t>());
+          new vector<vertex_t>(local_set.begin(), local_set.end()));
       //intersection.assign(local_set.begin(), local_set.end());
       std::sort(intersection_ptr2->begin(), intersection_ptr2->end());
 
@@ -309,7 +309,6 @@ void BGPProcess::compute_partial0(
 
       partial_count = 0;
       partial_batch_count = 1;
-
 
       auto new_pair = std::make_pair(intersection_ptr2->begin(), intersection_ptr2->end());
       m_.unlock();
