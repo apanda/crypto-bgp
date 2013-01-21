@@ -326,6 +326,7 @@ void BGPProcess::compute_partial0(
       return;
     }
 
+    m_.unlock();
     return;
   }
 
