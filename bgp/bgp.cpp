@@ -263,6 +263,8 @@ void BGPProcess::compute_partial0(
     shared_ptr< vector<vertex_t> > intersection_ptr,
     pair<vector<vertex_t>::iterator, vector<vertex_t>::iterator> iter_range) {
 
+  vector<vertex_t>& intersection = *intersection_ptr;
+
   vertex_t& largest_vertex = *largest_vertex_ptr;
   Vertex& affected = graph_[affected_vertex];
 
@@ -299,13 +301,14 @@ void BGPProcess::compute_partial0(
         m_.unlock();
       }
 
-      intersection_ptr->assign(local_set.begin(), local_set.end());
+      intersection.assign(local_set.begin(), local_set.end());
+      std::sort(intersection.begin(), intersection.end());
 
       partial_count = 0;
       partial_batch_count = 1;
 
 
-      auto new_pair = std::make_pair(intersection_ptr->begin(), intersection_ptr->end());
+      auto new_pair = std::make_pair(intersection.begin(), intersection.end());
 
       compute_partial0(
           affected_vertex, largest_vertex_ptr, new_changed_set_ptr, local_set_ptr,
