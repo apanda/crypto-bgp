@@ -424,13 +424,17 @@ void BGPProcess::for0(
   size_t& batch_count = counts_ptr->second;
 
   if (intersection.empty()) {
-    {
-    boost::unique_lock<boost::mutex> lock(m_);
+
+    m_.lock();
     count++;
-    }
+
     if (batch_count == count) {
+      m_.unlock();
       continuation_();
+      return;
     }
+
+    m_.unlock();
     return;
   }
 
