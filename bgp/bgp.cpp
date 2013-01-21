@@ -285,12 +285,8 @@ void BGPProcess::compute_partial0(
 
     if (partial_batch_count == 1) {
       LOG4CXX_INFO(comp_peer_->logger_, "second iteration ");
-    }
 
-    if (partial_count == partial_batch_count) {
-
-      //if (partial_batch_count == 1) {
-        //affected.set_next_hop(graph_, largest_vertex);
+      if (partial_count == partial_batch_count) {
         count++;
 
         if (batch_count == count) {
@@ -299,11 +295,20 @@ void BGPProcess::compute_partial0(
           return;
         }
 
+      }
+
+    }
+
+    if (partial_count == partial_batch_count) {
+
+      //if (partial_batch_count == 1) {
+        //affected.set_next_hop(graph_, largest_vertex);
+
+
       //}
       m_.unlock();
-      return;
+      //return;
 
-      m_.lock();
       shared_ptr< vector<vertex_t> > intersection_ptr2(new vector<vertex_t>());
       intersection_ptr2->push_back(largest_vertex);
       std::sort(intersection_ptr2->begin(), intersection_ptr2->end());
@@ -315,7 +320,7 @@ void BGPProcess::compute_partial0(
 
 
       auto new_pair = std::make_pair(intersection_ptr2->begin(), intersection_ptr2->end());
-      m_.unlock();
+      //m_.unlock();
 
       local_set.clear();
 
