@@ -282,7 +282,9 @@ void BGPProcess::compute_partial0(
     LOG4CXX_INFO(comp_peer_->logger_, "the end");
 
     m_.lock();
-    local_set.push_back(largest_vertex);
+    if (largest_vertex != affected.next_hop_){
+      local_set.push_back(largest_vertex);
+    }
     partial_count++;
 
     if (partial_batch_count == 1) {
