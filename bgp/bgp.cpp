@@ -286,7 +286,7 @@ void BGPProcess::compute_partial0(
 
     if (partial_count == partial_batch_count) {
 
-      //if (partial_batch_count == 1) {
+      if (partial_batch_count == 1) {
         m_.lock();
         affected.set_next_hop(graph_, largest_vertex);
         count++;
@@ -297,13 +297,11 @@ void BGPProcess::compute_partial0(
           return;
         }
 
-        return;
+      }
 
-      //}
-
-      shared_ptr< vector<vertex_t> > intersection_ptr2(
-          new vector<vertex_t>());
-      //intersection.assign(local_set.begin(), local_set.end());
+      m_.lock();
+      shared_ptr< vector<vertex_t> > intersection_ptr2(new vector<vertex_t>());
+      intersection_ptr2->push_back(largest_vertex);
       std::sort(intersection_ptr2->begin(), intersection_ptr2->end());
 
       LOG4CXX_INFO(comp_peer_->logger_, "intersection " << intersection.size());
@@ -314,6 +312,8 @@ void BGPProcess::compute_partial0(
 
       auto new_pair = std::make_pair(intersection_ptr2->begin(), intersection_ptr2->end());
       m_.unlock();
+
+      local_set.clear();
 
       compute_partial0(
           affected_vertex, largest_vertex_ptr, new_changed_set_ptr, local_set_ptr,
