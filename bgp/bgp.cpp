@@ -282,23 +282,21 @@ void BGPProcess::compute_partial0(
     m_.lock();
     local_set.push_back(largest_vertex);
     partial_count++;
+    m_.unlock();
 
     if (partial_count == partial_batch_count) {
-      m_.unlock();
 
       if (partial_batch_count == 1) {
-
+        m_.lock();
         affected.set_next_hop(graph_, largest_vertex);
-
-        m_.unlock();
         count++;
+        m_.unlock();
+
         if (batch_count == count) {
-          m_.unlock();
           continuation_();
           return;
         }
 
-        m_.unlock();
       }
 
       intersection.assign(local_set.begin(), local_set.end());
@@ -317,7 +315,6 @@ void BGPProcess::compute_partial0(
       return;
     }
 
-    m_.unlock();
     return;
   }
 
