@@ -309,7 +309,7 @@ void BGPProcess::compute_partial0(
       partial_batch_count = 1;
 
 
-      auto new_pair = std::make_pair(intersection_ptr2.begin(), intersection_ptr2.end());
+      auto new_pair = std::make_pair(intersection_ptr2->begin(), intersection_ptr2->end());
       m_.unlock();
 
       compute_partial0(
