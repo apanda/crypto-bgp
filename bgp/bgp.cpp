@@ -279,7 +279,6 @@ void BGPProcess::compute_partial0(
   auto& local_set = *local_set_ptr;
 
   if (is_end) {
-    LOG4CXX_INFO(comp_peer_->logger_, "the end");
 
     m_.lock();
     if (largest_vertex != affected.next_hop_){
@@ -325,8 +324,9 @@ void BGPProcess::compute_partial0(
       std::sort(intersection_ptr2->begin(), intersection_ptr2->end());
 
       std::stringstream ss;
+      ss << "(" << affected.next_hop_ << ")";
       for (auto x: aaa) {
-        ss << x << " ";
+        ss << " " << x;
       }
 
       LOG4CXX_INFO(comp_peer_->logger_, "intersection value " << ss.str());
@@ -339,6 +339,7 @@ void BGPProcess::compute_partial0(
       auto new_pair = std::make_pair(intersection_ptr2->begin(), intersection_ptr2->end());
       //m_.unlock();
 
+      largest_vertex = affected.next_hop_;
       //local_set.clear();
       m_.unlock();
 
