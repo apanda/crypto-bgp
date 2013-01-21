@@ -299,11 +299,12 @@ void BGPProcess::compute_partial0(
 
       }
 
-      shared_ptr< vector<vertex_t> > intersection_ptr2(new vector<vertex_t>());
+      shared_ptr< vector<vertex_t> > intersection_ptr2(
+          new vector<vertex_t>());
       //intersection.assign(local_set.begin(), local_set.end());
       std::sort(intersection_ptr2->begin(), intersection_ptr2->end());
 
-      LOG4CXX_DEBUG(comp_peer_->logger_, "intersection " << intersection.size());
+      LOG4CXX_INFO(comp_peer_->logger_, "intersection " << intersection.size());
 
       partial_count = 0;
       partial_batch_count = 1;
