@@ -320,10 +320,12 @@ void BGPProcess::compute_partial0(
 
       std::sort(intersection_ptr2->begin(), intersection_ptr2->end());
 
+      std::stringstream ss;
       for (auto x: local_set) {
-        LOG4CXX_INFO(comp_peer_->logger_, "intersection value " << x);
+        ss << x << " ";
       }
 
+      LOG4CXX_INFO(comp_peer_->logger_, "intersection value " << ss.str());
       LOG4CXX_INFO(comp_peer_->logger_, "intersection " << local_set.size());
 
       partial_count = 0;
