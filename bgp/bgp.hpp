@@ -61,14 +61,14 @@ public:
       shared_ptr< tbb::concurrent_vector<vertex_t> > local_set_ptr,
       shared_ptr< pair<size_t, size_t> > counts_ptr,
       shared_ptr< pair<size_t, size_t> > subcounter_ptr,
-      shared_ptr< vector<vertex_t> > n,
+      shared_ptr< vector<vertex_t> > intersection_ptr,
       pair<vector<vertex_t>::iterator, vector<vertex_t>::iterator> iters);
 
   void for0(
       const vertex_t affected_vertex,
       shared_ptr< tbb::concurrent_unordered_set<vertex_t> > new_changed_set_ptr,
       shared_ptr< pair<size_t, size_t> > counts_ptr,
-      shared_ptr< vector<vertex_t> > n);
+      shared_ptr< vector<vertex_t> > intersection_ptr);
 
   void compute_partial1(
       vertex_t affected_vertex,
