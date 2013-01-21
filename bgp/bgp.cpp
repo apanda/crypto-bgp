@@ -287,8 +287,6 @@ void BGPProcess::compute_partial0(
 
     if (partial_batch_count == 1) {
       LOG4CXX_INFO(comp_peer_->logger_, "second iteration "<< partial_count << " " << partial_batch_count);
-      LOG4CXX_INFO(comp_peer_->logger_, "second iteration x "<< local_counter_ptr->first << " " << local_counter_ptr->second);
-
 
       if (partial_count == partial_batch_count) {
         count++;
@@ -298,9 +296,10 @@ void BGPProcess::compute_partial0(
           continuation_();
           return;
         }
-
       }
 
+      m_.unlock();
+      return;
     }
 
     if (partial_count == partial_batch_count) {
