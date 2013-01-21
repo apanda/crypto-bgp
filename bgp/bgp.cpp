@@ -318,10 +318,11 @@ void BGPProcess::compute_partial0(
         intersection_ptr2->push_back(x);
       }
 
-      for (auto x: intersection_ptr2.get()) {
+      std::sort(intersection_ptr2->begin(), intersection_ptr2->end());
+
+      for (auto x: local_set) {
         LOG4CXX_INFO(comp_peer_->logger_, "intersection value " << x);
       }
-      std::sort(intersection_ptr2->begin(), intersection_ptr2->end());
 
       LOG4CXX_INFO(comp_peer_->logger_, "intersection " << local_set.size());
 
