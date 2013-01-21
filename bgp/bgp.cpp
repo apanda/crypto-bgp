@@ -375,10 +375,13 @@ void BGPProcess::compute_partial1(
   string wxy2 = xy + "*" + "2" + "*" + w;
   string result = wx + "+" + wy + "-" + wxy2 + "-" + y + "-" + x + "+" + xy;
 
-  const auto current_preference = affected.current_next_hop_preference(graph_);
+  auto current_preference_it = affected.preference_.find(largest_vertex);
+  BOOST_ASSERT(current_preference_it != affected.preference_.end());
 
   auto offer_it = affected.preference_.find(neigh_vertex);
   BOOST_ASSERT(offer_it != affected.preference_.end());
+
+  const auto current_preference = current_preference_it->second;
   const auto offered_preference = offer_it->second;
 
   LOG4CXX_DEBUG(comp_peer_->logger_, "Compare -> "
