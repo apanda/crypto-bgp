@@ -223,7 +223,7 @@ void BGPProcess::process_neighbors_mpc(
     LOG4CXX_INFO(comp_peer_->logger_, "intersection.size() " << intersection.size()
         << " suncounter_ptr->second " << suncounter_ptr->second);
 
-    for(size_t index = 0; index < suncounter_ptr->second; index++) {
+    for(size_t index = 0; index <= intersection.size() / MAX_BATCH; index++) {
       const size_t offset = MAX_BATCH * index;
       range_stack.push_back( intersection.begin() + offset );
     }
@@ -287,9 +287,9 @@ void BGPProcess::compute_partial0(
     partial_count++;
 
     if (partial_batch_count == 1) {
+      LOG4CXX_INFO(comp_peer_->logger_, "second iteration "<< partial_count << " " << partial_batch_count);
 
       if (partial_count == partial_batch_count) {
-        affected.set_next_hop(graph_, largest_vertex);
         count++;
 
         if (batch_count == count) {
@@ -304,22 +304,37 @@ void BGPProcess::compute_partial0(
     }
 
     if (partial_count == partial_batch_count) {
-      m_.unlock();
 
-      intersection.assign(local_set.begin(), local_set.end());
-      std::sort(intersection.begin(), intersection.end());
+
+      shared_ptr< vector<vertex_t> > new_intersection_ptr(
+          new vector<vertex_t>(local_set.begin(), local_set.end()));
+      auto& new_intersection = *new_intersection_ptr;
+
+      std::sort(new_intersection.begin(), new_intersection.end());
+
+      std::stringstream ss;
+      ss << "(" << affected.next_hop_ << ")";
+      for (auto x: new_intersection) {
+        ss << " " << x;
+      }
+
+      LOG4CXX_INFO(comp_peer_->logger_, "intersection value " << ss.str());
+      LOG4CXX_INFO(comp_peer_->logger_, "intersection " << new_intersection.size());
 
       partial_count = 0;
       partial_batch_count = 1;
 
-      auto new_pair = std::make_pair(intersection.begin(), intersection.end());
+
+      auto new_pair = std::make_pair(new_intersection.begin(), new_intersection.end());
+      //m_.unlock();
 
       largest_vertex = affected.next_hop_;
-
+      //local_set.clear();
+      m_.unlock();
 
       compute_partial0(
           affected_vertex, largest_vertex_ptr, new_changed_set_ptr, local_set_ptr,
-          global_counter_ptr, local_counter_ptr, intersection_ptr, new_pair);
+          global_counter_ptr, local_counter_ptr, new_intersection_ptr, new_pair);
 
       return;
     }
@@ -582,8 +597,6 @@ void BGPProcess::for1(
 
   affected.sig_bgp_next[result]->operator ()();
 }
-
-
 
 
 #include <boost/algorithm/string.hpp>
