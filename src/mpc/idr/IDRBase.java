@@ -42,6 +42,7 @@ public abstract class IDRBase extends PrimitivesEnabledPeer {
 	 */
 	public static final int M = IDRProtocolPrivacyPeerToPP.V1_STEPS + 1;
 	public static final String PROP_IDR_TOPO_FILE = "mpc.idr.topofile";
+	public static final String PROP_IDR_PRIVACY_LEVELS = "mpc.idr.privacylevels";
 
 	protected String inputFolder;
 	protected String outputFolder;
@@ -60,6 +61,9 @@ public abstract class IDRBase extends PrimitivesEnabledPeer {
 
 	/** filename of file with interesting data in it */
 	protected String topo_filename;
+
+	/** maximum number of privacy levels that can exist; minimum is 3 (customer, peer, provider) */
+	protected int numberOfLevels;
 
 	/** contains the final result */
 	protected long[][] finalResult;
@@ -97,14 +101,15 @@ public abstract class IDRBase extends PrimitivesEnabledPeer {
 		shamirSharesFieldOrder = Long.valueOf(properties.getProperty(ConfigFile.PROP_FIELD, ConfigFile.DEFAULT_FIELD));
 		degreeT = Integer.valueOf(properties.getProperty(ConfigFile.PROP_DEGREE, "-1"));
 
-		topo_filename = properties.getProperty(PROP_IDR_TOPO_FILE);
-
 		myAlphaIndex = Collections.binarySearch(connectionManager.getConfiguredPrivacyPeerIDs(), getMyPeerID());
 
 		/*
 		 * Properties specific to the IDR protocol.
 		 */
 
+		topo_filename = properties.getProperty(PROP_IDR_TOPO_FILE);
+
+		numberOfLevels = Integer.valueOf(properties.getProperty(PROP_IDR_PRIVACY_LEVELS, "3"));
 
 		// output properties to log
 		logger.log(Level.INFO, "The following properties were set:");

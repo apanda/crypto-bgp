@@ -24,7 +24,7 @@ peer*/input/test.txt
 	handled by this inputpeer
 privacypeer*/config.privacypeer*.properties:
 	mpc.idr.V=
-		should be set to number of nodes; right now this is not required
+		should be set to number of nodes
 
 In the new instance(s):
 

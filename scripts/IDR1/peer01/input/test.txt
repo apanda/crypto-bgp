@@ -5,7 +5,7 @@ Destination=6
 
 1_peerID=1
 1_peerType=1
-1_customers=3,4
+1_customers=3;4
 1_peers=2
 1_providers=
 1_2=3,4
@@ -52,7 +52,7 @@ Destination=6
 6_peerType=0
 6_customers=
 6_peers=
-6_providers=3,4
+6_providers=3;4
 
 7_peerID=7
 7_peerType=0

@@ -632,9 +632,9 @@ public class IDRPrivacyPeer extends IDRBase {
 	 * 		For each domain Z in Y's path:
 	 * 			Check if Z=X (Step 3)
 	 * 		Sum results of above to get C, C is 1 iff Y would be a loop
-	 * 		Multiply (1-A+C) * 4M + B to get Y's score S
-	 * 	Calculate the lowest S value s.t. S < 4M (Step 4)
-	 *  Figure out which neighbors actually have this lowest S (Step 5)
+	 * 		Multiply (1-A+C) * LM + B to get Y's score S // L is the number of pref levels
+	 * 	Calculate the lowest S value (Step 4)
+	 *  Figure out which neighbors actually have this lowest S, and decide if S < LM (Step 5)
 	 *  Obtain the location of the first among those neighbors (Step 6)
 	 *  Pick out the next hop / route and path length of that neighbor (Step 7)
 	 *  Collect results (Step 8)
@@ -766,16 +766,16 @@ public class IDRPrivacyPeer extends IDRBase {
 		}
 		//now loop[i] == 1 iff route through i would cause a loop
 
-		// S = (1-sharing[i]+loop[i]) *4M + B
+		// S = (1-sharing[i]+loop[i]) * numberOfLevels * M + B
 		score = new long[node.getNeighbors().length];
 		for (int i = 0; i < node.getNeighbors().length; i++) {
 			IDRNodeInfo neighbor = getNodeByID(node.getNeighbors()[i]);
 			long A = 0;
 			long B = node.getInitialClassificationShares()[i] + neighbor.getPathLength();
 			long C = 0;
-			// Want to do (1-sharing[i])*4M
-			// Since 4M is a constant, it is easier to add locally than multiply using SEPIA
-			for (int z = 0; z < 4*M; z++) {
+			// Want to do (1-sharing[i])*LM
+			// Since LM is a constant, it is easier to add locally than multiply using SEPIA
+			for (int z = 0; z < numberOfLevels*M; z++) {
 				A += 1 - sharing[i];
 				C += loop[i];
 			}
@@ -787,29 +787,40 @@ public class IDRPrivacyPeer extends IDRBase {
 		primitives.min(0, score, -1, true); // the -1 and true might need to be changed for optimization
 	}
 
+	long minScore; // minScore is the smallest score among all those being offered
+	long valid; // valid is 1 if the smallest score is < numberOfLevels * M, 0 else
+	
 	public void runStep5(boolean useISPs) {
 		logger.log(Level.INFO, Services.getFilterPassingLogPrefix() + "Step 4 took " + (System.currentTimeMillis() - timer) + " ms");
 		timer = System.currentTimeMillis();
-		long min = primitives.getResult(0)[0];
+		minScore = primitives.getResult(0)[0];
 		// min is the score of the nextHop we are taking; now we want to know which neighbor it corresponds to
-
+		
 		IDRNodeInfo node = getNodeByID(nodeID);
-		initializeNewOperationSet(node.getNeighbors().length);
-		operationIDs = new int[node.getNeighbors().length];
-		for (int opX = 0; opX < node.getNeighbors().length; opX++) {
+		initializeNewOperationSet(node.getNeighbors().length + 1);
+		operationIDs = new int[node.getNeighbors().length + 1];
+		int opX;
+		for (opX = 0; opX < node.getNeighbors().length; opX++) {
 			operationIDs[opX] = opX;
-			primitives.equal(opX, new long[]{min, score[opX]});
+			primitives.equal(opX, new long[]{minScore, score[opX]});
 		}
+		
+		// while we're at it, figure out whether this minimum is even valid
+		primitives.lessThan(opX, new long[]{minScore, numberOfLevels*M, -1, -1, -1}); //might be able to optimize by changing these -1s
+
 	}
 
 	public void runStep6(boolean useISPs) {
 		logger.log(Level.INFO, Services.getFilterPassingLogPrefix() + "Step 5 took " + (System.currentTimeMillis() - timer) + " ms");
 		timer = System.currentTimeMillis();
 
-		long [] winner = new long[operationIDs.length];
+		long [] winner = new long[operationIDs.length - 1];
 		for (int i = 0; i < winner.length; i++) {
 			winner[i] = primitives.getResult(i)[0];
 		}
+		
+		valid = primitives.getResult(operationIDs.length - 1)[0];
+		
 
 		/*
 		 * Now winner is a list of shares of 0/1, 1 if this is the neighbor with the minimum score.
@@ -868,13 +879,16 @@ public class IDRPrivacyPeer extends IDRBase {
 		operationIDs = new int[opX];
 		opX = 0;
 
+		
+		// Unless i is both the winner and has a small enough score,
+		// its contribution to the result will be 0.
 		for (int i = 0; i < node.getNeighbors().length; i++) {
 			IDRNodeInfo neighbor = getNodeByID(node.getNeighbors()[i]);
 			operationIDs[opX] = opX;
-			primitives.product(opX++, new long[]{neighbor.getPathLength(), winner[i]});
+			primitives.product(opX++, new long[]{neighbor.getPathLength(), winner[i], valid});
 			for (int j = 0; j < neighbor.getRoute().length; j++) {
 				operationIDs[opX] = opX;
-				primitives.product(opX++, new long[]{neighbor.getRoute()[j], winner[i]});
+				primitives.product(opX++, new long[]{neighbor.getRoute()[j], winner[i], valid});
 			}
 		}	
 	}

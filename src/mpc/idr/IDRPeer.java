@@ -78,12 +78,15 @@ public class IDRPeer extends IDRBase {
 	/** ID of the destination */
 	protected long destination;
 
-	/** Lists of customers, peers, proivders for each node; dimensions [numberOfNodes][3][numberOfNeighbors] */
+	/** Lists of customers, peers, providers for each node;
+	 *  dimensions [numberOfNodes][numberOfLevels][numberOfNeighbors]
+	 */
 	protected long[][][] neighborClassificationLists;
 
-	/** Array of lists of who can be routed through each neighbor; dimensions [numberOfNodes][numberOfNeighbors][numberOfNeighbors]
-	 * Example: neighborExports[1][2] is the list of which neighbors can receive routes through
-	 *     neighbor[2] for node 1
+	/** Array of lists of who can be routed through each neighbor;
+	 *  dimensions [numberOfNodes][numberOfNeighbors][numberOfNeighbors]
+	 *  Example: neighborExports[1][2] is the list of which neighbors can receive routes through
+	 *  neighbor[2] for node 1
 	 */
 	protected long[][][] neighborExports;
 
@@ -180,17 +183,17 @@ public class IDRPeer extends IDRBase {
 		initialClassificationShares = new long[numberOfNodes][numberOfPrivacyPeers][];
 		// What's going on here:
 		// For each neighbor of i, we search for it in the customer/peer/provider list for i.
-		// If we find it, we save the number of the list we found it in (0, 1, or 2) to i's classList 
+		// If we find it, we save the number of the list we found it in to i's classList 
 		// multiplied by M 
 		for (int i = 0; i < numberOfNodes; i++) {
 			long[] classList = new long[nodeInfos[i].getNeighbors().length];
 			for (int h = 0; h < nodeInfos[i].getNeighbors().length; h++) {
 				classList[h] = Integer.MAX_VALUE/2;
-				for (int j = 0; j < 3; j++) {
+				for (int j = 0; j < numberOfLevels; j++) {
 					for (int k = 0; k < neighborClassificationLists[i][j].length; k++) {
 						if (neighborClassificationLists[i][j][k] == nodeInfos[i].getNeighbors()[h]) {
 							classList[h] = j * M;
-							j = 4; // break out of two loops
+							j = numberOfLevels; // break out of two loops
 							break;
 						}
 					}
@@ -283,6 +286,46 @@ public class IDRPeer extends IDRBase {
 		}
 	}
 
+	private static long[] concatAll(long[][] allArrays) {
+		int totalLength = 0;
+		for (long[] array : allArrays) {
+			if (array == null)
+				continue;
+			totalLength += array.length;
+		}
+		long[] result = Arrays.copyOf(allArrays[0], totalLength);
+		int offset = allArrays[0].length;
+		for (int i = 1; i < allArrays.length; i++) {
+			long[] array = allArrays[i];
+			if (allArrays[i] == null)
+				continue;
+			System.arraycopy(array, 0, result, offset, array.length);
+			offset += array.length;
+		}
+		return result;
+	}
+	
+	private static long[] noZeroes(long[] array) {
+		int z = 0;
+		for (long x : array) {
+			if (x == 0) {
+				z++;
+			}
+		}
+		long[] newArray = new long[array.length - z];
+		int o = 0, n = 0;
+		while (n < newArray.length) {
+			if (array[o] == 0) {
+				o++;
+			} else {
+				newArray[n] = array[o];
+				n++;
+				o++;
+			}
+		}
+		return newArray;		
+	}
+	/* UNCOMMENT THIS IF NEEDED
 	private static long[] concatAll(long[] first, long[]... rest) {
 		int totalLength = first.length;
 		for (long[] array : rest) {
@@ -299,7 +342,7 @@ public class IDRPeer extends IDRBase {
 	}
 
 
-	/* UNCOMMENT THIS IF NEEDED
+
 	private static <T> T[] concatAll(T[] first, T[]... rest) {
 		int totalLength = first.length;
 		for (T[] array : rest) {
@@ -329,7 +372,7 @@ public class IDRPeer extends IDRBase {
 			numberOfNodes = Integer.parseInt(properties.getProperty(PROP_N_ITEMS));
 			nodeInfos = new IDRNodeInfo[numberOfNodes];
 			destination = Long.parseLong(properties.getProperty(PROP_DESTINATION));
-			neighborClassificationLists = new long[numberOfNodes][3][];
+			neighborClassificationLists = new long[numberOfNodes][numberOfLevels][];
 			neighborExports = new long[numberOfNodes][][];
 			for (int i = 0; i < nodeInfos.length; i++) {
 				String prefix = (i+1) + "_";
@@ -342,35 +385,25 @@ public class IDRPeer extends IDRBase {
 				String peers = properties.getProperty(prefix + PROP_PEERS);
 				String providers = properties.getProperty(prefix + PROP_PROVIDERS);
 
-				if (customers.equals("")) {
-					neighborClassificationLists[i][0] = new long[0];
-				} else {
-					String[] custStrings = customers.split("\\D");
-					neighborClassificationLists[i][0] = new long[custStrings.length];
-					for (int j = 0; j < neighborClassificationLists[i][0].length; j++)
-						neighborClassificationLists[i][0][j] = Long.parseLong(custStrings[j]);
+
+				String classifications = customers + ";" + peers + ";" + providers;				
+				
+				String[] classLevels = classifications.split(";");
+				int currentLevel = 0;
+				for (int j = 0; j < classLevels.length; j++) {
+					if (classLevels[j].isEmpty() || classLevels[j].matches(",+"))
+						continue;
+					String[] classStrings = classLevels[j].split(",");
+					neighborClassificationLists[i][currentLevel] = new long[classStrings.length];
+					for (int k = 0; k < neighborClassificationLists[i][currentLevel].length; k++) {
+						if (classStrings[k].isEmpty())
+							continue;
+						neighborClassificationLists[i][currentLevel][k] = Long.parseLong(classStrings[k]);
+					}
+					currentLevel++;
 				}
 
-				if (peers.equals("")) {
-					neighborClassificationLists[i][1] = new long[0];
-				} else {
-					String[] peerStrings = peers.split("\\D");
-					neighborClassificationLists[i][1] = new long[peerStrings.length];
-					for (int j = 0; j < neighborClassificationLists[i][1].length; j++)
-						neighborClassificationLists[i][1][j] = Long.parseLong(peerStrings[j]);
-				}
-
-				if (providers.equals("")) {
-					neighborClassificationLists[i][2] = new long[0];
-				} else {
-					String[] provStrings = providers.split("\\D");
-					neighborClassificationLists[i][2] = new long[provStrings.length];
-					for (int j = 0; j < neighborClassificationLists[i][2].length; j++)
-						neighborClassificationLists[i][2][j] = Long.parseLong(provStrings[j]);
-				}
-
-				long[] neighborList = concatAll(neighborClassificationLists[i][0],
-						neighborClassificationLists[i][1], neighborClassificationLists[i][2]);
+				long[] neighborList = noZeroes(concatAll(neighborClassificationLists[i]));
 
 				Arrays.sort(neighborList);
 
