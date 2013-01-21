@@ -274,6 +274,9 @@ void BGPProcess::compute_partial0(
   size_t& partial_count = local_counter_ptr->first;
   size_t& partial_batch_count = local_counter_ptr->second;
 
+  LOG4CXX_INFO(comp_peer_->logger_, "counter "<< partial_count << " " << partial_batch_count);
+  LOG4CXX_INFO(comp_peer_->logger_, "counter "<< local_counter_ptr->first << " " << local_counter_ptr->second);
+
   const bool is_end =  (iter_range.first == iter_range.second);
 
   auto& local_set = *local_set_ptr;
