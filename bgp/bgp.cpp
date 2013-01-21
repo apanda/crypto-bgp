@@ -318,15 +318,17 @@ void BGPProcess::compute_partial0(
         intersection_ptr2->push_back(x);
       }
 
+      auto& aaa = *intersection_ptr2;
+
       std::sort(intersection_ptr2->begin(), intersection_ptr2->end());
 
       std::stringstream ss;
-      for (auto x: local_set) {
+      for (auto x: aaa) {
         ss << x << " ";
       }
 
       LOG4CXX_INFO(comp_peer_->logger_, "intersection value " << ss.str());
-      LOG4CXX_INFO(comp_peer_->logger_, "intersection " << local_set.size());
+      LOG4CXX_INFO(comp_peer_->logger_, "intersection " << aaa.size());
 
       partial_count = 0;
       partial_batch_count = 1;
