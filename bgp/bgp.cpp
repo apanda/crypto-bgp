@@ -289,6 +289,7 @@ void BGPProcess::compute_partial0(
     if (partial_batch_count == 1) {
 
       if (partial_count == partial_batch_count) {
+        affected.set_next_hop(graph_, largest_vertex);
         count++;
 
         if (batch_count == count) {
@@ -581,6 +582,8 @@ void BGPProcess::for1(
 
   affected.sig_bgp_next[result]->operator ()();
 }
+
+
 
 
 #include <boost/algorithm/string.hpp>
