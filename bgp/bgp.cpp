@@ -286,7 +286,7 @@ void BGPProcess::compute_partial0(
 
     if (partial_count == partial_batch_count) {
 
-      if (partial_batch_count == 1) {
+      //if (partial_batch_count == 1) {
         m_.lock();
         affected.set_next_hop(graph_, largest_vertex);
         count++;
@@ -297,8 +297,9 @@ void BGPProcess::compute_partial0(
           return;
         }
 
-      }
+      //}
 
+      return;
       m_.lock();
       shared_ptr< vector<vertex_t> > intersection_ptr2(new vector<vertex_t>());
       intersection_ptr2->push_back(largest_vertex);
