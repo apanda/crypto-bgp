@@ -233,7 +233,6 @@ void BGPProcess::process_neighbors_mpc(
     shared_ptr< tbb::concurrent_unordered_set<vertex_t> > local_set_ptr(
         new tbb::concurrent_unordered_set<vertex_t>());
 
-    shared_ptr< vertex_t > largest_vertex(new vertex_t(affected.next_hop_));
 
     while(range_stack.size() > 1) {
 
@@ -241,6 +240,8 @@ void BGPProcess::process_neighbors_mpc(
       range_stack.pop_front();
       auto end = range_stack.front();
       auto pair = std::make_pair(start, end);
+
+      shared_ptr< vertex_t > largest_vertex(new vertex_t(affected.next_hop_));
 
       compute_partial0(
           affected_vertex, largest_vertex, new_changed_set_ptr, local_set_ptr,
