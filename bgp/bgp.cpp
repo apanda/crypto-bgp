@@ -265,6 +265,9 @@ void BGPProcess::compute_partial0(
 
   vertex_t& largest_vertex = *largest_vertex_ptr;
 
+  size_t& count = global_counter_ptr->first;
+  size_t& batch_count = global_counter_ptr->second;
+
   size_t& partial_count = local_counter_ptr->first;
   size_t& partial_batch_count = local_counter_ptr->second;
 
@@ -279,11 +282,33 @@ void BGPProcess::compute_partial0(
 
     if (partial_count == partial_batch_count) {
 
-      shared_ptr<vector<vertex_t> > combined_values_ptr(
-          new vector<vertex_t>());
-      combined_values_ptr->push_back(largest_vertex);
+      if (partial_batch_count == 1) {
+        std::cout << "second layer... exiting" << std::endl;
+
+        count++;
+        if (batch_count == count) {
+          m_.unlock();
+          continuation_();
+          return;
+        }
+
+      }
+
+      intersection_ptr->clear();
+      intersection_ptr->push_back(largest_vertex);
+
+      partial_count = 0;
+      partial_batch_count = 1;
+
       m_.unlock();
-      for0(affected_vertex, new_changed_set_ptr, global_counter_ptr, combined_values_ptr);
+      //for0(affected_vertex, new_changed_set_ptr, global_counter_ptr, combined_values_ptr);
+
+      auto new_pair = std::make_pair(intersection_ptr->begin(), intersection_ptr->end());
+
+      compute_partial0(
+          affected_vertex, largest_vertex_ptr, new_changed_set_ptr, local_set_ptr,
+          global_counter_ptr, local_counter_ptr, intersection_ptr, new_pair);
+
       return;
     }
 
@@ -429,11 +454,11 @@ void BGPProcess::for0(
     m_.lock();
     count++;
 
-    if (batch_count == count) {
-      m_.unlock();
-      continuation_();
-      return;
-    }
+      if (batch_count == count) {
+        m_.unlock();
+        continuation_();
+        return;
+      }
 
     m_.unlock();
     return;
