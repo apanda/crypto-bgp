@@ -304,7 +304,7 @@ void BGPProcess::compute_partial0(
     }
 
     if (partial_count == partial_batch_count) {
-
+      m_.unlock();
 
       shared_ptr< vector<vertex_t> > new_intersection_ptr(
           new vector<vertex_t>(local_set.begin(), local_set.end()));
@@ -326,11 +326,8 @@ void BGPProcess::compute_partial0(
 
 
       auto new_pair = std::make_pair(new_intersection.begin(), new_intersection.end());
-      //m_.unlock();
 
       largest_vertex = affected.next_hop_;
-      //local_set.clear();
-      m_.unlock();
 
       compute_partial0(
           affected_vertex, largest_vertex_ptr, new_changed_set_ptr, local_set_ptr,
