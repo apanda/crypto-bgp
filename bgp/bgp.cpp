@@ -283,13 +283,15 @@ void BGPProcess::compute_partial0(
     local_set.push_back(largest_vertex);
     partial_count++;
 
+    if (partial_batch_count == 1) {
+      LOG4CXX_INFO(comp_peer_->logger_, "second iteration ");
+    }
 
     if (partial_count == partial_batch_count) {
 
       //if (partial_batch_count == 1) {
         //affected.set_next_hop(graph_, largest_vertex);
         count++;
-        m_.unlock();
 
         if (batch_count == count) {
           m_.unlock();
