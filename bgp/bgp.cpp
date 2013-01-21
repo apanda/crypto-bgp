@@ -264,6 +264,7 @@ void BGPProcess::compute_partial0(
     pair<vector<vertex_t>::iterator, vector<vertex_t>::iterator> iter_range) {
 
   vertex_t& largest_vertex = *largest_vertex_ptr;
+  Vertex& affected = graph_[affected_vertex];
 
   size_t& count = global_counter_ptr->first;
   size_t& batch_count = global_counter_ptr->second;
@@ -281,10 +282,13 @@ void BGPProcess::compute_partial0(
     partial_count++;
 
     if (partial_count == partial_batch_count) {
+      m_.unlock();
 
       if (partial_batch_count == 1) {
-        std::cout << "second layer... exiting" << std::endl;
 
+        affected.set_next_hop(graph_, largest_vertex);
+
+        m_.unlock();
         count++;
         if (batch_count == count) {
           m_.unlock();
@@ -292,16 +296,14 @@ void BGPProcess::compute_partial0(
           return;
         }
 
+        m_.unlock();
       }
 
-      intersection_ptr->clear();
-      intersection_ptr->push_back(largest_vertex);
+      intersection_ptr->assign(local_set.begin(), local_set.end());
 
       partial_count = 0;
       partial_batch_count = 1;
 
-      m_.unlock();
-      //for0(affected_vertex, new_changed_set_ptr, global_counter_ptr, combined_values_ptr);
 
       auto new_pair = std::make_pair(intersection_ptr->begin(), intersection_ptr->end());
 
@@ -316,7 +318,6 @@ void BGPProcess::compute_partial0(
     return;
   }
 
-  Vertex& affected = graph_[affected_vertex];
   const vertex_t neigh_vertex = *(iter_range.first);
   iter_range.first++;
 
