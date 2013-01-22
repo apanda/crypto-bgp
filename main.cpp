@@ -29,6 +29,8 @@ io_service::work work(io);
 
 void run_master() {
 
+  printf("running master\n");
+
   typedef std::chrono::high_resolution_clock clock_t;
 
   array<shared_ptr<comp_peer_t>, COMP_PEER_NUM> comp_peer_seq;
