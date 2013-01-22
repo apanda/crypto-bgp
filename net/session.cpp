@@ -52,6 +52,14 @@ void Session::handle_msg(
       sizeof(int64_t));
 
   peer_->publish(msg, value, vertex);
+
+  boost::asio::async_read(socket_, boost::asio::buffer(data, length_),
+      strand_.wrap(
+        boost::bind(&Session::handle_read, this, data,
+            boost::asio::placeholders::error,
+            boost::asio::placeholders::bytes_transferred)
+        )
+        );
 }
 
 
@@ -92,6 +100,17 @@ void Session::handle_sync(
     const boost::system::error_code& error,
     size_t bytes_transferred) {
 
+
+  char* new_data = new char[length_];
+
+
+  boost::asio::async_read(socket_, boost::asio::buffer(new_data, length_),
+        boost::bind(&Session::handle_read, this, data,
+            boost::asio::placeholders::error,
+            boost::asio::placeholders::bytes_transferred)
+      );
+
+
   uint32_t& size =  *((uint32_t*) (data + sizeof(uint32_t)));
   std::vector<vertex_t> nodes;
 
@@ -102,14 +121,6 @@ void Session::handle_sync(
   }
 
   peer_->publish(this ,nodes);
-
-  boost::asio::async_read(socket_, boost::asio::buffer(data, length_),
-      strand_.wrap(
-        boost::bind(&Session::handle_read, this, data,
-            boost::asio::placeholders::error,
-            boost::asio::placeholders::bytes_transferred)
-      )
-      );
 }
 
 
@@ -128,14 +139,6 @@ void Session::handle_read(
        if(command == CMD_TYPE::MSG) {
 
          handle_msg(data, error, bytes_transferred);
-
-         boost::asio::async_read(socket_, boost::asio::buffer(data, length_),
-             strand_.wrap(
-               boost::bind(&Session::handle_read, this, data,
-                   boost::asio::placeholders::error,
-                   boost::asio::placeholders::bytes_transferred)
-               )
-               );
 
        } else if (command == CMD_TYPE::SYNC) {
 

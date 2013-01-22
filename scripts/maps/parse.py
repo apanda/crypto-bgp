@@ -3,7 +3,7 @@
 from collections import deque
 
 GRAPH_SIZE = 5976
-BUCKET_SIZE = 2
+BUCKET_SIZE = 36
 
 buckets = deque()
 for i in range(BUCKET_SIZE):
@@ -75,7 +75,7 @@ def inspect():
   for i in range( GRAPH_SIZE ):
     nodeID = '[node_id=%d]' %(i)
     line = '%d %s;' %(i, nodeID)
-    print line
+    #print line
 
   uniqueEdges = set()
   for (src, dst, rel) in edges:
