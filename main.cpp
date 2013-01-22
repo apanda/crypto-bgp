@@ -119,14 +119,11 @@ void run_mpc() {
     master->init(init);
   }
 
-  sleep(1);
-
   master->barrier_ ->wait();
 
   input_peer->start_clients(comp_peer_seq, input_graph, master->hm_);
 
   LOG4CXX_INFO(mainLogger, "All clients have been started.");
-
 
   vector<vertex_t> nodes;
   for(auto& cp: comp_peer_seq) {
@@ -137,10 +134,11 @@ void run_mpc() {
 
   master->barrier_->wait();
 
-  master->barrier_ = new boost::barrier(COMP_PEER_IDS.size() + 1);
-
   LOG4CXX_INFO(mainLogger, "Master has raised the barrier.");
 
+  sleep(10);
+
+  master->barrier_ = new boost::barrier(COMP_PEER_IDS.size() + 1);
 
   functor_t f2 = boost::bind(measure_time);
 
