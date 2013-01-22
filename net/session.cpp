@@ -105,7 +105,7 @@ void Session::handle_sync(
 
 
   boost::asio::async_read(socket_, boost::asio::buffer(new_data, length_),
-        boost::bind(&Session::handle_read, this, data,
+        boost::bind(&Session::handle_read, this, new_data,
             boost::asio::placeholders::error,
             boost::asio::placeholders::bytes_transferred)
       );
