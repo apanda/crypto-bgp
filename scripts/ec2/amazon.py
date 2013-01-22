@@ -218,7 +218,7 @@ def delegate(instances, graphSize, master):
   MASTER = master
   THREADS = 8
   TASKS = 1000
-  LIMIT = 20
+  LIMIT = 10
   WHOAMI = '`/sbin/ifconfig eth0 | grep \'inet addr:\' | cut -d: -f2 | \
   awk \'{ print $1}\' `'
   
