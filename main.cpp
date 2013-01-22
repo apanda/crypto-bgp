@@ -29,18 +29,16 @@ io_service::work work(io);
 
 void run_master() {
 
-  printf("running master\n");
-
   typedef std::chrono::high_resolution_clock clock_t;
 
   array<shared_ptr<comp_peer_t>, COMP_PEER_NUM> comp_peer_seq;
   shared_ptr<InputPeer> input_peer(new InputPeer(io));
 
   //graph_t graph(GRAPH_SIZE);
-  graph_t graph;
+  graph_t graph(GRAPH_SIZE);
   BGPProcess::load_graph("scripts/dot.dot", graph);
 
-  MasterPeer mp(graph.m_vertices.size(), io);
+  MasterPeer mp(GRAPH_SIZE, io);
   //MasterPeer mp(GRAPH_SIZE, io);
 
   boost::thread_group worker_threads;
