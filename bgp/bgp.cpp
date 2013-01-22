@@ -290,6 +290,7 @@ void BGPProcess::compute_partial0(
       LOG4CXX_INFO(comp_peer_->logger_, "second iteration "<< partial_count << " " << partial_batch_count);
 
       if (partial_count == partial_batch_count) {
+        affected.set_next_hop(graph_, largest_vertex);
         count++;
 
         if (batch_count == count) {
@@ -306,32 +307,26 @@ void BGPProcess::compute_partial0(
     if (partial_count == partial_batch_count) {
       m_.unlock();
 
-      shared_ptr< vector<vertex_t> > new_intersection_ptr(
-          new vector<vertex_t>(local_set.begin(), local_set.end()));
-      auto& new_intersection = *new_intersection_ptr;
+      //shared_ptr< vector<vertex_t> > new_intersection_ptr(
+      //    new vector<vertex_t>(local_set.begin(), local_set.end()));
+      intersection.assign( local_set.begin(), local_set.end() );
+      //auto& new_intersection = *new_intersection_ptr;
 
-      std::sort(new_intersection.begin(), new_intersection.end());
+      std::sort(intersection.begin(), intersection.end());
 
-      std::stringstream ss;
-      ss << "(" << affected.next_hop_ << ")";
-      for (auto x: new_intersection) {
-        ss << " " << x;
-      }
-
-      LOG4CXX_INFO(comp_peer_->logger_, "intersection value " << ss.str());
-      LOG4CXX_INFO(comp_peer_->logger_, "intersection " << new_intersection.size());
+      LOG4CXX_INFO(comp_peer_->logger_, "intersection " << intersection.size());
 
       partial_count = 0;
       partial_batch_count = 1;
 
 
-      auto new_pair = std::make_pair(new_intersection.begin(), new_intersection.end());
+      auto new_pair = std::make_pair(intersection.begin(), intersection.end());
 
       largest_vertex = affected.next_hop_;
 
       compute_partial0(
           affected_vertex, largest_vertex_ptr, new_changed_set_ptr, local_set_ptr,
-          global_counter_ptr, local_counter_ptr, new_intersection_ptr, new_pair);
+          global_counter_ptr, local_counter_ptr, intersection_ptr, new_pair);
 
       return;
     }
@@ -597,6 +592,7 @@ void BGPProcess::for1(
 
 
 #include <boost/algorithm/string.hpp>
+
 void BGPProcess::load_graph(string path, graph_t& graph) {
 
   dynamic_properties dp;
@@ -616,20 +612,22 @@ void BGPProcess::load_graph(string path, graph_t& graph) {
 
     if(tokens.size() != 6) continue;
 
-    //std::cout << tokens[0] << ", " << tokens[4] << std::endl;
-
     vertex_t src = lexical_cast<size_t>(tokens[0]);
     vertex_t dst = lexical_cast<size_t>(tokens[4]);
 
     boost::add_edge(src, dst, graph);
   }
 
-/*
-  //dp.property("node_id", get(boost::vertex_index, graph));
+}
+
+void BGPProcess::load_graph2(string path, graph_t& graph) {
+
+  std::ifstream file(path);
+  dynamic_properties dp;
+
   dp.property("node_id", get(&Vertex::id_, graph));
 
   read_graphviz(file ,graph, dp, "node_id");
-  */
 }
 
 
