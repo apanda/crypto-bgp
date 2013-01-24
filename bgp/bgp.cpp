@@ -182,6 +182,7 @@ void BGPProcess::next_iteration_finish(
   }
 
   if(new_changed_set.empty())  {
+    print_result();
     end_();
     return;
   }
