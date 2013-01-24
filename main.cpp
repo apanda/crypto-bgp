@@ -136,7 +136,7 @@ void run_mpc() {
 
   LOG4CXX_INFO(mainLogger, "Master has raised the barrier.");
 
-  sleep(10);
+  //sleep(10);
 
   master->barrier_ = new boost::barrier(COMP_PEER_IDS.size() + 1);
 
