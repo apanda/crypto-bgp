@@ -38,7 +38,6 @@ void BGPProcess::init(graph_t& graph) {
 
   for (; current != last; ++current) {
     const auto& current_vertex = *current;
-    std::cout << current_vertex << std::endl;
     Vertex& vertex = graph[current_vertex];
     vertex.id_ = current_vertex;
 
@@ -614,11 +613,6 @@ void BGPProcess::load_graph(string path, graph_t& graph) {
     size_t srcRel = lexical_cast<size_t>(tokens[2]);
     size_t dstRel = 2 - srcRel;
 
-
-    if (src == 0 && dst == 1) {
-      std::cout << src << " -- " << dst << " " << srcRel << std::endl;
-    }
-
     Vertex& srcV = graph[src];
     srcV.preference_setup_[srcRel].insert(dst);
 
@@ -673,7 +667,6 @@ void BGPProcess::print_state(graph_t& graph) {
   for (; current != last; ++current) {
     const auto& current_vertex = *current;
     Vertex& vertex = graph[current_vertex];
-    std::cout << vertex;
   }
 }
 
