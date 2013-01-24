@@ -667,7 +667,10 @@ void BGPProcess::load_state(string path, graph_t& graph) {
       boost::algorithm::trim(token);
     }
 
-    if(tokens.size() != 2) throw std::runtime_error( lexical_cast<string>(tokens.size()) );
+    if(tokens.size() != 2)  {
+      std::cout << "size: " << tokens.size() << std::endl;;
+      continue;
+    }
 
 
     vertex_t src = lexical_cast<size_t>(tokens[0]);
