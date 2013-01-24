@@ -166,7 +166,6 @@ void BGPProcess::next_iteration_finish(
   new_changed_set.clear();
 
   master_->sync(nodes);
-
   master_->barrier_->wait();
 
   for(size_t i = 0; i < master_->size_; i++) {
@@ -647,6 +646,37 @@ void BGPProcess::load_graph(string path, graph_t& graph) {
   }
 
 }
+
+
+
+
+void BGPProcess::load_state(string path, graph_t& graph) {
+
+  dynamic_properties dp;
+  std::ifstream file(path);
+  string s;
+
+  while(true) {
+    if( file.eof() ) break;
+    getline(file, s);
+
+    vector<string> tokens;
+    boost::split(tokens, s, boost::is_any_of(" -;"));
+
+    for (string token: tokens) {
+      boost::algorithm::trim(token);
+    }
+
+    if(tokens.size() != 2) throw std::runtime_error("NOT SUPPOSE TO HAPPEN");;
+
+    vertex_t src = lexical_cast<size_t>(tokens[0]);
+    vertex_t dst = lexical_cast<size_t>(tokens[1]);
+  }
+
+
+}
+
+
 
 void BGPProcess::load_graph2(string path, graph_t& graph) {
 
