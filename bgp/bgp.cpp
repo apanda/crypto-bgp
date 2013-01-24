@@ -182,7 +182,7 @@ void BGPProcess::next_iteration_finish(
   }
 
   if(new_changed_set.empty())  {
-    print_result();
+    //print_result();
     end_();
     return;
   }
@@ -668,8 +668,6 @@ void BGPProcess::load_state(string path, graph_t& graph) {
     }
 
     if(tokens.size() != 2)  {
-      std::cout << "size: " << tokens.size() << std::endl;;
-      std::cout << "line: " << s << std::endl;
       continue;
     }
 
