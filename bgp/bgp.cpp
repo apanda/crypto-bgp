@@ -16,6 +16,7 @@ BGPProcess::BGPProcess(
 
   load_graph(path, graph_);
   init(graph_);
+  load_state("/scripts/next", graph_);
 
 }
 
@@ -671,6 +672,9 @@ void BGPProcess::load_state(string path, graph_t& graph) {
 
     vertex_t src = lexical_cast<size_t>(tokens[0]);
     vertex_t dst = lexical_cast<size_t>(tokens[1]);
+
+    Vertex& vertex = graph[src];
+    vertex.next_hop_ = dst;
   }
 
 
@@ -691,14 +695,6 @@ void BGPProcess::load_graph2(string path, graph_t& graph) {
 
 
 void BGPProcess::print_state(graph_t& graph) {
-  auto iter = vertices(graph);
-  auto last = iter.second;
-  auto current = iter.first;
-
-  for (; current != last; ++current) {
-    const auto& current_vertex = *current;
-    Vertex& vertex = graph[current_vertex];
-  }
 }
 
 
