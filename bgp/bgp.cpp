@@ -669,10 +669,11 @@ void BGPProcess::load_state(string path, graph_t& graph) {
 
     if(tokens.size() != 2) throw std::runtime_error( lexical_cast<string>(tokens.size()) );
 
-    std::cout << src << std::endl;
 
     vertex_t src = lexical_cast<size_t>(tokens[0]);
     vertex_t dst = lexical_cast<size_t>(tokens[1]);
+
+    std::cout << src << std::endl;
 
     Vertex& vertex = graph[src];
     vertex.next_hop_ = dst;
