@@ -216,8 +216,8 @@ def delegate(instances, graphSize, master):
   partitionVertexSize = graphSize / partitionSize
 
   MASTER = master
-  THREADS = 8
-  TASKS = 600
+  THREADS = 32
+  TASKS = 300
   LIMIT = 20
   WHOAMI = '`/sbin/ifconfig eth0 | grep \'inet addr:\' | cut -d: -f2 | \
   awk \'{ print $1}\' `'

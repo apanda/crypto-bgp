@@ -38,6 +38,7 @@ void BGPProcess::init(graph_t& graph) {
 
   for (; current != last; ++current) {
     const auto& current_vertex = *current;
+    std::cout << current_vertex << std::endl;
     Vertex& vertex = graph[current_vertex];
     vertex.id_ = current_vertex;
 
@@ -605,12 +606,49 @@ void BGPProcess::load_graph(string path, graph_t& graph) {
       boost::algorithm::trim(token);
     }
 
-    if(tokens.size() != 6) continue;
+    if(tokens.size() != 3) continue;
 
     vertex_t src = lexical_cast<size_t>(tokens[0]);
-    vertex_t dst = lexical_cast<size_t>(tokens[4]);
+    vertex_t dst = lexical_cast<size_t>(tokens[1]);
+
+    size_t srcRel = lexical_cast<size_t>(tokens[2]);
+    size_t dstRel = 2 - srcRel;
+
+
+    if (src == 0 && dst == 1) {
+      std::cout << src << " -- " << dst << " " << srcRel << std::endl;
+    }
+
+    Vertex& srcV = graph[src];
+    srcV.preference_setup_[srcRel].insert(dst);
+
+    Vertex& dstV = graph[dst];
+    dstV.preference_setup_[dstRel].insert(src);
 
     boost::add_edge(src, dst, graph);
+  }
+
+  for(vertex_t v = 0; v < GRAPH_SIZE; v++) {
+
+    size_t counter = 0;
+    Vertex& vV = graph[v];
+    vV.id_ = v;
+    for(size_t i = 0; i < 3; i++) {
+      auto& s = vV.preference_setup_[i];
+
+      for(auto neigh: s) {
+        vV.preference_[neigh] = counter;
+        counter++;
+      }
+    }
+
+  }
+
+
+  for(vertex_t v = 0; v < GRAPH_SIZE; v++) {
+    Vertex& vV = graph[v];
+    vV.set_neighbors(graph);
+    vV.set_preference();
   }
 
 }

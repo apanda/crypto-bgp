@@ -7,8 +7,6 @@ Vertex::Vertex() :
     mutex_(new mutex_t),
     id_(0), next_hop_(UNDEFINED) {
 
-
-
 }
 
 
@@ -26,8 +24,10 @@ void Vertex::set_preference() {
 
   size_t preference = 1;
   for(auto& neigh: neigh_) {
-    preference_.insert(std::make_pair(neigh, preference) );
-    preference++;
+    std::cout << id_ << ": " << neigh << std::endl;
+    preference_.at(neigh);
+    //preference_.insert(std::make_pair(neigh, preference) );
+    //preference++;
   }
   preference_.insert(std::make_pair(UNDEFINED, 0) );
 }

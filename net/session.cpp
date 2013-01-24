@@ -120,7 +120,7 @@ void Session::handle_sync(
     nodes.push_back(array[i]);
   }
 
-  peer_->publish(this ,nodes);
+  peer_->publish(this, nodes);
 }
 
 

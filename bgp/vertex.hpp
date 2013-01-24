@@ -48,6 +48,7 @@ public:
 
   vector<vertex_t> neigh_;
   tbb::concurrent_unordered_map<vertex_t, int64_t> preference_;
+  unordered_map<int64_t, set<vertex_t> > preference_setup_;
 
   unordered_map<int, array<shared_ptr<RPCClient>, 3> > clients_;
   array<shared_ptr<RPCServer>, 3> servers_;
