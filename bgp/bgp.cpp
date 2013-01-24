@@ -221,7 +221,7 @@ void BGPProcess::process_neighbors_mpc(
 
     deque< typename vector<vertex_t>::iterator > range_stack;
 
-    LOG4CXX_INFO(comp_peer_->logger_, "intersection.size() " << intersection.size()
+    LOG4CXX_DEBUG(comp_peer_->logger_, "intersection.size() " << intersection.size()
         << " suncounter_ptr->second " << suncounter_ptr->second);
 
     for(size_t index = 0; index <= intersection.size() / MAX_BATCH; index++) {
