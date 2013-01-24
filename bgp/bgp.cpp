@@ -16,7 +16,7 @@ BGPProcess::BGPProcess(
 
   load_graph(path, graph_);
   init(graph_);
-  load_state("/scripts/next", graph_);
+  load_state("scripts/next", graph_);
 
 }
 
@@ -636,7 +636,6 @@ void BGPProcess::load_graph(string path, graph_t& graph) {
         counter++;
       }
     }
-
   }
 
 
@@ -668,7 +667,7 @@ void BGPProcess::load_state(string path, graph_t& graph) {
       boost::algorithm::trim(token);
     }
 
-    if(tokens.size() != 2) throw std::runtime_error("NOT SUPPOSE TO HAPPEN");;
+    if(tokens.size() != 2) throw std::runtime_error(tokens.size());;
 
     vertex_t src = lexical_cast<size_t>(tokens[0]);
     vertex_t dst = lexical_cast<size_t>(tokens[1]);
