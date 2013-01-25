@@ -385,8 +385,7 @@ void BGPProcess::for1(
 
   const bool condition = offered_preference <= current_preference;
 
-
-
+  std::cout << "affected_vertex:" << affected_vertex << std::endl;
 
   if(affected.next_hop_ == neigh_vertex) {
     if(neigh.next_hop_ == Vertex::UNDEFINED) {

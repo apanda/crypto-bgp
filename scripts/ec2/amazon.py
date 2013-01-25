@@ -229,7 +229,8 @@ def delegate(instances, graphSize, master):
 
   for partition in xrange(partitionSize):
     cmd = 'cd crypto-bgp && ./mpc --master-host %s --limit %d \
-    --threads %d --tasks %d --whoami %s --start %d --end %d' % (
+    --threads %d --tasks %d --whoami %s --start %d --end %d \
+    --sever 104' % (
     MASTER, LIMIT, THREADS, TASKS, WHOAMI, START_VERTEX, END_VERTEX)
     commands.append(cmd)
 

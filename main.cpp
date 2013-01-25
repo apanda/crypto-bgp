@@ -120,7 +120,7 @@ void run_mpc() {
 
   master->barrier_ ->wait();
 
-  input_peer->start_clients(comp_peer_seq, input_graph, master->hm_);
+  //input_peer->start_clients(comp_peer_seq, input_graph, master->hm_);
 
   LOG4CXX_INFO(mainLogger, "All clients have been started.");
 
