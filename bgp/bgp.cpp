@@ -64,6 +64,7 @@ void BGPProcess::start(graph_t& graph) {
     Vertex& next_hop = graph[dst_new.next_hop_];
 
     boost::remove_edge(dst_vertex, dst_new.next_hop_, graph);
+    next_hop.next_hop_ = Vertex::UNDEFINED;
 
     dst_new.set_neighbors(graph);
     next_hop.set_neighbors(graph);
