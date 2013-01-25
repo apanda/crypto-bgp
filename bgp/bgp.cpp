@@ -207,6 +207,13 @@ void BGPProcess::next_iteration_finish(
   if(new_changed_set.empty())  {
     //print_result();
     boost::add_edge(SEVER_EDGE, SEVER_NEXT, graph_);
+
+    Vertex& next_hop = graph[SEVER_NEXT];
+    Vertex& dst_new = graph[SEVER_EDGE];
+
+    dst_new.set_neighbors(graph_);
+    next_hop.set_neighbors(graph_);
+
     SEVER_EDGE++;
 
     start(graph_);
