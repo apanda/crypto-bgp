@@ -156,6 +156,7 @@ void BGPProcess::next_iteration_continue(
 
   if (current_batch.empty()) {
     next_iteration_finish(dst_vertex, new_changed_set_ptr);
+    std::cout << "return" << std::endl;
     return;
   }
 
@@ -219,6 +220,7 @@ void BGPProcess::next_iteration_finish(
     start(graph_);
 
     end_();
+    std::cout << "return2" << std::endl;
     return;
   }
 
