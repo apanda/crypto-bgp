@@ -389,11 +389,12 @@ void BGPProcess::for1(
 
   const bool condition = offered_preference <= current_preference;
 
-  LOG4CXX_INFO(comp_peer_->logger_, "affected_vertex:" << affected_vertex);
 
   if(affected.next_hop_ == neigh_vertex) {
 
     LOG4CXX_INFO(comp_peer_->logger_, "affected.next_hop_ == neigh_vertex");
+    LOG4CXX_INFO(comp_peer_->logger_, "affected_vertex:" << affected_vertex);
+
     if(neigh.next_hop_ == Vertex::UNDEFINED) {
 
       LOG4CXX_INFO(comp_peer_->logger_,  "neigh.next_hop_ == Vertex::UNDEFINED");
