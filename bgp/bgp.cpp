@@ -399,10 +399,12 @@ void BGPProcess::for1(
 
       Vertex& nnnV = graph_[nnn];
       if(nnnV.in_as_path(graph_, affected_vertex)) {
+        std::cout << "nnnV.in_as_path(graph_, affected_vertex))" << std::endl;
         continue;
       }
 
       if(nnnV.next_hop_ == Vertex::UNDEFINED) {
+        std::cout << "nnnV.next_hop_ == Vertex::UNDEFINED" << std::endl;
         continue;
       }
 
@@ -411,6 +413,8 @@ void BGPProcess::for1(
       auto offer_it2 = affected.preference_.find(nnn);
       BOOST_ASSERT(offer_it2 != affected.preference_.end());
       const auto offered_preference2 = offer_it->second;
+
+      std::cout << offered_preference2 << " > " << current_preference2<< std::endl;
 
       if ( offered_preference2 > current_preference2 ) {
         affected.set_next_hop(graph_, nnn);
