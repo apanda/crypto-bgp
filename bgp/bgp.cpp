@@ -16,7 +16,6 @@ BGPProcess::BGPProcess(
 
   load_graph(path, graph_);
   init(graph_);
-  load_state("scripts/next", graph_);
 
 }
 
@@ -52,6 +51,12 @@ void BGPProcess::init(graph_t& graph) {
 
 void BGPProcess::start(graph_t& graph) {
 
+  if (SEVER_EDGE != 0) {
+    boost::add_edge(SEVER_EDGE, SEVER_NEXT, graph);
+  }
+
+  load_state("scripts/next", graph_);
+
 
 
   shared_ptr< set<vertex_t> > affected_ptr(new set<vertex_t>);
@@ -71,7 +76,7 @@ void BGPProcess::start(graph_t& graph) {
 
     std::cout << "Neighs: " << dst_new.neigh_.size() << std::endl;
     std::cout << "SEVER_EDGE: " << SEVER_EDGE << std::endl;
-
+    SEVER_NEXT = dst_new.next_hop_;
     Vertex& next_hop = graph[dst_new.next_hop_];
 
     boost::remove_edge(dst_vertex, dst_new.next_hop_, graph);

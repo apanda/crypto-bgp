@@ -15,6 +15,7 @@ string WHOAMI = "";
 
 bool SEVER_FLAG = false;
 size_t SEVER_EDGE = 0;
+size_t SEVER_NEXT = 0;
 
 int mod( int64_t x, int m) {
     return (x%m + m)%m;
