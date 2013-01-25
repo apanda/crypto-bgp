@@ -212,7 +212,7 @@ void BGPProcess::process_neighbors_mpc(
   std::set_intersection( neighs.begin(), neighs.end(), ch.begin(), ch.end(),
       std::insert_iterator< std::vector<vertex_t> >( intersection, intersection.begin() ) );
 
-  if (intersection.size() < 200) {
+  if (true) {
     for0(affected_vertex, new_changed_set_ptr, counts_ptr, intersection_ptr);
   } else {
 
@@ -520,10 +520,13 @@ void BGPProcess::for0(
               _1);
 
 
-  comp_peer_->compare0(
+  for1(affected_vertex, neigh_vertex, new_changed_set_ptr, 0);
+
+  /*comp_peer_->compare0(
       lexical_cast<string>(affected.next_hop_),
       lexical_cast<string>(neigh_vertex),
       affected_vertex);
+      */
 }
 
 
@@ -536,6 +539,7 @@ void BGPProcess::for1(
 
   tbb::concurrent_unordered_set<vertex_t>& new_changed_set = *new_changed_set_ptr;
   Vertex& affected = graph_[affected_vertex];
+  Vertex& neigh = graph_[neigh_vertex];
 
   const string key1 = lexical_cast<string>(affected.next_hop_);
   const string key2 = lexical_cast<string>(neigh_vertex);
@@ -563,7 +567,7 @@ void BGPProcess::for1(
 
 
   const bool condition = offered_preference <= current_preference;
-
+/*
   if (cmp != condition) {
 
     LOG4CXX_FATAL(comp_peer_->logger_, "==================================================");
@@ -573,6 +577,12 @@ void BGPProcess::for1(
         "(" << affected_vertex << ", " << neigh_vertex << ")");
     LOG4CXX_FATAL(comp_peer_->logger_, "==================================================");
 
+  }
+*/
+
+  if (neigh.in_as_path(graph_, affected_vertex)) {
+    affected.sig_bgp_next[result]->operator()();
+    return;
   }
 
   if ( offered_preference <= current_preference ) {
