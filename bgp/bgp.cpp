@@ -51,9 +51,6 @@ void BGPProcess::init(graph_t& graph) {
 
 void BGPProcess::start(graph_t& graph) {
 
-  if (SEVER_EDGE != 0) {
-    boost::add_edge(SEVER_EDGE, SEVER_NEXT, graph);
-  }
 
   load_state("scripts/next", graph_);
 
@@ -74,7 +71,6 @@ void BGPProcess::start(graph_t& graph) {
     dst_vertex = SEVER_EDGE;
     Vertex& dst_new = graph[dst_vertex];
 
-    std::cout << "Neighs: " << dst_new.neigh_.size() << std::endl;
     std::cout << "SEVER_EDGE: " << SEVER_EDGE << std::endl;
     SEVER_NEXT = dst_new.next_hop_;
     Vertex& next_hop = graph[dst_new.next_hop_];
@@ -87,7 +83,6 @@ void BGPProcess::start(graph_t& graph) {
   }
 
   Vertex& dst = graph[dst_vertex];
-  std::cout << "Neighs: " << dst.neigh_.size() << std::endl;
 
 
   changed.insert(dst_vertex);
@@ -211,6 +206,9 @@ void BGPProcess::next_iteration_finish(
 
   if(new_changed_set.empty())  {
     //print_result();
+    start(graph_);
+    boost::add_edge(SEVER_EDGE, SEVER_NEXT, graph_);
+    SEVER_EDGE++;
     end_();
     return;
   }
