@@ -380,22 +380,22 @@ void BGPProcess::for1(
   BOOST_ASSERT(offer_it != affected.preference_.end());
   const auto offered_preference = offer_it->second;
 
-  LOG4CXX_DEBUG(comp_peer_->logger_, "Compare -> "
+  LOG4CXX_INFO(comp_peer_->logger_, "Compare -> "
       << current_preference << ", " << offered_preference );
 
   const bool condition = offered_preference <= current_preference;
 
-  std::cout << "affected_vertex:" << affected_vertex << std::endl;
+  LOG4CXX_INFO(comp_peer_->logger_, "affected_vertex:" << affected_vertex);
 
   if(affected.next_hop_ == neigh_vertex) {
 
-    std::cout << "affected.next_hop_ == neigh_vertex" << std::endl;
+    LOG4CXX_INFO(comp_peer_->logger_, "affected.next_hop_ == neigh_vertex");
     if(neigh.next_hop_ == Vertex::UNDEFINED) {
 
-      std::cout << "neigh.next_hop_ == Vertex::UNDEFINED" << std::endl;
+      LOG4CXX_INFO(comp_peer_->logger_,  "neigh.next_hop_ == Vertex::UNDEFINED");
       if (affected.next_hop_ != Vertex::UNDEFINED) {
 
-        std::cout << "affected.next_hop_ != Vertex::UNDEFINED" << std::endl;
+        LOG4CXX_INFO(comp_peer_->logger_, "affected.next_hop_ != Vertex::UNDEFINED");
         affected.next_hop_ = Vertex::UNDEFINED;
         new_changed_set.insert(affected_vertex);
       }
@@ -405,11 +405,14 @@ void BGPProcess::for1(
 
       Vertex& nnnV = graph_[nnn];
       if(nnnV.in_as_path(graph_, affected_vertex)) {
+        LOG4CXX_INFO(comp_peer_->logger_, "nnnV.in_as_path(graph_, affected_vertex)");
+
         std::cout << "nnnV.in_as_path(graph_, affected_vertex))" << std::endl;
         continue;
       }
 
       if(nnnV.next_hop_ == Vertex::UNDEFINED) {
+        LOG4CXX_INFO(comp_peer_->logger_, "nnnV.next_hop_ == Vertex::UNDEFINED");
         std::cout << "nnnV.next_hop_ == Vertex::UNDEFINED" << std::endl;
         continue;
       }
@@ -420,8 +423,7 @@ void BGPProcess::for1(
       BOOST_ASSERT(offer_it2 != affected.preference_.end());
       const auto offered_preference2 = offer_it->second;
 
-      std::cout << offered_preference2 << " > " << current_preference2 << std::endl;
-
+      LOG4CXX_INFO(comp_peer_->logger_,offered_preference2 << " > " << current_preference2);
       if ( offered_preference2 > current_preference2 ) {
         affected.set_next_hop(graph_, nnn);
         new_changed_set.insert(affected_vertex);
