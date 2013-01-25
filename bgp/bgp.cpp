@@ -52,25 +52,6 @@ void BGPProcess::init(graph_t& graph) {
 
 void BGPProcess::start(graph_t& graph) {
 
-  vertex_t dst_vertex = 0;
-
-  if (SEVER_FLAG) {
-    dst_vertex = SEVER_EDGE;
-    Vertex& dst_new = graph[dst_vertex];
-
-    std::cout << "Neighs: " << dst_new.neigh_.size() << std::endl;
-
-    std::cout << "SEVER_EDGE: " << SEVER_EDGE << std::endl;
-    Vertex& next_hop = graph[dst_new.next_hop_];
-
-    boost::remove_edge(dst_vertex, dst_new.next_hop_, graph);
-    next_hop.next_hop_ = Vertex::UNDEFINED;
-
-    dst_new.set_neighbors(graph);
-    next_hop.set_neighbors(graph);
-  }
-  Vertex& dst = graph[dst_vertex];
-  std::cout << "Neighs: " << dst.neigh_.size() << std::endl;
 
 
   shared_ptr< set<vertex_t> > affected_ptr(new set<vertex_t>);
@@ -79,6 +60,30 @@ void BGPProcess::start(graph_t& graph) {
 
   set<vertex_t>& affected = *(affected_ptr);
   tbb::concurrent_unordered_set<vertex_t>& changed = *changed_ptr;
+
+
+
+  vertex_t dst_vertex = 0;
+
+  if (SEVER_FLAG) {
+    dst_vertex = SEVER_EDGE;
+    Vertex& dst_new = graph[dst_vertex];
+
+    std::cout << "Neighs: " << dst_new.neigh_.size() << std::endl;
+    std::cout << "SEVER_EDGE: " << SEVER_EDGE << std::endl;
+
+    Vertex& next_hop = graph[dst_new.next_hop_];
+
+    boost::remove_edge(dst_vertex, dst_new.next_hop_, graph);
+    dst_new.next_hop_ = Vertex::UNDEFINED;
+
+    dst_new.set_neighbors(graph);
+    next_hop.set_neighbors(graph);
+  }
+
+  Vertex& dst = graph[dst_vertex];
+  std::cout << "Neighs: " << dst.neigh_.size() << std::endl;
+
 
   changed.insert(dst_vertex);
   for(const vertex_t& vertex: dst.neigh_) {
