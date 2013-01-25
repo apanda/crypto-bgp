@@ -407,14 +407,11 @@ void BGPProcess::for1(
       Vertex& nnnV = graph_[nnn];
       if(nnnV.in_as_path(graph_, affected_vertex)) {
         LOG4CXX_INFO(comp_peer_->logger_, "nnnV.in_as_path(graph_, affected_vertex)");
-
-        std::cout << "nnnV.in_as_path(graph_, affected_vertex))" << std::endl;
         continue;
       }
 
       if(nnnV.next_hop_ == Vertex::UNDEFINED) {
         LOG4CXX_INFO(comp_peer_->logger_, "nnnV.next_hop_ == Vertex::UNDEFINED");
-        std::cout << "nnnV.next_hop_ == Vertex::UNDEFINED" << std::endl;
         continue;
       }
 
@@ -435,6 +432,7 @@ void BGPProcess::for1(
   }
 
 
+  LOG4CXX_INFO(comp_peer_->logger_, "new_changed_set.size(): " << new_changed_set.size());
   affected.sig_bgp_next[result]->operator ()();
 
 /*
