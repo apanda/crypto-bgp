@@ -323,9 +323,10 @@ void BGPProcess::for0(
         counts_ptr,
         intersection_ptr
       );
-/*
+
   *(affected.sig_bgp_next[result]) = next;
 
+  /*
   LOG4CXX_DEBUG(comp_peer_->logger_, "Vertex -> "
       << affected_vertex << ", " << neigh_vertex );
 
