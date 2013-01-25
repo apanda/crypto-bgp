@@ -64,10 +64,10 @@ void BGPProcess::start(graph_t& graph) {
 
     dst_new.set_neighbors(graph);
     next_hop.set_neighbors(graph);
-
-
   }
   Vertex& dst = graph[dst_vertex];
+  std::cout << "Neighs: " << dst.neigh_.size() << std::endl;
+
 
   shared_ptr< set<vertex_t> > affected_ptr(new set<vertex_t>);
   shared_ptr< tbb::concurrent_unordered_set<vertex_t> > changed_ptr(
