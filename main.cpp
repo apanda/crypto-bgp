@@ -94,8 +94,8 @@ void run_mpc() {
   BGPProcess bgp("scripts/dot.dot", NULL, io);
   graph_t& input_graph = bgp.graph_;
 
-  shared_ptr<RPCClient> master( new RPCClient(io, MASTER_ADDRESS, MASTER_PORT) );
-  bgp.master_ = master;
+  //shared_ptr<RPCClient> master( new RPCClient(io, MASTER_ADDRESS, MASTER_PORT) );
+  //bgp.master_ = master;
 
   LOG4CXX_INFO(mainLogger, "Disseminating BGP information...");
 
@@ -104,11 +104,11 @@ void run_mpc() {
   LOG4CXX_INFO(mainLogger, "Starting listeners...");
 
   sync_init init;
-  init.nodes_ = input_peer->start_listeners(comp_peer_seq, input_graph);
-  init.hostname_ = WHOAMI;
+  //init.nodes_ = input_peer->start_listeners(comp_peer_seq, input_graph);
+  //init.hostname_ = WHOAMI;
 
   //master->barrier_ = new boost::barrier(2);
-
+/*
   for(auto& cp: comp_peer_seq) {
     if (COMP_PEER_IDS.find(cp->id_) == COMP_PEER_IDS.end()) continue;
 
@@ -117,8 +117,8 @@ void run_mpc() {
 
     //master->init(init);
   }
-
-  master->barrier_ ->wait();
+*/
+  //master->barrier_ ->wait();
 
   //input_peer->start_clients(comp_peer_seq, input_graph, master->hm_);
 
@@ -134,7 +134,7 @@ void run_mpc() {
 
   LOG4CXX_INFO(mainLogger, "Master has raised the barrier.");
 
-  master->barrier_ = new boost::barrier(COMP_PEER_IDS.size() + 1);
+  //master->barrier_ = new boost::barrier(COMP_PEER_IDS.size() + 1);
 
   functor_t f2 = boost::bind(measure_time);
 
