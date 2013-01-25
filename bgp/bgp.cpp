@@ -388,8 +388,14 @@ void BGPProcess::for1(
   std::cout << "affected_vertex:" << affected_vertex << std::endl;
 
   if(affected.next_hop_ == neigh_vertex) {
+
+    std::cout << "affected.next_hop_ == neigh_vertex" << std::endl;
     if(neigh.next_hop_ == Vertex::UNDEFINED) {
+
+      std::cout << "neigh.next_hop_ == Vertex::UNDEFINED" << std::endl;
       if (affected.next_hop_ != Vertex::UNDEFINED) {
+
+        std::cout << "affected.next_hop_ != Vertex::UNDEFINED" << std::endl;
         affected.next_hop_ = Vertex::UNDEFINED;
         new_changed_set.insert(affected_vertex);
       }
@@ -414,7 +420,7 @@ void BGPProcess::for1(
       BOOST_ASSERT(offer_it2 != affected.preference_.end());
       const auto offered_preference2 = offer_it->second;
 
-      std::cout << offered_preference2 << " > " << current_preference2<< std::endl;
+      std::cout << offered_preference2 << " > " << current_preference2 << std::endl;
 
       if ( offered_preference2 > current_preference2 ) {
         affected.set_next_hop(graph_, nnn);
