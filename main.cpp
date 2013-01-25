@@ -107,7 +107,7 @@ void run_mpc() {
   init.nodes_ = input_peer->start_listeners(comp_peer_seq, input_graph);
   init.hostname_ = WHOAMI;
 
-  master->barrier_ = new boost::barrier(2);
+  //master->barrier_ = new boost::barrier(2);
 
   for(auto& cp: comp_peer_seq) {
     if (COMP_PEER_IDS.find(cp->id_) == COMP_PEER_IDS.end()) continue;
@@ -115,7 +115,7 @@ void run_mpc() {
     cp->bgp_->master_ = master;
     init.id_ = cp->id_;
 
-    master->init(init);
+    //master->init(init);
   }
 
   master->barrier_ ->wait();
@@ -127,10 +127,10 @@ void run_mpc() {
   vector<vertex_t> nodes;
   for(auto& cp: comp_peer_seq) {
     if (COMP_PEER_IDS.find(cp->id_) == COMP_PEER_IDS.end()) continue;
-    master->sync(nodes);
+    //master->sync(nodes);
   }
 
-  master->barrier_->wait();
+  //master->barrier_->wait();
 
   LOG4CXX_INFO(mainLogger, "Master has raised the barrier.");
 
