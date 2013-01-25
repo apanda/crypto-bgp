@@ -422,7 +422,7 @@ void BGPProcess::for1(
 
       auto offer_it2 = affected.preference_.find(nnn);
       BOOST_ASSERT(offer_it2 != affected.preference_.end());
-      const auto offered_preference2 = offer_it->second;
+      const auto offered_preference2 = offer_it2->second;
 
       LOG4CXX_INFO(comp_peer_->logger_,offered_preference2 << " > " << current_preference2);
       if ( offered_preference2 > current_preference2 ) {
