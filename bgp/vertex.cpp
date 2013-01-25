@@ -53,8 +53,8 @@ bool Vertex::in_as_path(graph_t& graph, vertex_t vertex) {
     Vertex& v = graph[next];
     next = v.next_hop_;
     if (count > MAX_AS_LENGTH)  {
-      std::cout << "Not suppose to happen!" << std::endl;
-      return true;
+      //std::cout << "Not suppose to happen!" << std::endl;
+      return false;
     }
   }
 
