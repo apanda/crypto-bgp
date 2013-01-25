@@ -47,9 +47,6 @@ using boost::array;
 extern string MASTER_ADDRESS;
 extern string WHOAMI;
 
-extern bool SEVER_FLAG;
-extern size_t SEVER_EDGE;
-
 static set<int> COMP_PEER_IDS;
 static array<string, COMP_PEER_NUM> COMP_PEER_HOSTS;
 
