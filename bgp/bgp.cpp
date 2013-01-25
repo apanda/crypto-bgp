@@ -56,6 +56,10 @@ void BGPProcess::start(graph_t& graph) {
 
   if (SEVER_FLAG) {
     dst_vertex = SEVER_EDGE;
+    Vertex& dst_new = graph[dst_vertex];
+
+    std::cout << "Neighs: " << dst_new.neigh_.size() << std::endl;
+
     std::cout << "SEVER_EDGE: " << SEVER_EDGE << std::endl;
     Vertex& dst_new = graph[dst_vertex];
     Vertex& next_hop = graph[dst_new.next_hop_];
