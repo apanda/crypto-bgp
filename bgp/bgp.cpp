@@ -181,7 +181,7 @@ void BGPProcess::next_iteration_finish(
     shared_ptr< tbb::concurrent_unordered_set<vertex_t> > new_changed_set_ptr) {
 
   tbb::concurrent_unordered_set<vertex_t>& new_changed_set = *new_changed_set_ptr;
-
+/*
   vector<vertex_t> nodes;
 
   for(const vertex_t vertex: new_changed_set) {
@@ -195,7 +195,7 @@ void BGPProcess::next_iteration_finish(
   for(size_t i = 0; i < master_->size_; i++) {
     new_changed_set.insert(master_->array_[i]);
   }
-
+*/
   shared_ptr<  set<vertex_t> > new_affected_set_ptr(new set<vertex_t>);
   set<vertex_t>& new_affected_set = *new_affected_set_ptr;
 
