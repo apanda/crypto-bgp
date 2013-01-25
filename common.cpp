@@ -13,6 +13,9 @@ size_t GRAPH_SIZE = 5976;
 string MASTER_ADDRESS = "localhost";
 string WHOAMI = "";
 
+bool SEVER_FLAG = false;
+size_t SEVER_EDGE = 0;
+
 int mod( int64_t x, int m) {
     return (x%m + m)%m;
 }

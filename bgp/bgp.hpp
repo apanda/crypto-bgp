@@ -38,6 +38,8 @@ public:
 
   static void load_graph(std::string path, graph_t& graph);
   static void load_graph2(std::string path, graph_t& graph);
+  static void load_state(std::string path, graph_t& graph);
+
   void init(graph_t& graph);
 
   void start(graph_t& graph);
