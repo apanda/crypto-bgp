@@ -112,6 +112,9 @@ def inspect():
     nodeMapping[vertex] = counter
     counter = counter + 1
 
+  print reverseMapping[5970]
+  print reverseMapping[5814]
+  print reverseMapping[2613]
   '''
   lines = parse('sorted')
   for tokens in lines:
@@ -132,11 +135,17 @@ def inspect():
       dst = nodeMapping[dst]
     except: continue
     pair = [src, dst]
+    orig_pair = list(pair)
     pair.sort()
+
     revSrc = reverseMapping[src]
     revDst = reverseMapping[dst]
     rel = relation[ (revSrc, revDst) ]
-    uniqueEdges.add( tuple(pair + [rel]) )
+    if (orig_pair == pair):
+      uniqueEdges.add( tuple(pair + [rel]) )
+    else:
+      uniqueEdges.add( tuple(pair + [2 - rel]) )
+
 
   nnn = list( uniqueEdges )
   nnn.sort(key = lambda (src, dst, rel): rel)

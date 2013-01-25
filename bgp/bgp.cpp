@@ -635,7 +635,7 @@ void BGPProcess::load_graph(string path, graph_t& graph) {
 
   for(vertex_t v = 0; v < GRAPH_SIZE; v++) {
 
-    size_t counter = 0;
+    size_t counter = 1;
     Vertex& vV = graph[v];
     vV.id_ = v;
     for(size_t i = 0; i < 3; i++) {
