@@ -208,8 +208,8 @@ void BGPProcess::next_iteration_finish(
     //print_result();
     boost::add_edge(SEVER_EDGE, SEVER_NEXT, graph_);
 
-    Vertex& next_hop = graph[SEVER_NEXT];
-    Vertex& dst_new = graph[SEVER_EDGE];
+    Vertex& next_hop = graph_[SEVER_NEXT];
+    Vertex& dst_new = graph_[SEVER_EDGE];
 
     dst_new.set_neighbors(graph_);
     next_hop.set_neighbors(graph_);
