@@ -447,7 +447,7 @@ void BGPProcess::for1(
       BOOST_ASSERT(offer_it2 != affected.preference_.end());
       const auto offered_preference2 = offer_it2->second;
 
-      LOG4CXX_INFO(comp_peer_->logger_,offered_preference2 << " > " << current_preference2);
+      //LOG4CXX_INFO(comp_peer_->logger_,offered_preference2 << " > " << current_preference2);
       if ( offered_preference2 > current_preference2 ) {
         affected.set_next_hop(graph_, nnn);
         new_changed_set.insert(affected_vertex);
