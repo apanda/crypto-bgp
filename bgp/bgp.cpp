@@ -51,10 +51,14 @@ void BGPProcess::init(graph_t& graph) {
 
 void BGPProcess::start(graph_t& graph) {
 
-
   load_state("scripts/next", graph_);
 
+  while(true) {
+    Vertex& s = graph[SEVER_EDGE];
+    if(s.next_hop_ != Vertex::UNDEFINED) break;
 
+    SEVER_EDGE++;
+  }
 
   shared_ptr< set<vertex_t> > affected_ptr(new set<vertex_t>);
   shared_ptr< tbb::concurrent_unordered_set<vertex_t> > changed_ptr(
