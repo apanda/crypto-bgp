@@ -136,8 +136,6 @@ void BGPProcess::next_iteration_continue(
     shared_ptr< tbb::concurrent_unordered_set<vertex_t> > changed_set_ptr,
     shared_ptr< tbb::concurrent_unordered_set<vertex_t> > new_changed_set_ptr) {
 
-  std::cout << "next_iteration_continue" << std::endl;
-
   vector<vertex_t>& batch = *batch_ptr;
 
   shared_ptr< pair<size_t, size_t> > counts_ptr(new pair<size_t, size_t>);
@@ -162,7 +160,6 @@ void BGPProcess::next_iteration_continue(
 
   if (current_batch.empty()) {
     next_iteration_finish(dst_vertex, new_changed_set_ptr);
-    std::cout << "return" << std::endl;
     return;
   }
 
@@ -226,7 +223,6 @@ void BGPProcess::next_iteration_finish(
     start(graph_);
 
     //end_();
-    std::cout << "return2" << std::endl;
     return;
   }
 
@@ -418,15 +414,15 @@ void BGPProcess::for1(
 
   if(affected.next_hop_ == neigh_vertex) {
 
-    LOG4CXX_INFO(comp_peer_->logger_, "affected.next_hop_ == neigh_vertex");
-    LOG4CXX_INFO(comp_peer_->logger_, "affected_vertex:" << affected_vertex);
+    //LOG4CXX_INFO(comp_peer_->logger_, "affected.next_hop_ == neigh_vertex");
+    //LOG4CXX_INFO(comp_peer_->logger_, "affected_vertex:" << affected_vertex);
 
     if(neigh.next_hop_ == Vertex::UNDEFINED) {
 
-      LOG4CXX_INFO(comp_peer_->logger_,  "neigh.next_hop_ == Vertex::UNDEFINED");
+      //LOG4CXX_INFO(comp_peer_->logger_,  "neigh.next_hop_ == Vertex::UNDEFINED");
       if (affected.next_hop_ != Vertex::UNDEFINED) {
 
-        LOG4CXX_INFO(comp_peer_->logger_, "affected.next_hop_ != Vertex::UNDEFINED");
+        //LOG4CXX_INFO(comp_peer_->logger_, "affected.next_hop_ != Vertex::UNDEFINED");
         affected.next_hop_ = Vertex::UNDEFINED;
         new_changed_set.insert(affected_vertex);
       }
@@ -436,12 +432,12 @@ void BGPProcess::for1(
 
       Vertex& nnnV = graph_[nnn];
       if(nnnV.in_as_path(graph_, affected_vertex)) {
-        LOG4CXX_INFO(comp_peer_->logger_, "nnnV.in_as_path(graph_, affected_vertex)");
+        //LOG4CXX_INFO(comp_peer_->logger_, "nnnV.in_as_path(graph_, affected_vertex)");
         continue;
       }
 
       if(nnnV.next_hop_ == Vertex::UNDEFINED) {
-        LOG4CXX_INFO(comp_peer_->logger_, "nnnV.next_hop_ == Vertex::UNDEFINED");
+        //LOG4CXX_INFO(comp_peer_->logger_, "nnnV.next_hop_ == Vertex::UNDEFINED");
         continue;
       }
 
@@ -462,7 +458,7 @@ void BGPProcess::for1(
   }
 
 
-  LOG4CXX_INFO(comp_peer_->logger_, "new_changed_set.size(): " << new_changed_set.size());
+  //LOG4CXX_INFO(comp_peer_->logger_, "new_changed_set.size(): " << new_changed_set.size());
   affected.sig_bgp_next[result]->operator ()();
 
 /*
