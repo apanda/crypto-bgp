@@ -60,6 +60,8 @@ void BGPProcess::start(graph_t& graph) {
     SEVER_EDGE++;
   }
 
+  if (SEVER_EDGE > 5000) return;
+
   shared_ptr< set<vertex_t> > affected_ptr(new set<vertex_t>);
   shared_ptr< tbb::concurrent_unordered_set<vertex_t> > changed_ptr(
       new tbb::concurrent_unordered_set<vertex_t>);
