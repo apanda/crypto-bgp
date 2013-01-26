@@ -463,6 +463,7 @@ void BGPProcess::for1(
   //LOG4CXX_INFO(comp_peer_->logger_, "new_changed_set.size(): " << new_changed_set.size());
   affected.sig_bgp_next[result]->operator ()();
 
+
 /*
   if (cmp != condition) {
 
