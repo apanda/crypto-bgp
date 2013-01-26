@@ -212,7 +212,7 @@ void BGPProcess::process_neighbors_mpc(
   std::set_intersection( neighs.begin(), neighs.end(), ch.begin(), ch.end(),
       std::insert_iterator< std::vector<vertex_t> >( intersection, intersection.begin() ) );
 
-  if (intersection.size() < 200) {
+  if (intersection.size() < MAX_BATCH) {
     for0(affected_vertex, new_changed_set_ptr, counts_ptr, intersection_ptr);
   } else {
 
