@@ -42,7 +42,7 @@ int64_t Vertex::current_next_hop_preference(graph_t& graph) {
 bool Vertex::in_as_path(graph_t& graph, vertex_t vertex) {
 
   vertex_t next = next_hop_;
-  int MAX_AS_LENGTH = 20;
+  int MAX_AS_LENGTH = 10;
   int count = 0;
 
   while(true) {
@@ -53,8 +53,7 @@ bool Vertex::in_as_path(graph_t& graph, vertex_t vertex) {
     Vertex& v = graph[next];
     next = v.next_hop_;
     if (count > MAX_AS_LENGTH)  {
-      std::cout << "Not suppose to happen!" << std::endl;
-      return false;
+      return true;
     }
   }
 

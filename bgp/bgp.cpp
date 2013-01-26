@@ -51,16 +51,8 @@ void BGPProcess::init(graph_t& graph) {
 
 void BGPProcess::start(graph_t& graph) {
 
-  load_state("scripts/next", graph_);
-
-  while(true) {
-    Vertex& s = graph[SEVER_EDGE];
-    if(s.next_hop_ != Vertex::UNDEFINED) break;
-
-    SEVER_EDGE++;
-  }
-
-  if (SEVER_EDGE > 5000) return;
+  vertex_t dst_vertex = 0;
+  Vertex& dst = graph[dst_vertex];
 
   shared_ptr< set<vertex_t> > affected_ptr(new set<vertex_t>);
   shared_ptr< tbb::concurrent_unordered_set<vertex_t> > changed_ptr(
@@ -68,28 +60,6 @@ void BGPProcess::start(graph_t& graph) {
 
   set<vertex_t>& affected = *(affected_ptr);
   tbb::concurrent_unordered_set<vertex_t>& changed = *changed_ptr;
-
-
-
-  vertex_t dst_vertex = 0;
-
-  if (SEVER_FLAG) {
-    dst_vertex = SEVER_EDGE;
-    Vertex& dst_new = graph[dst_vertex];
-
-    std::cout << "SEVER_EDGE: " << SEVER_EDGE << std::endl;
-    SEVER_NEXT = dst_new.next_hop_;
-    Vertex& next_hop = graph[dst_new.next_hop_];
-
-    boost::remove_edge(dst_vertex, dst_new.next_hop_, graph);
-    dst_new.next_hop_ = Vertex::UNDEFINED;
-
-    dst_new.set_neighbors(graph);
-    next_hop.set_neighbors(graph);
-  }
-
-  Vertex& dst = graph[dst_vertex];
-
 
   changed.insert(dst_vertex);
   for(const vertex_t& vertex: dst.neigh_) {
@@ -187,7 +157,7 @@ void BGPProcess::next_iteration_finish(
     shared_ptr< tbb::concurrent_unordered_set<vertex_t> > new_changed_set_ptr) {
 
   tbb::concurrent_unordered_set<vertex_t>& new_changed_set = *new_changed_set_ptr;
-/*
+
   vector<vertex_t> nodes;
 
   for(const vertex_t vertex: new_changed_set) {
@@ -196,12 +166,13 @@ void BGPProcess::next_iteration_finish(
   new_changed_set.clear();
 
   master_->sync(nodes);
+
   master_->barrier_->wait();
 
   for(size_t i = 0; i < master_->size_; i++) {
     new_changed_set.insert(master_->array_[i]);
   }
-*/
+
   shared_ptr<  set<vertex_t> > new_affected_set_ptr(new set<vertex_t>);
   set<vertex_t>& new_affected_set = *new_affected_set_ptr;
 
@@ -211,20 +182,8 @@ void BGPProcess::next_iteration_finish(
   }
 
   if(new_changed_set.empty())  {
-    //print_result();
-    boost::add_edge(SEVER_EDGE, SEVER_NEXT, graph_);
-
-    Vertex& next_hop = graph_[SEVER_NEXT];
-    Vertex& dst_new = graph_[SEVER_EDGE];
-
-    dst_new.set_neighbors(graph_);
-    next_hop.set_neighbors(graph_);
-
-    SEVER_EDGE++;
-
-    start(graph_);
-
-    //end_();
+    print_result();
+    end_();
     return;
   }
 
@@ -253,7 +212,7 @@ void BGPProcess::process_neighbors_mpc(
   std::set_intersection( neighs.begin(), neighs.end(), ch.begin(), ch.end(),
       std::insert_iterator< std::vector<vertex_t> >( intersection, intersection.begin() ) );
 
-  if (true) {
+  if (intersection.size() < 200) {
     for0(affected_vertex, new_changed_set_ptr, counts_ptr, intersection_ptr);
   } else {
 
@@ -262,7 +221,7 @@ void BGPProcess::process_neighbors_mpc(
 
     deque< typename vector<vertex_t>::iterator > range_stack;
 
-    LOG4CXX_DEBUG(comp_peer_->logger_, "intersection.size() " << intersection.size()
+    LOG4CXX_INFO(comp_peer_->logger_, "intersection.size() " << intersection.size()
         << " suncounter_ptr->second " << suncounter_ptr->second);
 
     for(size_t index = 0; index <= intersection.size() / MAX_BATCH; index++) {
@@ -292,205 +251,6 @@ void BGPProcess::process_neighbors_mpc(
   }
 
 }
-
-
-
-
-
-
-void BGPProcess::for0(
-    const vertex_t affected_vertex,
-    shared_ptr< tbb::concurrent_unordered_set<vertex_t> > new_changed_set_ptr,
-    shared_ptr< pair<size_t, size_t> > counts_ptr,
-    shared_ptr< vector<vertex_t> > intersection_ptr) {
-
-  vector<vertex_t>& intersection = *intersection_ptr;
-  size_t& count = counts_ptr->first;
-  size_t& batch_count = counts_ptr->second;
-
-  if (intersection.empty()) {
-
-    m_.lock();
-    count++;
-    if (batch_count == count) {
-      m_.unlock();
-
-      continuation_();
-      return;
-    }
-
-    m_.unlock();
-    return;
-  }
-
-  Vertex& affected = graph_[affected_vertex];
-  const vertex_t neigh_vertex = intersection.back();
-  intersection.pop_back();
-
-  const string key1 = lexical_cast<string>(affected.next_hop_);
-  const string key2 = lexical_cast<string>(neigh_vertex);
-
-  string w = ".2" + key1;
-  string x = ".2" + key2;
-  string y = ".2" + key1 + "-" + key2;
-
-  string xy = y + "*" + x;
-  string wx = x + "*" + w;
-  string wy = y + "*" + w;
-
-  string wxy2 = xy + "*" + "2" + "*" + w;
-  string result = wx + "+" + wy + "-" + wxy2 + "-" + y + "-" + x + "+" + xy;
-
-  affected.sig_bgp_next[result] =
-      shared_ptr<boost::function<void()> >(new boost::function<void()>);
-
-  auto next = boost::bind(&BGPProcess::for0, this,
-        affected_vertex,
-        new_changed_set_ptr,
-        counts_ptr,
-        intersection_ptr
-      );
-
-  *(affected.sig_bgp_next[result]) = next;
-
-  /*
-  LOG4CXX_DEBUG(comp_peer_->logger_, "Vertex -> "
-      << affected_vertex << ", " << neigh_vertex );
-
-  affected.sig_bgp_cnt[result] = shared_ptr<boost::function<void(int)> >(new boost::function<void(int)>);
-
-  *(affected.sig_bgp_cnt[result]) = boost::bind(&BGPProcess::for1, this,
-              affected_vertex,
-              neigh_vertex,
-              new_changed_set_ptr,
-              _1);
-
-
-  comp_peer_->compare0(
-      lexical_cast<string>(affected.next_hop_),
-      lexical_cast<string>(neigh_vertex),
-      affected_vertex);
-      */
-
-  for1(affected_vertex, neigh_vertex, new_changed_set_ptr, 0);
-}
-
-
-
-
-void BGPProcess::for1(
-    vertex_t affected_vertex,
-    vertex_t neigh_vertex,
-    shared_ptr< tbb::concurrent_unordered_set<vertex_t> > new_changed_set_ptr,
-    int cmp) {
-
-  tbb::concurrent_unordered_set<vertex_t>& new_changed_set = *new_changed_set_ptr;
-  Vertex& affected = graph_[affected_vertex];
-  Vertex& neigh = graph_[neigh_vertex];
-
-  const string key1 = lexical_cast<string>(affected.next_hop_);
-  const string key2 = lexical_cast<string>(neigh_vertex);
-
-  string w = ".2" + key1;
-  string x = ".2" + key2;
-  string y = ".2" + key1 + "-" + key2;
-
-  string xy = y + "*" + x;
-  string wx = x + "*" + w;
-  string wy = y + "*" + w;
-
-  string wxy2 = xy + "*" + "2" + "*" + w;
-  string result = wx + "+" + wy + "-" + wxy2 + "-" + y + "-" + x + "+" + xy;
-
-  const auto current_preference = affected.current_next_hop_preference(graph_);
-
-  auto offer_it = affected.preference_.find(neigh_vertex);
-  BOOST_ASSERT(offer_it != affected.preference_.end());
-  const auto offered_preference = offer_it->second;
-
-  LOG4CXX_DEBUG(comp_peer_->logger_, "Compare preference: "
-      << current_preference << ", " << offered_preference );
-
-  const bool condition = offered_preference <= current_preference;
-
-
-  if(affected.next_hop_ == neigh_vertex) {
-
-    //LOG4CXX_INFO(comp_peer_->logger_, "affected.next_hop_ == neigh_vertex");
-    //LOG4CXX_INFO(comp_peer_->logger_, "affected_vertex:" << affected_vertex);
-
-    if(neigh.next_hop_ == Vertex::UNDEFINED) {
-
-      //LOG4CXX_INFO(comp_peer_->logger_,  "neigh.next_hop_ == Vertex::UNDEFINED");
-      if (affected.next_hop_ != Vertex::UNDEFINED) {
-
-        //LOG4CXX_INFO(comp_peer_->logger_, "affected.next_hop_ != Vertex::UNDEFINED");
-        affected.next_hop_ = Vertex::UNDEFINED;
-        new_changed_set.insert(affected_vertex);
-      }
-    }
-
-    for(vertex_t nnn: affected.neigh_) {
-
-      Vertex& nnnV = graph_[nnn];
-      if(nnnV.in_as_path(graph_, affected_vertex)) {
-        //LOG4CXX_INFO(comp_peer_->logger_, "nnnV.in_as_path(graph_, affected_vertex)");
-        continue;
-      }
-
-      if(nnnV.next_hop_ == Vertex::UNDEFINED) {
-        //LOG4CXX_INFO(comp_peer_->logger_, "nnnV.next_hop_ == Vertex::UNDEFINED");
-        continue;
-      }
-
-      const auto current_preference2 = affected.current_next_hop_preference(graph_);
-
-      auto offer_it2 = affected.preference_.find(nnn);
-      BOOST_ASSERT(offer_it2 != affected.preference_.end());
-      const auto offered_preference2 = offer_it2->second;
-
-      //LOG4CXX_INFO(comp_peer_->logger_,offered_preference2 << " > " << current_preference2);
-      if ( offered_preference2 > current_preference2 ) {
-        affected.set_next_hop(graph_, nnn);
-        new_changed_set.insert(affected_vertex);
-      }
-
-    }
-
-  }
-
-
-  //LOG4CXX_INFO(comp_peer_->logger_, "new_changed_set.size(): " << new_changed_set.size());
-  affected.sig_bgp_next[result]->operator ()();
-
-
-/*
-  if (cmp != condition) {
-
-    LOG4CXX_FATAL(comp_peer_->logger_, "==================================================");
-    LOG4CXX_FATAL(comp_peer_->logger_,
-        "(Is, Should): " <<
-        "(" << cmp << ", " << condition << ") -- " <<
-        "(" << affected_vertex << ", " << neigh_vertex << ")");
-    LOG4CXX_FATAL(comp_peer_->logger_, "==================================================");
-
-  }
-*/
-
-  //affected.sig_bgp_next[result]->operator()();
-/*
-  if ( offered_preference <= current_preference ) {
-    affected.sig_bgp_next[result]->operator()();
-    return;
-  }
-
-  affected.set_next_hop(graph_, neigh_vertex);
-  new_changed_set.insert(affected_vertex);
-
-  affected.sig_bgp_next[result]->operator ()();
-  */
-}
-
 
 
 
@@ -693,8 +453,141 @@ void BGPProcess::compute_partial1(
 
 
 
-#include <boost/algorithm/string.hpp>
+void BGPProcess::for0(
+    const vertex_t affected_vertex,
+    shared_ptr< tbb::concurrent_unordered_set<vertex_t> > new_changed_set_ptr,
+    shared_ptr< pair<size_t, size_t> > counts_ptr,
+    shared_ptr< vector<vertex_t> > intersection_ptr) {
 
+  vector<vertex_t>& intersection = *intersection_ptr;
+  size_t& count = counts_ptr->first;
+  size_t& batch_count = counts_ptr->second;
+
+  if (intersection.empty()) {
+
+    m_.lock();
+    count++;
+    if (batch_count == count) {
+      m_.unlock();
+
+      continuation_();
+      return;
+    }
+
+    m_.unlock();
+    return;
+  }
+
+  Vertex& affected = graph_[affected_vertex];
+  const vertex_t neigh_vertex = intersection.back();
+  intersection.pop_back();
+
+  const string key1 = lexical_cast<string>(affected.next_hop_);
+  const string key2 = lexical_cast<string>(neigh_vertex);
+
+  string w = ".2" + key1;
+  string x = ".2" + key2;
+  string y = ".2" + key1 + "-" + key2;
+
+  string xy = y + "*" + x;
+  string wx = x + "*" + w;
+  string wy = y + "*" + w;
+
+  string wxy2 = xy + "*" + "2" + "*" + w;
+  string result = wx + "+" + wy + "-" + wxy2 + "-" + y + "-" + x + "+" + xy;
+
+  affected.sig_bgp_next[result] =
+      shared_ptr<boost::function<void()> >(new boost::function<void()>);
+
+  auto next = boost::bind(&BGPProcess::for0, this,
+        affected_vertex,
+        new_changed_set_ptr,
+        counts_ptr,
+        intersection_ptr
+      );
+
+  *(affected.sig_bgp_next[result]) = next;
+
+  LOG4CXX_DEBUG(comp_peer_->logger_, "Vertex -> "
+      << affected_vertex << ", " << neigh_vertex );
+
+  affected.sig_bgp_cnt[result] = shared_ptr<boost::function<void(int)> >(new boost::function<void(int)>);
+
+  *(affected.sig_bgp_cnt[result]) = boost::bind(&BGPProcess::for1, this,
+              affected_vertex,
+              neigh_vertex,
+              new_changed_set_ptr,
+              _1);
+
+
+  comp_peer_->compare0(
+      lexical_cast<string>(affected.next_hop_),
+      lexical_cast<string>(neigh_vertex),
+      affected_vertex);
+}
+
+
+
+void BGPProcess::for1(
+    vertex_t affected_vertex,
+    vertex_t neigh_vertex,
+    shared_ptr< tbb::concurrent_unordered_set<vertex_t> > new_changed_set_ptr,
+    int cmp) {
+
+  tbb::concurrent_unordered_set<vertex_t>& new_changed_set = *new_changed_set_ptr;
+  Vertex& affected = graph_[affected_vertex];
+
+  const string key1 = lexical_cast<string>(affected.next_hop_);
+  const string key2 = lexical_cast<string>(neigh_vertex);
+
+  string w = ".2" + key1;
+  string x = ".2" + key2;
+  string y = ".2" + key1 + "-" + key2;
+
+  string xy = y + "*" + x;
+  string wx = x + "*" + w;
+  string wy = y + "*" + w;
+
+  string wxy2 = xy + "*" + "2" + "*" + w;
+  string result = wx + "+" + wy + "-" + wxy2 + "-" + y + "-" + x + "+" + xy;
+
+  const auto current_preference = affected.current_next_hop_preference(graph_);
+
+  auto offer_it = affected.preference_.find(neigh_vertex);
+  BOOST_ASSERT(offer_it != affected.preference_.end());
+  const auto offered_preference = offer_it->second;
+
+  LOG4CXX_DEBUG(comp_peer_->logger_, "Compare -> "
+      << current_preference << ", " << offered_preference );
+
+
+
+  const bool condition = offered_preference <= current_preference;
+
+  if (cmp != condition) {
+
+    LOG4CXX_FATAL(comp_peer_->logger_, "==================================================");
+    LOG4CXX_FATAL(comp_peer_->logger_,
+        "(Is, Should): " <<
+        "(" << cmp << ", " << condition << ") -- " <<
+        "(" << affected_vertex << ", " << neigh_vertex << ")");
+    LOG4CXX_FATAL(comp_peer_->logger_, "==================================================");
+
+  }
+
+  if ( offered_preference <= current_preference ) {
+    affected.sig_bgp_next[result]->operator()();
+    return;
+  }
+
+  affected.set_next_hop(graph_, neigh_vertex);
+  new_changed_set.insert(affected_vertex);
+
+  affected.sig_bgp_next[result]->operator ()();
+}
+
+
+#include <boost/algorithm/string.hpp>
 
 void BGPProcess::load_graph(string path, graph_t& graph) {
 
@@ -732,7 +625,7 @@ void BGPProcess::load_graph(string path, graph_t& graph) {
 
   for(vertex_t v = 0; v < GRAPH_SIZE; v++) {
 
-    size_t counter = 1;
+    size_t counter = 0;
     Vertex& vV = graph[v];
     vV.id_ = v;
     for(size_t i = 0; i < 3; i++) {
@@ -743,6 +636,7 @@ void BGPProcess::load_graph(string path, graph_t& graph) {
         counter++;
       }
     }
+
   }
 
 
@@ -753,43 +647,6 @@ void BGPProcess::load_graph(string path, graph_t& graph) {
   }
 
 }
-
-
-
-
-void BGPProcess::load_state(string path, graph_t& graph) {
-
-  dynamic_properties dp;
-  std::ifstream file(path);
-  string s;
-
-  while(true) {
-    if( file.eof() ) break;
-    getline(file, s);
-
-    vector<string> tokens;
-    boost::split(tokens, s, boost::is_any_of(" -;"));
-
-    for (string token: tokens) {
-      boost::algorithm::trim(token);
-    }
-
-    if(tokens.size() != 2)  {
-      continue;
-    }
-
-
-    vertex_t src = lexical_cast<size_t>(tokens[0]);
-    vertex_t dst = lexical_cast<size_t>(tokens[1]);
-
-    Vertex& vertex = graph[src];
-    vertex.next_hop_ = dst;
-  }
-
-
-}
-
-
 
 void BGPProcess::load_graph2(string path, graph_t& graph) {
 
@@ -804,6 +661,14 @@ void BGPProcess::load_graph2(string path, graph_t& graph) {
 
 
 void BGPProcess::print_state(graph_t& graph) {
+  auto iter = vertices(graph);
+  auto last = iter.second;
+  auto current = iter.first;
+
+  for (; current != last; ++current) {
+    const auto& current_vertex = *current;
+    Vertex& vertex = graph[current_vertex];
+  }
 }
 
 

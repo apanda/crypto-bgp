@@ -94,8 +94,8 @@ void run_mpc() {
   BGPProcess bgp("scripts/dot.dot", NULL, io);
   graph_t& input_graph = bgp.graph_;
 
-  //shared_ptr<RPCClient> master( new RPCClient(io, MASTER_ADDRESS, MASTER_PORT) );
-  //bgp.master_ = master;
+  shared_ptr<RPCClient> master( new RPCClient(io, MASTER_ADDRESS, MASTER_PORT) );
+  bgp.master_ = master;
 
   LOG4CXX_INFO(mainLogger, "Disseminating BGP information...");
 
@@ -104,37 +104,41 @@ void run_mpc() {
   LOG4CXX_INFO(mainLogger, "Starting listeners...");
 
   sync_init init;
-  //init.nodes_ = input_peer->start_listeners(comp_peer_seq, input_graph);
-  //init.hostname_ = WHOAMI;
+  init.nodes_ = input_peer->start_listeners(comp_peer_seq, input_graph);
+  init.hostname_ = WHOAMI;
 
-  //master->barrier_ = new boost::barrier(2);
-/*
+  master->barrier_ = new boost::barrier(2);
+
   for(auto& cp: comp_peer_seq) {
     if (COMP_PEER_IDS.find(cp->id_) == COMP_PEER_IDS.end()) continue;
 
     cp->bgp_->master_ = master;
     init.id_ = cp->id_;
 
-    //master->init(init);
+    LOG4CXX_INFO(mainLogger, "master->init(init))");
+    master->init(init);
   }
-*/
-  //master->barrier_ ->wait();
 
-  //input_peer->start_clients(comp_peer_seq, input_graph, master->hm_);
+  master->barrier_ ->wait();
+
+  input_peer->start_clients(comp_peer_seq, input_graph, master->hm_);
 
   LOG4CXX_INFO(mainLogger, "All clients have been started.");
 
   vector<vertex_t> nodes;
   for(auto& cp: comp_peer_seq) {
     if (COMP_PEER_IDS.find(cp->id_) == COMP_PEER_IDS.end()) continue;
-    //master->sync(nodes);
+    LOG4CXX_INFO(mainLogger, "master->sync(nodes)");
+    master->sync(nodes);
   }
 
-  //master->barrier_->wait();
+  master->barrier_->wait();
 
   LOG4CXX_INFO(mainLogger, "Master has raised the barrier.");
 
-  //master->barrier_ = new boost::barrier(COMP_PEER_IDS.size() + 1);
+  sleep(10);
+
+  master->barrier_ = new boost::barrier(COMP_PEER_IDS.size() + 1);
 
   functor_t f2 = boost::bind(measure_time);
 
@@ -166,7 +170,6 @@ int main(int argc, char *argv[]) {
       ("start", po::value<size_t>(), "staring vertex")
       ("end", po::value<size_t>(), "ending vertex")
       ("limit", po::value<size_t>(), "per vertex limit")
-      ("sever", po::value<size_t>(), "which link to sever")
       ("id", po::value<vector<int>>()->multitoken(), "computational peer id")
   ;
 
@@ -196,11 +199,6 @@ int main(int argc, char *argv[]) {
 
   if (vm.count("end")) {
     VERTEX_END = vm["end"].as<size_t>();
-  }
-
-  if (vm.count("sever")) {
-    SEVER_FLAG = true;
-    SEVER_EDGE = vm["sever"].as<size_t>();
   }
 
   if (vm.count("limit")) {
