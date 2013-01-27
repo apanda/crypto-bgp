@@ -34,7 +34,7 @@ conn = EC2Connection(
         aws_access_key_id = 'AKIAIOPRNXFE5YO3VOWQ',
         aws_secret_access_key = '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')
 
-AMI = 'ami-818a02e8'
+AMI = 'ami-0179ec68'
 INSTANCES_FILE = "instances.dat"
 INSTANCES_TYPE = 'm3.2xlarge'
 SECURITY_GROUPS = ['vjeko']
@@ -216,8 +216,8 @@ def delegate(instances, graphSize, master):
   partitionVertexSize = graphSize / partitionSize
 
   MASTER = master
-  THREADS = 32
-  TASKS = 600
+  THREADS = 8
+  TASKS = 2000
   LIMIT = 20
   WHOAMI = '`/sbin/ifconfig eth0 | grep \'inet addr:\' | cut -d: -f2 | \
   awk \'{ print $1}\' `'

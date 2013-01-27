@@ -108,9 +108,22 @@ void BGPProcess::next_iteration_continue(
     shared_ptr< tbb::concurrent_unordered_set<vertex_t> > changed_set_ptr,
     shared_ptr< tbb::concurrent_unordered_set<vertex_t> > new_changed_set_ptr) {
 
-  vector<vertex_t>& batch = *batch_ptr;
 
   shared_ptr< pair<size_t, size_t> > counts_ptr(new pair<size_t, size_t>);
+
+  vector<vertex_t>& batch = *batch_ptr;
+
+  for(auto& vertex: batch) {
+      const auto functor = boost::bind(
+          &BGPProcess::process_neighbors_mpc,
+          this, vertex,
+          changed_set_ptr,
+          new_changed_set_ptr,
+          counts_ptr);
+
+      execution_stack_.push(functor);
+  }
+
   size_t& count = counts_ptr->first;
   count = 0;
 
@@ -656,19 +669,6 @@ void BGPProcess::load_graph2(string path, graph_t& graph) {
   dp.property("node_id", get(&Vertex::id_, graph));
 
   read_graphviz(file ,graph, dp, "node_id");
-}
-
-
-
-void BGPProcess::print_state(graph_t& graph) {
-  auto iter = vertices(graph);
-  auto last = iter.second;
-  auto current = iter.first;
-
-  for (; current != last; ++current) {
-    const auto& current_vertex = *current;
-    Vertex& vertex = graph[current_vertex];
-  }
 }
 
 
