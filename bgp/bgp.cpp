@@ -92,6 +92,7 @@ void BGPProcess::next_iteration_start(
 
     if (vertex < VERTEX_START) continue;
     if (vertex > VERTEX_END) continue;
+    if (vertex == dst_vertex) continue;
 
     batch.push_back(vertex);
   }
@@ -110,11 +111,13 @@ void BGPProcess::next_iteration_start(
   }
 
   continuation_ = boost::bind(
-        &BGPProcess::next_iteration_continue,
-        this, dst_vertex, batch_ptr, affected_set_ptr,
+      &BGPProcess::next_iteration_finish,
+      this, dst_vertex, new_changed_set_ptr);
+
+  next_iteration_continue(
+        dst_vertex, batch_ptr, affected_set_ptr,
         changed_set_ptr, new_changed_set_ptr);
 
-  continuation_();
 }
 
 
@@ -139,27 +142,12 @@ void BGPProcess::next_iteration_continue(
     if (execution_stack_.empty()) break;
     if (current_batch.size() == TASK_COUNT) break;
 
-    const vertex_t vertex = batch.back();
-    batch.pop_back();
-
-    if (vertex == dst_vertex) continue;
-    current_batch.push_back(vertex);
-  }
-
-  if (current_batch.empty()) {
-    next_iteration_finish(dst_vertex, new_changed_set_ptr);
-    return;
-  }
-
-  for(auto& vertex: current_batch) {
-    io_service_.post(
-      boost::bind(
-          &BGPProcess::process_neighbors_mpc,
-          this, vertex,
-          changed_set_ptr,
-          new_changed_set_ptr,
-          counts_ptr)
-    );
+    boost::function<void()> functor;
+    const bool popped = execution_stack_.try_pop(functor);\
+    if (!popped) {
+      std::cout << "crap!" << std::endl;
+    }
+    assert(popped);
   }
 
 }
