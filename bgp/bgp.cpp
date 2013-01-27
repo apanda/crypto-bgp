@@ -92,6 +92,19 @@ void BGPProcess::next_iteration_start(
     batch.push_back(vertex);
   }
 
+  shared_ptr< pair<size_t, size_t> > counts_ptr(new pair<size_t, size_t>);
+
+  for(auto& vertex: batch) {
+      const auto functor = boost::bind(
+          &BGPProcess::process_neighbors_mpc,
+          this, vertex,
+          changed_set_ptr,
+          new_changed_set_ptr,
+          counts_ptr);
+
+      execution_stack_.push(functor);
+  }
+
   continuation_ = boost::bind(
         &BGPProcess::next_iteration_continue,
         this, dst_vertex, batch_ptr, affected_set_ptr,
@@ -108,21 +121,9 @@ void BGPProcess::next_iteration_continue(
     shared_ptr< tbb::concurrent_unordered_set<vertex_t> > changed_set_ptr,
     shared_ptr< tbb::concurrent_unordered_set<vertex_t> > new_changed_set_ptr) {
 
-
-  shared_ptr< pair<size_t, size_t> > counts_ptr(new pair<size_t, size_t>);
-
   vector<vertex_t>& batch = *batch_ptr;
 
-  for(auto& vertex: batch) {
-      const auto functor = boost::bind(
-          &BGPProcess::process_neighbors_mpc,
-          this, vertex,
-          changed_set_ptr,
-          new_changed_set_ptr,
-          counts_ptr);
-
-      execution_stack_.push(functor);
-  }
+  shared_ptr< pair<size_t, size_t> > counts_ptr(new pair<size_t, size_t>);
 
   size_t& count = counts_ptr->first;
   count = 0;
