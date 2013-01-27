@@ -89,6 +89,10 @@ void BGPProcess::next_iteration_start(
   vector<vertex_t>& batch = *batch_ptr;
 
   for(const auto vertex: affected_set) {
+
+    if (vertex < VERTEX_START) continue;
+    if (vertex > VERTEX_END) continue;
+
     batch.push_back(vertex);
   }
 
@@ -122,8 +126,9 @@ void BGPProcess::next_iteration_continue(
     shared_ptr< tbb::concurrent_unordered_set<vertex_t> > new_changed_set_ptr) {
 
   vector<vertex_t>& batch = *batch_ptr;
-
   shared_ptr< pair<size_t, size_t> > counts_ptr(new pair<size_t, size_t>);
+
+  counts_ptr->second = execution_stack_.unsafe_size();
 
   size_t& count = counts_ptr->first;
   count = 0;
@@ -131,14 +136,11 @@ void BGPProcess::next_iteration_continue(
   vector<vertex_t> current_batch;
 
   for(;;) {
-    if (batch.empty()) break;
+    if (execution_stack_.empty()) break;
     if (current_batch.size() == TASK_COUNT) break;
 
     const vertex_t vertex = batch.back();
     batch.pop_back();
-
-    if (vertex < VERTEX_START) continue;
-    if (vertex > VERTEX_END) continue;
 
     if (vertex == dst_vertex) continue;
     current_batch.push_back(vertex);
@@ -148,9 +150,6 @@ void BGPProcess::next_iteration_continue(
     next_iteration_finish(dst_vertex, new_changed_set_ptr);
     return;
   }
-
-  counts_ptr->second = current_batch.size();
-
 
   for(auto& vertex: current_batch) {
     io_service_.post(
@@ -296,7 +295,7 @@ void BGPProcess::compute_partial0(
   if (is_end) {
 
     m_.lock();
-    if (largest_vertex != affected.next_hop_){
+    if (largest_vertex != affected.next_hop_) {
       local_set.push_back(largest_vertex);
     }
     partial_count++;
@@ -305,12 +304,18 @@ void BGPProcess::compute_partial0(
       if (partial_count == partial_batch_count) {
         affected.set_next_hop(graph_, largest_vertex);
         count++;
+        const bool cond = (count == batch_count);
 
-        if (batch_count == count) {
+        function<void()> functor;
+        if (execution_stack_.try_pop(functor)) {
           m_.unlock();
-          continuation_();
-          return;
+          functor();
+        } else {
+          m_.unlock();
+          if (cond) continuation_();
         }
+        return;
+
       }
 
       m_.unlock();
@@ -481,12 +486,17 @@ void BGPProcess::for0(
 
     m_.lock();
     count++;
-    if (batch_count == count) {
-      m_.unlock();
+    const bool cond = (count == batch_count);
 
-      continuation_();
-      return;
+    function<void()> functor;
+    if (execution_stack_.try_pop(functor)) {
+      m_.unlock();
+      functor();
+    } else {
+      m_.unlock();
+      if (cond) continuation_();
     }
+    return;
 
     m_.unlock();
     return;
