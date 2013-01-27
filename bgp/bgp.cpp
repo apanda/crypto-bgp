@@ -474,6 +474,7 @@ void BGPProcess::for0(
 
     m_.lock();
     count++;
+    std::cout << "count: " << count << std::endl;
     const bool cond = (count == batch_count);
 
     function<void()> functor;
