@@ -296,7 +296,7 @@ void BGPProcess::compute_partial0(
         affected.set_next_hop(graph_, largest_vertex);
         count++;
         const bool cond = (count == batch_count);
-        std::cout << "count: " << count << std::endl;
+        std::cout << "count: " << count << " cond: " << cond << std::endl;
 
         function<void()> functor;
         if (execution_stack_.try_pop(functor)) {
@@ -306,7 +306,10 @@ void BGPProcess::compute_partial0(
         } else {
           std::cout << "false: " << execution_stack_.unsafe_size() << std::endl;;
           m_.unlock();
-          if (cond) continuation_();
+          if (cond) {
+            std::cout << "executing continuation." << std::endl;
+            continuation_();
+          }
         }
         return;
 
@@ -491,7 +494,10 @@ void BGPProcess::for0(
     } else {
       std::cout << "false: " << execution_stack_.unsafe_size() << std::endl;;
       m_.unlock();
-      if (cond) continuation_();
+      if (cond) {
+        std::cout << "executing continuation." << std::endl;
+        continuation_();
+      }
     }
     return;
 
