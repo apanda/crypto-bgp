@@ -282,10 +282,10 @@ void BGPProcess::compute_partial0(
     m_.unlock();
 
     if (partial_batch_count == 1) {
-      if (local_cond) {
-        return;
-      }
 
+      if (local_cond) return;
+
+      m_.lock();
       affected.set_next_hop(graph_, largest_vertex);
       count++;
       const bool global_cond = (count == batch_count);
@@ -301,9 +301,7 @@ void BGPProcess::compute_partial0(
       return;
     }
 
-    if (local_cond) {
-      return;
-    }
+    if (local_cond) return;
 
 
     intersection.assign( local_set.begin(), local_set.end() );
