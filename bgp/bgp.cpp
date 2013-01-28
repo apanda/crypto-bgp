@@ -140,7 +140,8 @@ void BGPProcess::next_iteration_continue(
     boost::function<void()> functor;
     const bool popped = execution_stack_.try_pop(functor);\
     assert(popped);
-    functor();
+    io_service_.post(functor);
+    //functor();
   }
 
 }
