@@ -289,15 +289,17 @@ void BGPProcess::compute_partial0(
       const bool cond = (count == batch_count);
       m_.unlock();
 
+      if (cond) {
+        continuation_();
+        return;
+      }
+
       function<void()> functor;
       if (execution_stack_.try_pop(functor)) functor();
-      if (cond) continuation_();
-
       return;
-
     }
 
-    const bool cond = (partial_count == partial_batch_count);
+    const bool cond = (partial_count != partial_batch_count);
     m_.unlock();
 
     if (cond) {
@@ -467,9 +469,12 @@ void BGPProcess::for0(
     m_.unlock();
 
     function<void()> functor;
-    if (execution_stack_.try_pop(functor)) functor();
-    if (cond) continuation_();
+    if (cond) {
+      continuation_();
+      return;
+    }
 
+    if (execution_stack_.try_pop(functor)) functor();
     return;
   }
 
