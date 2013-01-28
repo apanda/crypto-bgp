@@ -139,9 +139,6 @@ void BGPProcess::next_iteration_continue(
 
     boost::function<void()> functor;
     const bool popped = execution_stack_.try_pop(functor);\
-    if (!popped) {
-      std::cout << "crap!" << std::endl;
-    }
     assert(popped);
     functor();
   }
@@ -289,18 +286,14 @@ void BGPProcess::compute_partial0(
         affected.set_next_hop(graph_, largest_vertex);
         count++;
         const bool cond = (count == batch_count);
-        std::cout << "count: " << count << " cond: " << cond << std::endl;
 
         function<void()> functor;
         if (execution_stack_.try_pop(functor)) {
-          std::cout << "true: " << execution_stack_.unsafe_size() << std::endl;;
           m_.unlock();
           functor();
         } else {
-          std::cout << "false: " << execution_stack_.unsafe_size() << std::endl;;
           m_.unlock();
           if (cond) {
-            std::cout << "executing continuation." << std::endl;
             continuation_();
           }
         }
@@ -477,18 +470,13 @@ void BGPProcess::for0(
     m_.lock();
     count++;
     const bool cond = (count == batch_count);
-    std::cout << "count: " << count << " cond: " << cond << " batch count -> " << batch_count << std::endl;
-
     function<void()> functor;
     if (execution_stack_.try_pop(functor)) {
-      std::cout << "true: " << execution_stack_.unsafe_size() << std::endl;;
       m_.unlock();
       functor();
     } else {
-      std::cout << "false: " << execution_stack_.unsafe_size() << std::endl;;
       m_.unlock();
       if (cond) {
-        std::cout << "executing continuation." << std::endl;
         continuation_();
       }
     }
