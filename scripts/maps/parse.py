@@ -7,7 +7,7 @@ import heapq
 
 
 GRAPH_SIZE = 5976
-BUCKET_SIZE = 2
+BUCKET_SIZE = 36
 
 class MyPriQueue(object):
     def __init__(self):

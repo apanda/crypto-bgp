@@ -278,18 +278,20 @@ void BGPProcess::compute_partial0(
     }
     partial_count++;
 
+    const bool local_cond = (partial_count != partial_batch_count);
+    m_.unlock();
+
     if (partial_batch_count == 1) {
-      if (partial_count != partial_batch_count) {
-        m_.unlock();
+      if (local_cond) {
         return;
       }
 
       affected.set_next_hop(graph_, largest_vertex);
       count++;
-      const bool cond = (count == batch_count);
+      const bool global_cond = (count == batch_count);
       m_.unlock();
 
-      if (cond) {
+      if (global_cond) {
         continuation_();
         return;
       }
@@ -299,10 +301,7 @@ void BGPProcess::compute_partial0(
       return;
     }
 
-    const bool cond = (partial_count != partial_batch_count);
-    m_.unlock();
-
-    if (cond) {
+    if (local_cond) {
       return;
     }
 
