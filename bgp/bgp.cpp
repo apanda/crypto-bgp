@@ -138,9 +138,10 @@ void BGPProcess::next_iteration_continue(
 
   vector<vertex_t> current_batch;
 
+  size_t counter = 0;
   for(;;) {
+    if (counter == MAX_BATCH) break;
     if (execution_stack_.empty()) break;
-    if (current_batch.size() == TASK_COUNT) break;
 
     boost::function<void()> functor;
     const bool popped = execution_stack_.try_pop(functor);\
@@ -148,6 +149,7 @@ void BGPProcess::next_iteration_continue(
       std::cout << "crap!" << std::endl;
     }
     assert(popped);
+    functor();
   }
 
 }
