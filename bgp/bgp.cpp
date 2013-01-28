@@ -137,7 +137,8 @@ void BGPProcess::next_iteration_continue(
     if (counter == MAX_BATCH) break;
     if (!execution_stack_.try_pop(functor)) break;
 
-    functor();
+    io_service_.post(functor);
+    //functor();
   }
 
 }
