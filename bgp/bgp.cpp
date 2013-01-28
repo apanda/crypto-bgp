@@ -290,7 +290,7 @@ void BGPProcess::compute_partial0(
       m_.lock();
       affected.set_next_hop(graph_, largest_vertex);
       count++;
-      bool popped = execution_stack_.try_pop(functor)
+      bool popped = execution_stack_.try_pop(functor);
       const bool global_cond = (count == batch_count);
       m_.unlock();
 
@@ -467,7 +467,7 @@ void BGPProcess::for0(
     m_.lock();
     count++;
     const bool cond = (count == batch_count);
-    bool popped = execution_stack_.try_pop(functor)
+    bool popped = execution_stack_.try_pop(functor);
     m_.unlock();
 
     if (cond) {
