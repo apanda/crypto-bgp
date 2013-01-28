@@ -24,7 +24,7 @@ using std::chrono::milliseconds;
 
 using boost::function;
 
-io_service io(20);
+io_service io(600);
 io_service::work work(io);
 
 void run_master() {
