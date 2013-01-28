@@ -132,6 +132,7 @@ void BGPProcess::next_iteration_continue(
   shared_ptr< pair<size_t, size_t> > counts_ptr(new pair<size_t, size_t>);
 
   counts_ptr->second = execution_stack_.unsafe_size();
+  std::cout << "total size: " << execution_stack_.unsafe_size() << std::endl;
 
   size_t& count = counts_ptr->first;
   count = 0;
