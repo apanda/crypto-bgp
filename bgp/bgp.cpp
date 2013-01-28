@@ -285,9 +285,12 @@ void BGPProcess::compute_partial0(
 
       if (local_cond) return;
 
+      function<void()> functor;
+
       m_.lock();
       affected.set_next_hop(graph_, largest_vertex);
       count++;
+      bool popped = execution_stack_.try_pop(functor)
       const bool global_cond = (count == batch_count);
       m_.unlock();
 
@@ -296,8 +299,7 @@ void BGPProcess::compute_partial0(
         return;
       }
 
-      function<void()> functor;
-      if (execution_stack_.try_pop(functor)) functor();
+      if (popped) functor();
       return;
     }
 
@@ -460,18 +462,20 @@ void BGPProcess::for0(
 
   if (intersection.empty()) {
 
+    function<void()> functor;
+
     m_.lock();
     count++;
     const bool cond = (count == batch_count);
+    bool popped = execution_stack_.try_pop(functor)
     m_.unlock();
 
-    function<void()> functor;
     if (cond) {
       continuation_();
       return;
     }
 
-    if (execution_stack_.try_pop(functor)) functor();
+    if (popped) functor();
     return;
   }
 
