@@ -122,6 +122,7 @@ void BGPProcess::next_iteration_start(
 }
 
 
+
 void BGPProcess::next_iteration_continue(
     const vertex_t dst_vertex,
     shared_ptr< vector<vertex_t> > batch_ptr,
@@ -129,21 +130,18 @@ void BGPProcess::next_iteration_continue(
     shared_ptr< tbb::concurrent_unordered_set<vertex_t> > changed_set_ptr,
     shared_ptr< tbb::concurrent_unordered_set<vertex_t> > new_changed_set_ptr) {
 
-  vector<vertex_t>& batch = *batch_ptr;
-  vector<vertex_t> current_batch;
-
   size_t counter = 0;
   for(;;) {
-    if (counter == MAX_BATCH) break;
-    if (execution_stack_.empty()) break;
-
     boost::function<void()> functor;
-    const bool popped = execution_stack_.try_pop(functor);\
-    assert(popped);
+
+    if (counter == MAX_BATCH) break;
+    if (!execution_stack_.try_pop(functor)) break;
+
     functor();
   }
 
 }
+
 
 
 void BGPProcess::next_iteration_finish(
@@ -160,7 +158,6 @@ void BGPProcess::next_iteration_finish(
   new_changed_set.clear();
 
   master_->sync(nodes);
-
   master_->barrier_->wait();
 
   for(size_t i = 0; i < master_->size_; i++) {
@@ -269,11 +266,11 @@ void BGPProcess::compute_partial0(
   size_t& partial_count = local_counter_ptr->first;
   size_t& partial_batch_count = local_counter_ptr->second;
 
-  const bool is_end =  (iter_range.first == iter_range.second);
+  const bool the_end =  (iter_range.first == iter_range.second);
 
   auto& local_set = *local_set_ptr;
 
-  if (is_end) {
+  if (the_end) {
 
     m_.lock();
     if (largest_vertex != affected.next_hop_) {
@@ -282,55 +279,55 @@ void BGPProcess::compute_partial0(
     partial_count++;
 
     if (partial_batch_count == 1) {
-      if (partial_count == partial_batch_count) {
-        affected.set_next_hop(graph_, largest_vertex);
-        count++;
-        const bool cond = (count == batch_count);
-
-        function<void()> functor;
-        if (execution_stack_.try_pop(functor)) {
-          m_.unlock();
-          functor();
-        } else {
-          m_.unlock();
-          if (cond) {
-            continuation_();
-          }
-        }
+      if (partial_count != partial_batch_count) {
+        m_.unlock();
         return;
-
       }
 
-      m_.unlock();
-      return;
-    }
-
-    if (partial_count == partial_batch_count) {
+      affected.set_next_hop(graph_, largest_vertex);
+      count++;
+      const bool cond = (count == batch_count);
       m_.unlock();
 
-      intersection.assign( local_set.begin(), local_set.end() );
+      function<void()> functor;
+      if (execution_stack_.try_pop(functor)) {
+        functor();
+        return;
+      }
 
-      std::sort(intersection.begin(), intersection.end());
-
-      LOG4CXX_TRACE(comp_peer_->logger_, "Final intersection size: " << intersection.size());
-
-      partial_count = 0;
-      partial_batch_count = 1;
-
-
-      auto new_pair = std::make_pair(intersection.begin(), intersection.end());
-
-      largest_vertex = affected.next_hop_;
-
-      compute_partial0(
-          affected_vertex, largest_vertex_ptr, new_changed_set_ptr, local_set_ptr,
-          global_counter_ptr, local_counter_ptr, intersection_ptr, new_pair);
-
+      if (cond) continuation_();
       return;
+
     }
 
+    const bool cond = (partial_count == partial_batch_count);
     m_.unlock();
+
+    if (cond) {
+      return;
+    }
+
+
+    intersection.assign( local_set.begin(), local_set.end() );
+
+    std::sort(intersection.begin(), intersection.end());
+
+    LOG4CXX_DEBUG(comp_peer_->logger_, "Final intersection size: " << intersection.size());
+
+    partial_count = 0;
+    partial_batch_count = 1;
+
+
+    auto new_pair = std::make_pair(intersection.begin(), intersection.end());
+
+    largest_vertex = affected.next_hop_;
+
+    compute_partial0(
+        affected_vertex, largest_vertex_ptr, new_changed_set_ptr, local_set_ptr,
+        global_counter_ptr, local_counter_ptr, intersection_ptr, new_pair);
+
     return;
+
   }
 
   const vertex_t neigh_vertex = *(iter_range.first);
