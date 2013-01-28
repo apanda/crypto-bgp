@@ -24,7 +24,7 @@ using std::chrono::milliseconds;
 
 using boost::function;
 
-io_service io(200);
+io_service io(20);
 io_service::work work(io);
 
 void run_master() {
@@ -39,7 +39,6 @@ void run_master() {
   BGPProcess::load_graph("scripts/dot.dot", graph);
 
   MasterPeer mp(GRAPH_SIZE, io);
-  //MasterPeer mp(GRAPH_SIZE, io);
 
   boost::thread_group worker_threads;
   for (size_t i = 0; i < THREAD_COUNT - 1; i++) {
