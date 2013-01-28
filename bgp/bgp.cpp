@@ -98,6 +98,7 @@ void BGPProcess::next_iteration_start(
   }
 
   shared_ptr< pair<size_t, size_t> > counts_ptr(new pair<size_t, size_t>);
+  counts_ptr->second = batch.size();
 
   for(auto& vertex: batch) {
       const auto functor = boost::bind(
@@ -129,14 +130,6 @@ void BGPProcess::next_iteration_continue(
     shared_ptr< tbb::concurrent_unordered_set<vertex_t> > new_changed_set_ptr) {
 
   vector<vertex_t>& batch = *batch_ptr;
-  shared_ptr< pair<size_t, size_t> > counts_ptr(new pair<size_t, size_t>);
-
-  counts_ptr->second = execution_stack_.unsafe_size();
-  std::cout << "total size: " << execution_stack_.unsafe_size() << std::endl;
-
-  size_t& count = counts_ptr->first;
-  count = 0;
-
   vector<vertex_t> current_batch;
 
   size_t counter = 0;
