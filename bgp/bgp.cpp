@@ -471,6 +471,7 @@ void BGPProcess::for0(
     m_.unlock();
 
     if (cond) {
+      execution_stack_.clear();
       continuation_();
       return;
     }
