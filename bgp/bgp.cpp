@@ -298,6 +298,7 @@ void BGPProcess::compute_partial0(
 
         function<void()> functor;
         if (execution_stack_.try_pop(functor)) {
+          std::cout << execution_stack_.unsafe_size() << std::endl;;
           m_.unlock();
           functor();
         } else {
