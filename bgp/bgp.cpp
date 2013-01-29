@@ -88,8 +88,11 @@ void BGPProcess::next_iteration_start(
   shared_ptr < vector<vertex_t> > batch_ptr(new vector<vertex_t>);
   vector<vertex_t>& batch = *batch_ptr;
 
-  for(const auto vertex: affected_set) {
+  continuation_ = boost::bind(
+      &BGPProcess::next_iteration_finish,
+      this, dst_vertex, new_changed_set_ptr);
 
+  for(const auto vertex: affected_set) {
     if (vertex < VERTEX_START) continue;
     if (vertex > VERTEX_END) continue;
     if (vertex == dst_vertex) continue;
@@ -111,17 +114,13 @@ void BGPProcess::next_iteration_start(
       execution_stack_.push(functor);
   }
 
-  continuation_ = boost::bind(
-      &BGPProcess::next_iteration_finish,
-      this, dst_vertex, new_changed_set_ptr);
-
   if (execution_stack_.unsafe_size() == 0) {
     continuation_();
     return;
   }
 
-  size_t counter = 0;
-  for(;;) {
+
+  for(size_t counter = 0;;) {
     boost::function<void()> functor;
 
     if (counter > MAX_BATCH) break;
