@@ -368,11 +368,17 @@ void BGPProcess::compute_partial0(
         return;
       }
 
-      if (popped) functor();
+      if (popped) {
+        functor();
+      }
+
       return;
     }
 
-    if (local_cond) return;
+    if (local_cond) {
+      m_.unlock();
+      return;
+    }
 
 
     intersection.assign( local_set.begin(), local_set.end() );
