@@ -357,13 +357,17 @@ void BGPProcess::compute_partial0(
     affected.set_next_hop(graph_, largest_vertex);
     bool popped = execution_stack_.try_pop(functor);
 
+    if (global_cond) {
+      m_.unlock();
+      continuation_();
+      return;
+    }
+
     if (popped) {
       m_.unlock();
       functor();
       return;
-    }
-
-    if (global_cond) {
+    } else {
       m_.unlock();
       continuation_();
       return;
@@ -492,7 +496,17 @@ void BGPProcess::for0(
       return;
     }
 
-    if (popped) functor();
+    if (popped) {
+      m_.unlock();
+      functor();
+      return;
+    } else {
+      m_.unlock();
+      continuation_();
+      return;
+    }
+
+
     m_.unlock();
     return;
   }
