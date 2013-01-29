@@ -274,32 +274,27 @@ void BGPProcess::compute_partial0(
 
     m_.lock();
     partial_count++;
+    const bool local_cond = partial_count != partial_batch_count;
 
-    if (partial_count != partial_batch_count) {
+    if (local_cond) {
       m_.unlock();
       return;
     }
 
     count++;
     affected.set_next_hop(graph_, largest_vertex);
+    m_.unlock();
+
 
     function<void()> functor;
-
     if (execution_stack_.try_pop(functor)) {
-      m_.unlock();
       functor();
       return;
-    } else {
-
-      if (count == batch_count) {
-        m_.unlock();
-        continuation_();
-        return;
-      }
-
+    } else if (count == batch_count) {
+      continuation_();
+      return;
     }
 
-    m_.unlock();
     return;
   }
 
@@ -313,13 +308,16 @@ void BGPProcess::compute_partial0(
 
     m_.lock();
     partial_count++;
+    const bool local_cond = partial_count != partial_batch_count;
 
-    if (partial_count != partial_batch_count) {
+    if (local_cond) {
       m_.unlock();
       return;
     }
 
+    m_.unlock();
 
+    largest_vertex = affected.next_hop_;
     intersection.assign( local_set.begin(), local_set.end() );
     std::sort(intersection.begin(), intersection.end());
 
@@ -328,12 +326,7 @@ void BGPProcess::compute_partial0(
     partial_count = 0;
     partial_batch_count = 1;
 
-
     auto new_pair = std::make_pair(intersection.begin(), intersection.end());
-
-    largest_vertex = affected.next_hop_;
-
-    m_.unlock();
 
     compute_partial0(
         affected_vertex, largest_vertex_ptr, new_changed_set_ptr, local_set_ptr,
