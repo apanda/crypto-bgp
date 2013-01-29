@@ -131,6 +131,12 @@ void BGPProcess::next_iteration_continue(
     shared_ptr< tbb::concurrent_unordered_set<vertex_t> > new_changed_set_ptr) {
 
   size_t counter = 0;
+
+  if (execution_stack_.unsafe_size() == 0) {
+    continuation_();
+    return;
+  }
+
   for(;;) {
     boost::function<void()> functor;
 
@@ -313,10 +319,8 @@ void BGPProcess::compute_partial0(
 
     m_.lock();
     partial_count++;
-    const bool local_cond = (partial_count != partial_batch_count);
 
-
-    if (local_cond) {
+    if (partial_count != partial_batch_count) {
       m_.unlock();
       return;
     }
