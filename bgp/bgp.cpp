@@ -119,7 +119,6 @@ void BGPProcess::next_iteration_start(
     return;
   }
 
-
   for(size_t counter = 0;;) {
     boost::function<void()> functor;
 
@@ -314,7 +313,6 @@ void BGPProcess::compute_partial0(
       return;
     }
 
-    m_.unlock();
 
     largest_vertex = affected.next_hop_;
     intersection.assign( local_set.begin(), local_set.end() );
@@ -327,6 +325,7 @@ void BGPProcess::compute_partial0(
 
     auto new_pair = std::make_pair(intersection.begin(), intersection.end());
 
+    m_.unlock();
     compute_partial0(
         affected_vertex, largest_vertex_ptr, new_changed_set_ptr, local_set_ptr,
         global_counter_ptr, local_counter_ptr, intersection_ptr, new_pair);
