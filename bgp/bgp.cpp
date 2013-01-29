@@ -137,8 +137,8 @@ void BGPProcess::next_iteration_continue(
     if (counter == MAX_BATCH) break;
     if (!execution_stack_.try_pop(functor)) break;
 
-    io_service_.post(functor);
-    //functor();
+    //io_service_.post(functor);
+    functor();
   }
 
 }
@@ -246,6 +246,74 @@ void BGPProcess::process_neighbors_mpc(
 
 
 
+
+void BGPProcess::compute_partial1(
+    vertex_t affected_vertex,
+    vertex_t neigh_vertex,
+    shared_ptr< vertex_t > largest_vertex_ptr,
+    shared_ptr< tbb::concurrent_unordered_set<vertex_t> > new_changed_set_ptr,
+    shared_ptr< tbb::concurrent_vector<vertex_t> > local_set_ptr,
+    int cmp) {
+
+  tbb::concurrent_unordered_set<vertex_t>& new_changed_set = *new_changed_set_ptr;
+  Vertex& affected = graph_[affected_vertex];
+
+  vertex_t& largest_vertex = *largest_vertex_ptr;
+
+  const string key1 = lexical_cast<string>(largest_vertex);
+  const string key2 = lexical_cast<string>(neigh_vertex);
+
+  string w = ".2" + key1;
+  string x = ".2" + key2;
+  string y = ".2" + key1 + "-" + key2;
+
+  string xy = y + "*" + x;
+  string wx = x + "*" + w;
+  string wy = y + "*" + w;
+
+  string wxy2 = xy + "*" + "2" + "*" + w;
+  string result = wx + "+" + wy + "-" + wxy2 + "-" + y + "-" + x + "+" + xy;
+
+  auto current_preference_it = affected.preference_.find(largest_vertex);
+  BOOST_ASSERT(current_preference_it != affected.preference_.end());
+
+  auto offer_it = affected.preference_.find(neigh_vertex);
+  BOOST_ASSERT(offer_it != affected.preference_.end());
+
+  const auto current_preference = current_preference_it->second;
+  const auto offered_preference = offer_it->second;
+
+  LOG4CXX_DEBUG(comp_peer_->logger_, "Compare -> "
+      << current_preference << ", " << offered_preference );
+
+
+
+  const bool condition = offered_preference <= current_preference;
+
+  if (cmp != condition) {
+
+    LOG4CXX_FATAL(comp_peer_->logger_, "==================================================");
+    LOG4CXX_FATAL(comp_peer_->logger_,
+        "(Is, Should): " <<
+        "(" << cmp << ", " << condition << ") -- " <<
+        "(" << affected_vertex << ", " << neigh_vertex << ")");
+    LOG4CXX_FATAL(comp_peer_->logger_, "==================================================");
+
+  }
+
+  if ( offered_preference <= current_preference ) {
+    affected.sig_bgp_next[result]->operator()();
+    return;
+  }
+
+  largest_vertex = neigh_vertex;
+  new_changed_set.insert(affected_vertex);
+
+  affected.sig_bgp_next[result]->operator ()();
+}
+
+
+
 void BGPProcess::compute_partial0(
     const vertex_t affected_vertex,
     shared_ptr< vertex_t > largest_vertex_ptr,
@@ -280,15 +348,15 @@ void BGPProcess::compute_partial0(
     partial_count++;
 
     const bool local_cond = (partial_count != partial_batch_count);
-    m_.unlock();
 
     if (partial_batch_count == 1) {
 
-      if (local_cond) return;
+      if (local_cond) {
+        m_.unlock();
+        return;
+      }
 
       function<void()> functor;
-
-      m_.lock();
       affected.set_next_hop(graph_, largest_vertex);
       count++;
       bool popped = execution_stack_.try_pop(functor);
@@ -382,75 +450,6 @@ void BGPProcess::compute_partial0(
 
 
 
-
-void BGPProcess::compute_partial1(
-    vertex_t affected_vertex,
-    vertex_t neigh_vertex,
-    shared_ptr< vertex_t > largest_vertex_ptr,
-    shared_ptr< tbb::concurrent_unordered_set<vertex_t> > new_changed_set_ptr,
-    shared_ptr< tbb::concurrent_vector<vertex_t> > local_set_ptr,
-    int cmp) {
-
-  tbb::concurrent_unordered_set<vertex_t>& new_changed_set = *new_changed_set_ptr;
-  Vertex& affected = graph_[affected_vertex];
-
-  vertex_t& largest_vertex = *largest_vertex_ptr;
-
-  const string key1 = lexical_cast<string>(largest_vertex);
-  const string key2 = lexical_cast<string>(neigh_vertex);
-
-  string w = ".2" + key1;
-  string x = ".2" + key2;
-  string y = ".2" + key1 + "-" + key2;
-
-  string xy = y + "*" + x;
-  string wx = x + "*" + w;
-  string wy = y + "*" + w;
-
-  string wxy2 = xy + "*" + "2" + "*" + w;
-  string result = wx + "+" + wy + "-" + wxy2 + "-" + y + "-" + x + "+" + xy;
-
-  auto current_preference_it = affected.preference_.find(largest_vertex);
-  BOOST_ASSERT(current_preference_it != affected.preference_.end());
-
-  auto offer_it = affected.preference_.find(neigh_vertex);
-  BOOST_ASSERT(offer_it != affected.preference_.end());
-
-  const auto current_preference = current_preference_it->second;
-  const auto offered_preference = offer_it->second;
-
-  LOG4CXX_DEBUG(comp_peer_->logger_, "Compare -> "
-      << current_preference << ", " << offered_preference );
-
-
-
-  const bool condition = offered_preference <= current_preference;
-
-  if (cmp != condition) {
-
-    LOG4CXX_FATAL(comp_peer_->logger_, "==================================================");
-    LOG4CXX_FATAL(comp_peer_->logger_,
-        "(Is, Should): " <<
-        "(" << cmp << ", " << condition << ") -- " <<
-        "(" << affected_vertex << ", " << neigh_vertex << ")");
-    LOG4CXX_FATAL(comp_peer_->logger_, "==================================================");
-
-  }
-
-  if ( offered_preference <= current_preference ) {
-    affected.sig_bgp_next[result]->operator()();
-    return;
-  }
-
-  largest_vertex = neigh_vertex;
-  new_changed_set.insert(affected_vertex);
-
-  affected.sig_bgp_next[result]->operator ()();
-}
-
-
-
-
 void BGPProcess::for0(
     const vertex_t affected_vertex,
     shared_ptr< tbb::concurrent_unordered_set<vertex_t> > new_changed_set_ptr,
@@ -469,15 +468,15 @@ void BGPProcess::for0(
     count++;
     const bool cond = (count == batch_count);
     bool popped = execution_stack_.try_pop(functor);
-    m_.unlock();
 
     if (cond) {
-      execution_stack_.clear();
+      m_.unlock();
       continuation_();
       return;
     }
 
     if (popped) functor();
+    m_.unlock();
     return;
   }
 
