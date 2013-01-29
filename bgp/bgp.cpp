@@ -341,26 +341,29 @@ void BGPProcess::compute_partial0(
 
   if (the_end) {
 
-    m_.lock();
     if (largest_vertex != affected.next_hop_) {
       local_set.push_back(largest_vertex);
     }
-    partial_count++;
 
+    m_.lock();
+    partial_count++;
     const bool local_cond = (partial_count != partial_batch_count);
+    m_.unlock();
 
     if (partial_batch_count == 1) {
 
       if (local_cond) {
-        m_.unlock();
         return;
       }
 
+      m_.lock();
+      count++;
+      const bool global_cond = (count == batch_count);
+
       function<void()> functor;
       affected.set_next_hop(graph_, largest_vertex);
-      count++;
       bool popped = execution_stack_.try_pop(functor);
-      const bool global_cond = (count == batch_count);
+
       m_.unlock();
 
       if (global_cond) {
@@ -376,13 +379,11 @@ void BGPProcess::compute_partial0(
     }
 
     if (local_cond) {
-      m_.unlock();
       return;
     }
 
 
     intersection.assign( local_set.begin(), local_set.end() );
-
     std::sort(intersection.begin(), intersection.end());
 
     LOG4CXX_DEBUG(comp_peer_->logger_, "Final intersection size: " << intersection.size());
