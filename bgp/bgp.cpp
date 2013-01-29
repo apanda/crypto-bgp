@@ -115,9 +115,20 @@ void BGPProcess::next_iteration_start(
       &BGPProcess::next_iteration_finish,
       this, dst_vertex, new_changed_set_ptr);
 
-  next_iteration_continue(
-        dst_vertex, batch_ptr, affected_set_ptr,
-        changed_set_ptr, new_changed_set_ptr);
+  if (execution_stack_.unsafe_size() == 0) {
+    continuation_();
+    return;
+  }
+
+  size_t counter = 0;
+  for(;;) {
+    boost::function<void()> functor;
+
+    if (counter > MAX_BATCH) break;
+    if (!execution_stack_.try_pop(functor)) break;
+
+    functor();
+  }
 
 }
 
@@ -129,23 +140,6 @@ void BGPProcess::next_iteration_continue(
     shared_ptr< set<vertex_t> > affected_set_ptr,
     shared_ptr< tbb::concurrent_unordered_set<vertex_t> > changed_set_ptr,
     shared_ptr< tbb::concurrent_unordered_set<vertex_t> > new_changed_set_ptr) {
-
-  size_t counter = 0;
-
-  if (execution_stack_.unsafe_size() == 0) {
-    continuation_();
-    return;
-  }
-
-  for(;;) {
-    boost::function<void()> functor;
-
-    if (counter > MAX_BATCH) break;
-    if (!execution_stack_.try_pop(functor)) break;
-
-    functor();
-  }
-
 }
 
 
