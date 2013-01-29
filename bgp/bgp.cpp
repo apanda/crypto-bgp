@@ -405,11 +405,12 @@ void BGPProcess::compute_partial0(
 
     largest_vertex = affected.next_hop_;
 
+    m_.unlock();
+
     compute_partial0(
         affected_vertex, largest_vertex_ptr, new_changed_set_ptr, local_set_ptr,
         global_counter_ptr, local_counter_ptr, intersection_ptr, new_pair);
 
-    m_.unlock();
     return;
   }
 
