@@ -88,48 +88,17 @@ void BGPProcess::next_iteration_start(
   shared_ptr < vector<vertex_t> > batch_ptr(new vector<vertex_t>);
   vector<vertex_t>& batch = *batch_ptr;
 
-  continuation_ = boost::bind(
-      &BGPProcess::next_iteration_finish,
-      this, dst_vertex, new_changed_set_ptr);
-
   for(const auto vertex: affected_set) {
-    if (vertex < VERTEX_START) continue;
-    if (vertex > VERTEX_END) continue;
-    if (vertex == dst_vertex) continue;
-
     batch.push_back(vertex);
   }
 
-  shared_ptr< pair<size_t, size_t> > counts_ptr(new pair<size_t, size_t>);
-  counts_ptr->second = batch.size();
+  continuation_ = boost::bind(
+        &BGPProcess::next_iteration_continue,
+        this, dst_vertex, batch_ptr, affected_set_ptr,
+        changed_set_ptr, new_changed_set_ptr);
 
-  for(auto& vertex: batch) {
-      const auto functor = boost::bind(
-          &BGPProcess::process_neighbors_mpc,
-          this, vertex,
-          changed_set_ptr,
-          new_changed_set_ptr,
-          counts_ptr);
-
-      execution_stack_.push(functor);
-  }
-
-  if (execution_stack_.unsafe_size() == 0) {
-    continuation_();
-    return;
-  }
-
-  for(size_t counter = 0;;) {
-    boost::function<void()> functor;
-
-    if (counter > MAX_BATCH) break;
-    if (!execution_stack_.try_pop(functor)) break;
-
-    functor();
-  }
-
+  continuation_();
 }
-
 
 
 void BGPProcess::next_iteration_continue(
@@ -138,8 +107,49 @@ void BGPProcess::next_iteration_continue(
     shared_ptr< set<vertex_t> > affected_set_ptr,
     shared_ptr< tbb::concurrent_unordered_set<vertex_t> > changed_set_ptr,
     shared_ptr< tbb::concurrent_unordered_set<vertex_t> > new_changed_set_ptr) {
-}
 
+  vector<vertex_t>& batch = *batch_ptr;
+
+  shared_ptr< pair<size_t, size_t> > counts_ptr(new pair<size_t, size_t>);
+  size_t& count = counts_ptr->first;
+  count = 0;
+
+  vector<vertex_t> current_batch;
+
+  for(;;) {
+    if (batch.empty()) break;
+    if (current_batch.size() == TASK_COUNT) break;
+
+    const vertex_t vertex = batch.back();
+    batch.pop_back();
+
+    if (vertex < VERTEX_START) continue;
+    if (vertex > VERTEX_END) continue;
+
+    if (vertex == dst_vertex) continue;
+    current_batch.push_back(vertex);
+  }
+
+  if (current_batch.empty()) {
+    next_iteration_finish(dst_vertex, new_changed_set_ptr);
+    return;
+  }
+
+  counts_ptr->second = current_batch.size();
+
+
+  for(auto& vertex: current_batch) {
+    io_service_.post(
+      boost::bind(
+          &BGPProcess::process_neighbors_mpc,
+          this, vertex,
+          changed_set_ptr,
+          new_changed_set_ptr,
+          counts_ptr)
+    );
+  }
+
+}
 
 
 void BGPProcess::next_iteration_finish(
@@ -156,6 +166,7 @@ void BGPProcess::next_iteration_finish(
   new_changed_set.clear();
 
   master_->sync(nodes);
+
   master_->barrier_->wait();
 
   for(size_t i = 0; i < master_->size_; i++) {
@@ -264,72 +275,59 @@ void BGPProcess::compute_partial0(
   size_t& partial_count = local_counter_ptr->first;
   size_t& partial_batch_count = local_counter_ptr->second;
 
-  const bool the_end =  (iter_range.first == iter_range.second);
+  const bool is_end =  (iter_range.first == iter_range.second);
 
   auto& local_set = *local_set_ptr;
 
-  if (the_end && partial_batch_count == 1) {
+  if (is_end) {
 
     m_.lock();
-    partial_count++;
-    const bool local_cond = partial_count != partial_batch_count;
-
-    if (local_cond) {
-      m_.unlock();
-      return;
-    }
-
-    count++;
-    affected.set_next_hop(graph_, largest_vertex);
-    m_.unlock();
-
-
-    function<void()> functor;
-    if (execution_stack_.try_pop(functor)) {
-      functor();
-      return;
-    } else if (count == batch_count) {
-      continuation_();
-      return;
-    }
-
-    return;
-  }
-
-
-
-  if (the_end) {
-
-    if (largest_vertex != affected.next_hop_) {
+    if (largest_vertex != affected.next_hop_){
       local_set.push_back(largest_vertex);
     }
-
-    m_.lock();
     partial_count++;
-    const bool local_cond = partial_count != partial_batch_count;
 
-    if (local_cond) {
+    if (partial_batch_count == 1) {
+      if (partial_count == partial_batch_count) {
+        affected.set_next_hop(graph_, largest_vertex);
+        count++;
+
+        if (batch_count == count) {
+          m_.unlock();
+          continuation_();
+          return;
+        }
+      }
+
       m_.unlock();
       return;
     }
 
+    if (partial_count == partial_batch_count) {
+      m_.unlock();
 
-    largest_vertex = affected.next_hop_;
-    intersection.assign( local_set.begin(), local_set.end() );
-    std::sort(intersection.begin(), intersection.end());
+      intersection.assign( local_set.begin(), local_set.end() );
 
-    LOG4CXX_DEBUG(comp_peer_->logger_, "Final intersection size: " << intersection.size());
+      std::sort(intersection.begin(), intersection.end());
 
-    partial_count = 0;
-    partial_batch_count = 1;
+      LOG4CXX_TRACE(comp_peer_->logger_, "Final intersection size: " << intersection.size());
 
-    auto new_pair = std::make_pair(intersection.begin(), intersection.end());
+      partial_count = 0;
+      partial_batch_count = 1;
+
+
+      auto new_pair = std::make_pair(intersection.begin(), intersection.end());
+
+      largest_vertex = affected.next_hop_;
+
+      compute_partial0(
+          affected_vertex, largest_vertex_ptr, new_changed_set_ptr, local_set_ptr,
+          global_counter_ptr, local_counter_ptr, intersection_ptr, new_pair);
+
+      return;
+    }
 
     m_.unlock();
-    compute_partial0(
-        affected_vertex, largest_vertex_ptr, new_changed_set_ptr, local_set_ptr,
-        global_counter_ptr, local_counter_ptr, intersection_ptr, new_pair);
-
     return;
   }
 
@@ -384,92 +382,6 @@ void BGPProcess::compute_partial0(
   comp_peer_->compare0(key1, key2, affected_vertex);
 }
 
-
-
-void BGPProcess::for0(
-    const vertex_t affected_vertex,
-    shared_ptr< tbb::concurrent_unordered_set<vertex_t> > new_changed_set_ptr,
-    shared_ptr< pair<size_t, size_t> > counts_ptr,
-    shared_ptr< vector<vertex_t> > intersection_ptr) {
-
-  vector<vertex_t>& intersection = *intersection_ptr;
-  size_t& count = counts_ptr->first;
-  size_t& batch_count = counts_ptr->second;
-
-  if (intersection.empty()) {
-
-    function<void()> functor;
-
-    m_.lock();
-    count++;
-
-    if (execution_stack_.try_pop(functor)) {
-
-      m_.unlock();
-      functor();
-      return;
-
-    } else {
-
-      if (count == batch_count) {
-        m_.unlock();
-        continuation_();
-        return;
-      }
-
-    }
-
-    m_.unlock();
-    return;
-  }
-
-  Vertex& affected = graph_[affected_vertex];
-  const vertex_t neigh_vertex = intersection.back();
-  intersection.pop_back();
-
-  const string key1 = lexical_cast<string>(affected.next_hop_);
-  const string key2 = lexical_cast<string>(neigh_vertex);
-
-  string w = ".2" + key1;
-  string x = ".2" + key2;
-  string y = ".2" + key1 + "-" + key2;
-
-  string xy = y + "*" + x;
-  string wx = x + "*" + w;
-  string wy = y + "*" + w;
-
-  string wxy2 = xy + "*" + "2" + "*" + w;
-  string result = wx + "+" + wy + "-" + wxy2 + "-" + y + "-" + x + "+" + xy;
-
-  affected.sig_bgp_next[result] =
-      shared_ptr<boost::function<void()> >(new boost::function<void()>);
-
-  auto next = boost::bind(&BGPProcess::for0, this,
-        affected_vertex,
-        new_changed_set_ptr,
-        counts_ptr,
-        intersection_ptr
-      );
-
-  *(affected.sig_bgp_next[result]) = next;
-
-  LOG4CXX_DEBUG(comp_peer_->logger_, "Vertex -> "
-      << affected_vertex << ", " << neigh_vertex );
-
-  affected.sig_bgp_cnt[result] = shared_ptr<boost::function<void(int)> >(new boost::function<void(int)>);
-
-  *(affected.sig_bgp_cnt[result]) = boost::bind(&BGPProcess::for1, this,
-              affected_vertex,
-              neigh_vertex,
-              new_changed_set_ptr,
-              _1);
-
-
-  comp_peer_->compare0(
-      lexical_cast<string>(affected.next_hop_),
-      lexical_cast<string>(neigh_vertex),
-      affected_vertex);
-}
 
 
 
@@ -536,6 +448,82 @@ void BGPProcess::compute_partial1(
   new_changed_set.insert(affected_vertex);
 
   affected.sig_bgp_next[result]->operator ()();
+}
+
+
+
+
+void BGPProcess::for0(
+    const vertex_t affected_vertex,
+    shared_ptr< tbb::concurrent_unordered_set<vertex_t> > new_changed_set_ptr,
+    shared_ptr< pair<size_t, size_t> > counts_ptr,
+    shared_ptr< vector<vertex_t> > intersection_ptr) {
+
+  vector<vertex_t>& intersection = *intersection_ptr;
+  size_t& count = counts_ptr->first;
+  size_t& batch_count = counts_ptr->second;
+
+  if (intersection.empty()) {
+
+    m_.lock();
+    count++;
+    if (batch_count == count) {
+      m_.unlock();
+
+      continuation_();
+      return;
+    }
+
+    m_.unlock();
+    return;
+  }
+
+  Vertex& affected = graph_[affected_vertex];
+  const vertex_t neigh_vertex = intersection.back();
+  intersection.pop_back();
+
+  const string key1 = lexical_cast<string>(affected.next_hop_);
+  const string key2 = lexical_cast<string>(neigh_vertex);
+
+  string w = ".2" + key1;
+  string x = ".2" + key2;
+  string y = ".2" + key1 + "-" + key2;
+
+  string xy = y + "*" + x;
+  string wx = x + "*" + w;
+  string wy = y + "*" + w;
+
+  string wxy2 = xy + "*" + "2" + "*" + w;
+  string result = wx + "+" + wy + "-" + wxy2 + "-" + y + "-" + x + "+" + xy;
+
+  affected.sig_bgp_next[result] =
+      shared_ptr<boost::function<void()> >(new boost::function<void()>);
+
+  auto next = boost::bind(&BGPProcess::for0, this,
+        affected_vertex,
+        new_changed_set_ptr,
+        counts_ptr,
+        intersection_ptr
+      );
+
+  *(affected.sig_bgp_next[result]) = next;
+
+  LOG4CXX_DEBUG(comp_peer_->logger_, "Vertex -> "
+      << affected_vertex << ", " << neigh_vertex );
+
+  affected.sig_bgp_cnt[result] = shared_ptr<boost::function<void(int)> >(new boost::function<void(int)>);
+
+  *(affected.sig_bgp_cnt[result]) = boost::bind(&BGPProcess::for1, this,
+              affected_vertex,
+              neigh_vertex,
+              new_changed_set_ptr,
+              _1);
+
+
+  comp_peer_->compare0(
+      lexical_cast<string>(affected.next_hop_),
+      lexical_cast<string>(neigh_vertex),
+      affected_vertex);
 }
 
 
@@ -668,6 +656,19 @@ void BGPProcess::load_graph2(string path, graph_t& graph) {
   dp.property("node_id", get(&Vertex::id_, graph));
 
   read_graphviz(file ,graph, dp, "node_id");
+}
+
+
+
+void BGPProcess::print_state(graph_t& graph) {
+  auto iter = vertices(graph);
+  auto last = iter.second;
+  auto current = iter.first;
+
+  for (; current != last; ++current) {
+    const auto& current_vertex = *current;
+    Vertex& vertex = graph[current_vertex];
+  }
 }
 
 

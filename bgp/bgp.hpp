@@ -17,7 +17,6 @@
 #include <boost/graph/graphviz.hpp>
 
 #include <tbb/concurrent_unordered_set.h>
-#include <tbb/concurrent_queue.h>
 #include <tbb/concurrent_vector.h>
 
 #include <iostream>
@@ -107,6 +106,7 @@ public:
       set<vertex_t>& affected_set,
       set<vertex_t>& changed_set);
 
+  void print_state(graph_t& graph);
   void print_result();
 
   graph_t graph_;
@@ -118,10 +118,8 @@ public:
   boost::mutex m_;
   boost::condition_variable cv_;
 
-  tbb::concurrent_queue< function<void()> > execution_stack_;
-
-  function<void()> continuation_;
-  function<void()> end_;
+  boost::function<void()> continuation_;
+  boost::function<void()> end_;
 
 };
 

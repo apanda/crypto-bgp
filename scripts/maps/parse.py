@@ -5,10 +5,6 @@ import sys
 
 import heapq
 
-
-GRAPH_SIZE = 5976
-BUCKET_SIZE = 8
-
 class MyPriQueue(object):
     def __init__(self):
         self.heap = []
@@ -19,6 +15,10 @@ class MyPriQueue(object):
     def get(self):
         pri, d = heapq.heappop(self.heap)
         return (pri, d)
+
+
+GRAPH_SIZE = 5976
+BUCKET_SIZE = 2
 
 buckets = deque()
 q = MyPriQueue()
