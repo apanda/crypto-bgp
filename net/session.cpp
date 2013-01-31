@@ -100,16 +100,13 @@ void Session::handle_sync(
     const boost::system::error_code& error,
     size_t bytes_transferred) {
 
-
   char* new_data = new char[length_];
-
 
   boost::asio::async_read(socket_, boost::asio::buffer(new_data, length_),
         boost::bind(&Session::handle_read, this, new_data,
             boost::asio::placeholders::error,
             boost::asio::placeholders::bytes_transferred)
       );
-
 
   uint32_t& size =  *((uint32_t*) (data + sizeof(uint32_t)));
   std::vector<vertex_t> nodes;

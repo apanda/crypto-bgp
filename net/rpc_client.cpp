@@ -49,8 +49,9 @@ void RPCClient::read_impl(char* data, size_t length, tcp::socket& socket) {
             boost::asio::placeholders::error,
             boost::asio::placeholders::bytes_transferred)
   );
-
 }
+
+
 
 void RPCClient::init(sync_init& si) {
 
@@ -67,7 +68,7 @@ void RPCClient::init(sync_init& si) {
 
   uint32_t& command = *((uint32_t*) data);
   uint32_t& size    = *((uint32_t*) (data + sizeof(uint32_t)));
-  char* array                      = data + sizeof(uint32_t)*3;
+  char* array       = data + sizeof(uint32_t)*3;
 
   memcpy(array, archive_stream.str().c_str(), archive_stream.str().size());
 
@@ -80,7 +81,6 @@ void RPCClient::init(sync_init& si) {
       boost::bind(&RPCClient::handle_write, this, data,
           boost::asio::placeholders::error,
           boost::asio::placeholders::bytes_transferred)));
-
 }
 
 
@@ -106,8 +106,9 @@ void RPCClient::sync(vector<vertex_t>& nodes) {
   }
 
   boost::unique_lock<boost::mutex> lock(m_);
-
   boost::asio::write(socket_, boost::asio::buffer(data, length));
+  delete data;
+
   /*
   boost::asio::async_write(socket_,
       boost::asio::buffer(data, length),
@@ -116,7 +117,6 @@ void RPCClient::sync(vector<vertex_t>& nodes) {
           boost::asio::placeholders::error,
           boost::asio::placeholders::bytes_transferred)));
 */
-  delete data;
 }
 
 
@@ -150,9 +150,7 @@ void RPCClient::publish(string key,  int64_t value, vertex_t vertex) {
 
   /*
   boost::unique_lock<boost::mutex> lock(m_);
-
   boost::asio::write(socket_, boost::asio::buffer(data, length_));
-
   delete data;
   */
 
@@ -161,7 +159,6 @@ void RPCClient::publish(string key,  int64_t value, vertex_t vertex) {
       boost::bind(&RPCClient::handle_write, this, data,
           boost::asio::placeholders::error,
           boost::asio::placeholders::bytes_transferred));
-
 }
 
 
@@ -175,7 +172,6 @@ void RPCClient::handle_read(
   if (!error) {
 
     if (bytes_transferred == length_) {
-
       uint32_t& command =  *((uint32_t*) data);
 
       if (command == CMD_TYPE::SYNC) {
