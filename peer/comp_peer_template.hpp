@@ -436,7 +436,15 @@ void CompPeer<Num>::compare5(string key1, string key2, vertex_t l) {
   string wy = y + "*" + w;
 
   string wxy2 = xy + "*" + "2" + "*" + w;
-  string result = wx + "+" + wy + "-" + wxy2 + "-" + y + "-" + x + "+" + xy;
+  //string result = wx + "+" + wy + "-" + wxy2 + "-" + y + "-" + x + "+" + xy;
+
+
+  std::vector<string> circut = {"+", xy, "-", x, "-", y, "-", wxy2, "+", wy, wx};
+  string circut_str = wx + "+" + wy + "-" + wxy2 + "-" + y + "-" + x + "+" + xy;
+
+  vector<string> circut2 = {"*", "E", circut_str};
+  string result = circut_str + "*" + "E";
+
 
   double X[Num], Y[Num], D[Num];
 
