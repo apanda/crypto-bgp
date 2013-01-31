@@ -355,7 +355,7 @@ void CompPeer<Num>::compare4(string key1, string key2, vertex_t l) {
 
   auto value = vlm[circut_str] + 1;
   //value = mod(value, PRIME);
-  //vlm[circut_str] = value;
+  vlm[circut_str] = value;
 
   LOG4CXX_DEBUG( logger_,  id_ << ": Final: " << ": " << vlm[circut_str] );
 
