@@ -346,7 +346,9 @@ void BGPProcess::compute_partial0(
   string wy = y + "*" + w;
 
   string wxy2 = xy + "*" + "2" + "*" + w;
-  string result = wx + "+" + wy + "-" + wxy2 + "-" + y + "-" + x + "+" + xy;
+  string circut_str = wx + "+" + wy + "-" + wxy2 + "-" + y + "-" + x + "+" + xy;
+
+  string result = circut_str + "*" + "E";
 
   affected.sig_bgp_next[result] =
       shared_ptr<boost::function<void()> >(new boost::function<void()>);
@@ -494,7 +496,9 @@ void BGPProcess::for0(
   string wy = y + "*" + w;
 
   string wxy2 = xy + "*" + "2" + "*" + w;
-  string result = wx + "+" + wy + "-" + wxy2 + "-" + y + "-" + x + "+" + xy;
+  string circut_str = wx + "+" + wy + "-" + wxy2 + "-" + y + "-" + x + "+" + xy;
+
+  string result = circut_str + "*" + "E";
 
   affected.sig_bgp_next[result] =
       shared_ptr<boost::function<void()> >(new boost::function<void()>);
