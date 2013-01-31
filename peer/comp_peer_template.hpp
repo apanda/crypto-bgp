@@ -57,11 +57,11 @@ void CompPeer<Num>::publish(std::string key, int64_t value, vertex_t v) {
   value_map_t& vlm = vertex.value_map_;
 
   LOG4CXX_TRACE(logger_, "Counter... (" << v << "): " << rkey << " " << counter);
-  LOG4CXX_TRACE(logger_, " Received value: " << key << ": " << value << " (" << v << ")");
+  LOG4CXX_TRACE(logger_, "Received value: " << key << ": " << value << " (" << v << ")");
 
-
-  vlm[key] = value;
   vertex.mutex_->lock();
+  vlm[key] = value;
+
   counter++;
 
   if (counter == 3) {
@@ -349,7 +349,7 @@ void CompPeer<Num>::compare4(string key1, string key2, vertex_t l) {
 
 
   auto value = vlm[circut_str] + 1;
-  value = mod(value, PRIME);
+  //value = mod(value, PRIME);
   vlm[circut_str] = value;
 
 
