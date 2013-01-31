@@ -151,7 +151,7 @@ void CompPeer<Num>::add(
 
   int64_t result = vlm[second] + vlm[first];
   LOG4CXX_DEBUG( logger_, first << "+" << second << "="<< result);
-  //result = mod(result, PRIME);
+  result = mod(result, PRIME);
 
   const string key = recombination_key + lexical_cast<string>(id_);
   vlm[recombination_key] = result;
@@ -170,7 +170,7 @@ void CompPeer<Num>::sub(
 
   int64_t result = vlm[first] - vlm[second];
   LOG4CXX_DEBUG( logger_, first << "-" << second << "="<< result);
-  //result = mod(result, PRIME);
+  result = mod(result, PRIME);
 
   const string key = recombination_key + lexical_cast<string>(id_);
   vlm[recombination_key] = result;
@@ -407,6 +407,8 @@ void CompPeer<Num>::compare5pre(string key1, string key2, vertex_t l) {
   auto value = vlm[circut_str2];
   value = mod(value, PRIME);
 
+  LOG4CXX_DEBUG( logger_,  id_ << ": Final2: " << ": " << vlm[circut_str] );
+
   vertex.sig_compare[circut_str2] = shared_ptr< boost::function<void ()> >(
       new boost::function<void ()>
   );
@@ -463,6 +465,8 @@ void CompPeer<Num>::compare5(string key1, string key2, vertex_t l) {
   gsl_poly_dd_init( D, X, Y, 3 );
   const double interpol = gsl_poly_dd_eval( D, X, 3, 0);
 
+
+  LOG4CXX_DEBUG( logger_, "Result: " << ": " << interpol);
   const double end = mod(interpol, PRIME);
   LOG4CXX_DEBUG( logger_, "Result: " << ": " << end);
 
