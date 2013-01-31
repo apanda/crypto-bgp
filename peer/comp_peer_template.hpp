@@ -297,11 +297,13 @@ void CompPeer<Num>::compare3(string key1, string key2, vertex_t l) {
   Vertex& vertex = bgp_->graph_[l];
   value_map_t& vlm = vertex.value_map_;
 
-  string w = ".2" + key1;
-  string x = ".2" + key2;
-  string y = ".2" + key1 + "-" + key2;
-
-  string xy = y + "*" + x;
+  const string w = ".2" + key1;
+  const string x = ".2" + key2;
+  const string y = ".2" + key1 + "-" + key2;
+  const string xy = y + "*" + x;
+  const string wx = x + "*" + w;
+  const string wy = y + "*" + w;
+  const string wxy2 = xy + "*" + "2" + "*" + w;
 
   vector<string> circut = {"*", w, "*", "2", xy};
   string circut_str = xy + "*" + "2" + "*" + w;
@@ -336,11 +338,9 @@ void CompPeer<Num>::compare4(string key1, string key2, vertex_t l) {
   const string w = ".2" + key1;
   const string x = ".2" + key2;
   const string y = ".2" + key1 + "-" + key2;
-
   const string xy = y + "*" + x;
   const string wx = x + "*" + w;
   const string wy = y + "*" + w;
-
   const string wxy2 = xy + "*" + "2" + "*" + w;
 
   const std::vector<string> comapre = {"+", xy, "-", x, "-", y, "-", wxy2, "+", wy, wx};
@@ -481,7 +481,7 @@ void CompPeer<Num>::compare5(string key1, string key2, vertex_t l) {
   LOG4CXX_DEBUG( logger_, "Result: " << ": " << end);
 
 
-  vertex.sig_bgp_cnt[result]->operator ()(( end ));
+  vertex.sig_bgp_cnt[final_str]->operator ()(( end ));
 }
 
 
