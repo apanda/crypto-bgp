@@ -409,6 +409,7 @@ void CompPeer<Num>::compare5pre(string key1, string key2, vertex_t l) {
   string circut_str2 = circut_str + "*" + "E";
   auto value = vlm[circut_str2];
   value = mod(value, PRIME);
+  vlm[circut_str2  + "_" + lexical_cast<string>(id_)] = value;
 
   LOG4CXX_DEBUG( logger_,  id_ << ": Final2: " << ": " << vlm[circut_str] );
 
