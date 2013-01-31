@@ -439,6 +439,9 @@ void CompPeer<Num>::compare5pre(string key1, string key2, vertex_t l) {
 template<const size_t Num>
 void CompPeer<Num>::compare5(string key1, string key2, vertex_t l) {
 
+  LOG4CXX_DEBUG( logger_, "compare5");
+
+
   Vertex& vertex = bgp_->graph_[l];
   value_map_t& vlm = vertex.value_map_;
 
