@@ -412,7 +412,9 @@ void BGPProcess::compute_partial1(
   string wy = y + "*" + w;
 
   string wxy2 = xy + "*" + "2" + "*" + w;
-  string result = wx + "+" + wy + "-" + wxy2 + "-" + y + "-" + x + "+" + xy;
+  string circut_str = wx + "+" + wy + "-" + wxy2 + "-" + y + "-" + x + "+" + xy;
+
+  string result = circut_str + "*" + "E";
 
   auto current_preference_it = affected.preference_.find(largest_vertex);
   BOOST_ASSERT(current_preference_it != affected.preference_.end());
@@ -553,7 +555,9 @@ void BGPProcess::for1(
   string wy = y + "*" + w;
 
   string wxy2 = xy + "*" + "2" + "*" + w;
-  string result = wx + "+" + wy + "-" + wxy2 + "-" + y + "-" + x + "+" + xy;
+  string circut_str = wx + "+" + wy + "-" + wxy2 + "-" + y + "-" + x + "+" + xy;
+
+  string result = circut_str + "*" + "E";
 
   const auto current_preference = affected.current_next_hop_preference(graph_);
 
