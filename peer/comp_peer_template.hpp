@@ -150,7 +150,8 @@ void CompPeer<Num>::add(
   value_map_t& vlm = vertex.value_map_;
 
   int64_t result = vlm[second] + vlm[first];
-  result = mod(result, PRIME);
+  LOG4CXX_DEBUG( logger_, first << "+" << second << "="<< result);
+  //result = mod(result, PRIME);
 
   const string key = recombination_key + lexical_cast<string>(id_);
   vlm[recombination_key] = result;
@@ -168,7 +169,8 @@ void CompPeer<Num>::sub(
   value_map_t& vlm = vertex.value_map_;
 
   int64_t result = vlm[first] - vlm[second];
-  result = mod(result, PRIME);
+  LOG4CXX_DEBUG( logger_, first << "-" << second << "="<< result);
+  //result = mod(result, PRIME);
 
   const string key = recombination_key + lexical_cast<string>(id_);
   vlm[recombination_key] = result;
