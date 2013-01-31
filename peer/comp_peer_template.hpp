@@ -423,7 +423,8 @@ void CompPeer<Num>::compare5pre(string key1, string key2, vertex_t l) {
   );
 
   *(vertex.sig_recombine[circut_str2 + "_"]) =
-      boost::bind(&CompPeer<Num>::recombine, this, circut_str2, l);
+      boost::bind(&CompPeer<Num>::recombine, this, circut_str2 + "_", l);
+
 
   vertex.sig_compare[circut_str2 + "_"] = shared_ptr< boost::function<void ()> >(
       new boost::function<void ()>
