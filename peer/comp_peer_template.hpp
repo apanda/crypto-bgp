@@ -346,18 +346,18 @@ void CompPeer<Num>::compare4(string key1, string key2, vertex_t l) {
   const std::vector<string> compare = {"+", xy, "-", x, "-", y, "-", wxy2, "+", wy, wx};
   const string compare_str = wx + "+" + wy + "-" + wxy2 + "-" + y + "-" + x + "+" + xy;
 
-  const vector<string> ex_policy = {"*", "E", compare_str};
-  const string ex_policy_str = compare_str + "*" + "E";
-
   LOG4CXX_DEBUG( logger_,  id_ << ": 2xyw: " << wxy2 << ": " << vlm[wxy2]);
 
   execute(compare, l);
 
+  LOG4CXX_DEBUG( logger_,  id_ << ": compare: " << ": " << compare_str );
+
   auto value = vlm[compare_str] + 1;
   vlm[compare_str] = value;
 
-  LOG4CXX_DEBUG( logger_,  id_ << ": compare: " << ": " << compare_str );
 
+  const vector<string> ex_policy = {"*", "E", compare_str};
+  const string ex_policy_str = compare_str + "*" + "E";
 
   vertex.sig_compare[ex_policy_str] = shared_ptr< boost::function<void ()> >(
       new boost::function<void ()>
@@ -428,7 +428,7 @@ void CompPeer<Num>::compare5pre(string key1, string key2, vertex_t l) {
 
 
   for(size_t i = 0; i < COMP_PEER_NUM; i++) {
-    vertex.clients_[id_][i]->publish(final_str + lexical_cast<string>(id_), value, l);
+    vertex.clients_[id_][i]->publish(final_str + "_" + lexical_cast<string>(id_), value, l);
   }
 
 }
