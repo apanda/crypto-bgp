@@ -242,6 +242,7 @@ void InputPeer::disseminate_bgp(CompPeerSeq& comp_peers, graph_t& input_graph) {
 
         value_map_t& vm = comp_peers[i]->bgp_->graph_[current_vertex].value_map_;
         vm[mpc_key] = mpc_value;
+        vm["E"] = 1;
 
         mpc_key = ".2" + lexical_cast<string>(key);
         mpc_value = compute_lsb(2 * value);

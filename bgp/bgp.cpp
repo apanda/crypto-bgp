@@ -661,14 +661,6 @@ void BGPProcess::load_graph2(string path, graph_t& graph) {
 
 
 void BGPProcess::print_state(graph_t& graph) {
-  auto iter = vertices(graph);
-  auto last = iter.second;
-  auto current = iter.first;
-
-  for (; current != last; ++current) {
-    const auto& current_vertex = *current;
-    Vertex& vertex = graph[current_vertex];
-  }
 }
 
 

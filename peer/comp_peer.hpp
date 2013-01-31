@@ -55,6 +55,7 @@ public:
   void compare2(string key1, string key2, vertex_t key);
   void compare3(string key1, string key2, vertex_t key);
   void compare4(string key1, string key2, vertex_t key);
+  void compare5pre(string key1, string key2, vertex_t key);
   void compare5(string key1, string key2, vertex_t key);
 
   void publish(std::string key,  int64_t value, vertex_t vertex);
