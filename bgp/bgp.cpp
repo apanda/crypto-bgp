@@ -337,20 +337,18 @@ void BGPProcess::compute_partial0(
   const string key1 = lexical_cast<string>(largest_vertex);
   const string key2 = lexical_cast<string>(neigh_vertex);
 
-  string w = ".2" + key1;
-  string x = ".2" + key2;
-  string y = ".2" + key1 + "-" + key2;
+  const string w = ".2" + key1;
+  const string x = ".2" + key2;
+  const string y = ".2" + key1 + "-" + key2;
+  const string xy = y + "*" + x;
+  const string wx = x + "*" + w;
+  const string wy = y + "*" + w;
+  const string wxy2 = xy + "*" + "2" + "*" + w;
+  const string compare_str = wx + "+" + wy + "-" + wxy2 + "-" + y + "-" + x + "+" + xy;
+  const string ex_policy_str = compare_str + "*" + "E";
+  const string final_str = ex_policy_str + "!";
 
-  string xy = y + "*" + x;
-  string wx = x + "*" + w;
-  string wy = y + "*" + w;
-
-  string wxy2 = xy + "*" + "2" + "*" + w;
-  string circut_str = wx + "+" + wy + "-" + wxy2 + "-" + y + "-" + x + "+" + xy;
-
-  string result = circut_str + "*" + "E";
-
-  affected.sig_bgp_next[result] =
+  affected.sig_bgp_next[final_str] =
       shared_ptr<boost::function<void()> >(new boost::function<void()>);
 
   auto next = boost::bind(&BGPProcess::compute_partial0, this,
@@ -364,14 +362,14 @@ void BGPProcess::compute_partial0(
         iter_range
       );
 
-  *(affected.sig_bgp_next[result]) = next;
+  *(affected.sig_bgp_next[final_str]) = next;
 
   LOG4CXX_DEBUG(comp_peer_->logger_, "Vertex -> "
       << affected_vertex << ", " << neigh_vertex );
 
-  affected.sig_bgp_cnt[result] = shared_ptr<boost::function<void(int)> >(new boost::function<void(int)>);
+  affected.sig_bgp_cnt[final_str] = shared_ptr<boost::function<void(int)> >(new boost::function<void(int)>);
 
-  *(affected.sig_bgp_cnt[result]) = boost::bind(
+  *(affected.sig_bgp_cnt[final_str]) = boost::bind(
               &BGPProcess::compute_partial1, this,
               affected_vertex,
               neigh_vertex,
@@ -403,18 +401,16 @@ void BGPProcess::compute_partial1(
   const string key1 = lexical_cast<string>(largest_vertex);
   const string key2 = lexical_cast<string>(neigh_vertex);
 
-  string w = ".2" + key1;
-  string x = ".2" + key2;
-  string y = ".2" + key1 + "-" + key2;
-
-  string xy = y + "*" + x;
-  string wx = x + "*" + w;
-  string wy = y + "*" + w;
-
-  string wxy2 = xy + "*" + "2" + "*" + w;
-  string circut_str = wx + "+" + wy + "-" + wxy2 + "-" + y + "-" + x + "+" + xy;
-
-  string result = circut_str + "*" + "E";
+  const string w = ".2" + key1;
+  const string x = ".2" + key2;
+  const string y = ".2" + key1 + "-" + key2;
+  const string xy = y + "*" + x;
+  const string wx = x + "*" + w;
+  const string wy = y + "*" + w;
+  const string wxy2 = xy + "*" + "2" + "*" + w;
+  const string compare_str = wx + "+" + wy + "-" + wxy2 + "-" + y + "-" + x + "+" + xy;
+  const string ex_policy_str = compare_str + "*" + "E";
+  const string final_str = ex_policy_str + "!";
 
   auto current_preference_it = affected.preference_.find(largest_vertex);
   BOOST_ASSERT(current_preference_it != affected.preference_.end());
@@ -444,14 +440,14 @@ void BGPProcess::compute_partial1(
   }
 
   if ( offered_preference <= current_preference ) {
-    affected.sig_bgp_next[result]->operator()();
+    affected.sig_bgp_next[final_str]->operator()();
     return;
   }
 
   largest_vertex = neigh_vertex;
   new_changed_set.insert(affected_vertex);
 
-  affected.sig_bgp_next[result]->operator ()();
+  affected.sig_bgp_next[final_str]->operator ()();
 }
 
 
@@ -489,20 +485,18 @@ void BGPProcess::for0(
   const string key1 = lexical_cast<string>(affected.next_hop_);
   const string key2 = lexical_cast<string>(neigh_vertex);
 
-  string w = ".2" + key1;
-  string x = ".2" + key2;
-  string y = ".2" + key1 + "-" + key2;
+  const string w = ".2" + key1;
+  const string x = ".2" + key2;
+  const string y = ".2" + key1 + "-" + key2;
+  const string xy = y + "*" + x;
+  const string wx = x + "*" + w;
+  const string wy = y + "*" + w;
+  const string wxy2 = xy + "*" + "2" + "*" + w;
+  const string compare_str = wx + "+" + wy + "-" + wxy2 + "-" + y + "-" + x + "+" + xy;
+  const string ex_policy_str = compare_str + "*" + "E";
+  const string final_str = ex_policy_str + "!";
 
-  string xy = y + "*" + x;
-  string wx = x + "*" + w;
-  string wy = y + "*" + w;
-
-  string wxy2 = xy + "*" + "2" + "*" + w;
-  string circut_str = wx + "+" + wy + "-" + wxy2 + "-" + y + "-" + x + "+" + xy;
-
-  string result = circut_str + "*" + "E";
-
-  affected.sig_bgp_next[result] =
+  affected.sig_bgp_next[final_str] =
       shared_ptr<boost::function<void()> >(new boost::function<void()>);
 
   auto next = boost::bind(&BGPProcess::for0, this,
@@ -512,14 +506,14 @@ void BGPProcess::for0(
         intersection_ptr
       );
 
-  *(affected.sig_bgp_next[result]) = next;
+  *(affected.sig_bgp_next[final_str]) = next;
 
   LOG4CXX_DEBUG(comp_peer_->logger_, "Vertex -> "
       << affected_vertex << ", " << neigh_vertex );
 
-  affected.sig_bgp_cnt[result] = shared_ptr<boost::function<void(int)> >(new boost::function<void(int)>);
+  affected.sig_bgp_cnt[final_str] = shared_ptr<boost::function<void(int)> >(new boost::function<void(int)>);
 
-  *(affected.sig_bgp_cnt[result]) = boost::bind(&BGPProcess::for1, this,
+  *(affected.sig_bgp_cnt[final_str]) = boost::bind(&BGPProcess::for1, this,
               affected_vertex,
               neigh_vertex,
               new_changed_set_ptr,
@@ -546,18 +540,16 @@ void BGPProcess::for1(
   const string key1 = lexical_cast<string>(affected.next_hop_);
   const string key2 = lexical_cast<string>(neigh_vertex);
 
-  string w = ".2" + key1;
-  string x = ".2" + key2;
-  string y = ".2" + key1 + "-" + key2;
-
-  string xy = y + "*" + x;
-  string wx = x + "*" + w;
-  string wy = y + "*" + w;
-
-  string wxy2 = xy + "*" + "2" + "*" + w;
-  string circut_str = wx + "+" + wy + "-" + wxy2 + "-" + y + "-" + x + "+" + xy;
-
-  string result = circut_str + "*" + "E";
+  const string w = ".2" + key1;
+  const string x = ".2" + key2;
+  const string y = ".2" + key1 + "-" + key2;
+  const string xy = y + "*" + x;
+  const string wx = x + "*" + w;
+  const string wy = y + "*" + w;
+  const string wxy2 = xy + "*" + "2" + "*" + w;
+  const string compare_str = wx + "+" + wy + "-" + wxy2 + "-" + y + "-" + x + "+" + xy;
+  const string ex_policy_str = compare_str + "*" + "E";
+  const string final_str = ex_policy_str + "!";
 
   const auto current_preference = affected.current_next_hop_preference(graph_);
 
@@ -567,8 +559,6 @@ void BGPProcess::for1(
 
   LOG4CXX_DEBUG(comp_peer_->logger_, "Compare -> "
       << current_preference << ", " << offered_preference );
-
-
 
   const bool condition = offered_preference <= current_preference;
 
@@ -584,14 +574,14 @@ void BGPProcess::for1(
   }
 
   if ( offered_preference <= current_preference ) {
-    affected.sig_bgp_next[result]->operator()();
+    affected.sig_bgp_next[final_str]->operator()();
     return;
   }
 
   affected.set_next_hop(graph_, neigh_vertex);
   new_changed_set.insert(affected_vertex);
 
-  affected.sig_bgp_next[result]->operator ()();
+  affected.sig_bgp_next[final_str]->operator ()();
 }
 
 

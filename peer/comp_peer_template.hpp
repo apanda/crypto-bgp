@@ -343,7 +343,7 @@ void CompPeer<Num>::compare4(string key1, string key2, vertex_t l) {
   const string wy = y + "*" + w;
   const string wxy2 = xy + "*" + "2" + "*" + w;
 
-  const std::vector<string> comapre = {"+", xy, "-", x, "-", y, "-", wxy2, "+", wy, wx};
+  const std::vector<string> compare = {"+", xy, "-", x, "-", y, "-", wxy2, "+", wy, wx};
   const string compare_str = wx + "+" + wy + "-" + wxy2 + "-" + y + "-" + x + "+" + xy;
 
   const vector<string> ex_policy = {"*", "E", compare_str};
@@ -351,12 +351,12 @@ void CompPeer<Num>::compare4(string key1, string key2, vertex_t l) {
 
   LOG4CXX_DEBUG( logger_,  id_ << ": 2xyw: " << wxy2 << ": " << vlm[wxy2]);
 
-  execute(comapre, l);
+  execute(compare, l);
 
   auto value = vlm[compare_str] + 1;
   vlm[compare_str] = value;
 
-  LOG4CXX_DEBUG( logger_,  id_ << ": Final: " << ": " << compare_str );
+  LOG4CXX_DEBUG( logger_,  id_ << ": compare: " << ": " << compare_str );
 
 
   vertex.sig_compare[ex_policy_str] = shared_ptr< boost::function<void ()> >(
@@ -396,13 +396,12 @@ void CompPeer<Num>::compare5pre(string key1, string key2, vertex_t l) {
   const string wy = y + "*" + w;
   const string wxy2 = xy + "*" + "2" + "*" + w;
 
-  const std::vector<string> comapre = {"+", xy, "-", x, "-", y, "-", wxy2, "+", wy, wx};
+  const std::vector<string> compare = {"+", xy, "-", x, "-", y, "-", wxy2, "+", wy, wx};
   const string compare_str = wx + "+" + wy + "-" + wxy2 + "-" + y + "-" + x + "+" + xy;
 
   const vector<string> ex_policy = {"*", "E", compare_str};
   const string ex_policy_str = compare_str + "*" + "E";
-
-  const string final_str = compare_str + "*" + "E!";
+  const string final_str = ex_policy_str + "!";
 
   auto value = vlm[ex_policy_str];
 
@@ -451,13 +450,12 @@ void CompPeer<Num>::compare5(string key1, string key2, vertex_t l) {
   const string wy = y + "*" + w;
   const string wxy2 = xy + "*" + "2" + "*" + w;
 
-  const std::vector<string> comapre = {"+", xy, "-", x, "-", y, "-", wxy2, "+", wy, wx};
+  const std::vector<string> compare = {"+", xy, "-", x, "-", y, "-", wxy2, "+", wy, wx};
   const string compare_str = wx + "+" + wy + "-" + wxy2 + "-" + y + "-" + x + "+" + xy;
 
   const vector<string> ex_policy = {"*", "E", compare_str};
   const string ex_policy_str = compare_str + "*" + "E";
-
-  const string final_str = compare_str + "*" + "E!";
+  const string final_str = ex_policy_str + "!";
 
 
   double X[Num], Y[Num], D[Num];
@@ -475,8 +473,6 @@ void CompPeer<Num>::compare5(string key1, string key2, vertex_t l) {
   gsl_poly_dd_init( D, X, Y, 3 );
   const double interpol = gsl_poly_dd_eval( D, X, 3, 0);
 
-
-  LOG4CXX_DEBUG( logger_, "Result: " << ": " << interpol);
   const double end = mod(interpol, PRIME);
   LOG4CXX_DEBUG( logger_, "Result: " << ": " << end);
 
