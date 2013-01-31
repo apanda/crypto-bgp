@@ -170,6 +170,7 @@ void CompPeer<Num>::sub(
 
   int64_t result = vlm[first] - vlm[second];
   LOG4CXX_DEBUG( logger_, first << "-" << second << "="<< result);
+  LOG4CXX_DEBUG( logger_, vlm[first]  << "-" << vlm[second] << "="<< result);
   result = mod(result, PRIME);
 
   const string key = recombination_key + lexical_cast<string>(id_);
