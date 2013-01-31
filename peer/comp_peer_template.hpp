@@ -405,7 +405,7 @@ void CompPeer<Num>::compare5pre(string key1, string key2, vertex_t l) {
   vector<string> circut2 = {"*", "E", circut_str};
   string circut_str2 = circut_str + "*" + "E";
   auto value = vlm[circut_str2];
-
+  value = mod(value, PRIME);
 
   vertex.sig_compare[circut_str2] = shared_ptr< boost::function<void ()> >(
       new boost::function<void ()>
