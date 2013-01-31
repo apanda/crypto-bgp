@@ -52,16 +52,17 @@ void CompPeer<Num>::publish(std::string key, int64_t value, vertex_t v) {
 
   LOG4CXX_TRACE(logger_, " Acquired lock... " << v << ": " << rkey);
 
-  int& counter = vertex.couter_map_2[rkey];
 
   value_map_t& vlm = vertex.value_map_;
 
   LOG4CXX_TRACE(logger_, "Counter... (" << v << "): " << rkey << " " << counter);
   LOG4CXX_TRACE(logger_, "Received value: " << key << ": " << value << " (" << v << ")");
 
-  vertex.mutex_->lock();
   vlm[key] = value;
 
+  vertex.mutex_->lock();
+
+  int& counter = vertex.couter_map_2[rkey];
   counter++;
 
   if (counter == 3) {
