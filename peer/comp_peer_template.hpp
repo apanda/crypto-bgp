@@ -465,7 +465,7 @@ void CompPeer<Num>::compare5(string key1, string key2, vertex_t l) {
 
 
   for(size_t i = 0; i < Num; i++) {
-    std::string key = result + "_"  + boost::lexical_cast<std::string>(i + 1);
+    std::string key = result + "__"  + boost::lexical_cast<std::string>(i + 1);
     const auto value = vlm[key];
     X[i] = i + 1;
     Y[i] = value;
