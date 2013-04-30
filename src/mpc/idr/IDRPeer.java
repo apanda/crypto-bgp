@@ -53,6 +53,8 @@ public class IDRPeer extends IDRBase {
 
 	/** array containing my initial shares; dimensions [numberOfNodes][numberOfPrivacyPeers][numberOfNeighbors] */
 	private long[][][] initialClassificationShares = null;
+	/** array containing initial shares of forbidden list; dimensions [numberOfNodes][numberOfPrivacyPeers][numberOfForbidden] */
+	private long[][][] initialForbiddenShares = null;
 	/** array containing initial shares; dimensions [numberOfNodes][numberOfNeighbors][numberOfPrivacyPeers][numberOfNeighbors] */
 	private long[][][][] initialExportShares = null;
 	/** array containing M+1 zero shares/node; dimensions [numberOfNodes][numberOfPrivacyPeers][M+1] */
@@ -65,6 +67,7 @@ public class IDRPeer extends IDRBase {
 	public static final String PROP_PROVIDERS = "providers";
 	public static final String PROP_PEERS = "peers";
 	public static final String PROP_CUSTOMERS = "customers";
+	public static final String PROP_FORBIDDEN = "forbidden";
 	public static final String ID = "peerID";
 	public static final String PROP_TYPE = "peerType";
 
@@ -77,11 +80,16 @@ public class IDRPeer extends IDRBase {
 
 	/** ID of the destination */
 	protected long destination;
-
+	
 	/** Lists of customers, peers, providers for each node;
 	 *  dimensions [numberOfNodes][numberOfLevels][numberOfNeighbors]
 	 */
 	protected long[][][] neighborClassificationLists;
+	
+	/** Lists of customers, peers, providers for each node;
+	 *  dimensions [numberOfNodes][numberOfForbiddenNodes]
+	 */
+	protected long[][] neighborForbiddenLists;
 
 	/** Array of lists of who can be routed through each neighbor;
 	 *  dimensions [numberOfNodes][numberOfNeighbors][numberOfNeighbors]
@@ -201,6 +209,12 @@ public class IDRPeer extends IDRBase {
 			}
 			initialClassificationShares[i] = mpcShamirSharing.generateShares(classList);
 		}
+		
+		initialForbiddenShares = new long[numberOfNodes][][];
+		for (int i = 0; i < numberOfNodes; i++) {
+			initialForbiddenShares[i] = mpcShamirSharing.generateShares(neighborForbiddenLists[i]);
+		}
+		
 
 		initialExportShares = new long[numberOfNodes][][][];
 
@@ -304,8 +318,10 @@ public class IDRPeer extends IDRBase {
 		}
 		return result;
 	}
-	
+
 	private static long[] noZeroes(long[] array) {
+		if (array == null)
+			return null;
 		int z = 0;
 		for (long x : array) {
 			if (x == 0) {
@@ -373,11 +389,12 @@ public class IDRPeer extends IDRBase {
 			nodeInfos = new IDRNodeInfo[numberOfNodes];
 			destination = Long.parseLong(properties.getProperty(PROP_DESTINATION));
 			neighborClassificationLists = new long[numberOfNodes][numberOfLevels][];
+			neighborForbiddenLists = new long[numberOfNodes][];
 			neighborExports = new long[numberOfNodes][][];
 			for (int i = 0; i < nodeInfos.length; i++) {
 				String prefix = (i+1) + "_";
 				nodeInfos[i] = new IDRNodeInfo(Long.parseLong(properties.getProperty(prefix + ID)), myPeerID);
-				nodeInfos[i].setISP(properties.getProperty(prefix + PROP_TYPE).equals("1"));
+				nodeInfos[i].setISP(!properties.getProperty(prefix + PROP_TYPE).equals("0"));
 				if (nodeInfos[i].getID() == destination)
 					nodeInfos[i].setDestination(true);
 
@@ -387,7 +404,7 @@ public class IDRPeer extends IDRBase {
 
 
 				String classifications = customers + ";" + peers + ";" + providers;				
-				
+
 				String[] classLevels = classifications.split(";");
 				int currentLevel = 0;
 				for (int j = 0; j < classLevels.length; j++) {
@@ -406,6 +423,20 @@ public class IDRPeer extends IDRBase {
 				long[] neighborList = noZeroes(concatAll(neighborClassificationLists[i]));
 
 				Arrays.sort(neighborList);
+				
+				String forbiddens = properties.getProperty(prefix + PROP_FORBIDDEN, "");
+				if (forbiddens.isEmpty()) {
+					neighborForbiddenLists[i] = new long[]{nodeInfos[i].getID()}; //dummy data
+				} else {
+					String[] forbiddenStrings = forbiddens.split(",");
+					neighborForbiddenLists[i] = new long[forbiddenStrings.length];
+					for (int j = 0; j < neighborForbiddenLists[i].length; j++) {
+						if (forbiddenStrings[j].isEmpty())
+							continue;
+						neighborForbiddenLists[i][j] = Long.parseLong(forbiddenStrings[j]);
+					}
+				}
+				
 
 				neighborExports[i] = new long[neighborList.length][neighborList.length];
 				if (nodeInfos[i].isISP()) {
@@ -509,6 +540,19 @@ public class IDRPeer extends IDRBase {
 		long [][] shares = new long[numberOfNodes][];
 		for (int i = 0; i < numberOfNodes; i++) {
 			shares[i] = initialClassificationShares[i][ppNr];
+		}
+		return shares;		
+	}
+	
+	/**
+	 *  Returns the forbidden shares for each node.
+	 * @param ppNr the PP number
+	 * @return the shares. Dimensions: [numberOfNodes][M+1]
+	 */
+	public long[][] getInitialForbiddenSharesForPP(int ppNr) {
+		long [][] shares = new long[numberOfNodes][];
+		for (int i = 0; i < numberOfNodes; i++) {
+			shares[i] = initialForbiddenShares[i][ppNr];
 		}
 		return shares;		
 	}

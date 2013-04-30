@@ -110,6 +110,7 @@ public class IDRProtocolPeer extends IDRProtocol {
 		messageToSend.setDestination(inputPeer.destination);
 		messageToSend.setNodeInfos(inputPeer.nodeInfos);
 		messageToSend.setInitialClassificationShares(inputPeer.getInitialClassificationSharesForPP(otherPeerIndex));
+		messageToSend.setInitialForbiddenShares(inputPeer.getInitialForbiddenSharesForPP(otherPeerIndex));
 		messageToSend.setInitialExportShares(inputPeer.getInitialExportSharesForPP(otherPeerIndex));
 		messageToSend.setRoutes(inputPeer.getZeroSharesForPP(otherPeerIndex));
 	}

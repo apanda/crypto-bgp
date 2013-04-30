@@ -630,15 +630,18 @@ public class IDRPrivacyPeer extends IDRBase {
 	 * 		Force A to 1 if Y is the destination 
 	 * 		Add Y's pathLength to X's classification for it to get B
 	 * 		For each domain Z in Y's path:
-	 * 			Check if Z=X (Step 3)
-	 * 		Sum results of above to get C, C is 1 iff Y would be a loop
-	 * 		Multiply (1-A+C) * LM + B to get Y's score S // L is the number of pref levels
-	 * 	Calculate the lowest S value (Step 4)
-	 *  Figure out which neighbors actually have this lowest S, and decide if S < LM (Step 5)
-	 *  Obtain the location of the first among those neighbors (Step 6)
-	 *  Pick out the next hop / route and path length of that neighbor (Step 7)
-	 *  Collect results (Step 8)
+	 * 			Check if Z=X, and check if Z is a forbidden node for X (Step 3)
+	 * 		Sum results of first computation (Z=?X) above to get C, C is 1 iff Y would be a loop
+	 * 		Figure out if forbidden computation produced at least one 1, D is 1 iff so (Step 4)
+	 * 		Multiply (1-A+C) * 2LM + B + DM to get Y's score S // L is the number of pref levels
+	 * 	Calculate the lowest S value (Step 5)
+	 *  Figure out which neighbors actually have this lowest S, and decide if S < LM (Step 6)
+	 *  Obtain the location of the first among those neighbors (Step 7)
+	 *  Pick out the next hop / route and path length of that neighbor (Step 8)
+	 *  Collect results (Step 9)
 	 *  
+	 *  
+	 *  N.B. Steps 3 & 4 can be combined with steps 1 & 2 for greater parallelism
 	 */
 
 	public void runStep1(boolean useISPs) {
@@ -694,33 +697,33 @@ public class IDRPrivacyPeer extends IDRBase {
 			// now i is the location of this node in the neighbor's neighbor list
 			for (int j = 0; j < neighbor.getNeighbors().length; j++) {
 				operationIDs[opX] = opX;
-				primitives.multiply(opX, new long[]{neighbor.getInitialExportShares()[i][j], equalShares[opX]}); 
+				primitives.multiply(opX, new long[]{neighbor.getInitialExportShares()[j][i], equalShares[opX]}); 
 				opX++;
 			}
 		}
 	}
 
-	long[] sharing;
+	long[] A;
 
 	public void runStep3(boolean useISPs) {
 		logger.log(Level.INFO, Services.getFilterPassingLogPrefix() + "Step 2 took " + (System.currentTimeMillis() - timer) + " ms");
 		timer = System.currentTimeMillis();
 
 		IDRNodeInfo node = getNodeByID(nodeID);
-		sharing = new long[node.getNeighbors().length];
+		A = new long[node.getNeighbors().length];
 		int opX = 0;
 
 		for (int i = 0; i < node.getNeighbors().length; i++) {
 			IDRNodeInfo neighbor = getNodeByID(node.getNeighbors()[i]);
 			for (int j = 0; j < neighbor.getNeighbors().length; j++) {
-				sharing[i] += primitives.getResult(opX++)[0];
+				A[i] += primitives.getResult(opX++)[0];
 			}
 			// If i is the destination and it's our neighbor, then we just assume it has a route
 			if (neighbor.isDestination()) {
-				sharing[i] = 1;
+				A[i] = 1;
 			}
 		}
-		// At this point, sharing[i] is a share of 1 iff neighbor i is sharing a route.
+		// At this point, A[i] is a share of 1 iff neighbor i is sharing a route.
 
 		// Now we are going to check neighbor i's path to see if it has this node's id
 
@@ -729,7 +732,7 @@ public class IDRPrivacyPeer extends IDRBase {
 		for (int i = 0; i < node.getNeighbors().length; i++) {
 			IDRNodeInfo neighbor = getNodeByID(node.getNeighbors()[i]);
 			for (int j = 0; j < neighbor.getRoute().length; j++) {
-				opX++;
+				opX += (1 + node.getInitialForbiddenShares().length);
 			}
 		}
 
@@ -743,59 +746,104 @@ public class IDRPrivacyPeer extends IDRBase {
 			for (int j = 0; j < neighbor.getRoute().length; j++) {
 				operationIDs[opX] = opX;
 				primitives.equal(opX++, new long[]{neighbor.getRoute()[j], nodeID});
+
+				for (int k = 0; k < node.getInitialForbiddenShares().length; k++) {
+					operationIDs[opX] = opX;
+					primitives.equal(opX++, new long[]{neighbor.getRoute()[j], node.getInitialForbiddenShares()[k]});
+				}
 			}
 		}
 	}	
-
-	long[] score;
-
+	
+	
+	long[] C;
+	
 	public void runStep4(boolean useISPs) {
 		logger.log(Level.INFO, Services.getFilterPassingLogPrefix() + "Step 3 took " + (System.currentTimeMillis() - timer) + " ms");
 		timer = System.currentTimeMillis();
 
 		IDRNodeInfo node = getNodeByID(nodeID);
-		long[] loop = new long[node.getNeighbors().length];
-
+		C = new long[node.getNeighbors().length];
+		long[][][] forbid = new long[node.getNeighbors().length][][];
+		
 		int opX = 0;
 
 		for (int i = 0; i < node.getNeighbors().length; i++) {
 			IDRNodeInfo neighbor = getNodeByID(node.getNeighbors()[i]);
+			forbid[i] = new long[neighbor.getRoute().length][node.getInitialForbiddenShares().length];
 			for (int j = 0; j < neighbor.getRoute().length; j++) {
-				loop[i] += primitives.getResult(opX++)[0];
+				C[i] += primitives.getResult(opX++)[0];
+				
+				for (int k = 0; k < node.getInitialForbiddenShares().length; k++) {
+					forbid[i][j][k] = primitives.getResult(opX++)[0];
+				}
 			}
 		}
-		//now loop[i] == 1 iff route through i would cause a loop
+		//now C[i] == 1 iff route through i would cause a loop
+		//forbid[i][j][k] == 1 iff neighbor i's j'th hop is our k'th forbidden node
+		
+		//want: D[i] = 1 iff forbid[i][j][k] == 1 for any j, k 
+		
+		initializeNewOperationSet(node.getNeighbors().length);
+		operationIDs = new int[node.getNeighbors().length];
+		opX = 0;
+		
+		for (int i = 0; i < node.getNeighbors().length; i++) {
+			long[] data = new long[forbid[i].length * node.getInitialForbiddenShares().length];
+			for (int j = 0; j < forbid[i].length; j++) {
+				for (int k = 0; k < node.getInitialForbiddenShares().length; k++) {
+					data[j * node.getInitialForbiddenShares().length + k] = 1 - forbid[i][j][k];
+				}
+			}
+			primitives.product(opX++, data); // so this will be 1 iff the above were all 0
+		}
+		
+	}
+	
+	long[] score;
 
-		// S = (1-sharing[i]+loop[i]) * numberOfLevels * M + B
+	public void runStep5(boolean useISPs) {
+		logger.log(Level.INFO, Services.getFilterPassingLogPrefix() + "Step 4 took " + (System.currentTimeMillis() - timer) + " ms");
+		timer = System.currentTimeMillis();
+		
+		IDRNodeInfo node = getNodeByID(nodeID);
+		long[] D = new long[node.getNeighbors().length];
+		
+		for (int i = 0; i < node.getNeighbors().length; i++) {
+			D[i] = primitives.getResult(i)[0];
+		}
+		
+		// S = (1-sharing[i]+loop[i]) * 2 * numberOfLevels * M + B
 		score = new long[node.getNeighbors().length];
 		for (int i = 0; i < node.getNeighbors().length; i++) {
 			IDRNodeInfo neighbor = getNodeByID(node.getNeighbors()[i]);
-			long A = 0;
 			long B = node.getInitialClassificationShares()[i] + neighbor.getPathLength();
-			long C = 0;
-			// Want to do (1-sharing[i])*LM
-			// Since LM is a constant, it is easier to add locally than multiply using SEPIA
-			for (int z = 0; z < numberOfLevels*M; z++) {
-				A += 1 - sharing[i];
-				C += loop[i];
-			}
-			score[i] = A + B + C;
+
+			// since 2, numberOfLevels, and M are all constants, just do some local multiplication
+			long L = numberOfLevels;
+			score[i] = (1 - A[i] + C[i]) * 2 * L * M + B + D[i] * M; //see long comment before runStep1
 		}
 
 		initializeNewOperationSet(1);
 		operationIDs = new int[]{0};
-		primitives.min(0, score, -1, true); // the -1 and true might need to be changed for optimization
+
+		// min will fail if score has only 1 element, so artificially pad if that's the case
+		if (score.length >= 2) {
+			primitives.min(0, score, -1, true); // the -1 and true might need to be changed for optimization
+		} else if (score.length == 1) {
+			primitives.min(0, new long[]{score[0], score[0]+20}, -1, true);
+		}
 	}
 
 	long minScore; // minScore is the smallest score among all those being offered
 	long valid; // valid is 1 if the smallest score is < numberOfLevels * M, 0 else
-	
-	public void runStep5(boolean useISPs) {
-		logger.log(Level.INFO, Services.getFilterPassingLogPrefix() + "Step 4 took " + (System.currentTimeMillis() - timer) + " ms");
+
+	public void runStep6(boolean useISPs) {
+		logger.log(Level.INFO, Services.getFilterPassingLogPrefix() + "Step 5 took " + (System.currentTimeMillis() - timer) + " ms");
 		timer = System.currentTimeMillis();
 		minScore = primitives.getResult(0)[0];
 		// min is the score of the nextHop we are taking; now we want to know which neighbor it corresponds to
-		
+
 		IDRNodeInfo node = getNodeByID(nodeID);
 		initializeNewOperationSet(node.getNeighbors().length + 1);
 		operationIDs = new int[node.getNeighbors().length + 1];
@@ -804,23 +852,23 @@ public class IDRPrivacyPeer extends IDRBase {
 			operationIDs[opX] = opX;
 			primitives.equal(opX, new long[]{minScore, score[opX]});
 		}
-		
+
 		// while we're at it, figure out whether this minimum is even valid
 		primitives.lessThan(opX, new long[]{minScore, numberOfLevels*M, -1, -1, -1}); //might be able to optimize by changing these -1s
 
 	}
 
-	public void runStep6(boolean useISPs) {
-		logger.log(Level.INFO, Services.getFilterPassingLogPrefix() + "Step 5 took " + (System.currentTimeMillis() - timer) + " ms");
+	public void runStep7(boolean useISPs) {
+		logger.log(Level.INFO, Services.getFilterPassingLogPrefix() + "Step 6 took " + (System.currentTimeMillis() - timer) + " ms");
 		timer = System.currentTimeMillis();
 
 		long [] winner = new long[operationIDs.length - 1];
 		for (int i = 0; i < winner.length; i++) {
 			winner[i] = primitives.getResult(i)[0];
 		}
-		
+
 		valid = primitives.getResult(operationIDs.length - 1)[0];
-		
+
 
 		/*
 		 * Now winner is a list of shares of 0/1, 1 if this is the neighbor with the minimum score.
@@ -854,8 +902,8 @@ public class IDRPrivacyPeer extends IDRBase {
 		}
 	}
 
-	public void runStep7(boolean useISPs) {
-		logger.log(Level.INFO, Services.getFilterPassingLogPrefix() + "Step 6 took " + (System.currentTimeMillis() - timer) + " ms");
+	public void runStep8(boolean useISPs) {
+		logger.log(Level.INFO, Services.getFilterPassingLogPrefix() + "Step 7 took " + (System.currentTimeMillis() - timer) + " ms");
 		timer = System.currentTimeMillis();
 
 		long [] winner = new long[operationIDs.length];
@@ -879,7 +927,7 @@ public class IDRPrivacyPeer extends IDRBase {
 		operationIDs = new int[opX];
 		opX = 0;
 
-		
+
 		// Unless i is both the winner and has a small enough score,
 		// its contribution to the result will be 0.
 		for (int i = 0; i < node.getNeighbors().length; i++) {
@@ -893,8 +941,8 @@ public class IDRPrivacyPeer extends IDRBase {
 		}	
 	}
 
-	public void runStep8(boolean useISPs) {
-		logger.log(Level.INFO, Services.getFilterPassingLogPrefix() + "Step 7 took " + (System.currentTimeMillis() - timer) + " ms");
+	public void runStep9(boolean useISPs) {
+		logger.log(Level.INFO, Services.getFilterPassingLogPrefix() + "Step 8 took " + (System.currentTimeMillis() - timer) + " ms");
 		timer = System.currentTimeMillis();
 
 		IDRNodeInfo node = getNodeByID(nodeID);
@@ -928,24 +976,18 @@ public class IDRPrivacyPeer extends IDRBase {
 
 	public void setAllNextHops(boolean useISPs) {
 		if (goAhead(useISPs)) {
-			logger.log(Level.INFO, Services.getFilterPassingLogPrefix() + "Step 8 took " + (System.currentTimeMillis() - timer) + " ms");
+			logger.log(Level.INFO, Services.getFilterPassingLogPrefix() + "Step 9 took " + (System.currentTimeMillis() - timer) + " ms");
 			long roundTime = System.currentTimeMillis() - roundTimer;
 			if (rounds == 0)
 				firstTimer = roundTime;
 			totalTimer += roundTime;
 			rounds ++;
 			logger.log(Level.INFO, Services.getFilterPassingLogPrefix() + "This round took " + roundTime + " ms");
+		} else if (getNodeByID(nodeID) != null) {
+			route = getNodeByID(nodeID).getRoute();
+			pathLength = getNodeByID(nodeID).getPathLength();
 		}
 
-		// Important: If we're working for the destination node,
-		// path length and route never change
-		if (getNodeByID(nodeID).isDestination()) {
-			//System.out.println("Destination; sending " + nodeID);
-			pathLength = getNodeByID(nodeID).getPathLength();
-			route = getNodeByID(nodeID).getRoute();
-		} else {
-			//System.out.println("Sending " + nextHop);
-		}
 
 		if (fakeDaemon) {
 			for (int i = 0; i < numberOfNodes; i++) {				
@@ -963,7 +1005,7 @@ public class IDRPrivacyPeer extends IDRBase {
 				}
 
 				// make up something
-				node.setPathLength(2);
+				node.setPathLength(3);
 				long[] newRoute = new long[M];
 				newRoute[0] = getNeighborsByIndex(i)[0];
 				node.setRoute(newRoute);
@@ -1044,7 +1086,7 @@ public class IDRPrivacyPeer extends IDRBase {
 			operationIDs[opX] = opX;
 			primitives.reconstruct(opX++, new long[]{getNodeByIndex(i).getPathLength()});
 			operationIDs[opX] = opX;
-			primitives.reconstruct(opX++, new long[]{getNodeByIndex(i).getFinalNextHop()});
+			primitives.reconstruct(opX++, new long[]{getNodeByIndex(i).getNextHop()});
 		}
 	}
 

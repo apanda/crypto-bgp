@@ -124,6 +124,12 @@ public class IDRMessage extends MessageBase implements Serializable {
 			nodeInfos[i].setInitialClassificationShares(initialClassificationShares[i]);
 		}
 	}
+	
+	public void setInitialForbiddenShares(long[][] initialForbiddenShares) {
+		for (int i = 0; i < initialForbiddenShares.length; i++) {
+			nodeInfos[i].setInitialForbiddenShares(initialForbiddenShares[i]);
+		}
+	}
 
 	public void setInitialExportShares(long[][][] initialExportShares) {
 		for (int i = 0; i < initialExportShares.length; i++) {

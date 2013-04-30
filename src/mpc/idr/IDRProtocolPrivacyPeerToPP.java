@@ -171,9 +171,19 @@ public class IDRProtocolPrivacyPeerToPP extends IDRProtocol {
 				return false;
 			}
 			ppThreadsBarrier.await();
-
+			
 			if (ppThreadsBarrier.await() == 0) {
 				privacyPeer.runStep8(useISPs);
+			}
+			ppThreadsBarrier.await();
+			if (!doOperations()) {
+				logger.severe("Error");
+				return false;
+			}
+			ppThreadsBarrier.await();
+
+			if (ppThreadsBarrier.await() == 0) {
+				privacyPeer.runStep9(useISPs);
 			}
 			ppThreadsBarrier.await();
 			if (!doOperations()) {

@@ -41,6 +41,7 @@ public class IDRNodeInfo implements Serializable{
 	/** contains the initial shares */
 	private boolean isInitialSharesReceived = false;
 	private long[] initialClassificationShares = null; // [numberOfNeighbors]
+	private long[] initialForbiddenShares = null; // [numberOfForbiddenNodes]
 	private long[][] initialExportShares = null; // [numberOfNeighbors][numberOfNeighbors]
 
 	private long[] route = null; // IMPORTANT: Length is always M
@@ -96,6 +97,14 @@ public class IDRNodeInfo implements Serializable{
 		this.initialClassificationShares = initialClassificationShares;
 	}
 
+	public long[] getInitialForbiddenShares() {
+		return initialForbiddenShares;
+	}
+
+	public void setInitialForbiddenShares(long[] initialForbiddenShares) {
+		this.initialForbiddenShares = initialForbiddenShares;
+	}
+	
 	public long[] getNeighbors() {
 		return neighbors;
 	}
