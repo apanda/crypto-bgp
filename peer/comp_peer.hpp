@@ -36,11 +36,13 @@ public:
   void evaluate(vector<string> circut, vertex_t l);
   void evaluate(string a, string b);
 
+  const string get_recombination(vector<string>& circut);
   void execute(vector<string> circut, vertex_t l);
 
   void add(string first, string second, string recombination_key, vertex_t l);
   void sub(string first, string second, string recombination_key, vertex_t l);
   void multiply(string first, string second, string recombination_key, vertex_t l);
+  void multiply_eq(string first, string recombination_key, vertex_t l);
   void multiply_const(string first, int64_t second, string recombination_key, vertex_t l);
   void recombine(string recombination_key, vertex_t key);
 
@@ -51,11 +53,6 @@ public:
   void compare(string key1, string key2, vertex_t key);
 
   void compare0(string key1, string key2, vertex_t key);
-  void compare1(string key1, string key2, vertex_t key);
-  void compare2(string key1, string key2, vertex_t key);
-  void compare3(string key1, string key2, vertex_t key);
-  void compare4(string key1, string key2, vertex_t key);
-  void compare5pre(string key1, string key2, vertex_t key);
   void compare5(string key1, string key2, vertex_t key);
 
   void publish(std::string key,  int64_t value, vertex_t vertex);

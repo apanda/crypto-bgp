@@ -48,7 +48,10 @@ public:
 
   vector<vertex_t> neigh_;
   tbb::concurrent_unordered_map<vertex_t, int64_t> preference_;
+  tbb::concurrent_unordered_map<vertex_t, int64_t> relationship_;
   unordered_map<int64_t, set<vertex_t> > preference_setup_;
+
+  tbb::concurrent_unordered_map<pair<vertex_t, vertex_t>, int64_t> export_;
 
   unordered_map<int, array<shared_ptr<RPCClient>, 3> > clients_;
   array<shared_ptr<RPCServer>, 3> servers_;
@@ -62,12 +65,13 @@ public:
     tbb::tbb_hash<string>,
     std::equal_to<string>
   > mutex_map_2;
+
   tbb::concurrent_unordered_map<string, shared_ptr<condition_variable_t> >cv_map_2;
 
   tbb::concurrent_unordered_map<string, shared_ptr<boost::function<void()> > > sig_recombine;
   tbb::concurrent_unordered_map<string, shared_ptr<boost::function<void()> > > sig_compare;
 
-  tbb::concurrent_unordered_map<string, shared_ptr<boost::function<void(int)> > > sig_bgp_cnt;
+  tbb::concurrent_unordered_map<string, shared_ptr<boost::function<void(int64_t)> > > sig_bgp_cnt;
   tbb::concurrent_unordered_map<string, shared_ptr<boost::function<void()> > > sig_bgp_next;
 
   tbb::concurrent_queue< boost::asio::mutable_buffer > data_queue;

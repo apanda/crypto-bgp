@@ -19,12 +19,11 @@
 #include <tbb/concurrent_unordered_set.h>
 #include <tbb/concurrent_vector.h>
 
-#include <iostream>
-#include <vector>
-
 template<size_t >
 class CompPeer;
 class RPCClient;
+
+typedef pair<vertex_t, int64_t> pref_pair_t;
 
 class BGPProcess {
 
@@ -49,6 +48,8 @@ public:
       set<vertex_t>& changed_set,
       set<vertex_t>& new_changed_set);
 
+  const string get_recombination(vector<string>& circut);
+
   void process_neighbors_mpc(
       const vertex_t affected_vertex,
       shared_ptr< tbb::concurrent_unordered_set<vertex_t> > changed_set_ptr,
@@ -65,12 +66,6 @@ public:
       shared_ptr< vector<vertex_t> > intersection_ptr,
       pair<vector<vertex_t>::iterator, vector<vertex_t>::iterator> iters);
 
-  void for0(
-      const vertex_t affected_vertex,
-      shared_ptr< tbb::concurrent_unordered_set<vertex_t> > new_changed_set_ptr,
-      shared_ptr< pair<size_t, size_t> > counts_ptr,
-      shared_ptr< vector<vertex_t> > intersection_ptr);
-
   void compute_partial1(
       vertex_t affected_vertex,
       vertex_t neigh_vertex,
@@ -79,11 +74,35 @@ public:
       shared_ptr< tbb::concurrent_vector<vertex_t> > local_set_ptr,
       int cmp);
 
-  void for1(
-      vertex_t affected_vertex,
-      vertex_t neigh_vertex,
+  void for0(
+      const vertex_t affected_vertex,
       shared_ptr< tbb::concurrent_unordered_set<vertex_t> > new_changed_set_ptr,
-      int cmp);
+      shared_ptr< pair<size_t, size_t> > counts_ptr,
+      shared_ptr< deque<pref_pair_t> > prefs_ptr);
+
+  void for1(
+      const vertex_t affected_vertex,
+      shared_ptr< tbb::concurrent_unordered_set<vertex_t> > new_changed_set_ptr,
+      shared_ptr< pair<size_t, size_t> > counts_ptr,
+      shared_ptr< deque<pref_pair_t> > prefs_ptr);
+
+  void for2(
+      const vertex_t affected_vertex,
+      shared_ptr< tbb::concurrent_unordered_set<vertex_t> > new_changed_set_ptr,
+      shared_ptr< pair<size_t, size_t> > counts_ptr,
+      shared_ptr< deque<pref_pair_t> > prefs_ptr);
+
+  void for3(
+      const vertex_t affected_vertex,
+      shared_ptr< tbb::concurrent_unordered_set<vertex_t> > new_changed_set_ptr,
+      shared_ptr< pair<size_t, size_t> > counts_ptr,
+      shared_ptr< deque<pref_pair_t> > prefs_ptr);
+
+  void for_final(
+      const vertex_t affected_vertex,
+      shared_ptr< tbb::concurrent_unordered_set<vertex_t> > new_changed_set_ptr,
+      shared_ptr< pair<size_t, size_t> > counts_ptr,
+      shared_ptr< deque<pref_pair_t> > prefs_ptr);
 
   void next_iteration_start(
       vertex_t dst,
@@ -120,6 +139,8 @@ public:
 
   boost::function<void()> continuation_;
   boost::function<void()> end_;
+
+
 
 };
 

@@ -125,6 +125,9 @@ void CompPeer<Num>::execute(vector<string> circut, vertex_t l) {
       multiply(first_operand, second_operand, recombination_key, l);
     }
 
+  } else if (operation == "==") {
+    multiply_eq(first_operand, recombination_key, l);
+
   } else if (operation == "+") {
     add(first_operand, second_operand, recombination_key, l);
   } else if (operation == "-") {
@@ -182,308 +185,6 @@ void CompPeer<Num>::sub(
 
 
 template<const size_t Num>
-void CompPeer<Num>::compare0(string key1, string key2, vertex_t l) {
-
-  Vertex& vertex = bgp_->graph_[l];
-  value_map_t& vlm = vertex.value_map_;
-
-  string w = ".2" + key1;
-  string x = ".2" + key2;
-  string y = ".2" + key1 + "-" + key2;
-
-  LOG4CXX_DEBUG( logger_, id_ << " (" << l <<  ") " << ": w: " << vlm[w]);
-  LOG4CXX_DEBUG( logger_, id_ << " (" << l <<  ") " << ": x: " << vlm[x]);
-  LOG4CXX_DEBUG( logger_, id_ << " (" << l <<  ") " << ": y: " << vlm[y]);
-
-  vector<string> circut = {"*", w, x};
-  string circut_str = x + "*" + w;
-
-  vertex.sig_compare[circut_str] = shared_ptr< boost::function<void ()> >(
-      new boost::function<void ()>
-  );
-
-  *(vertex.sig_compare[circut_str]) =
-      boost::bind(&CompPeer<Num>::compare1, this, key1, key2, l);
-
-
-  vertex.sig_recombine[circut_str] = shared_ptr< boost::function<void ()> >(
-      new boost::function<void ()>
-  );
-
-  *(vertex.sig_recombine[circut_str]) =
-      boost::bind(&CompPeer<Num>::recombine, this, circut_str, l);
-
-  execute(circut, l);
-}
-
-
-
-template<const size_t Num>
-void CompPeer<Num>::compare1(string key1, string key2, vertex_t l) {
-
-  Vertex& vertex = bgp_->graph_[l];
-  value_map_t& vlm = vertex.value_map_;
-
-  string w = ".2" + key1;
-  string x = ".2" + key2;
-  string y = ".2" + key1 + "-" + key2;
-
-  vector<string> circut = {"*", w, y};
-  string circut_str = y + "*" + w;
-
-  string wx = x + "*" + w;
-  LOG4CXX_DEBUG( logger_,  id_ << ": wx: " << wx << ": " << vlm[wx]);
-
-
-  vertex.sig_compare[circut_str] = shared_ptr< boost::function<void ()> >(
-      new boost::function<void ()>
-  );
-
-  *(vertex.sig_compare[circut_str]) =
-      boost::bind(&CompPeer<Num>::compare2, this, key1, key2, l);
-
-
-  vertex.sig_recombine[circut_str] = shared_ptr< boost::function<void ()> >(
-      new boost::function<void ()>
-  );
-
-  *(vertex.sig_recombine[circut_str]) =
-      boost::bind(&CompPeer<Num>::recombine, this, circut_str, l);
-
-  execute(circut, l);
-}
-
-
-template<const size_t Num>
-void CompPeer<Num>::compare2(string key1, string key2, vertex_t l) {
-
-  Vertex& vertex = bgp_->graph_[l];
-  value_map_t& vlm = vertex.value_map_;
-
-  string w = ".2" + key1;
-  string x = ".2" + key2;
-  string y = ".2" + key1 + "-" + key2;
-
-  vector<string> circut = {"*", x, y};
-  string circut_str = y + "*" + x;
-  string wy = y + "*" + w;
-
-  LOG4CXX_DEBUG( logger_,  id_ << ": wy: " << wy << ": " << vlm[wy]);
-
-
-  vertex.sig_compare[circut_str] = shared_ptr< boost::function<void ()> >(
-      new boost::function<void ()>
-  );
-
-  *(vertex.sig_compare[circut_str]) =
-      boost::bind(&CompPeer<Num>::compare3, this, key1, key2, l);
-
-
-  vertex.sig_recombine[circut_str] = shared_ptr< boost::function<void ()> >(
-      new boost::function<void ()>
-  );
-
-  *(vertex.sig_recombine[circut_str]) =
-      boost::bind(&CompPeer<Num>::recombine, this, circut_str, l);
-
-  execute(circut, l);
-}
-
-
-
-template<const size_t Num>
-void CompPeer<Num>::compare3(string key1, string key2, vertex_t l) {
-
-  Vertex& vertex = bgp_->graph_[l];
-  value_map_t& vlm = vertex.value_map_;
-
-  const string w = ".2" + key1;
-  const string x = ".2" + key2;
-  const string y = ".2" + key1 + "-" + key2;
-  const string xy = y + "*" + x;
-  const string wx = x + "*" + w;
-  const string wy = y + "*" + w;
-  const string wxy2 = xy + "*" + "2" + "*" + w;
-
-  vector<string> circut = {"*", w, "*", "2", xy};
-  string circut_str = xy + "*" + "2" + "*" + w;
-
-
-  LOG4CXX_DEBUG( logger_,  id_ << ": xy: " << xy << ": " << vlm[xy]);
-  vertex.sig_compare[circut_str] = shared_ptr< boost::function<void ()> >(
-      new boost::function<void ()>
-  );
-
-  *(vertex.sig_compare[circut_str]) =
-      boost::bind(&CompPeer<Num>::compare4, this, key1, key2, l);
-
-
-  vertex.sig_recombine[circut_str] = shared_ptr< boost::function<void ()> >(
-      new boost::function<void ()>
-  );
-
-  *(vertex.sig_recombine[circut_str]) =
-      boost::bind(&CompPeer<Num>::recombine, this, circut_str, l);
-
-  execute(circut, l);
-}
-
-
-template<const size_t Num>
-void CompPeer<Num>::compare4(string key1, string key2, vertex_t l) {
-
-  Vertex& vertex = bgp_->graph_[l];
-  value_map_t& vlm = vertex.value_map_;
-
-  const string w = ".2" + key1;
-  const string x = ".2" + key2;
-  const string y = ".2" + key1 + "-" + key2;
-  const string xy = y + "*" + x;
-  const string wx = x + "*" + w;
-  const string wy = y + "*" + w;
-  const string wxy2 = xy + "*" + "2" + "*" + w;
-
-  const std::vector<string> compare = {"+", xy, "-", x, "-", y, "-", wxy2, "+", wy, wx};
-  const string compare_str = wx + "+" + wy + "-" + wxy2 + "-" + y + "-" + x + "+" + xy;
-
-  LOG4CXX_DEBUG( logger_,  id_ << ": 2xyw: " << wxy2 << ": " << vlm[wxy2]);
-
-  execute(compare, l);
-
-  LOG4CXX_DEBUG( logger_,  id_ << ": compare: " << ": " << compare_str );
-
-  auto value = vlm[compare_str] + 1;
-  vlm[compare_str] = value;
-
-
-  const vector<string> ex_policy = {"*", "E", compare_str};
-  const string ex_policy_str = compare_str + "*" + "E";
-
-  vertex.sig_compare[ex_policy_str] = shared_ptr< boost::function<void ()> >(
-      new boost::function<void ()>
-  );
-
-  *(vertex.sig_compare[ex_policy_str]) =
-      boost::bind(&CompPeer<Num>::compare5pre, this, key1, key2, l);
-
-
-  vertex.sig_recombine[ex_policy_str] = shared_ptr< boost::function<void ()> >(
-      new boost::function<void ()>
-  );
-
-  *(vertex.sig_recombine[ex_policy_str]) =
-      boost::bind(&CompPeer<Num>::recombine, this, ex_policy_str, l);
-
-
-  execute(ex_policy, l);
-}
-
-
-
-
-template<const size_t Num>
-void CompPeer<Num>::compare5pre(string key1, string key2, vertex_t l) {
-
-
-  Vertex& vertex = bgp_->graph_[l];
-  value_map_t& vlm = vertex.value_map_;
-
-  const string w = ".2" + key1;
-  const string x = ".2" + key2;
-  const string y = ".2" + key1 + "-" + key2;
-  const string xy = y + "*" + x;
-  const string wx = x + "*" + w;
-  const string wy = y + "*" + w;
-  const string wxy2 = xy + "*" + "2" + "*" + w;
-
-  const std::vector<string> compare = {"+", xy, "-", x, "-", y, "-", wxy2, "+", wy, wx};
-  const string compare_str = wx + "+" + wy + "-" + wxy2 + "-" + y + "-" + x + "+" + xy;
-
-  const vector<string> ex_policy = {"*", "E", compare_str};
-  const string ex_policy_str = compare_str + "*" + "E";
-  const string final_str = ex_policy_str + "!";
-
-  auto value = vlm[ex_policy_str];
-
-
-  value = mod(value, PRIME);
-
-  LOG4CXX_DEBUG( logger_,  id_ << ": Final2: " << ": " << value );
-
-
-  vertex.sig_recombine[final_str] = shared_ptr< boost::function<void ()> >(
-      new boost::function<void ()>
-  );
-
-  *(vertex.sig_recombine[final_str]) =
-      boost::bind(&CompPeer<Num>::recombine, this, final_str, l);
-
-
-  vertex.sig_compare[final_str] = shared_ptr< boost::function<void ()> >(
-      new boost::function<void ()>
-  );
-
-  *(vertex.sig_compare[final_str]) =
-      boost::bind(&CompPeer<Num>::compare5, this, key1, key2, l);
-
-
-  for(size_t i = 0; i < COMP_PEER_NUM; i++) {
-    vertex.clients_[id_][i]->publish(final_str + "_" + lexical_cast<string>(id_), value, l);
-  }
-
-}
-
-
-
-template<const size_t Num>
-void CompPeer<Num>::compare5(string key1, string key2, vertex_t l) {
-
-  Vertex& vertex = bgp_->graph_[l];
-  value_map_t& vlm = vertex.value_map_;
-
-
-  const string w = ".2" + key1;
-  const string x = ".2" + key2;
-  const string y = ".2" + key1 + "-" + key2;
-  const string xy = y + "*" + x;
-  const string wx = x + "*" + w;
-  const string wy = y + "*" + w;
-  const string wxy2 = xy + "*" + "2" + "*" + w;
-
-  const std::vector<string> compare = {"+", xy, "-", x, "-", y, "-", wxy2, "+", wy, wx};
-  const string compare_str = wx + "+" + wy + "-" + wxy2 + "-" + y + "-" + x + "+" + xy;
-
-  const vector<string> ex_policy = {"*", "E", compare_str};
-  const string ex_policy_str = compare_str + "*" + "E";
-  const string final_str = ex_policy_str + "!";
-
-
-  double X[Num], Y[Num], D[Num];
-
-
-  for(size_t i = 0; i < Num; i++) {
-    std::string key = final_str + "_"  + boost::lexical_cast<std::string>(i + 1);
-    const auto value = vlm[key];
-    X[i] = i + 1;
-    Y[i] = value;
-
-    LOG4CXX_DEBUG( logger_, "intermediary_: " << key << ": " << value);
-  }
-
-  gsl_poly_dd_init( D, X, Y, 3 );
-  const double interpol = gsl_poly_dd_eval( D, X, 3, 0);
-
-  const double end = mod(interpol, PRIME);
-  LOG4CXX_DEBUG( logger_, "Result: " << ": " << end);
-
-
-  vertex.sig_bgp_cnt[final_str]->operator ()(( end ));
-}
-
-
-
-
-template<const size_t Num>
 void CompPeer<Num>::multiply_const(
     string first,
     int64_t second,
@@ -498,6 +199,24 @@ void CompPeer<Num>::multiply_const(
 
 }
 
+
+template<const size_t Num>
+void CompPeer<Num>::multiply_eq(
+    string first,
+    string recombination_key, vertex_t l) {
+
+  LOG4CXX_TRACE( logger_, "CompPeer<Num>::multiply");
+
+  Vertex& vertex = bgp_->graph_[l];
+  value_map_t& vlm = vertex.value_map_;
+
+  vlm.at(first);
+
+  const string key = recombination_key + "_" + lexical_cast<string>(id_);
+  const int64_t result = mod(vlm[first] * vlm[first], PRIME_EQ);
+
+  distribute_secret(key, result, l, vertex.clients_[id_]);
+}
 
 
 template<const size_t Num>
@@ -557,8 +276,7 @@ void CompPeer<Num>::recombine(string recombination_key, vertex_t l) {
 
   gsl_vector_free(ds);
 
-
-  vertex.sig_compare[recombination_key]->operator ()();
+  vertex.sig_bgp_cnt[recombination_key]->operator ()(recombine);
 }
 
 
@@ -576,6 +294,89 @@ void CompPeer<Num>::continue_or_not(
     execute(circut, l);
   }
 
+}
+
+
+
+template<const size_t Num>
+void CompPeer<Num>::compare0(string key1, string key2, vertex_t l) {
+
+  Vertex& vertex = bgp_->graph_[l];
+  value_map_t& vlm = vertex.value_map_;
+
+  string w = key1;
+  string x = key2;
+  string y = key1 + "==" + key2;
+
+  LOG4CXX_DEBUG( logger_, id_ << " (" << l <<  ") " << ": w: " << vlm[w]);
+  LOG4CXX_DEBUG( logger_, id_ << " (" << l <<  ") " << ": x: " << vlm[x]);
+
+  vector<string> circut = {"==", w, x};
+  string circut_str = x + "==" + w;
+
+  vertex.sig_compare[circut_str] = shared_ptr< boost::function<void ()> >(
+      new boost::function<void ()>
+  );
+
+  *(vertex.sig_compare[circut_str]) =
+      boost::bind(&CompPeer<Num>::compare5, this, key1, key2, l);
+
+
+  vertex.sig_recombine[circut_str] = shared_ptr< boost::function<void ()> >(
+      new boost::function<void ()>
+  );
+
+  *(vertex.sig_recombine[circut_str]) =
+      boost::bind(&CompPeer<Num>::recombine, this, circut_str, l);
+
+  execute(circut, l);
+}
+
+
+
+template<const size_t Num>
+void CompPeer<Num>::compare5(string key1, string key2, vertex_t l) {
+
+  Vertex& vertex = bgp_->graph_[l];
+  value_map_t& vlm = vertex.value_map_;
+
+
+  const string w = ".2" + key1;
+  const string x = ".2" + key2;
+  const string y = ".2" + key1 + "-" + key2;
+  const string xy = y + "*" + x;
+  const string wx = x + "*" + w;
+  const string wy = y + "*" + w;
+  const string wxy2 = xy + "*" + "2" + "*" + w;
+
+  const std::vector<string> compare = {"+", xy, "-", x, "-", y, "-", wxy2, "+", wy, wx};
+  const string compare_str = wx + "+" + wy + "-" + wxy2 + "-" + y + "-" + x + "+" + xy;
+
+  const vector<string> ex_policy = {"*", "E", compare_str};
+  const string ex_policy_str = compare_str + "*" + "E";
+  const string final_str = ex_policy_str + "!";
+
+
+  double X[Num], Y[Num], D[Num];
+
+
+  for(size_t i = 0; i < Num; i++) {
+    std::string key = final_str + "_"  + boost::lexical_cast<std::string>(i + 1);
+    const auto value = vlm[key];
+    X[i] = i + 1;
+    Y[i] = value;
+
+    LOG4CXX_DEBUG( logger_, "intermediary_: " << key << ": " << value);
+  }
+
+  gsl_poly_dd_init( D, X, Y, 3 );
+  const double interpol = gsl_poly_dd_eval( D, X, 3, 0);
+
+  const double end = mod(interpol, PRIME);
+  LOG4CXX_DEBUG( logger_, "Result: " << ": " << end);
+
+
+  vertex.sig_bgp_cnt[final_str]->operator ()(( end ));
 }
 
 
