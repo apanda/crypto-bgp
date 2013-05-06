@@ -156,7 +156,7 @@ def dot():
   print '}'
 
 
-def parse(filename = 'map.20120101_nonStub'):
+def parse(filename = 'simple_bigger_map'):
   with open(filename) as f:
     lines = f.readlines()
   

@@ -93,12 +93,9 @@ void BGPProcess::next_iteration_start(
     batch.push_back(vertex);
   }
 
-  continuation_ = boost::bind(
-        &BGPProcess::next_iteration_continue,
-        this, dst_vertex, batch_ptr, affected_set_ptr,
-        changed_set_ptr, new_changed_set_ptr);
-
-  continuation_();
+  next_iteration_continue(
+    dst_vertex, batch_ptr, affected_set_ptr,
+    changed_set_ptr, new_changed_set_ptr);
 }
 
 
@@ -110,37 +107,18 @@ void BGPProcess::next_iteration_continue(
     shared_ptr< tbb::concurrent_unordered_set<vertex_t> > changed_set_ptr,
     shared_ptr< tbb::concurrent_unordered_set<vertex_t> > new_changed_set_ptr) {
 
+  continuation_ = boost::bind(
+        &BGPProcess::next_iteration_finish,
+        this, dst_vertex, new_changed_set_ptr);
+
   vector<vertex_t>& batch = *batch_ptr;
 
   shared_ptr< pair<size_t, size_t> > counts_ptr(new pair<size_t, size_t>);
-  size_t& count = counts_ptr->first;
-  count = 0;
 
-  vector<vertex_t> current_batch;
+  counts_ptr->first = 0;
+  counts_ptr->second = batch.size() + 1;
 
-  for(;;) {
-    if (batch.empty()) break;
-    if (current_batch.size() == TASK_COUNT) break;
-
-    const vertex_t vertex = batch.back();
-    batch.pop_back();
-
-    if (vertex < VERTEX_START) continue;
-    if (vertex > VERTEX_END) continue;
-
-    if (vertex == dst_vertex) continue;
-    current_batch.push_back(vertex);
-  }
-
-  if (current_batch.empty()) {
-    next_iteration_finish(dst_vertex, new_changed_set_ptr);
-    return;
-  }
-
-  counts_ptr->second = current_batch.size() + 1;
-
-
-  for(auto& vertex: current_batch) {
+  for(auto& vertex: batch) {
     io_service_.post(
       boost::bind(
           &BGPProcess::process_neighbors_mpc,
@@ -165,10 +143,10 @@ void BGPProcess::next_iteration_finish(
   for(const vertex_t vertex: new_changed_set) {
     nodes.push_back(vertex);
   }
+
   new_changed_set.clear();
 
   master_->sync(nodes);
-
   master_->barrier_->wait();
 
   for(size_t i = 0; i < master_->size_; i++) {
@@ -191,6 +169,7 @@ void BGPProcess::next_iteration_finish(
 
   next_iteration_start(dst_vertex, new_affected_set_ptr, new_changed_set_ptr);
 }
+
 
 
 const string BGPProcess::get_recombination(vector<string>& circut) {
@@ -226,7 +205,7 @@ void BGPProcess::process_neighbors_mpc(
   for(auto& neigh: intersection) {
     Vertex& offered = graph_[affected_vertex];
     const auto export_pair = std::make_pair(affected_vertex, affected.next_hop_);
-    const auto pref = affected.preference_[neigh] * offered.export_[export_pair];
+    const auto pref = affected.preference_[neigh];
     const auto pref_pair = std::make_pair(neigh, pref);
     prefs.push_back(pref_pair);
   }
@@ -237,6 +216,7 @@ void BGPProcess::process_neighbors_mpc(
   );
 
 
+  vlm.clear();
   vlm["result"] = 0;
   vlm["acc0"] = 1;
   vlm["eql0"] = 1;
@@ -254,28 +234,20 @@ void BGPProcess::for0(
     shared_ptr< deque<pref_pair_t> > prefs_ptr) {
 
   deque<pref_pair_t>& prefs = *prefs_ptr;
+
+  if (prefs.empty()) {
+    for_distribute(affected_vertex, new_changed_set_ptr, counts_ptr, prefs_ptr);
+    return;
+  }
+
+  size_t& count = counts_ptr->first;
+  count++;
+
   const auto pref = prefs.front();
   prefs.pop_front();
 
-  size_t& count = counts_ptr->first;
-  size_t& batch_count = counts_ptr->second;
-
-  count++;
-
-  if (prefs.empty()) {
-
-    m_.lock();
-
-    if (batch_count == count) {
-      m_.unlock();
-
-      continuation_();
-      return;
-    }
-
-    m_.unlock();
-    return;
-  }
+  LOG4CXX_INFO(comp_peer_->logger_,
+      "Preference: " << pref.first << " | " << pref.second);
 
   Vertex& affected = graph_[affected_vertex];
   auto& vlm = affected.value_map_;
@@ -283,10 +255,11 @@ void BGPProcess::for0(
   const string key = lexical_cast<string>(count);
   const string prev_key = lexical_cast<string>(count - 1);
 
+  string val_key = "val" + key;
   string eql_key = "eql" + key;
 
   vector<string> circut;
-  circut = {"==", "0", eql_key};
+  circut = {"==", "0", val_key};
   string for0_key = get_recombination(circut);
 
   string final_key = get_recombination(circut);
@@ -301,6 +274,7 @@ void BGPProcess::for0(
               counts_ptr,
               prefs_ptr);
 
+  vlm[val_key] = pref.first;
   vlm[eql_key] = 1;
   comp_peer_->execute(circut, affected_vertex);
 }
@@ -315,7 +289,6 @@ void BGPProcess::for1(
     shared_ptr< deque<pref_pair_t> > prefs_ptr) {
 
   size_t& count = counts_ptr->first;
-  size_t& batch_count = counts_ptr->second;
 
   Vertex& affected = graph_[affected_vertex];
   auto& vlm = affected.value_map_;
@@ -323,29 +296,33 @@ void BGPProcess::for1(
   const string key = lexical_cast<string>(count);
   const string prev_key = lexical_cast<string>(count - 1);
 
+  string val_key = "val" + key;
   string eql_key = "eql" + key;
   string neq_key = "neq" + key;
 
   vector<string> circut;
-  circut = {"==", "0", eql_key};
+  circut = {"==", "0", val_key};
   string for0_key = get_recombination(circut);
 
   string pre_eql_key = "eql" + prev_key;
   string pre_acc_key = "acc" + prev_key;
   circut = {"*", pre_eql_key, pre_acc_key};
-  string for1_key = get_recombination(circut);
 
-  string final_key = get_recombination(circut);
+  string for1_key = get_recombination(circut);
+  string final_key = for1_key;
 
   affected.sig_bgp_next[final_key] =
       shared_ptr<boost::function<void()> >(new boost::function<void()>);
 
   *(affected.sig_bgp_next[final_key]) = boost::bind(
-              &BGPProcess::for1, this,
+              &BGPProcess::for2, this,
               affected_vertex,
               new_changed_set_ptr,
               counts_ptr,
               prefs_ptr);
+
+
+  LOG4CXX_INFO(comp_peer_->logger_, "for0 " << vlm[for0_key]);
 
   vlm[eql_key] = vlm[for0_key];
   vlm[neq_key] = 1 - vlm[for0_key];
@@ -361,7 +338,6 @@ void BGPProcess::for2(
     shared_ptr< deque<pref_pair_t> > prefs_ptr) {
 
   size_t& count = counts_ptr->first;
-  size_t& batch_count = counts_ptr->second;
 
   Vertex& affected = graph_[affected_vertex];
   auto& vlm = affected.value_map_;
@@ -384,19 +360,19 @@ void BGPProcess::for2(
   string acc_key = "acc" + key;
   circut = {"*", neq_key, acc_key};
   string for2_key = get_recombination(circut);
-
-  string final_key = get_recombination(circut);
+  string final_key = for2_key;
 
   affected.sig_bgp_next[final_key] =
       shared_ptr<boost::function<void()> >(new boost::function<void()>);
 
   *(affected.sig_bgp_next[final_key]) = boost::bind(
-              &BGPProcess::for1, this,
+              &BGPProcess::for3, this,
               affected_vertex,
               new_changed_set_ptr,
               counts_ptr,
               prefs_ptr);
 
+  LOG4CXX_INFO(comp_peer_->logger_, "for1 " << vlm[for1_key]);
   vlm[acc_key] = vlm[for1_key];
   comp_peer_->execute(circut, affected_vertex);
 
@@ -411,7 +387,6 @@ void BGPProcess::for3(
 
 
   size_t& count = counts_ptr->first;
-  size_t& batch_count = counts_ptr->second;
 
   Vertex& affected = graph_[affected_vertex];
   auto& vlm = affected.value_map_;
@@ -445,25 +420,25 @@ void BGPProcess::for3(
       shared_ptr<boost::function<void()> >(new boost::function<void()>);
 
   *(affected.sig_bgp_next[final_key]) = boost::bind(
-              &BGPProcess::for1, this,
+              &BGPProcess::for_add, this,
               affected_vertex,
               new_changed_set_ptr,
               counts_ptr,
               prefs_ptr);
 
+  LOG4CXX_INFO(comp_peer_->logger_, "for2 " << vlm[for2_key]);
   comp_peer_->execute(circut, affected_vertex);
 }
 
 
 
-void BGPProcess::for_final(
+void BGPProcess::for_add(
     const vertex_t affected_vertex,
     shared_ptr< tbb::concurrent_unordered_set<vertex_t> > new_changed_set_ptr,
     shared_ptr< pair<size_t, size_t> > counts_ptr,
     shared_ptr< deque<pref_pair_t> > prefs_ptr) {
 
   size_t& count = counts_ptr->first;
-  size_t& batch_count = counts_ptr->second;
 
   Vertex& affected = graph_[affected_vertex];
   auto& vlm = affected.value_map_;
@@ -493,8 +468,95 @@ void BGPProcess::for_final(
 
   string final_key = get_recombination(circut);
 
+  LOG4CXX_INFO(comp_peer_->logger_, "for3 " << vlm[for3_key]);
   vlm["result"] = vlm["result"] + vlm[final_key];
   for0(affected_vertex, new_changed_set_ptr, counts_ptr, prefs_ptr);
+}
+
+
+void BGPProcess::for_distribute(
+    const vertex_t affected_vertex,
+    shared_ptr< tbb::concurrent_unordered_set<vertex_t> > new_changed_set_ptr,
+    shared_ptr< pair<size_t, size_t> > counts_ptr,
+    shared_ptr< deque<pref_pair_t> > prefs_ptr) {
+
+  size_t& count = counts_ptr->first;
+
+  Vertex& affected = graph_[affected_vertex];
+  auto& vlm = affected.value_map_;
+
+  const string key = lexical_cast<string>(count);
+  const string prev_key = lexical_cast<string>(count - 1);
+
+  string eql_key = "eql" + key;
+  string neq_key = "neq" + key;
+
+  vector<string> circut;
+  circut = {"==", "0", eql_key};
+  string for0_key = get_recombination(circut);
+
+  string pre_eql_key = "eql" + prev_key;
+  string pre_acc_key = "acc" + prev_key;
+  circut = {"*", pre_eql_key, pre_acc_key};
+  string for1_key = get_recombination(circut);
+
+  string acc_key = "acc" + key;
+  circut = {"*", eql_key, acc_key};
+  string for2_key = get_recombination(circut);
+
+  string val_key = "val" + key;
+  circut = {"*", for2_key, val_key};
+  string for3_key = get_recombination(circut);
+
+  string final_key = get_recombination(circut);
+
+  string result_string = "result";
+  const auto value = vlm[result_string];
+
+
+  affected.sig_bgp_next[final_key] =
+      shared_ptr<boost::function<void()> >(new boost::function<void()>);
+
+  *(affected.sig_bgp_next[final_key]) = boost::bind(
+              &BGPProcess::for_final, this,
+              affected_vertex,
+              new_changed_set_ptr,
+              counts_ptr,
+              prefs_ptr);
+
+  comp_peer_->distribute(result_string, value, affected_vertex);
+
+}
+
+
+
+void BGPProcess::for_final(
+    const vertex_t affected_vertex,
+    shared_ptr< tbb::concurrent_unordered_set<vertex_t> > new_changed_set_ptr,
+    shared_ptr< pair<size_t, size_t> > counts_ptr,
+    shared_ptr< deque<pref_pair_t> > prefs_ptr) {
+
+  size_t& count = counts_ptr->first;
+
+  Vertex& affected = graph_[affected_vertex];
+  auto& vlm = affected.value_map_;
+
+  const string key = lexical_cast<string>(count);
+  const string prev_key = lexical_cast<string>(count - 1);
+
+  string result_string = "result";
+  const auto value = vlm[result_string];
+
+  LOG4CXX_INFO(comp_peer_->logger_, "result " << value);
+
+  if (value != affected.next_hop_) {
+    affected.next_hop_ = value;
+    auto& new_changed_set = *new_changed_set_ptr;
+    new_changed_set.insert(affected_vertex);
+  }
+
+  continuation_();
+
 }
 
 

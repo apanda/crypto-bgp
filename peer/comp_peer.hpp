@@ -50,10 +50,8 @@ public:
   void generate_random_bit(string key, vertex_t l);
   void generate_random_bitwise_num(string key, vertex_t l);
 
-  void compare(string key1, string key2, vertex_t key);
-
-  void compare0(string key1, string key2, vertex_t key);
-  void compare5(string key1, string key2, vertex_t key);
+  void distribute(string final_key, int64_t value, vertex_t key);
+  void interpolate(string final_key, vertex_t key);
 
   void publish(std::string key,  int64_t value, vertex_t vertex);
 
