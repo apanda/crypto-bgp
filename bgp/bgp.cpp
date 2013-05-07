@@ -136,7 +136,7 @@ void BGPProcess::next_iteration_finish(
     const vertex_t dst_vertex,
     shared_ptr< tbb::concurrent_unordered_set<vertex_t> > new_changed_set_ptr) {
 
-  LOG4CXX_INFO(comp_peer_->logger_, "BGPProcess::next_iteration_finish");
+
 
   tbb::concurrent_unordered_set<vertex_t>& new_changed_set = *new_changed_set_ptr;
 
@@ -146,14 +146,16 @@ void BGPProcess::next_iteration_finish(
     nodes.push_back(vertex);
   }
 
-  new_changed_set.clear();
+  LOG4CXX_INFO(comp_peer_->logger_, "BGPProcess::next_iteration_finish " << new_changed_set.size());
+
+  //new_changed_set.clear();
 
   master_->sync(nodes);
   master_->barrier_->wait();
 
-  for(size_t i = 0; i < master_->size_; i++) {
-    new_changed_set.insert(master_->array_[i]);
-  }
+  //for(size_t i = 0; i < master_->size_; i++) {
+  //  new_changed_set.insert(master_->array_[i]);
+  //}
 
   shared_ptr<  set<vertex_t> > new_affected_set_ptr(new set<vertex_t>);
   set<vertex_t>& new_affected_set = *new_affected_set_ptr;
