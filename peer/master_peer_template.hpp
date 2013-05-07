@@ -24,6 +24,7 @@ MasterPeer::MasterPeer(
       vertex_count_(0)
     {
 
+  LOG4CXX_INFO(logger_, "Graph size: " << num << " nodes.");
   master_server_ = shared_ptr<RPCServer>(new RPCServer(io, MASTER_PORT, this));
 }
 
