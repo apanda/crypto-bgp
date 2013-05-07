@@ -232,6 +232,8 @@ void BGPProcess::process_neighbors_mpc(
   vlm["neq0"] = 0;
 
   shared_ptr< size_t > local_counts_ptr(new size_t);
+  size_t& local_count = *local_counts_ptr;
+  local_count = 0;
 
   for0(affected_vertex, new_changed_set_ptr, counts_ptr, local_counts_ptr, prefs_ptr);
 }
