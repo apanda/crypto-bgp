@@ -78,42 +78,49 @@ public:
       const vertex_t affected_vertex,
       shared_ptr< tbb::concurrent_unordered_set<vertex_t> > new_changed_set_ptr,
       shared_ptr< pair<size_t, size_t> > counts_ptr,
+      shared_ptr< size_t > local_counts_ptr,
       shared_ptr< deque<pref_pair_t> > prefs_ptr);
 
   void for1(
       const vertex_t affected_vertex,
       shared_ptr< tbb::concurrent_unordered_set<vertex_t> > new_changed_set_ptr,
       shared_ptr< pair<size_t, size_t> > counts_ptr,
+      shared_ptr< size_t > local_counts_ptr,
       shared_ptr< deque<pref_pair_t> > prefs_ptr);
 
   void for2(
       const vertex_t affected_vertex,
       shared_ptr< tbb::concurrent_unordered_set<vertex_t> > new_changed_set_ptr,
       shared_ptr< pair<size_t, size_t> > counts_ptr,
+      shared_ptr< size_t > local_counts_ptr,
       shared_ptr< deque<pref_pair_t> > prefs_ptr);
 
   void for3(
       const vertex_t affected_vertex,
       shared_ptr< tbb::concurrent_unordered_set<vertex_t> > new_changed_set_ptr,
       shared_ptr< pair<size_t, size_t> > counts_ptr,
+      shared_ptr< size_t > local_counts_ptr,
       shared_ptr< deque<pref_pair_t> > prefs_ptr);
 
   void for_add(
       const vertex_t affected_vertex,
       shared_ptr< tbb::concurrent_unordered_set<vertex_t> > new_changed_set_ptr,
       shared_ptr< pair<size_t, size_t> > counts_ptr,
+      shared_ptr< size_t > local_counts_ptr,
       shared_ptr< deque<pref_pair_t> > prefs_ptr);
 
   void for_distribute(
       const vertex_t affected_vertex,
       shared_ptr< tbb::concurrent_unordered_set<vertex_t> > new_changed_set_ptr,
       shared_ptr< pair<size_t, size_t> > counts_ptr,
+      shared_ptr< size_t > local_counts_ptr,
       shared_ptr< deque<pref_pair_t> > prefs_ptr);
 
   void for_final(
       const vertex_t affected_vertex,
       shared_ptr< tbb::concurrent_unordered_set<vertex_t> > new_changed_set_ptr,
       shared_ptr< pair<size_t, size_t> > counts_ptr,
+      shared_ptr< size_t > local_counts_ptr,
       shared_ptr< deque<pref_pair_t> > prefs_ptr);
 
   void next_iteration_start(
