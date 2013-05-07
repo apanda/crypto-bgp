@@ -338,9 +338,6 @@ void BGPProcess::for1(
               local_counts_ptr,
               prefs_ptr);
 
-
-  LOG4CXX_INFO(comp_peer_->logger_, "for0 " << vlm[for0_key]);
-
   vlm[eql_key] = vlm[for0_key];
   vlm[neq_key] = 1 - vlm[for0_key];
   comp_peer_->execute(circut, affected_vertex);
@@ -390,6 +387,10 @@ void BGPProcess::for2(
               counts_ptr,
               local_counts_ptr,
               prefs_ptr);
+
+
+  LOG4CXX_INFO(comp_peer_->logger_,
+      "for1: " << affected_vertex << " | " << vlm[for1_key]);
 
   LOG4CXX_INFO(comp_peer_->logger_, "for1 " << vlm[for1_key]);
   vlm[acc_key] = vlm[for1_key];
@@ -447,7 +448,10 @@ void BGPProcess::for3(
               local_counts_ptr,
               prefs_ptr);
 
-  LOG4CXX_INFO(comp_peer_->logger_, "for2 " << vlm[for2_key]);
+
+  LOG4CXX_INFO(comp_peer_->logger_,
+      "for2: " << affected_vertex << " | " << vlm[for2_key]);
+
   comp_peer_->execute(circut, affected_vertex);
 }
 
@@ -491,7 +495,9 @@ void BGPProcess::for_add(
 
   string final_key = get_recombination(circut);
 
-  LOG4CXX_INFO(comp_peer_->logger_, "for3 " << vlm[for3_key]);
+  LOG4CXX_INFO(comp_peer_->logger_,
+      "for3: " << affected_vertex << " | " << vlm[for3_key]);
+
   vlm["result"] = vlm["result"] + vlm[final_key];
   for0(affected_vertex, new_changed_set_ptr, counts_ptr, local_counts_ptr, prefs_ptr);
 }
@@ -574,6 +580,8 @@ void BGPProcess::for_final(
   string result_string = "result";
   const auto value = vlm[result_string];
 
+  LOG4CXX_INFO(comp_peer_->logger_,
+      "result: " << affected_vertex << " | " << value);
 
   if (value != affected.next_hop_) {
     affected.next_hop_ = value;
@@ -583,8 +591,6 @@ void BGPProcess::for_final(
 
   m_.lock();
   count++;
-
-  LOG4CXX_INFO(comp_peer_->logger_, count << " | " << all_count << " result " << value);
 
   if (count == all_count) {
     m_.unlock();
