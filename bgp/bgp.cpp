@@ -173,7 +173,7 @@ void BGPProcess::next_iteration_finish(
 
 
 const string BGPProcess::get_recombination(vector<string>& circut) {
-  return circut[3] + circut[1] + circut[2];
+  return circut[2] + circut[0] + circut[1];
 }
 
 
@@ -216,7 +216,8 @@ void BGPProcess::process_neighbors_mpc(
   );
 
   for(auto& p: prefs) {
-    LOG4CXX_INFO(comp_peer_->logger_,   "State: " << p.first << " | " << p.second);
+    LOG4CXX_INFO(comp_peer_->logger_,
+        "State: " << affected_vertex << " | " << p.first << " | " << p.second);
   }
 
 
@@ -280,6 +281,9 @@ void BGPProcess::for0(
 
   vlm[val_key] = pref.first;
   vlm[eql_key] = 1;
+
+
+  LOG4CXX_INFO(comp_peer_->logger_, "Execute...");
   comp_peer_->execute(circut, affected_vertex);
 }
 
