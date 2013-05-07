@@ -216,8 +216,7 @@ void BGPProcess::process_neighbors_mpc(
   );
 
   for(auto& p: prefs) {
-    LOG4CXX_INFO(comp_peer_->logger_,
-        "State: " << p.first << " | " << p.second);
+    LOG4CXX_INFO(comp_peer_->logger_,   "State: " << p.first << " | " << p.second);
   }
 
 
