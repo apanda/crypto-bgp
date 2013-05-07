@@ -115,7 +115,7 @@ void BGPProcess::next_iteration_continue(
 
   shared_ptr< pair<size_t, size_t> > counts_ptr(new pair<size_t, size_t>);
   counts_ptr->first = 0;
-  counts_ptr->second = batch.size() + 1;
+  counts_ptr->second = batch.size();
 
   for(auto& vertex: batch) {
 
