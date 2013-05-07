@@ -288,7 +288,7 @@ void BGPProcess::for0(
               local_counts_ptr,
               prefs_ptr);
 
-  vlm[val_key] = pref.first;
+  vlm[val_key] = pref.second;
   vlm[eql_key] = 1;
 
   comp_peer_->execute(circut, affected_vertex);
