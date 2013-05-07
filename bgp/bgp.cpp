@@ -587,9 +587,13 @@ void BGPProcess::for_final(
     new_changed_set.insert(affected_vertex);
   }
 
+  m_.lock();
+  count++;
   if (count == all_count) {
+    m_.unlock();
     continuation_();
   }
+  m_.unlock();
 
 }
 
