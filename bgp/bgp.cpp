@@ -113,12 +113,12 @@ void BGPProcess::next_iteration_continue(
 
   vector<vertex_t>& batch = *batch_ptr;
 
-  shared_ptr< pair<size_t, size_t> > counts_ptr(new pair<size_t, size_t>);
-
-  counts_ptr->first = 0;
-  counts_ptr->second = batch.size() + 1;
-
   for(auto& vertex: batch) {
+
+    shared_ptr< pair<size_t, size_t> > counts_ptr(new pair<size_t, size_t>);
+    counts_ptr->first = 0;
+    counts_ptr->second = batch.size() + 1;
+
     io_service_.post(
       boost::bind(
           &BGPProcess::process_neighbors_mpc,
@@ -282,8 +282,6 @@ void BGPProcess::for0(
   vlm[val_key] = pref.first;
   vlm[eql_key] = 1;
 
-
-  LOG4CXX_INFO(comp_peer_->logger_, "Execute...");
   comp_peer_->execute(circut, affected_vertex);
 }
 
