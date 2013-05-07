@@ -151,7 +151,7 @@ void BGPProcess::next_iteration_finish(
 
   //new_changed_set.clear();
 
-  master_->sync(nodes);
+  //master_->sync(nodes);
   master_->barrier_->wait();
 
   //for(size_t i = 0; i < master_->size_; i++) {
