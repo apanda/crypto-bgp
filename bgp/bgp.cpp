@@ -196,7 +196,7 @@ void BGPProcess::process_neighbors_mpc(
   auto ch = vector<vertex_t>( changed_set.begin() , changed_set.end() );
   std::sort(ch.begin(), ch.end());
 
-  shared_ptr< std::deque<pref_pair_t> > prefs_ptr;
+  shared_ptr< deque<pref_pair_t> > prefs_ptr(new deque<pref_pair_t>);
   std::deque<pref_pair_t>& prefs = *prefs_ptr;
 
   std::set_intersection( neighs.begin(), neighs.end(), ch.begin(), ch.end(),
