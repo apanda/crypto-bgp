@@ -579,7 +579,6 @@ void BGPProcess::for_final(
   string result_string = "result";
   const auto value = vlm[result_string];
 
-  LOG4CXX_INFO(comp_peer_->logger_, "result " << value);
 
   if (value != affected.next_hop_) {
     affected.next_hop_ = value;
@@ -589,6 +588,9 @@ void BGPProcess::for_final(
 
   m_.lock();
   count++;
+
+  LOG4CXX_INFO(comp_peer_->logger_, count << " | " << all_count << " result " << value);
+
   if (count == all_count) {
     m_.unlock();
     continuation_();
