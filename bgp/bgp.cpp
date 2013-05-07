@@ -269,6 +269,9 @@ void BGPProcess::for0(
 
   string final_key = get_recombination(circut);
 
+  LOG4CXX_INFO(comp_peer_->logger_,
+      "Final key: " << final_key);
+
   affected.sig_bgp_next[final_key] =
       shared_ptr<boost::function<void()> >(new boost::function<void()>);
 

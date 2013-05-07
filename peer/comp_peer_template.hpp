@@ -68,6 +68,7 @@ void CompPeer<Num>::publish(std::string key, int64_t value, vertex_t v) {
   if (counter == 3) {
     counter = 0;
     vertex.mutex_->unlock();
+    LOG4CXX_TRACE(logger_, "Recombine...");
     vertex.sig_recombine[rkey]->operator()();
   } else if(counter > 3) {
     throw std::runtime_error("Should never throw!");
@@ -215,6 +216,14 @@ void CompPeer<Num>::multiply_eq(
   const string key = recombination_key + "_" + lexical_cast<string>(id_);
   const int64_t result = mod(vlm[first] * vlm[first], PRIME_EQ);
 
+  vertex.sig_recombine[recombination_key] = shared_ptr< boost::function<void ()> >(
+      new boost::function<void ()>
+  );
+
+  *(vertex.sig_recombine[recombination_key]) =
+      boost::bind(&CompPeer<Num>::recombine, this, recombination_key, l);
+
+
   distribute_secret(key, result, l, vertex.clients_[id_]);
 }
 
@@ -225,8 +234,6 @@ void CompPeer<Num>::multiply(
     string second,
     string recombination_key, vertex_t l) {
 
-  LOG4CXX_TRACE( logger_, "CompPeer<Num>::multiply");
-
   Vertex& vertex = bgp_->graph_[l];
   value_map_t& vlm = vertex.value_map_;
 
@@ -235,6 +242,9 @@ void CompPeer<Num>::multiply(
 
   const string key = recombination_key + "_" + lexical_cast<string>(id_);
   const int64_t result = vlm[first] * vlm[second];
+
+  LOG4CXX_TRACE( logger_, "CompPeer<Num>::multiply " << recombination_key);
+
 
   vertex.sig_recombine[recombination_key] = shared_ptr< boost::function<void ()> >(
       new boost::function<void ()>
