@@ -151,7 +151,7 @@ void BGPProcess::next_iteration_finish(
 
   //new_changed_set.clear();
 
-  //master_->sync(nodes);
+  master_->sync(nodes);
   master_->barrier_->wait();
 
   //for(size_t i = 0; i < master_->size_; i++) {
@@ -556,7 +556,6 @@ void BGPProcess::for_distribute(
               prefs_ptr);
 
   comp_peer_->distribute(result_string, value, affected_vertex);
-
 }
 
 
@@ -577,7 +576,7 @@ void BGPProcess::for_final(
   const string key = lexical_cast<string>(count);
   const string prev_key = lexical_cast<string>(count - 1);
 
-  string result_string = "result";
+  string result_string = "end";
   const auto value = vlm[result_string];
 
   LOG4CXX_INFO(comp_peer_->logger_,

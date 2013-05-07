@@ -356,7 +356,7 @@ void CompPeer<Num>::interpolate(string final_key, vertex_t l) {
 
   const double end = mod(interpol, PRIME);
   LOG4CXX_DEBUG( logger_, "Result: " << ": " << end);
-  vlm[final_key] = end;
+  vlm["end"] = end;
 
   vertex.sig_bgp_next[final_key]->operator ()();
 }
