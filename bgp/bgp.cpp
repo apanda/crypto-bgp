@@ -568,7 +568,6 @@ void BGPProcess::for_final(
 
   size_t& count = counts_ptr->first;
   size_t& all_count = counts_ptr->second;
-  count++;
 
   Vertex& affected = graph_[affected_vertex];
   auto& vlm = affected.value_map_;
