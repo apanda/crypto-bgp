@@ -216,7 +216,7 @@ void BGPProcess::process_neighbors_mpc(
   }
 
   std::sort(prefs.begin(), prefs.end(),
-      boost::bind(&pref_pair_t::second, _1) >
+      boost::bind(&pref_pair_t::second, _1) <
       boost::bind(&pref_pair_t::second, _2)
   );
 
@@ -320,7 +320,7 @@ void BGPProcess::for1(
   string neq_key = "neq" + key;
 
   vector<string> circut;
-  circut = {"==", "0", val_key};
+  circut = {"==", "0", pol_key};
   string for0_key = get_recombination(circut);
 
   string pre_eql_key = "eql" + prev_key;
@@ -363,11 +363,12 @@ void BGPProcess::for2(
   const string key = lexical_cast<string>(local_count);
   const string prev_key = lexical_cast<string>(local_count - 1);
 
+  string pol_key = "pol" + key;
   string eql_key = "eql" + key;
   string neq_key = "neq" + key;
 
   vector<string> circut;
-  circut = {"==", "0", eql_key};
+  circut = {"==", "0", pol_key};
   string for0_key = get_recombination(circut);
 
   string pre_eql_key = "eql" + prev_key;
