@@ -265,11 +265,12 @@ void BGPProcess::for0(
   const string key = lexical_cast<string>(local_count);
   const string prev_key = lexical_cast<string>(local_count - 1);
 
+  string pol_key = "pol" + key;
   string val_key = "val" + key;
   string eql_key = "eql" + key;
 
   vector<string> circut;
-  circut = {"==", "0", val_key};
+  circut = {"==", "0", pol_key};
   string for0_key = get_recombination(circut);
 
   string final_key = get_recombination(circut);
@@ -288,7 +289,8 @@ void BGPProcess::for0(
               local_counts_ptr,
               prefs_ptr);
 
-  vlm[val_key] = pref.second;
+  vlm[val_key] = pref.first;
+  vlm[pol_key] = pref.second;
   vlm[eql_key] = 1;
 
   comp_peer_->execute(circut, affected_vertex);
@@ -312,6 +314,7 @@ void BGPProcess::for1(
   const string key = lexical_cast<string>(local_count);
   const string prev_key = lexical_cast<string>(local_count - 1);
 
+  string pol_key = "pol" + key;
   string val_key = "val" + key;
   string eql_key = "eql" + key;
   string neq_key = "neq" + key;
