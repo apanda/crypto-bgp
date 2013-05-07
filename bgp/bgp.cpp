@@ -136,6 +136,8 @@ void BGPProcess::next_iteration_finish(
     const vertex_t dst_vertex,
     shared_ptr< tbb::concurrent_unordered_set<vertex_t> > new_changed_set_ptr) {
 
+  LOG4CXX_INFO(comp_peer_->logger_, "BGPProcess::next_iteration_finish");
+
   tbb::concurrent_unordered_set<vertex_t>& new_changed_set = *new_changed_set_ptr;
 
   vector<vertex_t> nodes;
@@ -654,6 +656,7 @@ void BGPProcess::load_graph(string path, graph_t& graph) {
 
   for(vertex_t v = 0; v < GRAPH_SIZE; v++) {
     Vertex& vV = graph[v];
+    vV.next_hop_= 999999;
     vV.set_neighbors(graph);
     vV.set_preference();
   }
