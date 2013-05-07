@@ -90,6 +90,7 @@ void BGPProcess::next_iteration_start(
   vector<vertex_t>& batch = *batch_ptr;
 
   for(const auto vertex: affected_set) {
+    if (vertex == dst_vertex) continue;
     batch.push_back(vertex);
   }
 
