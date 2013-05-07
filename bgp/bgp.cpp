@@ -219,11 +219,6 @@ void BGPProcess::process_neighbors_mpc(
       boost::bind(&pref_pair_t::second, _2)
   );
 
-  for(auto& p: prefs) {
-    LOG4CXX_INFO(comp_peer_->logger_,
-        "State: " << affected_vertex << " | " << p.first << " | " << p.second);
-  }
-
 
   vlm.clear();
   vlm["result"] = 0;
@@ -261,7 +256,7 @@ void BGPProcess::for0(
   prefs.pop_front();
 
   LOG4CXX_INFO(comp_peer_->logger_,
-      "Preference: " << pref.first << " | " << pref.second);
+      "Preference: " << affected_vertex << " | " << pref.first << " | " << pref.second);
 
   Vertex& affected = graph_[affected_vertex];
   auto& vlm = affected.value_map_;
@@ -279,7 +274,7 @@ void BGPProcess::for0(
   string final_key = get_recombination(circut);
 
   LOG4CXX_INFO(comp_peer_->logger_,
-      "Final key: " << final_key);
+      "for0 key: " << final_key);
 
   affected.sig_bgp_next[final_key] =
       shared_ptr<boost::function<void()> >(new boost::function<void()>);
