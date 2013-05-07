@@ -523,10 +523,10 @@ void BGPProcess::for_distribute(
   const auto value = vlm[result_string];
 
 
-  affected.sig_bgp_next[final_key] =
+  affected.sig_bgp_next[result_string] =
       shared_ptr<boost::function<void()> >(new boost::function<void()>);
 
-  *(affected.sig_bgp_next[final_key]) = boost::bind(
+  *(affected.sig_bgp_next[result_string]) = boost::bind(
               &BGPProcess::for_final, this,
               affected_vertex,
               new_changed_set_ptr,
