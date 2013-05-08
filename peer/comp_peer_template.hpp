@@ -243,7 +243,7 @@ void CompPeer<Num>::multiply(
   const string key = recombination_key + "_" + lexical_cast<string>(id_);
   const int64_t result = vlm[first] * vlm[second];
 
-  LOG4CXX_INFO( logger_, "CompPeer<Num>::multiply " << l << " | " << result << " = " << vlm[first] << " * " << vlm[second]);
+  //LOG4CXX_INFO( logger_, "CompPeer<Num>::multiply " << l << " | " << result << " = " << vlm[first] << " * " << vlm[second]);
 
   //LOG4CXX_TRACE( logger_, "CompPeer<Num>::multiply " << recombination_key);
 
@@ -291,7 +291,7 @@ void CompPeer<Num>::recombine(string recombination_key, vertex_t l) {
 
   vlm[recombination_key] = recombine;
   debug_stream << ": " << recombine;
-  LOG4CXX_INFO(logger_, id_ << ": recombine: " << l << " " << debug_stream.str());
+  //LOG4CXX_INFO(logger_, id_ << ": recombine: " << l << " " << debug_stream.str());
 
   gsl_vector_free(ds);
 
