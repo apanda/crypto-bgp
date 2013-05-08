@@ -11,6 +11,7 @@ void Peer::distribute_secret(
 
   Secret<plaintext_t, COMP_PEER_NUM> secret(value);
   auto shares = secret.share();
+
   distribute_shares(key, shares, value, vertex, comp_peers);
 }
 
@@ -23,7 +24,7 @@ void Peer::distribute_shares(
 
   for(size_t i = 0; i < COMP_PEER_NUM; i++) {
     const auto share = values[i];
-    //LOG4CXX_TRACE( logger_, "Share (" << secret << ") " << i + 1 << ": " << share);
+    LOG4CXX_INFO( logger_, "Share (" << secret << ") " << i + 1 << ": " << share);
     comp_peers[i]->publish(key, share, vertex);
   }
 
