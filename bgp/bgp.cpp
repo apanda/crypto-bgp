@@ -221,7 +221,7 @@ void BGPProcess::process_neighbors_mpc(
   );
 
 
-  vlm.clear();
+
   vlm["result"] = 0;
   vlm["acc0"] = 1;
   vlm["eql0"] = 1;
