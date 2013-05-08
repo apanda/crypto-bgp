@@ -398,12 +398,17 @@ void BGPProcess::for2(
               local_counts_ptr,
               prefs_ptr);
 
+  vlm[acc_key] = vlm[for1_key];
+
+  LOG4CXX_INFO(comp_peer_->logger_,
+      "neq_key*acc_key: " << affected_vertex
+      << " | " << vlm[neq_key] << " * " << vlm[acc_key]
+                                                   );
 
   LOG4CXX_INFO(comp_peer_->logger_,
       "for1: " << affected_vertex << " | " << vlm[for1_key]);
 
   LOG4CXX_INFO(comp_peer_->logger_, "for1 " << vlm[for1_key]);
-  vlm[acc_key] = vlm[for1_key];
   comp_peer_->execute(circut, affected_vertex);
 }
 
