@@ -442,7 +442,7 @@ void BGPProcess::for3(
   string for1_key = get_recombination(circut);
 
   string acc_key = "acc" + key;
-  circut = {"*", eql_key, acc_key};
+  circut = {"*", neq_key, acc_key};
   string for2_key = get_recombination(circut);
 
   string val_key = "val" + key;
