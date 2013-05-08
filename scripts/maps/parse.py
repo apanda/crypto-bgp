@@ -18,7 +18,7 @@ class MyPriQueue(object):
 
 
 GRAPH_SIZE = 5976
-BUCKET_SIZE = 2
+BUCKET_SIZE = 1
 
 buckets = deque()
 q = MyPriQueue()
@@ -44,6 +44,8 @@ def main():
 def inspect():
   edges = parse()
 
+
+  #Figure of vertex degrees.
   nodeMapping = {}
   degrees = {}
   for (src, dst, rel) in edges:
@@ -55,7 +57,7 @@ def inspect():
     relation[ (src, dst) ] = relMap[rel]
 
 
-
+  # Sort vertex degrees.
   degreeRanking = []
   for (vertex, degree) in degrees.items():
     degreeRanking.append( (degree, vertex) )
@@ -64,6 +66,7 @@ def inspect():
 
   top = degreeRanking[0]
 
+  # Load balance sorted vertices into N number of buckets.
   counter = 0
   for (ranking, vertex) in degreeRanking:
 
@@ -91,12 +94,6 @@ def inspect():
     except: break
 
 
-  for bucket in buckets2:
-      t = 0
-      for vertex in bucket:
-        t = t + degrees[vertex]
-
-
   reverseMapping = {}
   bucketList = []
   for bucket in buckets2:
@@ -108,22 +105,17 @@ def inspect():
     if counter > (GRAPH_SIZE):
       break
 
-    reverseMapping[counter] = vertex
-    nodeMapping[vertex] = counter
+    #reverseMapping[counter] = vertex
+    reverseMapping[vertex] = vertex
+    #nodeMapping[vertex] = counter
+    nodeMapping[vertex] = vertex
     counter = counter + 1
 
-  '''
-  lines = parse('sorted')
-  for tokens in lines:
-    vertex = int( tokens[4][:-1] )
-    count = int( tokens[5] )
-    print reverseMapping[vertex], count
-  '''
 
   for i in range( GRAPH_SIZE ):
     nodeID = '[node_id=%d]' %(i)
     line = '%d %s;' %(i, nodeID)
-    #print line
+
 
   uniqueEdges = set()
   for (src, dst, rel) in edges:
@@ -156,7 +148,7 @@ def dot():
   print '}'
 
 
-def parse(filename = '100-graph'):
+def parse(filename = 'simple_bigger_map'):
   with open(filename) as f:
     lines = f.readlines()
   
