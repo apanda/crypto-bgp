@@ -242,7 +242,10 @@ void CompPeer<Num>::multiply(
 
   const string key = recombination_key + "_" + lexical_cast<string>(id_);
   const int64_t result = mod(vlm[first] * vlm[second], PRIME);
-  LOG4CXX_TRACE( logger_, "CompPeer<Num>::multiply " << recombination_key);
+
+  LOG4CXX_TRACE( logger_, "CompPeer<Num>::multiply " << result << " = " << vlm[first] << " * " << vlm[second]);
+
+  //LOG4CXX_TRACE( logger_, "CompPeer<Num>::multiply " << recombination_key);
 
 
   vertex.sig_recombine[recombination_key] = shared_ptr< boost::function<void ()> >(
@@ -276,7 +279,7 @@ void CompPeer<Num>::recombine(string recombination_key, vertex_t l) {
       //throw std::runtime_error(error);
     }
 
-    const int64_t& value = vlm[key];
+    const int64_t& value = mod(vlm[key], PRIME);
 
     gsl_vector_set(ds, i,  value);
     debug_stream <<  " " << value;
