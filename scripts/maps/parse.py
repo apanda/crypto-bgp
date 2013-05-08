@@ -156,7 +156,7 @@ def dot():
   print '}'
 
 
-def parse(filename = 'simple_bigger_map'):
+def parse(filename = '100-graph'):
   with open(filename) as f:
     lines = f.readlines()
   
