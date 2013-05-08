@@ -289,11 +289,10 @@ void CompPeer<Num>::recombine(string recombination_key, vertex_t l) {
 
   vlm[recombination_key] = recombine;
   debug_stream << ": " << recombine;
-  LOG4CXX_TRACE(logger_, id_ << ": recombine:" << debug_stream.str());
+  LOG4CXX_INFO(logger_, id_ << ": recombine: " << l << " | " << debug_stream.str());
 
   gsl_vector_free(ds);
 
-  vlm[recombination_key] = recombine;
   vertex.sig_bgp_next[recombination_key]->operator ()();
 }
 
