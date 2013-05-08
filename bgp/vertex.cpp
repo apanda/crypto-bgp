@@ -10,6 +10,23 @@ Vertex::Vertex() :
 }
 
 
+int Vertex::get_export(vertex_t to_vertex) {
+
+  BOOST_ASSERT_MSG(next_hop_ != Vertex::UNDEFINED, "Impossible state!");
+
+  auto from_rel = relationship_[next_hop_];
+  auto to_rel = relationship_[to_vertex];
+
+  if (from_rel == REL::CUSTOMER) {
+    return 1;
+  } else if (to_rel == REL::CUSTOMER) {
+    return 1;
+  } else {
+    return 0;
+  }
+
+}
+
 
 void Vertex::set_neighbors(graph_t& graph) {
 

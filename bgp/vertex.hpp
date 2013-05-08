@@ -25,6 +25,12 @@ class RPCServer;
 class Vertex {
 public:
 
+  enum REL {
+    CUSTOMER = 2,
+    PEER = 1,
+    PROVIDER = 0
+  };
+
   friend std::ostream& operator<<(std::ostream& os, const Vertex& vertex);
 
   Vertex();
@@ -33,6 +39,8 @@ public:
   void set_next_hop(graph_t& graph, vertex_t vertex);
   bool in_as_path(graph_t& graph, vertex_t vertex);
   int64_t current_next_hop_preference(graph_t& graph);
+
+  int get_export(vertex_t to_vertex);
 
   typedef boost::mutex mutex_t;
   typedef boost::lock_guard<mutex_t> lock_t;

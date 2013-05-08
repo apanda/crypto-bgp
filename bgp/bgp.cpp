@@ -54,6 +54,7 @@ void BGPProcess::start(graph_t& graph) {
 
   vertex_t dst_vertex = 0;
   Vertex& dst = graph[dst_vertex];
+  dst.next_hop_ = dst_vertex;
 
   shared_ptr< set<vertex_t> > affected_ptr(new set<vertex_t>);
   shared_ptr< tbb::concurrent_unordered_set<vertex_t> > changed_ptr(
@@ -262,6 +263,9 @@ void BGPProcess::for0(
   Vertex& affected = graph_[affected_vertex];
   auto& vlm = affected.value_map_;
 
+  const vertex_t offered_vertex = pref.first;
+  Vertex& offered = graph_[offered_vertex];
+
   const string key = lexical_cast<string>(local_count);
   const string prev_key = lexical_cast<string>(local_count - 1);
 
@@ -287,7 +291,7 @@ void BGPProcess::for0(
               prefs_ptr);
 
   vlm[val_key] = pref.first;
-  vlm[pol_key] = pref.second;
+  vlm[pol_key] = offered.get_export(affected_vertex);
   vlm[eql_key] = 1;
 
   comp_peer_->execute(circut, affected_vertex);
@@ -667,7 +671,6 @@ void BGPProcess::load_graph(string path, graph_t& graph) {
   }
 
   for(vertex_t v = 0; v < GRAPH_SIZE; v++) {
-
     size_t counter = 1;
     Vertex& vV = graph[v];
     vV.id_ = v;
@@ -677,7 +680,6 @@ void BGPProcess::load_graph(string path, graph_t& graph) {
       for(auto neigh: s) {
     	do {counter++;} while (counter % PRIME_EQ == 0);
         vV.preference_[neigh] = counter;
-
       }
     }
 
@@ -686,10 +688,20 @@ void BGPProcess::load_graph(string path, graph_t& graph) {
 
   for(vertex_t v = 0; v < GRAPH_SIZE; v++) {
     Vertex& vV = graph[v];
-    vV.next_hop_= 999999;
+    vV.next_hop_= Vertex::UNDEFINED;
     vV.set_neighbors(graph);
     vV.set_preference();
+    vV.relationship_[v] = Vertex::REL::CUSTOMER;
   }
+
+
+  for(vertex_t v = 0; v < GRAPH_SIZE; v++) {
+    size_t counter = 1;
+    Vertex& vV = graph[v];
+  }
+
+
+
 
 }
 
