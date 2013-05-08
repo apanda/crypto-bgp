@@ -221,7 +221,6 @@ void BGPProcess::process_neighbors_mpc(
   );
 
 
-  affected.couter_map_2.clear();
   vlm.clear();
   vlm["result"] = 0;
   vlm["acc0"] = 1;
@@ -586,6 +585,9 @@ void BGPProcess::for_final(
     auto& new_changed_set = *new_changed_set_ptr;
     new_changed_set.insert(affected_vertex);
   }
+
+
+  affected.couter_map_2.clear();
 
   m_.lock();
   count++;
