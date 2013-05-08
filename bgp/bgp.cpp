@@ -221,6 +221,7 @@ void BGPProcess::process_neighbors_mpc(
   );
 
 
+  affected.couter_map_2.clear();
   vlm.clear();
   vlm["result"] = 0;
   vlm["acc0"] = 1;
