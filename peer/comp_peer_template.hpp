@@ -293,6 +293,7 @@ void CompPeer<Num>::recombine(string recombination_key, vertex_t l) {
 
   gsl_vector_free(ds);
 
+  vlm[recombination_key] = recombine;
   vertex.sig_bgp_next[recombination_key]->operator ()();
 }
 
