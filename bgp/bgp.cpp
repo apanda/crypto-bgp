@@ -275,9 +275,6 @@ void BGPProcess::for0(
 
   string final_key = get_recombination(circut);
 
-  LOG4CXX_INFO(comp_peer_->logger_,
-      "for0 key: " << final_key);
-
   affected.sig_bgp_next[final_key] =
       shared_ptr<boost::function<void()> >(new boost::function<void()>);
 
@@ -327,6 +324,11 @@ void BGPProcess::for1(
   string pre_acc_key = "acc" + prev_key;
   circut = {"*", pre_eql_key, pre_acc_key};
 
+  LOG4CXX_INFO(comp_peer_->logger_,
+      "acc*eql: " << affected_vertex
+      << " | " << vlm[pre_eql_key] << " * " << vlm[pre_acc_key]
+                                                   );
+
   string for1_key = get_recombination(circut);
   string final_key = for1_key;
 
@@ -343,6 +345,10 @@ void BGPProcess::for1(
 
   vlm[eql_key] = vlm[for0_key];
   vlm[neq_key] = 1 - vlm[for0_key];
+
+  LOG4CXX_INFO(comp_peer_->logger_,
+      "for0: " << affected_vertex << " | " << vlm[for0_key]);
+
   comp_peer_->execute(circut, affected_vertex);
 
 }
