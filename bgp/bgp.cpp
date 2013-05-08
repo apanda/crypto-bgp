@@ -255,8 +255,8 @@ void BGPProcess::for0(
   const auto pref = prefs.front();
   prefs.pop_front();
 
-  LOG4CXX_INFO(comp_peer_->logger_,
-      "Preference: " << affected_vertex << " | " << pref.first << " | " << pref.second);
+  //LOG4CXX_INFO(comp_peer_->logger_,
+  //    "Preference: " << affected_vertex << " | " << pref.first << " | " << pref.second);
 
   Vertex& affected = graph_[affected_vertex];
   auto& vlm = affected.value_map_;
