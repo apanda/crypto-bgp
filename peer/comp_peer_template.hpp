@@ -243,7 +243,7 @@ void CompPeer<Num>::multiply(
   const string key = recombination_key + "_" + lexical_cast<string>(id_);
   const int64_t result = mod(vlm[first] * vlm[second], PRIME);
 
-  LOG4CXX_INFO( logger_, "CompPeer<Num>::multiply " << result << " = " << vlm[first] << " * " << vlm[second]);
+  LOG4CXX_INFO( logger_, "CompPeer<Num>::multiply " << l << " | " << result << " = " << vlm[first] << " * " << vlm[second]);
 
   //LOG4CXX_TRACE( logger_, "CompPeer<Num>::multiply " << recombination_key);
 
