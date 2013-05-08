@@ -343,8 +343,8 @@ void BGPProcess::for1(
               local_counts_ptr,
               prefs_ptr);
 
-  vlm[eql_key] = vlm[for0_key];
-  vlm[neq_key] = 1 - vlm[for0_key];
+  vlm[eql_key] = 1 - vlm[for0_key];
+  vlm[neq_key] = vlm[for0_key];
 
   LOG4CXX_INFO(comp_peer_->logger_,
       "for0: " << affected_vertex << " | " << vlm[for0_key]);
