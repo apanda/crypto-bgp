@@ -245,9 +245,6 @@ void CompPeer<Num>::multiply(
 
   LOG4CXX_INFO( logger_, "CompPeer<Num>::multiply " << l << " | " << result << " = " << vlm[first] << " * " << vlm[second]);
 
-  //LOG4CXX_TRACE( logger_, "CompPeer<Num>::multiply " << recombination_key);
-
-
   vertex.sig_recombine[recombination_key] = shared_ptr< boost::function<void ()> >(
       new boost::function<void ()>
   );
@@ -275,7 +272,7 @@ void CompPeer<Num>::recombine(string recombination_key, vertex_t l) {
     try {
       //vlm.at(key);
     } catch (...) {
-      LOG4CXX_FATAL(logger_, "CompPeer<Num>::recombine( " << key << " )");
+      //LOG4CXX_FATAL(logger_, "CompPeer<Num>::recombine( " << key << " )");
       //throw std::runtime_error(error);
     }
 
