@@ -52,7 +52,7 @@ void BGPProcess::init(graph_t& graph) {
 
 void BGPProcess::start(graph_t& graph) {
 
-  vertex_t dst_vertex = 0;
+  vertex_t dst_vertex = 2;
   Vertex& dst = graph[dst_vertex];
   dst.next_hop_ = dst_vertex;
 
