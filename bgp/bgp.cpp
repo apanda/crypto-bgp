@@ -221,6 +221,11 @@ void BGPProcess::process_neighbors_mpc(
       boost::bind(&pref_pair_t::second, _2)
   );
 
+  for(auto& p: prefs) {
+    LOG4CXX_INFO(comp_peer_->logger_,
+        "*** " << affected_vertex << " | " << p.first << " | " << p.second);
+  }
+
   vlm["result"] = 0;
   vlm["acc0"] = 1;
   vlm["eql0"] = 1;
