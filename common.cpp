@@ -8,7 +8,7 @@ size_t VERTEX_START = 0;
 size_t VERTEX_END = 0;
 
 size_t MAX_BATCH = 30;
-size_t GRAPH_SIZE = 100;
+size_t GRAPH_SIZE = 101;
 
 string MASTER_ADDRESS = "localhost";
 string WHOAMI = "";
