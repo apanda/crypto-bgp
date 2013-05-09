@@ -124,7 +124,7 @@ def inspect():
       dst = nodeMapping[dst]
     except: continue
     pair = [src, dst]
-    pair.sort()
+    #pair.sort()
     revSrc = reverseMapping[src]
     revDst = reverseMapping[dst]
     rel = relation[ (revSrc, revDst) ]
@@ -148,7 +148,7 @@ def dot():
   print '}'
 
 
-def parse(filename = 'simple_bigger_map'):
+def parse(filename = '100-graph'):
   with open(filename) as f:
     lines = f.readlines()
   
