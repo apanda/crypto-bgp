@@ -20,12 +20,13 @@ int Vertex::get_export(vertex_t to_vertex) {
   auto next_rel = relationship_[next_hop_];
   auto from_rel = relationship_[to_vertex];
 
-  if ((next_rel - from_rel) > 0) {
-    return 1;
+  if (next_rel == Vertex::REL::CUSTOMER || next_rel == Vertex::REL::PEER) {
+    if (next_rel == Vertex::REL::CUSTOMER || next_rel == Vertex::REL::PEER) {
+      return 0;
+    }
   }
 
-  return 0;
-
+  return 1;
 }
 
 
