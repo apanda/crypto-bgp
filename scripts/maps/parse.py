@@ -67,7 +67,7 @@ def inspect():
   top = degreeRanking[0]
 
   # Load balance sorted vertices into N number of buckets.
-  counter = 0
+  counter = 1
   for (ranking, vertex) in degreeRanking:
 
     if counter >= (GRAPH_SIZE):
@@ -99,16 +99,16 @@ def inspect():
   for bucket in buckets2:
     bucketList = bucketList + bucket
 
-  counter = 0
+  counter = 1
   for vertex in bucketList:
 
     if counter > (GRAPH_SIZE):
       break
 
-    #reverseMapping[counter] = vertex
-    reverseMapping[vertex] = vertex
-    #nodeMapping[vertex] = counter
-    nodeMapping[vertex] = vertex
+    reverseMapping[counter] = vertex
+    #reverseMapping[vertex] = vertex
+    nodeMapping[vertex] = counter
+    #nodeMapping[vertex] = vertex
     counter = counter + 1
 
 
