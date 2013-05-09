@@ -587,7 +587,7 @@ void BGPProcess::for_final(
 
   LOG4CXX_INFO(comp_peer_->logger_, "result: " << affected_vertex << " | " << value);
 
-  if (value != affected.next_hop_) {
+  if (value != affected.next_hop_ && value != 0) {
     affected.next_hop_ = value;
     auto& new_changed_set = *new_changed_set_ptr;
     new_changed_set.insert(affected_vertex);
