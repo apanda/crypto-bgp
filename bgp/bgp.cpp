@@ -180,7 +180,6 @@ void BGPProcess::process_neighbors_mpc(const vertex_t affected_vertex,
           intersection.begin()));
 
   for (auto& neigh : intersection) {
-    Vertex& offered = graph_[affected_vertex];
     const auto pref = affected.preference_[neigh];
     const auto pref_pair = std::make_pair(neigh, pref);
     prefs.push_back(pref_pair);
@@ -210,8 +209,9 @@ void BGPProcess::process_neighbors_mpc(const vertex_t affected_vertex,
   size_t& local_count = *local_counts_ptr;
   local_count = 0;
 
-  for0(affected_vertex, new_changed_set_ptr, counts_ptr, local_counts_ptr,
-      prefs_ptr);
+  for0(
+      affected_vertex, new_changed_set_ptr,
+      counts_ptr, local_counts_ptr, prefs_ptr);
 }
 
 void BGPProcess::for0(const vertex_t affected_vertex,
@@ -310,8 +310,7 @@ void BGPProcess::for1(const vertex_t affected_vertex,
   vlm[eql_key] = 1 - vlm[for0_key];
   vlm[neq_key] = vlm[for0_key];
 
-  LOG4CXX_INFO(comp_peer_->logger_,
-      "for0: " << affected_vertex << " | " << vlm[for0_key]);
+  //LOG4CXX_INFO(comp_peer_->logger_, "for0: " << affected_vertex << " | " << vlm[for0_key]);
 
   comp_peer_->execute(circut, affected_vertex);
 
@@ -358,8 +357,7 @@ void BGPProcess::for2(const vertex_t affected_vertex,
 
   vlm[acc_key] = vlm[for1_key];
 
-  LOG4CXX_INFO(comp_peer_->logger_,
-      "for1: " << affected_vertex << " | " << vlm[for1_key]);
+  //LOG4CXX_INFO(comp_peer_->logger_, "for1: " << affected_vertex << " | " << vlm[for1_key]);
 
   comp_peer_->execute(circut, affected_vertex);
 }
@@ -373,7 +371,7 @@ void BGPProcess::for3(const vertex_t affected_vertex,
   size_t& local_count = *local_counts_ptr;
 
   Vertex& affected = graph_[affected_vertex];
-  auto& vlm = affected.value_map_;
+  //auto& vlm = affected.value_map_;
 
   const string key = lexical_cast<string>(local_count);
   const string prev_key = lexical_cast<string>(local_count - 1);
@@ -407,8 +405,7 @@ void BGPProcess::for3(const vertex_t affected_vertex,
       affected_vertex, new_changed_set_ptr, counts_ptr, local_counts_ptr,
       prefs_ptr);
 
-  LOG4CXX_INFO(comp_peer_->logger_,
-      "for2: " << affected_vertex << " | " << vlm[for2_key]);
+  //LOG4CXX_INFO(comp_peer_->logger_, "for2: " << affected_vertex << " | " << vlm[for2_key]);
 
   comp_peer_->execute(circut, affected_vertex);
 }
@@ -449,8 +446,7 @@ void BGPProcess::for_add(const vertex_t affected_vertex,
 
   string final_key = get_recombination(circut);
 
-  LOG4CXX_INFO(comp_peer_->logger_,
-      "for3: " << affected_vertex << " | " << vlm[for3_key]);
+  //LOG4CXX_INFO(comp_peer_->logger_, "for3: " << affected_vertex << " | " << vlm[for3_key]);
 
   vlm["result"] = vlm["result"] + vlm[final_key];
   for0(affected_vertex, new_changed_set_ptr, counts_ptr, local_counts_ptr,
@@ -525,7 +521,7 @@ void BGPProcess::for_final(const vertex_t affected_vertex,
   const auto value = vlm[result_string];
 
   LOG4CXX_INFO(comp_peer_->logger_,
-      "result: " << affected_vertex << " | " << value);
+      "\tResult -> " << affected_vertex << " | " << value);
 
   if (value != affected.next_hop_ && value != 0) {
     affected.next_hop_ = value;
@@ -625,11 +621,6 @@ void BGPProcess::load_graph(string path, graph_t& graph) {
     vV.set_neighbors(graph);
     vV.set_preference();
     vV.relationship_[v] = Vertex::REL::CUSTOMER;
-  }
-
-  for (vertex_t v = 0; v < GRAPH_SIZE; v++) {
-    size_t counter = 1;
-    Vertex& vV = graph[v];
   }
 
 }
