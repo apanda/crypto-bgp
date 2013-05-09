@@ -20,8 +20,8 @@ int Vertex::get_export(vertex_t to_vertex) {
   auto next_rel = relationship_[next_hop_];
   auto from_rel = relationship_[to_vertex];
 
-  if (next_rel == Vertex::REL::CUSTOMER || next_rel == Vertex::REL::PEER) {
-    if (from_rel == Vertex::REL::CUSTOMER || from_rel == Vertex::REL::PEER) {
+  if (next_rel == Vertex::REL::PROVIDER || next_rel == Vertex::REL::PEER) {
+    if (from_rel == Vertex::REL::PROVIDER || from_rel == Vertex::REL::PEER) {
       return 0;
     }
   }
