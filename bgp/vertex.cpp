@@ -14,16 +14,14 @@ int Vertex::get_export(vertex_t to_vertex) {
 
   BOOST_ASSERT_MSG(next_hop_ != Vertex::UNDEFINED, "Impossible state!");
 
-  auto from_rel = relationship_[next_hop_];
-  auto to_rel = relationship_[to_vertex];
+  auto next_rel = relationship_[next_hop_];
+  auto from_rel = relationship_[to_vertex];
 
-  if (from_rel == REL::CUSTOMER) {
+  if ((next_rel - from_rel) > 0) {
     return 1;
-  } else if (to_rel == REL::CUSTOMER) {
-    return 1;
-  } else {
-    return 0;
   }
+
+  return 0;
 
 }
 
