@@ -222,7 +222,7 @@ void BGPProcess::process_neighbors_mpc(
   }
 
   std::sort(prefs.begin(), prefs.end(),
-      boost::bind(&pref_pair_t::second, _1) >
+      boost::bind(&pref_pair_t::second, _1) <
       boost::bind(&pref_pair_t::second, _2)
   );
 
