@@ -210,9 +210,14 @@ void BGPProcess::process_neighbors_mpc(
 
   for(auto& neigh: intersection) {
     Vertex& offered = graph_[affected_vertex];
-    const auto export_pair = std::make_pair(affected_vertex, affected.next_hop_);
     const auto pref = affected.preference_[neigh];
     const auto pref_pair = std::make_pair(neigh, pref);
+    prefs.push_back(pref_pair);
+  }
+
+  if(affected.next_hop_ != Vertex::UNDEFINED) {
+    const auto pref = affected.preference_[affected.next_hop_];
+    const auto pref_pair = std::make_pair(affected.next_hop_, pref);
     prefs.push_back(pref_pair);
   }
 
