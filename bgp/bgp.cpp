@@ -668,7 +668,7 @@ void BGPProcess::load_graph(string path, graph_t& graph) {
 
     Vertex& dstV = graph[dst];
     dstV.preference_setup_[dstRel].insert(src);
-    srcV.relationship_[src] = dstRel;
+    dstV.relationship_[src] = dstRel;
 
     boost::add_edge(src, dst, graph);
   }
