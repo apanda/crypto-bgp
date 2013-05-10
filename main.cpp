@@ -34,12 +34,10 @@ void run_master() {
   array<shared_ptr<comp_peer_t>, COMP_PEER_NUM> comp_peer_seq;
   shared_ptr<InputPeer> input_peer(new InputPeer(io));
 
-  //graph_t graph(GRAPH_SIZE);
   graph_t graph(GRAPH_SIZE);
   BGPProcess::load_graph("scripts/dot.dot", graph);
 
   MasterPeer mp(GRAPH_SIZE, io);
-  //MasterPeer mp(GRAPH_SIZE, io);
 
   boost::thread_group worker_threads;
   for (size_t i = 0; i < THREAD_COUNT - 1; i++) {
@@ -225,6 +223,8 @@ int main(int argc, char *argv[]) {
     run_master();
     return 0;
   }
+
+  GRAPH_SIZE = BGPProcess::get_graph_size("scripts/dot.dot") + 1;
 
   try {
     run_mpc();

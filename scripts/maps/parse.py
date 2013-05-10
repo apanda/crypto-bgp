@@ -148,6 +148,7 @@ def dot():
   print '}'
 
 
+#def parse(filename = 'edited_graph_cyclops.txt'):
 def parse(filename = '100-graph'):
   with open(filename) as f:
     lines = f.readlines()

@@ -625,14 +625,38 @@ void BGPProcess::load_graph(string path, graph_t& graph) {
 
 }
 
-void BGPProcess::load_graph2(string path, graph_t& graph) {
 
-  std::ifstream file(path);
+size_t BGPProcess::get_graph_size(string path) {
+
   dynamic_properties dp;
+  std::ifstream file(path);
+  string s;
 
-  dp.property("node_id", get(&Vertex::id_, graph));
+  set<vertex_t> vertex_set;
 
-  read_graphviz(file, graph, dp, "node_id");
+  while (true) {
+    if (file.eof())
+      break;
+    getline(file, s);
+
+    vector<string> tokens;
+    boost::split(tokens, s, boost::is_any_of(" -;"));
+
+    for (string token : tokens) {
+      boost::algorithm::trim(token);
+    }
+
+    if (tokens.size() != 3)
+      continue;
+
+    vertex_t src = lexical_cast<size_t>(tokens[0]);
+    vertex_t dst = lexical_cast<size_t>(tokens[1]);
+    vertex_set.insert(src);
+    vertex_set.insert(dst);
+
+  }
+
+  return vertex_set.size();
 }
 
 void BGPProcess::print_state(graph_t& graph) {

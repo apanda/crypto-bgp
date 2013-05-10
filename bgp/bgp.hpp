@@ -36,7 +36,7 @@ public:
       io_service& io);
 
   static void load_graph(std::string path, graph_t& graph);
-  static void load_graph2(std::string path, graph_t& graph);
+  static size_t get_graph_size(std::string path);
   void init(graph_t& graph);
 
   void start(graph_t& graph);
