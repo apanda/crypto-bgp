@@ -194,7 +194,7 @@ void InputPeer::start_clients(
     if (current_vertex > VERTEX_END) continue;
 
     for(size_t i = 0; i < COMP_PEER_NUM; i++) {
-      size_t port = 2000 + COMP_PEER_NUM*current_vertex + i;
+      size_t port = START_PORT + COMP_PEER_NUM*current_vertex + i;
 
       for(size_t ID = 1; ID <= COMP_PEER_NUM; ID++) {
 
