@@ -60,6 +60,8 @@ void BGPProcess::start(graph_t& graph) {
   next_iteration_start(dst_vertex, affected_ptr, changed_ptr);
 }
 
+
+
 void BGPProcess::next_iteration_start(const vertex_t dst_vertex,
     shared_ptr<set<vertex_t> > affected_set_ptr,
     shared_ptr<tbb::concurrent_unordered_set<vertex_t> > changed_set_ptr) {
@@ -86,6 +88,8 @@ void BGPProcess::next_iteration_start(const vertex_t dst_vertex,
       changed_set_ptr, new_changed_set_ptr);
 }
 
+
+
 void BGPProcess::next_iteration_continue(const vertex_t dst_vertex,
     shared_ptr<vector<vertex_t> > batch_ptr,
     shared_ptr<set<vertex_t> > affected_set_ptr,
@@ -109,6 +113,8 @@ void BGPProcess::next_iteration_continue(const vertex_t dst_vertex,
   }
 
 }
+
+
 
 void BGPProcess::next_iteration_finish(const vertex_t dst_vertex,
     shared_ptr<tbb::concurrent_unordered_set<vertex_t> > new_changed_set_ptr) {
@@ -151,9 +157,13 @@ void BGPProcess::next_iteration_finish(const vertex_t dst_vertex,
   next_iteration_start(dst_vertex, new_affected_set_ptr, new_changed_set_ptr);
 }
 
+
+
 const string BGPProcess::get_recombination(vector<string>& circut) {
   return circut[2] + circut[0] + circut[1];
 }
+
+
 
 void BGPProcess::process_neighbors_mpc(const vertex_t affected_vertex,
     shared_ptr<tbb::concurrent_unordered_set<vertex_t> > changed_set_ptr,
@@ -214,6 +224,8 @@ void BGPProcess::process_neighbors_mpc(const vertex_t affected_vertex,
       counts_ptr, local_counts_ptr, prefs_ptr);
 }
 
+
+
 void BGPProcess::for0(const vertex_t affected_vertex,
     shared_ptr<tbb::concurrent_unordered_set<vertex_t> > new_changed_set_ptr,
     shared_ptr<pair<size_t, size_t> > counts_ptr,
@@ -234,7 +246,7 @@ void BGPProcess::for0(const vertex_t affected_vertex,
   const auto pref = prefs.front();
   prefs.pop_front();
 
-  LOG4CXX_INFO(comp_peer_->logger_,
+  LOG4CXX_DEBUG(comp_peer_->logger_,
       "Preference: " << affected_vertex << " | " << pref.first << " | " << pref.second);
 
   Vertex& affected = graph_[affected_vertex];
@@ -269,6 +281,8 @@ void BGPProcess::for0(const vertex_t affected_vertex,
 
   comp_peer_->execute(circut, affected_vertex);
 }
+
+
 
 void BGPProcess::for1(const vertex_t affected_vertex,
     shared_ptr<tbb::concurrent_unordered_set<vertex_t> > new_changed_set_ptr,
@@ -316,6 +330,8 @@ void BGPProcess::for1(const vertex_t affected_vertex,
 
 }
 
+
+
 void BGPProcess::for2(const vertex_t affected_vertex,
     shared_ptr<tbb::concurrent_unordered_set<vertex_t> > new_changed_set_ptr,
     shared_ptr<pair<size_t, size_t> > counts_ptr,
@@ -361,6 +377,8 @@ void BGPProcess::for2(const vertex_t affected_vertex,
 
   comp_peer_->execute(circut, affected_vertex);
 }
+
+
 
 void BGPProcess::for3(const vertex_t affected_vertex,
     shared_ptr<tbb::concurrent_unordered_set<vertex_t> > new_changed_set_ptr,
@@ -410,6 +428,8 @@ void BGPProcess::for3(const vertex_t affected_vertex,
   comp_peer_->execute(circut, affected_vertex);
 }
 
+
+
 void BGPProcess::for_add(const vertex_t affected_vertex,
     shared_ptr<tbb::concurrent_unordered_set<vertex_t> > new_changed_set_ptr,
     shared_ptr<pair<size_t, size_t> > counts_ptr,
@@ -452,6 +472,8 @@ void BGPProcess::for_add(const vertex_t affected_vertex,
   for0(affected_vertex, new_changed_set_ptr, counts_ptr, local_counts_ptr,
       prefs_ptr);
 }
+
+
 
 void BGPProcess::for_distribute(const vertex_t affected_vertex,
     shared_ptr<tbb::concurrent_unordered_set<vertex_t> > new_changed_set_ptr,
@@ -502,6 +524,8 @@ void BGPProcess::for_distribute(const vertex_t affected_vertex,
   comp_peer_->distribute(result_string, value, affected_vertex);
 }
 
+
+
 void BGPProcess::for_final(const vertex_t affected_vertex,
     shared_ptr<tbb::concurrent_unordered_set<vertex_t> > new_changed_set_ptr,
     shared_ptr<pair<size_t, size_t> > counts_ptr,
@@ -520,8 +544,8 @@ void BGPProcess::for_final(const vertex_t affected_vertex,
   string result_string = "end";
   const auto value = vlm[result_string];
 
-  LOG4CXX_INFO(comp_peer_->logger_,
-      "\tResult -> " << affected_vertex << " | " << value);
+  LOG4CXX_DEBUG(comp_peer_->logger_,
+      "Result -> " << affected_vertex << " | " << value);
 
   if (value != affected.next_hop_ && value != 0) {
     affected.next_hop_ = value;
@@ -542,21 +566,6 @@ void BGPProcess::for_final(const vertex_t affected_vertex,
 
 }
 
-void BGPProcess::compute_partial0(const vertex_t affected_vertex,
-    shared_ptr<vertex_t> largest_vertex_ptr,
-    shared_ptr<tbb::concurrent_unordered_set<vertex_t> > new_changed_set_ptr,
-    shared_ptr<tbb::concurrent_vector<vertex_t> > local_set_ptr,
-    shared_ptr<pair<size_t, size_t> > global_counter_ptr,
-    shared_ptr<pair<size_t, size_t> > local_counter_ptr,
-    shared_ptr<vector<vertex_t> > intersection_ptr,
-    pair<vector<vertex_t>::iterator, vector<vertex_t>::iterator> iter_range) {
-}
-
-void BGPProcess::compute_partial1(vertex_t affected_vertex,
-    vertex_t neigh_vertex, shared_ptr<vertex_t> largest_vertex_ptr,
-    shared_ptr<tbb::concurrent_unordered_set<vertex_t> > new_changed_set_ptr,
-    shared_ptr<tbb::concurrent_vector<vertex_t> > local_set_ptr, int cmp) {
-}
 
 #include <boost/algorithm/string.hpp>
 
@@ -659,27 +668,7 @@ size_t BGPProcess::get_graph_size(string path) {
   return vertex_set.size();
 }
 
-void BGPProcess::print_state(graph_t& graph) {
-}
 
-void BGPProcess::print_state(graph_t& graph, set<vertex_t>& affected_set,
-    set<vertex_t>& changed_set) {
-
-  std::cout << "Changed: ";
-  for (auto a : affected_set) {
-    std::cout << a << " ";
-  }
-
-  std::cout << std::endl;
-  ;
-
-  std::cout << "Affected: ";
-  for (auto a : changed_set) {
-    std::cout << a << " ";
-  }
-
-  std::cout << std::endl;
-}
 
 void BGPProcess::print_result() {
 
