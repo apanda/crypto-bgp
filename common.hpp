@@ -67,6 +67,7 @@ typedef int64_t share_t;
 const size_t SHARE_SIZE = sizeof(share_t);
 const size_t SHARE_BIT_SIZE = SHARE_SIZE * 8;
 const size_t MASTER_PORT = 65000;
+const size_t START_PORT = 10000;
 
 const int64_t PRIME = 2147483647;
 const int64_t PRIME_EQ = 3;

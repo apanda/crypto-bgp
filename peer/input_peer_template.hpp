@@ -153,12 +153,19 @@ vector<vertex_t> InputPeer::start_listeners(CompPeerSeq& comp_peers, graph_t& in
     nodes.push_back(current_vertex);
 
     for(size_t i = 0; i < COMP_PEER_NUM; i++) {
-      size_t port = 2000 + COMP_PEER_NUM*current_vertex + i;
+      size_t port = START_PORT + COMP_PEER_NUM*current_vertex + i;
       auto cp = comp_peers[i];
-      auto sp = shared_ptr<RPCServer>(new RPCServer(cp->io_service_, port, cp.get() ) );
-      for(auto ccp: comp_peers) {
-        Vertex& vertex = ccp->bgp_->graph_[current_vertex];
-        vertex.servers_[i] = sp;
+      try {
+
+        auto sp = shared_ptr<RPCServer>(new RPCServer(cp->io_service_, port, cp.get() ) );
+        for(auto ccp: comp_peers) {
+          Vertex& vertex = ccp->bgp_->graph_[current_vertex];
+          vertex.servers_[i] = sp;
+        }
+
+      } catch (...) {
+        std::cout << port << std::endl;
+        throw;
       }
     }
   }
@@ -210,58 +217,6 @@ void InputPeer::start_clients(
 
 template<class CompPeerSeq>
 void InputPeer::disseminate_bgp(CompPeerSeq& comp_peers, graph_t& input_graph) {
-
-  auto iter = vertices(input_graph);
-  auto last = iter.second;
-  auto current = iter.first;
-
-  for (; current != last; ++current) {
-    const auto& current_vertex = *current;
-    Vertex& vertex = input_graph[current_vertex];
-
-    if (current_vertex < VERTEX_START) continue;
-    if (current_vertex > VERTEX_END) continue;
-
-    for(const auto pair: vertex.preference_) {
-      const auto key = pair.first;
-      const auto value = pair.second;
-
-      secret_t secret(value);
-      auto shares = secret.share();
-
-      for(size_t i = 0; i < COMP_PEER_NUM; i++) {
-
-        const size_t ID = i + 1;
-        if (COMP_PEER_IDS.find(ID) == COMP_PEER_IDS.end()) continue;
-
-        string mpc_key;
-        int64_t mpc_value;
-
-        mpc_key = lexical_cast<string>(key);
-        mpc_value = shares[i];
-
-        value_map_t& vm = comp_peers[i]->bgp_->graph_[current_vertex].value_map_;
-        vm[mpc_key] = mpc_value;
-        vm["E"] = 1;
-
-        mpc_key = ".2" + lexical_cast<string>(key);
-        mpc_value = compute_lsb(2 * value);
-        vm[mpc_key] = mpc_value;
-
-        for(const auto pair: vertex.preference_) {
-          const auto other_key = pair.first;
-          const auto other_value = pair.second;
-
-          mpc_key = ".2" + lexical_cast<string>(key) + "-" + lexical_cast<string>(other_key);
-          mpc_value = compute_lsb(2 * (value - other_value));
-          vm[mpc_key] = mpc_value;
-        }
-      }
-
-    }
-
-  }
-
 }
 
 

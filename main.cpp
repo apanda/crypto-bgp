@@ -95,10 +95,7 @@ void run_mpc() {
   shared_ptr<RPCClient> master( new RPCClient(io, MASTER_ADDRESS, MASTER_PORT) );
   bgp.master_ = master;
 
-  LOG4CXX_INFO(mainLogger, "Disseminating BGP information...");
-
-  input_peer->disseminate_bgp(comp_peer_seq, input_graph);
-
+  LOG4CXX_INFO(mainLogger, "Number of vertices in the graph: " << GRAPH_SIZE);
   LOG4CXX_INFO(mainLogger, "Starting listeners...");
 
   sync_init init;
@@ -218,13 +215,12 @@ int main(int argc, char *argv[]) {
     WHOAMI = vm["whoami"].as<string>();
   }
 
+  GRAPH_SIZE = BGPProcess::get_graph_size("scripts/dot.dot") + 1;
 
   if (vm.count("master")) {
     run_master();
     return 0;
   }
-
-  GRAPH_SIZE = BGPProcess::get_graph_size("scripts/dot.dot") + 1;
 
   try {
     run_mpc();
