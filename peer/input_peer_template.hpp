@@ -197,7 +197,8 @@ void InputPeer::start_clients(
       size_t port = START_PORT + COMP_PEER_NUM*current_vertex + i;
 
       for(size_t ID = 1; ID <= COMP_PEER_NUM; ID++) {
-        LOG4CXX_TRACE(logger_, (*hm)[i + 1][current_vertex]);
+
+        if (COMP_PEER_IDS.find(ID) == COMP_PEER_IDS.end()) continue;
 
         auto cp  = comp_peers[ID - 1];
         auto sp = shared_ptr<RPCClient>(
