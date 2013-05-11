@@ -74,6 +74,8 @@ def inspect():
       assert ranking == 1
       continue
 
+    if ranking == 1: continue
+
     (pri, d) = q.get()
     pri = pri + degrees[vertex]
     d.append(vertex)

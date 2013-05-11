@@ -38,7 +38,7 @@ void MasterPeer::publish(Session* session, sync_init si) {
   boost::mutex::scoped_lock lock(mutex_);
 
   node_set_.insert( si.nodes_.begin(), si.nodes_.end() );
-  LOG4CXX_INFO(logger_, "Received " << si.nodes_.size() << " nodes.");
+  LOG4CXX_INFO(logger_, "Received " << si.nodes_.size() << " nodes from " << si.hostname_);
 
   auto& m = sync_response_.hostname_mappings_[si.id_];
 
