@@ -1,5 +1,8 @@
 cmake_minimum_required (VERSION 2.6)
 
+include_directories(${INCLUDE_PATH})
+link_directories(${LIB_PATH})
+
 project (MPC)
 
 SET(CMAKE_CXX_FLAGS "-std=c++11 -O3 -Wall -g")
