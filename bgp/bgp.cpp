@@ -205,10 +205,10 @@ void BGPProcess::process_neighbors_mpc(const vertex_t affected_vertex,
       boost::bind(&pref_pair_t::second, _1)
           < boost::bind(&pref_pair_t::second, _2));
 
-  for (auto& p : prefs) {
-    LOG4CXX_INFO(comp_peer_->logger_,
-        "*** " << affected_vertex << " | " << p.first << " | " << p.second);
-  }
+  //for (auto& p : prefs) {
+    //LOG4CXX_INFO(comp_peer_->logger_,
+    //    "*** " << affected_vertex << " | " << p.first << " | " << p.second);
+  //}
 
   vlm["result"] = 0;
   vlm["acc0"] = 1;
