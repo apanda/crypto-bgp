@@ -159,12 +159,10 @@ int main(int argc, char *argv[]) {
       ("help", "produce help message")
       ("master", "start the master peer")
       ("threads", po::value<size_t>(), "total number of threads")
-      ("tasks", po::value<size_t>(), "total number of tasks per iteration")
       ("master-host", po::value<string>(), "master address")
       ("whoami", po::value<string>(), "out address")
       ("start", po::value<size_t>(), "staring vertex")
       ("end", po::value<size_t>(), "ending vertex")
-      ("limit", po::value<size_t>(), "per vertex limit")
       ("id", po::value<vector<int>>()->multitoken(), "computational peer id")
   ;
 
@@ -184,20 +182,12 @@ int main(int argc, char *argv[]) {
     THREAD_COUNT = vm["threads"].as<size_t>();
   }
 
-  if (vm.count("tasks")) {
-    TASK_COUNT = vm["tasks"].as<size_t>();
-  }
-
   if (vm.count("start")) {
     VERTEX_START = vm["start"].as<size_t>();
   }
 
   if (vm.count("end")) {
     VERTEX_END = vm["end"].as<size_t>();
-  }
-
-  if (vm.count("limit")) {
-    MAX_BATCH = vm["limit"].as<size_t>();
   }
 
   if (vm.count("id")) {
