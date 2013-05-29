@@ -164,7 +164,7 @@ vector<vertex_t> InputPeer::start_listeners(CompPeerSeq& comp_peers, graph_t& in
         }
 
       } catch (...) {
-        std::cout << port << std::endl;
+        std::cout << "Port number in question: " << port << std::endl;
         throw;
       }
     }

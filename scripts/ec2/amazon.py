@@ -34,7 +34,7 @@ conn = EC2Connection(
         aws_access_key_id = 'AKIAIOPRNXFE5YO3VOWQ',
         aws_secret_access_key = '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')
 
-AMI = 'ami-818a02e8'
+AMI = 'ami-6d224804'
 INSTANCES_FILE = "instances.dat"
 INSTANCES_TYPE = 'm3.2xlarge'
 SECURITY_GROUPS = ['vjeko']
@@ -216,9 +216,7 @@ def delegate(instances, graphSize, master):
   partitionVertexSize = graphSize / partitionSize
 
   MASTER = master
-  THREADS = 32
-  TASKS = 1000
-  LIMIT = 20
+  THREADS = 16
   WHOAMI = '`/sbin/ifconfig eth0 | grep \'inet addr:\' | cut -d: -f2 | \
   awk \'{ print $1}\' `'
   
@@ -228,9 +226,9 @@ def delegate(instances, graphSize, master):
   commands = []
 
   for partition in xrange(partitionSize):
-    cmd = 'cd crypto-bgp && ./mpc --master-host %s --limit %d \
-    --threads %d --tasks %d --whoami %s --start %d --end %d' % (
-    MASTER, LIMIT, THREADS, TASKS, WHOAMI, START_VERTEX, END_VERTEX)
+    cmd = 'cd crypto-bgp && ./mpc --master-host %s \
+    --threads %d --whoami %s --start %d --end %d' % (
+    MASTER, THREADS, WHOAMI, START_VERTEX, END_VERTEX)
     commands.append(cmd)
 
     START_VERTEX = START_VERTEX + partitionVertexSize
