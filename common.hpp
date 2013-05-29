@@ -93,6 +93,12 @@ using boost::asio::io_service;
 typedef int64_t plaintext_t;
 typedef string symbol_t;
 
+struct update_vertex_t {
+  uint16_t vertex;
+  uint16_t next_hop;
+} __attribute__((packed));
+
+
 struct sync_init {
   vector<vertex_t> nodes_;
   uint32_t id_;

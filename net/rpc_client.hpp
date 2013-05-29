@@ -50,14 +50,14 @@ public:
       size_t bytes_transferred);
 
   void init(sync_init& si);
-  void sync(vector<vertex_t>& nodes);
+  void sync(vector<update_vertex_t>& nodes);
 
   boost::barrier* barrier_;
   boost::mutex m_;
 
   sync_response::hostname_mappings_t* hm_;
   uint32_t size_;
-  uint16_t* array_;
+  update_vertex_t* array_;
 
   tcp::socket socket_;
   tcp::resolver resolver_;

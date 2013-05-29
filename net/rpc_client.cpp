@@ -85,9 +85,9 @@ void RPCClient::init(sync_init& si) {
 
 
 
-void RPCClient::sync(vector<vertex_t>& nodes) {
+void RPCClient::sync(vector<update_vertex_t>& nodes) {
 
-  size_t real_length = sizeof(uint32_t) + sizeof(uint32_t) + nodes.size() * sizeof(uint16_t);
+  size_t real_length = sizeof(uint32_t) + sizeof(uint32_t) + nodes.size() * sizeof(update_vertex_t);
   size_t length = real_length;
 
   if (length < length_) length = length_;
@@ -96,7 +96,7 @@ void RPCClient::sync(vector<vertex_t>& nodes) {
 
   uint32_t& command =  *((uint32_t*) data);
   uint32_t& size =  *((uint32_t*) (data + sizeof(uint32_t)));
-  uint16_t* array = (uint16_t*) (data + sizeof(uint32_t)*2);
+  update_vertex_t* array = (update_vertex_t*) (data + sizeof(uint32_t)*2);
 
   command = CMD_TYPE::SYNC;
   size = real_length;
@@ -264,8 +264,8 @@ void RPCClient::handle_sync(
 
   uint32_t& size =  *((uint32_t*) (data + sizeof(uint32_t)));
 
-  uint16_t* array = (uint16_t*) (data + sizeof(uint32_t) * 2);
-  const size_t num = (size - sizeof(uint32_t) * 2) / sizeof(uint16_t);
+  update_vertex_t* array = (update_vertex_t*) (data + sizeof(uint32_t) * 2);
+  const size_t num = (size - sizeof(uint32_t) * 2) / sizeof(update_vertex_t);
 
   array_ = array;
   size_ = num;
