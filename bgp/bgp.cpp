@@ -156,10 +156,10 @@ void BGPProcess::next_iteration_finish(const vertex_t dst_vertex,
   shared_ptr<set<vertex_t> > new_affected_set_ptr(new set<vertex_t>);
   set<vertex_t>& new_affected_set = *new_affected_set_ptr;
 
-  //for (const vertex_t vertex : new_changed_set) {
-  //  auto neighbors = adjacent_vertices(vertex, graph_);
-  //  new_affected_set.insert(neighbors.first, neighbors.second);
-  //}
+  for (const vertex_t vertex : new_changed_set) {
+    auto neighbors = adjacent_vertices(vertex, graph_);
+    new_affected_set.insert(neighbors.first, neighbors.second);
+  }
 
   if (new_changed_set.empty()) {
     print_result();
