@@ -198,7 +198,7 @@ void InputPeer::start_clients(
 
       for(size_t ID = 1; ID <= COMP_PEER_NUM; ID++) {
 
-        if (COMP_PEER_IDS.find(ID) == COMP_PEER_IDS.end()) continue;
+        //if (COMP_PEER_IDS.find(ID) == COMP_PEER_IDS.end()) continue;
 
         auto cp  = comp_peers[ID - 1];
         auto sp = shared_ptr<RPCClient>(
