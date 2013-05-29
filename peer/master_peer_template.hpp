@@ -43,7 +43,7 @@ void MasterPeer::publish(Session* session, sync_init si) {
   auto& m = sync_response_.hostname_mappings_[si.id_];
 
   for(auto v: si.nodes_) {
-     m[v] = si.hostname_;
+     m[v.vertex] = si.hostname_;
   }
 
   vertex_count_ += si.nodes_.size();
@@ -67,7 +67,7 @@ void MasterPeer::publish(Session* session, sync_init si) {
 
 
 
-void MasterPeer::publish(Session* session, vector<vertex_t>& nodes, size_t id) {
+void MasterPeer::publish(Session* session, vector<update_vertex_t>& nodes, size_t id) {
 
   boost::mutex::scoped_lock lock(mutex_);
 
@@ -84,7 +84,7 @@ void MasterPeer::publish(Session* session, vector<vertex_t>& nodes, size_t id) {
       peers_synchronized_ = 0;
 
       LOG4CXX_INFO(logger_, "Raising the barrier.");
-      nodes_ = vector<vertex_t>(node_set_.begin(), node_set_.end());
+      nodes_ = vector<update_vertex_t>(node_set_.begin(), node_set_.end());
       pair<char*, size_t> data = Session::contruct_notification(nodes_);
 
       for(Session* s: master_server_->sessions_) {
@@ -104,7 +104,7 @@ void MasterPeer::publish(Session* session, vector<vertex_t>& nodes, size_t id) {
       LOG4CXX_INFO(logger_, "Total number of peers participating: " << all_sessions_.size());
       started_ = true;
 
-      nodes_ = vector<vertex_t>(node_set_.begin(), node_set_.end());
+      nodes_ = vector<update_vertex_t>(node_set_.begin(), node_set_.end());
       pair<char*, size_t> data = Session::contruct_notification(nodes_);
 
       for(Session* s: master_server_->sessions_) {

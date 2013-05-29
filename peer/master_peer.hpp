@@ -18,7 +18,7 @@
 #include <bgp/bgp.hpp>
 #include <peer/peer.hpp>
 #include <peer/input_peer.hpp>
-
+#include <unordered_set>
 
 class MasterPeer : public Peer {
 public:
@@ -29,7 +29,7 @@ public:
   ~MasterPeer();
 
   void publish(Session* session, sync_init si);
-  void publish(Session* session, vector<vertex_t>& nodes, size_t id = 0);
+  void publish(Session* session, vector<update_vertex_t>& nodes, size_t id = 0);
 
   boost::mutex mutex_;
   bool started_;
@@ -39,8 +39,8 @@ public:
   size_t peers_synchronized_;
   size_t vertex_count_;
 
-  vector<vertex_t> nodes_;
-  set<vertex_t> node_set_;
+  vector<update_vertex_t> nodes_;
+  std::set<update_vertex_t> node_set_;
 
   std::vector<Session*> all_sessions_;
   sync_response sync_response_;

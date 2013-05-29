@@ -51,7 +51,7 @@ public:
   virtual void subscribe(std::string key,  int64_t value, vertex_t vertex)  ;
 
   virtual void publish(std::string key,  int64_t value, vertex_t vertex);
-  virtual void publish(Session* session, vector<vertex_t>& nodes, size_t id = 0);
+  virtual void publish(Session* session, vector<update_vertex_t>& nodes, size_t id = 0);
   virtual void publish(Session* session, sync_init si);
 
   void print_values();

@@ -24,7 +24,7 @@ void Peer::publish(Session* session, sync_init si) {
   throw std::runtime_error("not suppose to be called!");
 }
 
-void Peer::publish(Session* session, vector<vertex_t>& nodes, size_t id) {
+void Peer::publish(Session* session, vector<update_vertex_t>& nodes, size_t id) {
   throw std::runtime_error("not suppose to be called!");
 }
 

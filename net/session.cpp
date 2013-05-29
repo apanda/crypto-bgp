@@ -109,10 +109,10 @@ void Session::handle_sync(
       );
 
   uint32_t& size =  *((uint32_t*) (data + sizeof(uint32_t)));
-  std::vector<vertex_t> nodes;
+  std::vector<update_vertex_t> nodes;
 
-  uint16_t* array = (uint16_t*) (data + sizeof(uint32_t) * 2);
-  const size_t num = (size - sizeof(uint32_t) * 2) / sizeof(uint16_t);
+  update_vertex_t* array = (update_vertex_t*) (data + sizeof(uint32_t) * 2);
+  const size_t num = (size - sizeof(uint32_t) * 2) / sizeof(update_vertex_t);
   for (size_t i = 0; i < num; i++) {
     nodes.push_back(array[i]);
   }
@@ -215,9 +215,9 @@ void Session::sync_response(struct sync_response& sr){
 }
 
 
-pair<char*, size_t> Session::contruct_notification(vector<vertex_t>& nodes) {
+pair<char*, size_t> Session::contruct_notification(vector<update_vertex_t>& nodes) {
 
-  size_t real_length = sizeof(uint32_t) + sizeof(uint32_t) + nodes.size() * sizeof(uint16_t);
+  size_t real_length = sizeof(uint32_t) + sizeof(uint32_t) + nodes.size() * sizeof(update_vertex_t);
   size_t length = real_length;
 
   if (length < length_) length = length_;
@@ -226,7 +226,7 @@ pair<char*, size_t> Session::contruct_notification(vector<vertex_t>& nodes) {
 
   uint32_t& command =  *((uint32_t*) data);
   uint32_t& size =  *((uint32_t*) (data + sizeof(uint32_t)));
-  uint16_t* array = (uint16_t*) (data + sizeof(uint32_t)*2);
+  update_vertex_t* array = (update_vertex_t*) (data + sizeof(uint32_t)*2);
 
   command = CMD_TYPE::SYNC;
   size = real_length;

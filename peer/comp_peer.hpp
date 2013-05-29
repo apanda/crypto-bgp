@@ -53,7 +53,7 @@ public:
   void distribute(string final_key, int64_t value, vertex_t key);
   void interpolate(string final_key, vertex_t key);
 
-  void publish(std::string key,  int64_t value, vertex_t vertex);
+  void publish(std::string key,  int64_t value, vertex_t update);
 
   void continue_or_not(vector<string> circut,
       const string key,

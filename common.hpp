@@ -96,11 +96,23 @@ typedef string symbol_t;
 struct update_vertex_t {
   uint16_t vertex;
   uint16_t next_hop;
+
+  template <typename Archive>
+  void serialize(Archive& ar, const unsigned int version)
+  {
+    ar & vertex;
+    ar & next_hop;
+  }
+
 } __attribute__((packed));
 
+inline bool operator<(const update_vertex_t& lhs, const update_vertex_t& rhs)
+{
+  return lhs.vertex < rhs.vertex;
+}
 
 struct sync_init {
-  vector<vertex_t> nodes_;
+  vector<update_vertex_t> nodes_;
   uint32_t id_;
   string hostname_;
 
