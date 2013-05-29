@@ -298,12 +298,9 @@ void BGPProcess::for0(const vertex_t affected_vertex,
 
 
     for (auto& m: affected.preference_) {
-
-
       LOG4CXX_INFO(comp_peer_->logger_,
           "\tMAP : " << affected_vertex << " | " << m.first);
-
-
+    }
   }
 
   vlm[pol_key] = offered.get_export(affected_vertex);
