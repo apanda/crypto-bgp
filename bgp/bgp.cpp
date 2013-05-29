@@ -138,7 +138,7 @@ void BGPProcess::next_iteration_finish(const vertex_t dst_vertex,
   LOG4CXX_INFO(comp_peer_->logger_,
       "BGPProcess::next_iteration_finish " << new_changed_set.size());
 
-  new_changed_set.clear();
+  //new_changed_set.clear();
 
   master_->sync(nodes);
   master_->barrier_->wait();
@@ -156,10 +156,10 @@ void BGPProcess::next_iteration_finish(const vertex_t dst_vertex,
   shared_ptr<set<vertex_t> > new_affected_set_ptr(new set<vertex_t>);
   set<vertex_t>& new_affected_set = *new_affected_set_ptr;
 
-  for (const vertex_t vertex : new_changed_set) {
-    auto neighbors = adjacent_vertices(vertex, graph_);
-    new_affected_set.insert(neighbors.first, neighbors.second);
-  }
+  //for (const vertex_t vertex : new_changed_set) {
+  //  auto neighbors = adjacent_vertices(vertex, graph_);
+  //  new_affected_set.insert(neighbors.first, neighbors.second);
+  //}
 
   if (new_changed_set.empty()) {
     print_result();
@@ -296,11 +296,6 @@ void BGPProcess::for0(const vertex_t affected_vertex,
     LOG4CXX_INFO(comp_peer_->logger_,
         "INFO : " << affected_vertex << " | " << affected.next_hop_);
 
-
-    for (auto& m: affected.preference_) {
-      LOG4CXX_INFO(comp_peer_->logger_,
-          "\tMAP : " << affected_vertex << " | " << m.first);
-    }
   }
 
   vlm[pol_key] = offered.get_export(affected_vertex);
