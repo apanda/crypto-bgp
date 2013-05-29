@@ -296,6 +296,14 @@ void BGPProcess::for0(const vertex_t affected_vertex,
     LOG4CXX_INFO(comp_peer_->logger_,
         "INFO : " << affected_vertex << " | " << affected.next_hop_);
 
+
+    for (auto& m: affected.preference_) {
+
+
+      LOG4CXX_INFO(comp_peer_->logger_,
+          "\tMAP : " << affected_vertex << " | " << m.first);
+
+
   }
 
   vlm[pol_key] = offered.get_export(affected_vertex);
