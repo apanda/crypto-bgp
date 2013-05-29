@@ -132,7 +132,6 @@ void BGPProcess::next_iteration_finish(const vertex_t dst_vertex,
     update.vertex = vertex;
     update.next_hop = affected.next_hop_;
 
-    LOG4CXX_INFO(comp_peer_->logger_, "push " << vertex);
 
     nodes.push_back(update);
   }
@@ -149,7 +148,6 @@ void BGPProcess::next_iteration_finish(const vertex_t dst_vertex,
     auto update = master_->array_[i];
     auto vertex = update.vertex;
 
-    LOG4CXX_INFO(comp_peer_->logger_, "find " << vertex);
     BOOST_ASSERT(new_changed_set.find(vertex) != new_changed_set.end());
 
     //Vertex& affected = graph_[vertex];
@@ -297,10 +295,6 @@ void BGPProcess::for0(const vertex_t affected_vertex,
 
 
   if( affected.relationship_.find(affected.next_hop_) == affected.relationship_.end() ) {
-
-    LOG4CXX_INFO(comp_peer_->logger_,
-        "INFO : " << affected_vertex << " | " << affected.next_hop_);
-
   }
 
   vlm[pol_key] = offered.get_export(affected_vertex);
