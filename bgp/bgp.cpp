@@ -85,8 +85,12 @@ void BGPProcess::next_iteration_start(const vertex_t dst_vertex,
     batch.push_back(vertex);
   }
 
-  next_iteration_continue(dst_vertex, batch_ptr, affected_set_ptr,
-      changed_set_ptr, new_changed_set_ptr);
+  if (batch.empty()) {
+    next_iteration_finish(dst_vertex, new_changed_set_ptr);
+  } else {
+    next_iteration_continue(dst_vertex, batch_ptr, affected_set_ptr,
+        changed_set_ptr, new_changed_set_ptr);
+  }
 }
 
 
