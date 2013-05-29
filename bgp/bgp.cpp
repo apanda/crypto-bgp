@@ -150,7 +150,7 @@ void BGPProcess::next_iteration_finish(const vertex_t dst_vertex,
     Vertex& affected = graph_[vertex];
     affected.next_hop_ = update.next_hop;
 
-    new_changed_set.insert(vertex);
+    //new_changed_set.insert(vertex);
   }
 
   shared_ptr<set<vertex_t> > new_affected_set_ptr(new set<vertex_t>);
