@@ -139,7 +139,7 @@ void BGPProcess::next_iteration_finish(const vertex_t dst_vertex,
   LOG4CXX_INFO(comp_peer_->logger_,
       "BGPProcess::next_iteration_finish " << new_changed_set.size());
 
-  //new_changed_set.clear();
+  new_changed_set.clear();
 
   master_->sync(nodes);
   master_->barrier_->wait();
@@ -148,12 +148,12 @@ void BGPProcess::next_iteration_finish(const vertex_t dst_vertex,
     auto update = master_->array_[i];
     auto vertex = update.vertex;
 
-    BOOST_ASSERT(new_changed_set.find(vertex) != new_changed_set.end());
+    //BOOST_ASSERT(new_changed_set.find(vertex) != new_changed_set.end());
 
-    //Vertex& affected = graph_[vertex];
-    //affected.next_hop_ = update.next_hop;
+    Vertex& affected = graph_[vertex];
+    affected.next_hop_ = update.next_hop;
 
-    //new_changed_set.insert(vertex);
+    new_changed_set.insert(vertex);
   }
 
   shared_ptr<set<vertex_t> > new_affected_set_ptr(new set<vertex_t>);
