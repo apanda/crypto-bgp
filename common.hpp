@@ -93,7 +93,8 @@ using boost::asio::io_service;
 typedef int64_t plaintext_t;
 typedef string symbol_t;
 
-struct update_vertex_t {
+class update_vertex_t {
+public:
   uint16_t vertex;
   uint16_t next_hop;
 
@@ -104,7 +105,7 @@ struct update_vertex_t {
     ar & next_hop;
   }
 
-} __attribute__((packed));
+};
 
 inline bool operator<(const update_vertex_t& lhs, const update_vertex_t& rhs)
 {
