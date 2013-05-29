@@ -288,7 +288,7 @@ void BGPProcess::for0(const vertex_t affected_vertex,
       affected_vertex, new_changed_set_ptr, counts_ptr, local_counts_ptr,
       prefs_ptr);
 
-  LOG4CXX_DEBUG(comp_peer_->logger_,
+  LOG4CXX_INFO(comp_peer_->logger_,
       "INFO : " << affected_vertex << " | " << affected.next_hop_);
 
   vlm[val_key] = pref.first;
