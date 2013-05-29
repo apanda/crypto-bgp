@@ -14,11 +14,7 @@ int Vertex::get_export(vertex_t to_vertex) {
 
   BOOST_ASSERT_MSG(next_hop_ != Vertex::UNDEFINED, "Impossible state!");
 
-
-  BOOST_ASSERT_MSG(
-      relationship_.find(next_hop_) != relationship_.end(),
-      boost::lexical_cast<string>(next_hop_).c_str()
-      );
+  BOOST_ASSERT( relationship_.find(next_hop_) != relationship_.end() );
   BOOST_ASSERT( relationship_.find(to_vertex) != relationship_.end() );
 
   auto next_rel = relationship_[next_hop_];
