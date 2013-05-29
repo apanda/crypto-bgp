@@ -140,6 +140,8 @@ def inspect():
     line = '%s %s %s' %(src, dst, rel)
     print line
 
+  print 'Translated destination:', nodeMapping['2']
+
 
 
 def dot():

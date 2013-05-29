@@ -164,6 +164,7 @@ int main(int argc, char *argv[]) {
       ("start", po::value<size_t>(), "staring vertex")
       ("end", po::value<size_t>(), "ending vertex")
       ("id", po::value<vector<int>>()->multitoken(), "computational peer id")
+      ("dst", po::value<size_t>(), "destination vertex")
   ;
 
   po::variables_map vm;
@@ -203,6 +204,10 @@ int main(int argc, char *argv[]) {
 
   if (vm.count("whoami")) {
     WHOAMI = vm["whoami"].as<string>();
+  }
+
+  if (vm.count("dst")) {
+    DESTINATION_VERTEX = vm["dst"].as<size_t>();
   }
 
   GRAPH_SIZE = BGPProcess::get_graph_size("scripts/dot.dot") + 1;

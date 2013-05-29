@@ -41,7 +41,6 @@ void Vertex::set_neighbors(graph_t& graph) {
 
 void Vertex::set_preference() {
 
-  size_t preference = 1;
   for(auto& neigh: neigh_) {
     preference_.at(neigh);
   }
