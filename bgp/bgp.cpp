@@ -125,15 +125,15 @@ void BGPProcess::next_iteration_finish(const vertex_t dst_vertex,
 
   vector<update_vertex_t> nodes;
 
-  for (const vertex_t vertex : new_changed_set) {
-    update_vertex_t update;
-    Vertex& affected = graph_[vertex];
+  //for (const vertex_t vertex : new_changed_set) {
+  //  update_vertex_t update;
+ //   Vertex& affected = graph_[vertex];
 
-    update.vertex = vertex;
-    update.next_hop = affected.next_hop_;
+  //  update.vertex = vertex;
+  //  update.next_hop = affected.next_hop_;
 
-    nodes.push_back(update);
-  }
+  //  nodes.push_back(update);
+  //}
 
   LOG4CXX_INFO(comp_peer_->logger_,
       "BGPProcess::next_iteration_finish " << new_changed_set.size());
@@ -143,15 +143,15 @@ void BGPProcess::next_iteration_finish(const vertex_t dst_vertex,
   master_->sync(nodes);
   master_->barrier_->wait();
 
-  for(size_t i = 0; i < master_->size_; i++) {
-    auto update = master_->array_[i];
-    auto vertex = update.vertex;
+  //for(size_t i = 0; i < master_->size_; i++) {
+    //auto update = master_->array_[i];
+    //auto vertex = update.vertex;
 
-    Vertex& affected = graph_[vertex];
-    affected.next_hop_ = update.next_hop;
+    //Vertex& affected = graph_[vertex];
+    //affected.next_hop_ = update.next_hop;
 
     //new_changed_set.insert(vertex);
-  }
+  //}
 
   shared_ptr<set<vertex_t> > new_affected_set_ptr(new set<vertex_t>);
   set<vertex_t>& new_affected_set = *new_affected_set_ptr;
