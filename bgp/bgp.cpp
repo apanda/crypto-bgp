@@ -147,6 +147,7 @@ void BGPProcess::next_iteration_finish(const vertex_t dst_vertex,
     auto update = master_->array_[i];
     auto vertex = update.vertex;
 
+    LOG4CXX_INFO(comp_peer_->logger_, "find " << vertex);
     BOOST_ASSERT(new_changed_set.find(vertex) != new_changed_set.end());
 
     //Vertex& affected = graph_[vertex];
