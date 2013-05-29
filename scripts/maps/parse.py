@@ -18,7 +18,7 @@ class MyPriQueue(object):
 
 
 GRAPH_SIZE = 5976
-BUCKET_SIZE = 2
+BUCKET_SIZE = 4
 
 buckets = deque()
 q = MyPriQueue()
@@ -136,11 +136,12 @@ def inspect():
   nnn.sort(key = lambda (src, dst, rel): rel)
   nnn.sort(key = lambda (src, dst, rel): src)
 
+  print 'Translated destination:', nodeMapping['2']
+
   for (src, dst, rel) in nnn:
     line = '%s %s %s' %(src, dst, rel)
     print line
 
-  print 'Translated destination:', nodeMapping['2']
 
 
 

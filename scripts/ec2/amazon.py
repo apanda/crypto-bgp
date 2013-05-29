@@ -38,6 +38,7 @@ AMI = 'ami-6d224804'
 INSTANCES_FILE = "instances.dat"
 INSTANCES_TYPE = 'm3.2xlarge'
 SECURITY_GROUPS = ['vjeko']
+DST = 807
 
 def loadInstances(connection):
     instances = []
@@ -227,8 +228,8 @@ def delegate(instances, graphSize, master):
 
   for partition in xrange(partitionSize):
     cmd = 'cd crypto-bgp && ./mpc --master-host %s \
-    --threads %d --whoami %s --start %d --end %d' % (
-    MASTER, THREADS, WHOAMI, START_VERTEX, END_VERTEX)
+    --threads %d --whoami %s --start %d --end %d --dst %d' % (
+    MASTER, THREADS, WHOAMI, START_VERTEX, END_VERTEX, DST)
     commands.append(cmd)
 
     START_VERTEX = START_VERTEX + partitionVertexSize
