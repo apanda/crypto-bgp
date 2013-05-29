@@ -79,8 +79,9 @@ void BGPProcess::next_iteration_start(const vertex_t dst_vertex,
   vector<vertex_t>& batch = *batch_ptr;
 
   for (const auto vertex : affected_set) {
-    if (vertex == dst_vertex)
-      continue;
+    if (vertex == dst_vertex) continue;
+    if (vertex < VERTEX_START) continue;
+    if (vertex > VERTEX_END) continue;
     batch.push_back(vertex);
   }
 
