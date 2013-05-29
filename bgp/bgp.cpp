@@ -132,6 +132,8 @@ void BGPProcess::next_iteration_finish(const vertex_t dst_vertex,
     update.vertex = vertex;
     update.next_hop = affected.next_hop_;
 
+    LOG4CXX_INFO(comp_peer_->logger_, "push " << vertex);
+
     nodes.push_back(update);
   }
 
