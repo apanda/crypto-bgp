@@ -121,6 +121,11 @@ void run_mpc() {
   LOG4CXX_INFO(mainLogger, "All clients have been started.");
 
   vector<update_vertex_t> nodes;
+  for (auto i = 0; i < GRAPH_SIZE; i++) {
+    update_vertex_t update;
+    nodes.push_back(update);
+  }
+
   for(auto& cp: comp_peer_seq) {
     if (COMP_PEER_IDS.find(cp->id_) == COMP_PEER_IDS.end()) continue;
     LOG4CXX_INFO(mainLogger, "master->sync(nodes)");
