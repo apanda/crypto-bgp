@@ -54,7 +54,7 @@ void BGPProcess::start(graph_t& graph) {
 
   changed.insert(dst_vertex);
   for (const vertex_t& vertex : dst.neigh_) {
-    affected.insert(vertex);
+    changed.insert(vertex);
   }
 
   next_iteration_start(dst_vertex, affected_ptr, changed_ptr);
@@ -78,8 +78,9 @@ void BGPProcess::next_iteration_start(const vertex_t dst_vertex,
   shared_ptr<vector<vertex_t> > batch_ptr(new vector<vertex_t>);
   vector<vertex_t>& batch = *batch_ptr;
 
+  affected_set.insert(dst_vertex);
+
   for (const auto vertex : affected_set) {
-    if (vertex == dst_vertex) continue;
     batch.push_back(vertex);
   }
 
