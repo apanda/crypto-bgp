@@ -182,7 +182,7 @@ int main(int argc, char *argv[]) {
   }
 
   if (vm.count("degree")) {
-    GRAPH_SIZE = vm["degree"].as<size_t>();
+    GRAPH_SIZE = vm["degree"].as<size_t>() + 2;
   }
 
   if (vm.count("id")) {
