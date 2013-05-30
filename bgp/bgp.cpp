@@ -532,7 +532,7 @@ void BGPProcess::for_final(const vertex_t affected_vertex,
 
 void BGPProcess::load_graph(string path, graph_t& graph) {
 
-  LOG4CXX_INFO(comp_peer_->logger_, "GPProcess::load_graph " << GRAPH_SIZE);
+  std::cout << "GPProcess::load_graph " << GRAPH_SIZE;
 
 
   vertex_t dst = 1;
