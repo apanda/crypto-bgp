@@ -147,9 +147,6 @@ vector<update_vertex_t> InputPeer::start_listeners(CompPeerSeq& comp_peers, grap
   for (; current != last; ++current) {
     const auto& current_vertex = *current;
 
-    if (current_vertex < VERTEX_START) continue;
-    if (current_vertex > VERTEX_END) continue;
-
     update_vertex_t update;
     update.vertex = current_vertex;
     update.next_hop = Vertex::UNDEFINED;
