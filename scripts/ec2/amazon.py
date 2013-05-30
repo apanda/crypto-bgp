@@ -38,7 +38,7 @@ AMI = 'ami-6d224804'
 INSTANCES_FILE = "instances.dat"
 INSTANCES_TYPE = 'm3.2xlarge'
 SECURITY_GROUPS = ['vjeko']
-DST = 807
+DST = 4194
 
 def loadInstances(connection):
     instances = []

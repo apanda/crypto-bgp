@@ -24,24 +24,11 @@ void BGPProcess::start_callback(function<bool()> f) {
 
 void BGPProcess::init(graph_t& graph) {
 
-  auto iter = vertices(graph);
-  auto last = iter.second;
-  auto current = iter.first;
-
-  for (; current != last; ++current) {
-    const auto& current_vertex = *current;
-    Vertex& vertex = graph[current_vertex];
-    vertex.id_ = current_vertex;
-
-    vertex.set_neighbors(graph);
-    vertex.set_preference();
-  }
-
 }
 
 void BGPProcess::start(graph_t& graph) {
 
-  vertex_t dst_vertex = DESTINATION_VERTEX;
+  vertex_t dst_vertex = 1;
   Vertex& dst = graph[dst_vertex];
   dst.next_hop_ = dst_vertex;
 
@@ -80,8 +67,6 @@ void BGPProcess::next_iteration_start(const vertex_t dst_vertex,
 
   for (const auto vertex : affected_set) {
     if (vertex == dst_vertex) continue;
-    if (vertex < VERTEX_START) continue;
-    if (vertex > VERTEX_END) continue;
     batch.push_back(vertex);
   }
 
@@ -124,57 +109,7 @@ void BGPProcess::next_iteration_continue(const vertex_t dst_vertex,
 void BGPProcess::next_iteration_finish(const vertex_t dst_vertex,
     shared_ptr<tbb::concurrent_unordered_set<vertex_t> > new_changed_set_ptr) {
 
-  tbb::concurrent_unordered_set<vertex_t>& new_changed_set =
-      *new_changed_set_ptr;
-
-  vector<update_vertex_t> nodes;
-
-  for (const vertex_t vertex : new_changed_set) {
-    update_vertex_t update;
-    Vertex& affected = graph_[vertex];
-
-    update.vertex = vertex;
-    update.next_hop = affected.next_hop_;
-
-
-    nodes.push_back(update);
-  }
-
-  LOG4CXX_INFO(comp_peer_->logger_,
-      "BGPProcess::next_iteration_finish " << new_changed_set.size());
-
-  new_changed_set.clear();
-
-  master_->sync(nodes);
-  master_->barrier_->wait();
-
-  for(size_t i = 0; i < master_->size_; i++) {
-    auto update = master_->array_[i];
-    auto vertex = update.vertex;
-
-    //BOOST_ASSERT(new_changed_set.find(vertex) != new_changed_set.end());
-
-    Vertex& affected = graph_[vertex];
-    affected.next_hop_ = update.next_hop;
-
-    new_changed_set.insert(vertex);
-  }
-
-  shared_ptr<set<vertex_t> > new_affected_set_ptr(new set<vertex_t>);
-  set<vertex_t>& new_affected_set = *new_affected_set_ptr;
-
-  for (const vertex_t vertex : new_changed_set) {
-    auto neighbors = adjacent_vertices(vertex, graph_);
-    new_affected_set.insert(neighbors.first, neighbors.second);
-  }
-
-  if (new_changed_set.empty()) {
-    print_result();
-    end_();
-    return;
-  }
-
-  next_iteration_start(dst_vertex, new_affected_set_ptr, new_changed_set_ptr);
+  end_();
 }
 
 
@@ -209,26 +144,19 @@ void BGPProcess::process_neighbors_mpc(const vertex_t affected_vertex,
       std::insert_iterator<std::vector<vertex_t> >(intersection,
           intersection.begin()));
 
+  size_t counter = 1;
   for (auto& neigh : intersection) {
-    const auto pref = affected.preference_[neigh];
+    const auto pref = counter;
     const auto pref_pair = std::make_pair(neigh, pref);
     prefs.push_back(pref_pair);
-  }
 
-  if (affected.next_hop_ != Vertex::UNDEFINED) {
-    const auto pref = affected.preference_[affected.next_hop_];
-    const auto pref_pair = std::make_pair(affected.next_hop_, pref);
-    prefs.push_back(pref_pair);
+    counter++;
+    if(counter % 3 == 0) counter++;
   }
 
   std::sort(prefs.begin(), prefs.end(),
       boost::bind(&pref_pair_t::second, _1)
           < boost::bind(&pref_pair_t::second, _2));
-
-  //for (auto& p : prefs) {
-    //LOG4CXX_INFO(comp_peer_->logger_,
-    //    "*** " << affected_vertex << " | " << p.first << " | " << p.second);
-  //}
 
   vlm["result"] = 0;
   vlm["acc0"] = 1;
@@ -296,13 +224,7 @@ void BGPProcess::for0(const vertex_t affected_vertex,
       prefs_ptr);
 
   vlm[val_key] = pref.first;
-
-
-  if( affected.relationship_.find(affected.next_hop_) == affected.relationship_.end() ) {
-  }
-
   vlm[pol_key] = offered.get_export(affected_vertex);
-  vlm[eql_key] = 1;
 
   comp_peer_->execute(circut, affected_vertex);
 }
@@ -596,101 +518,18 @@ void BGPProcess::for_final(const vertex_t affected_vertex,
 
 void BGPProcess::load_graph(string path, graph_t& graph) {
 
-  dynamic_properties dp;
-  std::ifstream file(path);
-  string s;
+  vertex_t dst = 1;
 
-  while (true) {
-    if (file.eof())
-      break;
-    getline(file, s);
-
-    vector<string> tokens;
-    boost::split(tokens, s, boost::is_any_of(" -;"));
-
-    for (string token : tokens) {
-      boost::algorithm::trim(token);
-    }
-
-    if (tokens.size() != 3)
-      continue;
-
-    vertex_t src = lexical_cast<size_t>(tokens[0]);
-    vertex_t dst = lexical_cast<size_t>(tokens[1]);
-
-    size_t srcRel = lexical_cast<size_t>(tokens[2]);
-    size_t dstRel = 2 - srcRel;
-
-    Vertex& srcV = graph[src];
-    srcV.preference_setup_[srcRel].insert(dst);
-    srcV.relationship_[dst] = srcRel;
-
-    Vertex& dstV = graph[dst];
-    dstV.preference_setup_[dstRel].insert(src);
-    dstV.relationship_[src] = dstRel;
-
+  for(auto i = 2; i < 1025; i++) {
+    vertex_t src = i;
     boost::add_edge(src, dst, graph);
-  }
-
-  for (vertex_t v = 0; v < GRAPH_SIZE; v++) {
-    size_t counter = 1;
-    Vertex& vV = graph[v];
-    vV.id_ = v;
-    for (size_t i = 0; i < 3; i++) {
-      auto& s = vV.preference_setup_[i];
-
-      for (auto neigh : s) {
-        do {
-          counter++;
-        } while (counter % PRIME_EQ == 0);
-        vV.preference_[neigh] = counter;
-      }
-    }
-
-  }
-
-  for (vertex_t v = 0; v < GRAPH_SIZE; v++) {
-    Vertex& vV = graph[v];
-    vV.next_hop_ = Vertex::UNDEFINED;
-    vV.set_neighbors(graph);
-    vV.set_preference();
-    vV.relationship_[v] = Vertex::REL::CUSTOMER;
   }
 
 }
 
 
 size_t BGPProcess::get_graph_size(string path) {
-
-  dynamic_properties dp;
-  std::ifstream file(path);
-  string s;
-
-  set<vertex_t> vertex_set;
-
-  while (true) {
-    if (file.eof())
-      break;
-    getline(file, s);
-
-    vector<string> tokens;
-    boost::split(tokens, s, boost::is_any_of(" -;"));
-
-    for (string token : tokens) {
-      boost::algorithm::trim(token);
-    }
-
-    if (tokens.size() != 3)
-      continue;
-
-    vertex_t src = lexical_cast<size_t>(tokens[0]);
-    vertex_t dst = lexical_cast<size_t>(tokens[1]);
-    vertex_set.insert(src);
-    vertex_set.insert(dst);
-
-  }
-
-  return vertex_set.size();
+  return 1024 + 2;
 }
 
 

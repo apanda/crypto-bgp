@@ -11,21 +11,6 @@ Vertex::Vertex() :
 
 
 int Vertex::get_export(vertex_t to_vertex) {
-
-  BOOST_ASSERT_MSG(next_hop_ != Vertex::UNDEFINED, "Impossible state!");
-
-  BOOST_ASSERT( relationship_.find(next_hop_) != relationship_.end() );
-  BOOST_ASSERT( relationship_.find(to_vertex) != relationship_.end() );
-
-  auto next_rel = relationship_[next_hop_];
-  auto from_rel = relationship_[to_vertex];
-
-  if (next_rel == Vertex::REL::PROVIDER || next_rel == Vertex::REL::PEER) {
-    if (from_rel == Vertex::REL::PROVIDER || from_rel == Vertex::REL::PEER) {
-      return 0;
-    }
-  }
-
   return 1;
 }
 
