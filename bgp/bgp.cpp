@@ -49,7 +49,6 @@ void BGPProcess::start(graph_t& graph) {
   shared_ptr<tbb::concurrent_unordered_set<vertex_t> > changed_ptr(
       new tbb::concurrent_unordered_set<vertex_t>);
 
-  set<vertex_t>& affected = *(affected_ptr);
   tbb::concurrent_unordered_set<vertex_t>& changed = *changed_ptr;
 
   changed.insert(dst_vertex);

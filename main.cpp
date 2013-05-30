@@ -161,10 +161,8 @@ int main(int argc, char *argv[]) {
       ("threads", po::value<size_t>(), "total number of threads")
       ("master-host", po::value<string>(), "master address")
       ("whoami", po::value<string>(), "out address")
-      ("start", po::value<size_t>(), "staring vertex")
-      ("end", po::value<size_t>(), "ending vertex")
+      ("degree", po::value<size_t>(), "in-degree")
       ("id", po::value<vector<int>>()->multitoken(), "computational peer id")
-      ("dst", po::value<size_t>(), "destination vertex")
   ;
 
   po::variables_map vm;
@@ -183,12 +181,8 @@ int main(int argc, char *argv[]) {
     THREAD_COUNT = vm["threads"].as<size_t>();
   }
 
-  if (vm.count("start")) {
-    VERTEX_START = vm["start"].as<size_t>();
-  }
-
-  if (vm.count("end")) {
-    VERTEX_END = vm["end"].as<size_t>();
+  if (vm.count("degree")) {
+    GRAPH_SIZE = vm["degree"].as<size_t>();
   }
 
   if (vm.count("id")) {
@@ -205,12 +199,6 @@ int main(int argc, char *argv[]) {
   if (vm.count("whoami")) {
     WHOAMI = vm["whoami"].as<string>();
   }
-
-  if (vm.count("dst")) {
-    DESTINATION_VERTEX = vm["dst"].as<size_t>();
-  }
-
-  GRAPH_SIZE = 1026;
 
   if (vm.count("master")) {
     run_master();

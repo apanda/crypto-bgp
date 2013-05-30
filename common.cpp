@@ -8,7 +8,7 @@ size_t VERTEX_START = 0;
 size_t VERTEX_END = 0;
 
 size_t MAX_BATCH = 30;
-size_t GRAPH_SIZE = 101;
+size_t GRAPH_SIZE = 0;
 
 size_t DESTINATION_VERTEX = 1;
 
