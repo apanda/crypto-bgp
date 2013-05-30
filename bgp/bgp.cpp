@@ -69,6 +69,8 @@ void BGPProcess::next_iteration_start(const vertex_t dst_vertex,
   set<vertex_t>& affected_set = *(affected_set_ptr);
   tbb::concurrent_unordered_set<vertex_t>& changed_set = *changed_set_ptr;
 
+  affected_set.insert(dst_vertex);
+
   LOG4CXX_INFO(comp_peer_->logger_,
       "Next iteration... " << affected_set.size() << ": " << changed_set.size());
 
@@ -78,7 +80,6 @@ void BGPProcess::next_iteration_start(const vertex_t dst_vertex,
   shared_ptr<vector<vertex_t> > batch_ptr(new vector<vertex_t>);
   vector<vertex_t>& batch = *batch_ptr;
 
-  affected_set.insert(dst_vertex);
 
   for (const auto vertex : affected_set) {
     batch.push_back(vertex);
