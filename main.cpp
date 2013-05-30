@@ -210,7 +210,7 @@ int main(int argc, char *argv[]) {
     DESTINATION_VERTEX = vm["dst"].as<size_t>();
   }
 
-  GRAPH_SIZE = BGPProcess::get_graph_size("scripts/dot.dot") + 1;
+  GRAPH_SIZE = 1026;
 
   if (vm.count("master")) {
     run_master();
