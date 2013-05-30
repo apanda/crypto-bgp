@@ -24,6 +24,18 @@ void BGPProcess::start_callback(function<bool()> f) {
 
 void BGPProcess::init(graph_t& graph) {
 
+  auto iter = vertices(graph);
+  auto last = iter.second;
+  auto current = iter.first;
+
+  for (; current != last; ++current) {
+    const auto& current_vertex = *current;
+    Vertex& vertex = graph[current_vertex];
+    vertex.id_ = current_vertex;
+
+    vertex.set_neighbors(graph);
+  }
+
 }
 
 void BGPProcess::start(graph_t& graph) {
