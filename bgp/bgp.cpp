@@ -171,7 +171,7 @@ void BGPProcess::process_neighbors_mpc(const vertex_t affected_vertex,
 
   std::sort(prefs.begin(), prefs.end(),
       boost::bind(&pref_pair_t::second, _1)
-          < boost::bind(&pref_pair_t::second, _2));
+          > boost::bind(&pref_pair_t::second, _2));
 
   vlm["result"] = 0;
   vlm["acc0"] = 1;
