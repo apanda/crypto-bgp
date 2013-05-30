@@ -34,7 +34,7 @@ void BGPProcess::init(graph_t& graph) {
     vertex.id_ = current_vertex;
 
     vertex.set_neighbors(graph);
-    vertex.set_preference();
+    //vertex.set_preference();
   }
 
 }
@@ -533,7 +533,7 @@ void BGPProcess::load_graph(string path, graph_t& graph) {
 
   vertex_t dst = 1;
 
-  for(auto i = 2; i < 1025; i++) {
+  for(auto i = 2; i < GRAPH_SIZE; i++) {
     vertex_t src = i;
     boost::add_edge(src, dst, graph);
   }
