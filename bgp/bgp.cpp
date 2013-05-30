@@ -506,7 +506,7 @@ void BGPProcess::for_final(const vertex_t affected_vertex,
   string result_string = "end";
   const auto value = vlm[result_string];
 
-  LOG4CXX_DEBUG(comp_peer_->logger_,
+  LOG4CXX_INFO(comp_peer_->logger_,
       "Result -> " << affected_vertex << " | " << value);
 
   if (value != affected.next_hop_ && value != 0) {
