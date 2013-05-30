@@ -34,6 +34,7 @@ void BGPProcess::init(graph_t& graph) {
     vertex.id_ = current_vertex;
 
     vertex.set_neighbors(graph);
+    vertex.set_preference();
   }
 
 }
