@@ -542,7 +542,7 @@ void BGPProcess::load_graph(string path, graph_t& graph) {
 
 
 size_t BGPProcess::get_graph_size(string path) {
-  return 1024 + 2;
+  return 1024 + 1;
 }
 
 
