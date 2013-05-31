@@ -296,13 +296,7 @@ void BGPProcess::for0(const vertex_t affected_vertex,
       prefs_ptr);
 
   vlm[val_key] = pref.first;
-
-
-  if( affected.relationship_.find(affected.next_hop_) == affected.relationship_.end() ) {
-  }
-
   vlm[pol_key] = offered.get_export(affected_vertex);
-  vlm[eql_key] = 1;
 
   comp_peer_->execute(circut, affected_vertex);
 }
