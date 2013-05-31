@@ -297,7 +297,6 @@ void BGPProcess::for0(const vertex_t affected_vertex,
 
   vlm[val_key] = pref.first;
   vlm[pol_key] = offered.get_export(affected_vertex);
-  vlm[eql_key] = 1;
 
   comp_peer_->execute(circut, affected_vertex);
 }
