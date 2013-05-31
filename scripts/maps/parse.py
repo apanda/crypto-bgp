@@ -18,7 +18,7 @@ class MyPriQueue(object):
 
 
 GRAPH_SIZE = 5976
-BUCKET_SIZE = 4
+BUCKET_SIZE = 1
 
 buckets = deque()
 q = MyPriQueue()
