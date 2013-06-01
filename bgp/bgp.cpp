@@ -286,7 +286,7 @@ void BGPProcess::for0(const vertex_t affected_vertex,
   circut = {"==", "0", pol_key};
   string for0_key = get_recombination(circut);
 
-  string final_key = get_recombination(circut);
+  string final_key = for0_key;
 
   affected.sig_bgp_next[final_key] = shared_ptr<boost::function<void()> >(
       new boost::function<void()>);
@@ -297,7 +297,7 @@ void BGPProcess::for0(const vertex_t affected_vertex,
 
   vlm[val_key] = pref.first;
   vlm[pol_key] = offered.get_export(affected_vertex);
-  vlm[eql_key] = 1;
+  //vlm[eql_key] = 1;
 
   comp_peer_->execute(circut, affected_vertex);
 }
