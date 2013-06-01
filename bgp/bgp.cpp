@@ -563,10 +563,13 @@ void BGPProcess::for_final(const vertex_t affected_vertex,
   LOG4CXX_DEBUG(comp_peer_->logger_,
       "Result -> " << affected_vertex << " | " << value);
 
-  BOOST_ASSERT(
-    std::find(affected.neigh_.begin(), affected.neigh_.end(), value) !=
+  if(
+    std::find(affected.neigh_.begin(), affected.neigh_.end(), value) ==
         affected.neigh_.end()
-  );
+  ) {
+    std::cout << "Vertex " << affected_vertex << " and neighbour " << value <<s td::endl;
+    exit(0);
+  }
 
   if (value != affected.next_hop_ && value != 0) {
     affected.next_hop_ = value;
