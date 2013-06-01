@@ -567,8 +567,11 @@ void BGPProcess::for_final(const vertex_t affected_vertex,
     std::find(affected.neigh_.begin(), affected.neigh_.end(), value) ==
         affected.neigh_.end()
   ) {
-    std::cout << "Vertex " << affected_vertex << " and neighbour " << value << std::endl;
-    exit(0);
+
+    if (value != 0) {
+      exit(0);
+      std::cout << "Vertex " << affected_vertex << " and neighbour " << value << std::endl;
+    }
   }
 
   if (value != affected.next_hop_ && value != 0) {
