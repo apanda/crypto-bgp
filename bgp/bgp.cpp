@@ -418,8 +418,6 @@ void BGPProcess::for3(const vertex_t affected_vertex,
   string neq_key = "neq" + key;
 
   vector<string> circut;
-  circut = {"==", "0", eql_key};
-  string for0_key = get_recombination(circut);
 
   string pre_eql_key = "eql" + prev_key;
   string pre_acc_key = "acc" + prev_key;
@@ -468,8 +466,6 @@ void BGPProcess::for_add(const vertex_t affected_vertex,
   string neq_key = "neq" + key;
 
   vector<string> circut;
-  circut = {"==", "0", eql_key};
-  string for0_key = get_recombination(circut);
 
   string pre_eql_key = "eql" + prev_key;
   string pre_acc_key = "acc" + prev_key;
@@ -566,6 +562,11 @@ void BGPProcess::for_final(const vertex_t affected_vertex,
 
   LOG4CXX_DEBUG(comp_peer_->logger_,
       "Result -> " << affected_vertex << " | " << value);
+
+  BOOST_ASSERT(
+    std::find(affected.neigh_.begin(), affected.neigh_.end(), value) !=
+        affected.neigh_.end()
+  );
 
   if (value != affected.next_hop_ && value != 0) {
     affected.next_hop_ = value;
