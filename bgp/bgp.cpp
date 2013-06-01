@@ -569,8 +569,8 @@ void BGPProcess::for_final(const vertex_t affected_vertex,
   ) {
 
     if (value != 0) {
-      exit(0);
       std::cout << "Vertex " << affected_vertex << " and neighbour " << value << std::endl;
+      exit(0);
     }
   }
 
