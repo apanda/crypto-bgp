@@ -218,7 +218,9 @@ void BGPProcess::process_neighbors_mpc(const vertex_t affected_vertex,
     prefs.push_back(pref_pair);
 
     Vertex& offered = graph_[neigh];
-    compute_local.push_back( std::make_pair(neigh, pref * offered.get_export(affected_vertex) ) );
+    compute_local.push_back( std::make_pair(
+        neigh,
+        pref * offered.get_export(affected_vertex) ) );
   }
 
 
@@ -228,15 +230,15 @@ void BGPProcess::process_neighbors_mpc(const vertex_t affected_vertex,
     prefs.push_back(pref_pair);
 
     Vertex& offered = graph_[affected.next_hop_];
-
     compute_local.push_back( std::make_pair(
-        affected.next_hop_, pref * offered.get_export(affected_vertex) ) );
+        affected.next_hop_,
+        pref * offered.get_export(affected_vertex) ) );
   }
 
 
   std::sort(compute_local.begin(), compute_local.end(),
       boost::bind(&pref_pair_t::second, _1)
-          < boost::bind(&pref_pair_t::second, _2));
+          > boost::bind(&pref_pair_t::second, _2));
 
   auto pair = compute_local.front();
   const vertex_t offered_vertex = pair.first;
@@ -250,7 +252,7 @@ void BGPProcess::process_neighbors_mpc(const vertex_t affected_vertex,
 
   std::sort(prefs.begin(), prefs.end(),
       boost::bind(&pref_pair_t::second, _1)
-          < boost::bind(&pref_pair_t::second, _2));
+          > boost::bind(&pref_pair_t::second, _2));
 
 
   vlm["result"] = 0;
