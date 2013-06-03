@@ -595,7 +595,7 @@ void BGPProcess::for_final(const vertex_t affected_vertex,
         affected.neigh_.end()
   ) {
 
-    if (value != affected.next_hop_) {
+    if (value != affected.next_hop_ && value != 0) {
       std::cout << "Vertex " << affected_vertex
           << " and neighbour " << value << " at count " <<
           (*local_counts_ptr) << std::endl;
