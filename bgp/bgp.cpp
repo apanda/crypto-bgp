@@ -133,6 +133,8 @@ void BGPProcess::next_iteration_finish(const vertex_t dst_vertex,
     update_vertex_t update;
     Vertex& affected = graph_[vertex];
 
+    affected.next_hop_ = affected.new_next_hop_;
+
     update.vertex = vertex;
     update.next_hop = affected.next_hop_;
 
@@ -606,7 +608,6 @@ void BGPProcess::for_final(const vertex_t affected_vertex,
     }
   }
 
-  affected.next_hop_ = affected.new_next_hop_;
   //if (value == affected.new_next_hop_ && value != 0) {
   //  affected.next_hop_ = value;
   //}
