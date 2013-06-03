@@ -249,8 +249,8 @@ void BGPProcess::process_neighbors_mpc(const vertex_t affected_vertex,
       "New: " << affected_vertex << " | " << pair.first << " | " << pair.second);
 
 
+  affected.new_next_hop_ = offered_vertex;
   if (offered_vertex != affected.next_hop_ && offered_vertex != 0) {
-    affected.new_next_hop_ = offered_vertex;
     auto& new_changed_set = *new_changed_set_ptr;
     new_changed_set.insert(affected_vertex);
   }
@@ -609,9 +609,10 @@ void BGPProcess::for_final(const vertex_t affected_vertex,
     }
   }
 
-  if (value != affected.new_next_hop_ && value != 0) {
-    affected.next_hop_ = value;
-  }
+  affected.next_hop_ = affected.new_next_hop_;
+  //if (value == affected.new_next_hop_ && value != 0) {
+  //  affected.next_hop_ = value;
+  //}
 
   affected.couter_map_2.clear();
 
