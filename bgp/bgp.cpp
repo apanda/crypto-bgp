@@ -244,7 +244,6 @@ void BGPProcess::process_neighbors_mpc(const vertex_t affected_vertex,
 
   LOG4CXX_INFO(comp_peer_->logger_, "Done sorting...");
 
-
   auto pair = compute_local.front();
   const vertex_t offered_vertex = pair.first;
   Vertex& offered = graph_[offered_vertex];
@@ -299,7 +298,7 @@ void BGPProcess::for0(const vertex_t affected_vertex,
   const auto pref = prefs.front();
   prefs.pop_front();
 
-  LOG4CXX_DEBUG(comp_peer_->logger_,
+  LOG4CXX_INFO(comp_peer_->logger_,
       "Preference: " << affected_vertex << " | " << pref.first << " | " << pref.second);
 
   Vertex& affected = graph_[affected_vertex];
