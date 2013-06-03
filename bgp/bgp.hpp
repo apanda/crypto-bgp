@@ -23,7 +23,21 @@ template<size_t >
 class CompPeer;
 class RPCClient;
 
-typedef pair<vertex_t, int64_t> pref_pair_t;
+struct pref_pair_t : std::pair<vertex_t, int64_t>
+{
+  pref_pair_t(vertex_t neigh, int64_t pref) {
+    first = neigh;
+    second = pref;
+  }
+
+  bool operator== (pref_pair_t& rhs) const {
+    if (second == rhs.second) return true;
+    return false;
+  }
+};
+
+//typedef pair<vertex_t, int64_t> pref_pair_t;
+
 
 class BGPProcess {
 
