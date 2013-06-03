@@ -213,39 +213,28 @@ void BGPProcess::process_neighbors_mpc(const vertex_t affected_vertex,
       std::insert_iterator<std::vector<vertex_t> >(intersection,
           intersection.begin()));
 
+  if (affected.next_hop_ != Vertex::UNDEFINED) {
+    intersection.push_back(affected.next_hop_);
+  }
+
 
   for (auto& neigh : intersection) {
-    const auto pref = affected.preference_[neigh];
-    const auto pref_pair = std::make_pair(neigh, pref);
-    prefs.push_back(pref_pair);
-
     Vertex& offered = graph_[neigh];
-    compute_local.push_back( std::make_pair(
-        neigh,
-        pref * offered.get_export(affected_vertex) ) );
+
+    const auto pref = affected.preference_[neigh];
+    const auto pref_export = pref * offered.get_export(affected_vertex) ;
+
+    prefs.push_back( std::make_pair(neigh, pref) );
+    compute_local.push_back( std::make_pair(neigh, pref_export) );
   }
-
-
-  if (affected.next_hop_ != Vertex::UNDEFINED) {
-    const auto pref = affected.preference_[affected.next_hop_];
-    const auto pref_pair = std::make_pair(affected.next_hop_, pref);
-    prefs.push_back(pref_pair);
-
-    Vertex& offered = graph_[affected.next_hop_];
-    compute_local.push_back( std::make_pair(
-        affected.next_hop_,
-        pref * offered.get_export(affected_vertex) ) );
-  }
-
-
 
   std::sort(compute_local.begin(), compute_local.end(),
       boost::bind(&pref_pair_t::second, _1)
           < boost::bind(&pref_pair_t::second, _2));
 
-  while (!compute_local.empty() && compute_local.front().second == 0) {
-    compute_local.pop_front();
-  }
+  compute_local.erase(
+      std::remove(compute_local.begin(), compute_local.end(), 0),
+      compute_local.end());
 
   vertex_t offered_vertex;
   if (compute_local.empty()) {
