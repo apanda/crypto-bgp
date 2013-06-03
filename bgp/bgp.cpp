@@ -244,10 +244,12 @@ void BGPProcess::process_neighbors_mpc(const vertex_t affected_vertex,
   const vertex_t offered_vertex = pair.first;
   Vertex& offered = graph_[offered_vertex];
 
-  affected.new_next_hop_ = offered_vertex;
-  if (offered_vertex != affected.next_hop_ && offered_vertex != 0) {
+  if (offered_vertex != 0) {
+    affected.new_next_hop_ = offered_vertex;
     auto& new_changed_set = *new_changed_set_ptr;
     new_changed_set.insert(affected_vertex);
+  } else {
+    affected.new_next_hop_ = affected.next_hop_;
   }
 
   std::sort(prefs.begin(), prefs.end(),
