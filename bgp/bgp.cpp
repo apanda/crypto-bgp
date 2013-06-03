@@ -216,18 +216,37 @@ void BGPProcess::process_neighbors_mpc(const vertex_t affected_vertex,
     const auto pref_pair = std::make_pair(neigh, pref);
     prefs.push_back(pref_pair);
 
-    compute_local.push_back( std::make_pair(neigh, pref) );
+    compute_local.push_back( std::make_pair(neigh, pref * affected.get_export(neigh) ) );
   }
 
   if (affected.next_hop_ != Vertex::UNDEFINED) {
     const auto pref = affected.preference_[affected.next_hop_];
     const auto pref_pair = std::make_pair(affected.next_hop_, pref);
     prefs.push_back(pref_pair);
+
+    compute_local.push_back( std::make_pair(
+        affected.next_hop_,
+        pref * affected.get_export(affected.next_hop_) ) );
+
+  }
+
+  std::sort(compute_local.begin(), compute_local.end(),
+      boost::bind(&pref_pair_t::second, _1)
+          < boost::bind(&pref_pair_t::second, _2));
+
+
+  auto new_hop = compute_local.front();
+
+  if (new_hop != affected.next_hop_ && new_hop != 0) {
+    affected.next_hop_ = new_hop;
+    auto& new_changed_set = *new_changed_set_ptr;
+    new_changed_set.insert(affected_vertex);
   }
 
   std::sort(prefs.begin(), prefs.end(),
       boost::bind(&pref_pair_t::second, _1)
           < boost::bind(&pref_pair_t::second, _2));
+
 
   vlm["result"] = 0;
   vlm["acc0"] = 1;
@@ -577,13 +596,13 @@ void BGPProcess::for_final(const vertex_t affected_vertex,
       exit(0);
     }
   }
-
+/*
   if (value != affected.next_hop_ && value != 0) {
     affected.next_hop_ = value;
     auto& new_changed_set = *new_changed_set_ptr;
     new_changed_set.insert(affected_vertex);
   }
-
+*/
   affected.couter_map_2.clear();
 
   m_.lock();
