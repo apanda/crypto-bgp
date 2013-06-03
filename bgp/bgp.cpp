@@ -224,17 +224,17 @@ void BGPProcess::process_neighbors_mpc(const vertex_t affected_vertex,
     const auto pref = affected.preference_[neigh];
     const auto pref_export = pref * offered.get_export(affected_vertex) ;
 
-    prefs.push_back( std::make_pair(neigh, pref) );
-    compute_local.push_back( std::make_pair(neigh, pref_export) );
+    prefs.push_back( pref_pair_t(neigh, pref) );
+    compute_local.push_back( pref_pair_t(neigh, pref_export) );
   }
 
   std::sort(compute_local.begin(), compute_local.end(),
       boost::bind(&pref_pair_t::second, _1)
           < boost::bind(&pref_pair_t::second, _2));
 
-  while (!compute_local.empty() && compute_local.front().second == 0) {
-    compute_local.pop_front();
-  }
+  compute_local.erase(
+      std::remove( compute_local.begin(), compute_local.end(), pref_pair_t(0, 0) ),
+      compute_local.end() );
 
   vertex_t offered_vertex;
   if (compute_local.empty()) {

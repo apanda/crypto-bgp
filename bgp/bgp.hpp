@@ -23,7 +23,6 @@ template<size_t >
 class CompPeer;
 class RPCClient;
 
-/*
 struct pref_pair_t : std::pair<vertex_t, int64_t>
 {
   pref_pair_t(vertex_t neigh, int64_t pref) {
@@ -36,8 +35,8 @@ struct pref_pair_t : std::pair<vertex_t, int64_t>
     return false;
   }
 };
-*/
-typedef pair<vertex_t, int64_t> pref_pair_t;
+
+//typedef pair<vertex_t, int64_t> pref_pair_t;
 
 
 class BGPProcess {
