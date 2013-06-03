@@ -211,7 +211,6 @@ void BGPProcess::process_neighbors_mpc(const vertex_t affected_vertex,
       std::insert_iterator<std::vector<vertex_t> >(intersection,
           intersection.begin()));
 
-  LOG4CXX_INFO(comp_peer_->logger_, "intersection.size " << intersection.size());
 
   for (auto& neigh : intersection) {
     const auto pref = affected.preference_[neigh];
@@ -225,7 +224,10 @@ void BGPProcess::process_neighbors_mpc(const vertex_t affected_vertex,
 
     compute_local.push_back( std::make_pair(neigh, pref * offered.get_export(affected_vertex) ) );
   }
-/*
+
+  LOG4CXX_INFO(comp_peer_->logger_, "prefs.size " << prefs.size());
+
+
   if (affected.next_hop_ != Vertex::UNDEFINED) {
     const auto pref = affected.preference_[affected.next_hop_];
     const auto pref_pair = std::make_pair(affected.next_hop_, pref);
@@ -236,7 +238,7 @@ void BGPProcess::process_neighbors_mpc(const vertex_t affected_vertex,
     compute_local.push_back( std::make_pair(
         affected.next_hop_, pref * offered.get_export(affected_vertex) ) );
   }
-*/
+
 
   std::sort(compute_local.begin(), compute_local.end(),
       boost::bind(&pref_pair_t::second, _1)
@@ -268,18 +270,10 @@ void BGPProcess::process_neighbors_mpc(const vertex_t affected_vertex,
   size_t& local_count = *local_counts_ptr;
   local_count = 0;
 
-  if (prefs.empty()) {
+  for0(
+      affected_vertex, new_changed_set_ptr,
+      counts_ptr, local_counts_ptr, prefs_ptr);
 
-    for_distribute(
-        affected_vertex, new_changed_set_ptr, counts_ptr,
-        local_counts_ptr, prefs_ptr);
-
-  } else {
-
-    for0(
-        affected_vertex, new_changed_set_ptr,
-        counts_ptr, local_counts_ptr, prefs_ptr);
-  }
 }
 
 
@@ -291,6 +285,14 @@ void BGPProcess::for0(const vertex_t affected_vertex,
     shared_ptr<deque<pref_pair_t> > prefs_ptr) {
 
   deque<pref_pair_t>& prefs = *prefs_ptr;
+
+  if (prefs.empty()) {
+
+    for_distribute(
+        affected_vertex, new_changed_set_ptr, counts_ptr,
+        local_counts_ptr, prefs_ptr);
+
+  }
 
   size_t& local_count = *local_counts_ptr;
   local_count++;
