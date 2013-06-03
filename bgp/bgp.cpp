@@ -247,15 +247,13 @@ void BGPProcess::process_neighbors_mpc(const vertex_t affected_vertex,
     compute_local.pop_front();
   }
 
-  const vertex_t offered_vertex;
+  vertex_t offered_vertex;
   if (compute_local.empty()) {
     offered_vertex = affected.next_hop_;
   } else {
     auto pair = compute_local.front();
     offered_vertex = pair.first;
   }
-
-  Vertex& offered = graph_[offered_vertex];
 
   if (offered_vertex != 0 && offered_vertex != affected.next_hop_) {
     affected.new_next_hop_ = offered_vertex;
