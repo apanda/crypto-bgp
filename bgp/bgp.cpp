@@ -211,6 +211,8 @@ void BGPProcess::process_neighbors_mpc(const vertex_t affected_vertex,
       std::insert_iterator<std::vector<vertex_t> >(intersection,
           intersection.begin()));
 
+  LOG4CXX_INFO(comp_peer_->logger_, "intersection.size " << intersection.size());
+
   for (auto& neigh : intersection) {
     const auto pref = affected.preference_[neigh];
     const auto pref_pair = std::make_pair(neigh, pref);
@@ -240,7 +242,7 @@ void BGPProcess::process_neighbors_mpc(const vertex_t affected_vertex,
       boost::bind(&pref_pair_t::second, _1)
           < boost::bind(&pref_pair_t::second, _2));
 
-
+  LOG4CXX_INFO(comp_peer_->logger_, "Done sorting...");
 
 
   auto pair = compute_local.front();
