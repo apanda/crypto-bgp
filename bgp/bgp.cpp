@@ -604,7 +604,7 @@ void BGPProcess::for_final(const vertex_t affected_vertex,
       "Result -> " << affected_vertex << " | " << value);
 
 
-  if (value != affected.next_hop_ && value != 0) {
+  if (value != affected.new_next_hop_ && value != 0) {
     LOG4CXX_ERROR(comp_peer_->logger_,
         "Computation incorrect for vertex -> " << affected_vertex
         << " -- next hop should be " << affected.new_next_hop_ << " not " << value);
