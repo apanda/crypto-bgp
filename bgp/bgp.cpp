@@ -269,11 +269,11 @@ void BGPProcess::process_neighbors_mpc(const vertex_t affected_vertex,
   local_count = 0;
 
   if (prefs.empty()) {
-    /*
+
     for_distribute(
         affected_vertex, new_changed_set_ptr, counts_ptr,
         local_counts_ptr, prefs_ptr);
-        */
+
   } else {
 
     for0(
