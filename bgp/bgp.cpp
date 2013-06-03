@@ -218,14 +218,8 @@ void BGPProcess::process_neighbors_mpc(const vertex_t affected_vertex,
     prefs.push_back(pref_pair);
 
     Vertex& offered = graph_[neigh];
-
-
-    LOG4CXX_INFO(comp_peer_->logger_, neigh << " get export " << affected_vertex);
-
     compute_local.push_back( std::make_pair(neigh, pref * offered.get_export(affected_vertex) ) );
   }
-
-  LOG4CXX_INFO(comp_peer_->logger_, "prefs.size " << prefs.size());
 
 
   if (affected.next_hop_ != Vertex::UNDEFINED) {
@@ -243,8 +237,6 @@ void BGPProcess::process_neighbors_mpc(const vertex_t affected_vertex,
   std::sort(compute_local.begin(), compute_local.end(),
       boost::bind(&pref_pair_t::second, _1)
           < boost::bind(&pref_pair_t::second, _2));
-
-  LOG4CXX_INFO(comp_peer_->logger_, "Done sorting...");
 
   auto pair = compute_local.front();
   const vertex_t offered_vertex = pair.first;
@@ -301,7 +293,7 @@ void BGPProcess::for0(const vertex_t affected_vertex,
   const auto pref = prefs.front();
   prefs.pop_front();
 
-  LOG4CXX_INFO(comp_peer_->logger_,
+  LOG4CXX_DEBUG(comp_peer_->logger_,
       "Preference: " << affected_vertex << " | " << pref.first << " | " << pref.second);
 
   Vertex& affected = graph_[affected_vertex];
@@ -603,11 +595,10 @@ void BGPProcess::for_final(const vertex_t affected_vertex,
         affected.neigh_.end()
   ) {
 
-    if (value != 0) {
+    if (value != affected.next_hop_) {
       std::cout << "Vertex " << affected_vertex
           << " and neighbour " << value << " at count " <<
           (*local_counts_ptr) << std::endl;
-      exit(0);
     }
   }
 /*
