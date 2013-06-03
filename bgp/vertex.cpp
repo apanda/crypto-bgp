@@ -12,6 +12,8 @@ Vertex::Vertex() :
 
 int Vertex::get_export(vertex_t to_vertex) {
 
+  std::cout << "Next hop " << next_hop_;
+
   BOOST_ASSERT( relationship_.find(next_hop_) != relationship_.end() );
   BOOST_ASSERT( relationship_.find(to_vertex) != relationship_.end() );
 
