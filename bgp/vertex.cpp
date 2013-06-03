@@ -12,7 +12,12 @@ Vertex::Vertex() :
 
 int Vertex::get_export(vertex_t to_vertex) {
 
+  if (relationship_.find(next_hop_) == relationship_.end()) {
+    std::cout << "Next hop: " << next_hop_ << std::endl;
+  }
+
   BOOST_ASSERT( relationship_.find(next_hop_) != relationship_.end() );
+
   BOOST_ASSERT( relationship_.find(to_vertex) != relationship_.end() );
 
   auto next_rel = relationship_[next_hop_];
