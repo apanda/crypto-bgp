@@ -230,7 +230,7 @@ void BGPProcess::process_neighbors_mpc(const vertex_t affected_vertex,
 
   std::sort(compute_local.begin(), compute_local.end(),
       boost::bind(&pref_pair_t::second, _1)
-          > boost::bind(&pref_pair_t::second, _2));
+          < boost::bind(&pref_pair_t::second, _2));
 
   compute_local.erase(
       std::remove(compute_local.begin(), compute_local.end(), pref_pair_t(0, 0)),
