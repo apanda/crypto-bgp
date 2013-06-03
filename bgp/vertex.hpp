@@ -50,6 +50,7 @@ public:
 
   vertex_t id_;
   vertex_t next_hop_;
+  vertex_t new_next_hop_;
 
   vector<vertex_t> as_path_;
   set<vertex_t> as_path_set_;

@@ -238,7 +238,7 @@ void BGPProcess::process_neighbors_mpc(const vertex_t affected_vertex,
 
   std::sort(compute_local.begin(), compute_local.end(),
       boost::bind(&pref_pair_t::second, _1)
-          < boost::bind(&pref_pair_t::second, _2));
+          > boost::bind(&pref_pair_t::second, _2));
 
   auto pair = compute_local.front();
   const vertex_t offered_vertex = pair.first;
@@ -250,14 +250,12 @@ void BGPProcess::process_neighbors_mpc(const vertex_t affected_vertex,
 
 
   if (offered_vertex != affected.next_hop_ && offered_vertex != 0) {
-    affected.next_hop_ = offered_vertex;
-    auto& new_changed_set = *new_changed_set_ptr;
-    new_changed_set.insert(affected_vertex);
+    affected.new_next_hop_ = offered_vertex;
   }
 
   std::sort(prefs.begin(), prefs.end(),
       boost::bind(&pref_pair_t::second, _1)
-          < boost::bind(&pref_pair_t::second, _2));
+          > boost::bind(&pref_pair_t::second, _2));
 
 
   vlm["result"] = 0;
@@ -608,13 +606,13 @@ void BGPProcess::for_final(const vertex_t affected_vertex,
           (*local_counts_ptr) << std::endl;
     }
   }
-/*
-  if (value != affected.next_hop_ && value != 0) {
+
+  if (value != affected.new_next_hop_ && value != 0) {
     affected.next_hop_ = value;
     auto& new_changed_set = *new_changed_set_ptr;
     new_changed_set.insert(affected_vertex);
   }
-*/
+
   affected.couter_map_2.clear();
 
   m_.lock();

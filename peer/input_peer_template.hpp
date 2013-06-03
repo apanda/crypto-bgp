@@ -39,39 +39,6 @@ void InputPeer::distribute_lsb(
     const PlaintextMap& secret_map,
     CompPeerSeq& comp_peers) {
 
-  vector<symbol_t> tmp;
-  vector<int64_t> tmpv;
-
-  for(auto pair : secret_map) {
-
-    auto key = pair.first;
-    tmp.push_back(key);
-
-    auto value = pair.second;
-    tmpv.push_back(value);
-    lsb(key, value, comp_peers);
-  }
-
-  auto first = tmp.back();
-  tmp.pop_back();
-
-  auto second = tmp.back();
-  tmp.pop_back();
-
-  auto first_v = tmpv.back();
-  tmpv.pop_back();
-
-  auto second_v = tmpv.back();
-  tmpv.pop_back();
-
-  string key = second + "-" + first;
-  int64_t value = second_v - first_v;
-  lsb(key, value, comp_peers);
-
-  key = first + "-" + second;
-  value = first_v - second_v;
-  lsb(key, value, comp_peers);
-
 }
 
 
