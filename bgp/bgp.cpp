@@ -242,6 +242,7 @@ void BGPProcess::process_neighbors_mpc(const vertex_t affected_vertex,
           [zero](pref_pair_t n) { return zero.second == n.second; } ),
           compute_local.end());
 
+  affected.new_next_hop_ = 0;
   if (!compute_local.empty()) {
     auto pair = compute_local.front();
     vertex_t offered_vertex = pair.first;
@@ -252,6 +253,7 @@ void BGPProcess::process_neighbors_mpc(const vertex_t affected_vertex,
       new_changed_set.insert(affected_vertex);
     }
   }
+
 
   std::sort(prefs.begin(), prefs.end(),
       boost::bind(&pref_pair_t::second, _1)
