@@ -215,17 +215,19 @@ void BGPProcess::process_neighbors_mpc(const vertex_t affected_vertex,
   for (auto& neigh : intersection) {
     Vertex& offered = graph_[neigh];
 
-    if (!offered.loop_free(graph_, affected_vertex)) {
-      LOG4CXX_ERROR(comp_peer_->logger_, "Vertex " << neigh << " contains a loop.");
-      continue;
-    }
+    auto pref = affected.preference_[neigh];
+    auto pref_export = pref * offered.get_export(affected_vertex) ;
 
-    const auto pref = affected.preference_[neigh];
-    const auto pref_export = pref * offered.get_export(affected_vertex) ;
+    if (!offered.loop_free(graph_, affected_vertex)) {
+      pref = 0;
+      pref_export = 0;
+    }
 
     prefs.push_back( pref_pair_t(neigh, pref) );
     compute_local.push_back( pref_pair_t(neigh, pref_export) );
   }
+
+  BOOST_ASSERT(prefs.size() != 0);
 
   counts_ptr->first = 0;
   counts_ptr->second = prefs.size();
@@ -528,23 +530,6 @@ void BGPProcess::for_distribute(const vertex_t affected_vertex,
     shared_ptr<deque<pref_pair_t> > prefs_ptr) {
 
   size_t& local_count = *local_counts_ptr;
-
-  if (local_count == 0) {
-
-    size_t& count = counts_ptr->first;
-    size_t& all_count = counts_ptr->second;
-
-    m_.lock();
-    count++;
-
-    if (count == all_count) {
-      m_.unlock();
-      continuation_();
-    }
-    m_.unlock();
-
-    return;
-  }
 
   Vertex& affected = graph_[affected_vertex];
   auto& vlm = affected.value_map_;
