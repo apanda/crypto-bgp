@@ -74,7 +74,7 @@ def inspect():
       assert ranking == 1
       continue
 
-    if ranking == 1: continue
+    #if ranking == 1: continue
 
     (pri, d) = q.get()
     pri = pri + degrees[vertex]
@@ -107,10 +107,10 @@ def inspect():
     if counter > (GRAPH_SIZE):
       break
 
-    reverseMapping[counter] = vertex
-    #reverseMapping[vertex] = vertex
-    nodeMapping[vertex] = counter
-    #nodeMapping[vertex] = vertex
+    #reverseMapping[counter] = vertex
+    reverseMapping[vertex] = vertex
+    #odeMapping[vertex] = counter
+    nodeMapping[vertex] = vertex
     counter = counter + 1
 
 
@@ -136,7 +136,7 @@ def inspect():
   nnn.sort(key = lambda (src, dst, rel): rel)
   nnn.sort(key = lambda (src, dst, rel): src)
 
-  print 'Translated destination:', nodeMapping['2']
+  #print 'Translated destination:', nodeMapping['2']
 
   for (src, dst, rel) in nnn:
     line = '%s %s %s' %(src, dst, rel)
@@ -153,7 +153,7 @@ def dot():
   print '}'
 
 
-def parse(filename = 'edited_graph_cyclops.txt'):
+def parse(filename = 'simple_bigger_map'):
 #def parse(filename = '100-graph'):
   with open(filename) as f:
     lines = f.readlines()
