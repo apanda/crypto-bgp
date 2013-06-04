@@ -242,7 +242,7 @@ void BGPProcess::process_neighbors_mpc(const vertex_t affected_vertex,
           [zero](pref_pair_t n) { return zero.second == n.second; } ),
           compute_local.end());
 
-  affected.new_next_hop_ = 0;
+  affected.new_next_hop_ = affected.next_hop_;
   if (!compute_local.empty()) {
     auto pair = compute_local.front();
     vertex_t offered_vertex = pair.first;
