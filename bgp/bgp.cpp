@@ -220,11 +220,6 @@ void BGPProcess::process_neighbors_mpc(const vertex_t affected_vertex,
     auto pref = affected.preference_[neigh];
     auto pref_export = pref * offered.get_export(affected_vertex) ;
 
-    if (!offered.loop_free(graph_, affected_vertex)) {
-      pref = 0;
-      pref_export = 0;
-    }
-
     prefs.push_back( pref_pair_t(neigh, pref) );
     compute_local.push_back( pref_pair_t(neigh, pref_export) );
   }
@@ -244,6 +239,20 @@ void BGPProcess::process_neighbors_mpc(const vertex_t affected_vertex,
           < boost::bind(&pref_pair_t::second, _2));
 
   BOOST_ASSERT(prefs.size() != 0);
+
+
+
+  for (auto& p : prefs) {
+    auto& vertex = p.first;
+    auto& pref = p.second;
+
+    Vertex& offered = graph_[vertex];
+
+    if (!offered.loop_free(graph_, affected_vertex)) {
+      pref = 0;
+    }
+  }
+
 
   affected.new_next_hop_ = affected.next_hop_;
   if (!compute_local.empty()) {
