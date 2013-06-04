@@ -109,10 +109,10 @@ def inspect():
   counter = 1
   for vertex in bucketList:
 
-    #reverseMapping[counter] = vertex
-    reverseMapping[vertex] = vertex
-    #nodeMapping[vertex] = counter
-    nodeMapping[vertex] = vertex
+    reverseMapping[counter] = vertex
+    #reverseMapping[vertex] = vertex
+    nodeMapping[vertex] = counter
+    #nodeMapping[vertex] = vertex
     counter = counter + 1
 
 
@@ -155,8 +155,8 @@ def dot():
   print '}'
 
 
-def parse(filename = 'simple_bigger_map'):
-#def parse(filename = 'edited_graph_cyclops.txt'):
+#def parse(filename = 'simple_bigger_map'):
+def parse(filename = 'edited_graph_cyclops.txt'):
   with open(filename) as f:
     lines = f.readlines()
   
