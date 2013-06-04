@@ -60,17 +60,24 @@ bool Vertex::loop_free(graph_t& graph_, vertex_t new_vertex) {
   //vertex_set.insert(new_vertex);
 
   vertex_t current_vertex = id_;
+  auto count = 0;
+  std::stringstream ss;
 
   while(true) {
+
+    ss << current_vertex << " ";
+    auto& current = graph_[current_vertex];
 
     if (current_vertex == Vertex::UNDEFINED) return true;
     if (current_vertex == DESTINATION_VERTEX) return true;
     if (vertex_set.find(current_vertex) != vertex_set.end() ) break;
+    if (count > 10) break;
 
-    auto& current = graph_[current_vertex];
     current_vertex = current.next_hop_;
+    count++;
   }
 
+  std::cout << ss.str() << std::endl;
   return false;
 }
 
