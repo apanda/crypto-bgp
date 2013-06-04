@@ -216,6 +216,10 @@ void BGPProcess::process_neighbors_mpc(const vertex_t affected_vertex,
 
   for (auto& neigh : intersection) {
     Vertex& offered = graph_[neigh];
+    if (offered.loop_free(graph_, affected_vertex)) {
+      LOG4CXX_DEBUG(comp_peer_->logger_, "Vertex " << neigh << " contains a loop.");
+      continue;
+    }
 
     const auto pref = affected.preference_[neigh];
     const auto pref_export = pref * offered.get_export(affected_vertex) ;
