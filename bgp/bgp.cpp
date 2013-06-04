@@ -240,20 +240,6 @@ void BGPProcess::process_neighbors_mpc(const vertex_t affected_vertex,
 
   BOOST_ASSERT(prefs.size() != 0);
 
-
-
-  for (auto& p : prefs) {
-    auto& vertex = p.first;
-    auto& pref = p.second;
-
-    Vertex& offered = graph_[vertex];
-
-    if (!offered.loop_free(graph_, affected_vertex)) {
-      pref = 0;
-    }
-  }
-
-
   affected.new_next_hop_ = affected.next_hop_;
   if (!compute_local.empty()) {
     auto pair = compute_local.front();
@@ -337,7 +323,6 @@ void BGPProcess::for0(const vertex_t affected_vertex,
 
   vlm[val_key] = pref.first;
   vlm[pol_key] = offered.get_export(affected_vertex);
-  vlm[eql_key] = 1;
 
   comp_peer_->execute(circut, affected_vertex);
 }
