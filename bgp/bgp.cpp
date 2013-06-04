@@ -216,7 +216,7 @@ void BGPProcess::process_neighbors_mpc(const vertex_t affected_vertex,
 
   for (auto& neigh : intersection) {
     Vertex& offered = graph_[neigh];
-    if (offered.loop_free(graph_, affected_vertex)) {
+    if (!offered.loop_free(graph_, affected_vertex)) {
       LOG4CXX_ERROR(comp_peer_->logger_, "Vertex " << neigh << " contains a loop.");
       continue;
     }
