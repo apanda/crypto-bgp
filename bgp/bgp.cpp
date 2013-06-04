@@ -529,7 +529,22 @@ void BGPProcess::for_distribute(const vertex_t affected_vertex,
 
   size_t& local_count = *local_counts_ptr;
 
-  if (local_count == 0) return;
+  if (local_count == 0) {
+
+    size_t& count = counts_ptr->first;
+    size_t& all_count = counts_ptr->second;
+
+    m_.lock();
+    count++;
+
+    if (count == all_count) {
+      m_.unlock();
+      continuation_();
+    }
+    m_.unlock();
+
+    return;
+  }
 
   Vertex& affected = graph_[affected_vertex];
   auto& vlm = affected.value_map_;
