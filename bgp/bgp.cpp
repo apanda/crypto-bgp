@@ -220,7 +220,7 @@ void BGPProcess::process_neighbors_mpc(const vertex_t affected_vertex,
     auto pref = affected.preference_[neigh];
     auto pref_export = pref * offered.get_export(affected_vertex) ;
 
-    if (offered.loop_free(graph_, affected_vertex)) {
+    if (!offered.loop_free(graph_, affected_vertex)) {
       pref = 0;
       pref_export = 0;
     }
