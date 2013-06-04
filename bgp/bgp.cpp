@@ -138,12 +138,8 @@ void BGPProcess::next_iteration_finish(const vertex_t dst_vertex,
     update.vertex = vertex;
     update.next_hop = affected.next_hop_;
 
-
     nodes.push_back(update);
   }
-
-  LOG4CXX_INFO(comp_peer_->logger_,
-      "BGPProcess::next_iteration_finish " << new_changed_set.size());
 
   new_changed_set.clear();
 
