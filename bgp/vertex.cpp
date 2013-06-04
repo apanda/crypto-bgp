@@ -63,6 +63,7 @@ bool Vertex::loop_free(graph_t& graph_, vertex_t new_vertex) {
 
   while(true) {
 
+    if (current_vertex == Vertex::UNDEFINED) return true;
     if (current_vertex == DESTINATION_VERTEX) return true;
     if (vertex_set.find(current_vertex) != vertex_set.end() ) break;
 
