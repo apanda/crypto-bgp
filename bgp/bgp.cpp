@@ -226,6 +226,8 @@ void BGPProcess::process_neighbors_mpc(const vertex_t affected_vertex,
     compute_local.push_back( pref_pair_t(neigh, pref_export) );
   }
 
+  BOOST_ASSERT(prefs.size() != 0);
+
   counts_ptr->first = 0;
   counts_ptr->second = prefs.size();
 
