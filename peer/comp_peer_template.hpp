@@ -59,7 +59,7 @@ void CompPeer<Num>::publish(std::string key, int64_t value, vertex_t v) {
 
   vertex.mutex_->lock();
   vlm[key] = value;
-  int& counter = vertex.couter_map_2[rkey];
+  int& counter = vertex.couter_map_[rkey];
 
   LOG4CXX_TRACE(logger_, "Counter... (" << v << "): " << rkey << " " << counter);
 

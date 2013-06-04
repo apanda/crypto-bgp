@@ -67,7 +67,7 @@ public:
 
   tbb::concurrent_unordered_map<symbol_t, int64_t> value_map_;
 
-  tbb::concurrent_unordered_map<string, int> couter_map_2;
+  tbb::concurrent_unordered_map<string, int> couter_map_;
   tbb::concurrent_unordered_map<
     string,
     shared_ptr<mutex_t>,
