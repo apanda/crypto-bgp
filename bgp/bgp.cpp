@@ -243,6 +243,9 @@ void BGPProcess::process_neighbors_mpc(const vertex_t affected_vertex,
       boost::bind(&pref_pair_t::second, _1)
           < boost::bind(&pref_pair_t::second, _2));
 
+  BOOST_ASSERT(prefs.size() != 0);
+  BOOST_ASSERT(compute_local.size() != 0);
+
   affected.new_next_hop_ = affected.next_hop_;
   if (!compute_local.empty()) {
     auto pair = compute_local.front();
