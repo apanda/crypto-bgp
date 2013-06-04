@@ -228,15 +228,19 @@ void BGPProcess::process_neighbors_mpc(const vertex_t affected_vertex,
     compute_local.push_back( pref_pair_t(neigh, pref_export) );
   }
 
-  std::sort(compute_local.begin(), compute_local.end(),
-      boost::bind(&pref_pair_t::second, _1)
-          < boost::bind(&pref_pair_t::second, _2));
-
   pref_pair_t zero(0, 0);
   compute_local.erase(
       std::remove_if(compute_local.begin(), compute_local.end(),
           [zero](pref_pair_t n) { return zero.second == n.second; } ),
           compute_local.end());
+
+  std::sort(compute_local.begin(), compute_local.end(),
+      boost::bind(&pref_pair_t::second, _1)
+          < boost::bind(&pref_pair_t::second, _2));
+
+  std::sort(prefs.begin(), prefs.end(),
+      boost::bind(&pref_pair_t::second, _1)
+          < boost::bind(&pref_pair_t::second, _2));
 
   affected.new_next_hop_ = affected.next_hop_;
   if (!compute_local.empty()) {
@@ -249,10 +253,6 @@ void BGPProcess::process_neighbors_mpc(const vertex_t affected_vertex,
       new_changed_set.insert(affected_vertex);
     }
   }
-
-  std::sort(prefs.begin(), prefs.end(),
-      boost::bind(&pref_pair_t::second, _1)
-          < boost::bind(&pref_pair_t::second, _2));
 
   vlm["result"] = 0;
   vlm["acc0"] = 1;
