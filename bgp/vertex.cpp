@@ -1,6 +1,8 @@
 #include <bgp/vertex.hpp>
 #include <bgp/edge.hpp>
 
+#include <common.hpp>
+
 const vertex_t Vertex::UNDEFINED  = 9999999;
 
 Vertex::Vertex() :
@@ -51,6 +53,24 @@ int64_t Vertex::current_next_hop_preference(graph_t& graph) {
 
   if (next_hop_ == UNDEFINED) return 0;
   return preference_[graph[next_hop_].id_];
+}
+
+bool Vertex::loop_free(graph_t& graph_, vertex_t new_vertex) {
+  set<vertex_t> vertex_set;
+  vertex_set.insert(new_vertex);
+
+  vertex_t current_vertex = id_;
+
+  while(true) {
+
+    if (current_vertex == DESTINATION_VERTEX) return true;
+    if (vertex_set.find(current_vertex) != vertex_set.end() ) break;
+
+    auto& current = graph_[current_vertex];
+    current_vertex = current.next_hop_;
+  }
+
+  return false;
 }
 
 
