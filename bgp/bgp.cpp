@@ -107,8 +107,6 @@ void BGPProcess::next_iteration_continue(const vertex_t dst_vertex,
   vector<vertex_t>& batch = *batch_ptr;
 
   shared_ptr<pair<size_t, size_t> > counts_ptr(new pair<size_t, size_t>);
-  counts_ptr->first = 0;
-  counts_ptr->second = batch.size();
 
   for (auto& vertex : batch) {
 
@@ -227,6 +225,9 @@ void BGPProcess::process_neighbors_mpc(const vertex_t affected_vertex,
     prefs.push_back( pref_pair_t(neigh, pref) );
     compute_local.push_back( pref_pair_t(neigh, pref_export) );
   }
+
+  counts_ptr->first = 0;
+  counts_ptr->second = prefs.size();
 
   pref_pair_t zero(0, 0);
   compute_local.erase(
