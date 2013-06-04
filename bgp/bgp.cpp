@@ -220,6 +220,12 @@ void BGPProcess::process_neighbors_mpc(const vertex_t affected_vertex,
     auto pref = affected.preference_[neigh];
     auto pref_export = pref * offered.get_export(affected_vertex) ;
 
+
+    if (!offered.loop_free(graph_, affected_vertex)) {
+      pref = 0;
+      pref_export = 0;
+    }
+
     prefs.push_back( pref_pair_t(neigh, pref) );
     compute_local.push_back( pref_pair_t(neigh, pref_export) );
   }
@@ -246,15 +252,6 @@ void BGPProcess::process_neighbors_mpc(const vertex_t affected_vertex,
     vertex_t offered_vertex = pair.first;
 
     if (offered_vertex != affected.next_hop_) {
-
-      Vertex& offered = graph_[offered_vertex];
-      if (!offered.loop_free(graph_, affected_vertex)) {
-
-        LOG4CXX_ERROR(comp_peer_->logger_,
-            "Vertex " << offered_vertex << " contains a loop.");
-
-      }
-
       affected.new_next_hop_ = offered_vertex;
       auto& new_changed_set = *new_changed_set_ptr;
       new_changed_set.insert(affected_vertex);
