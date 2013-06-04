@@ -17,7 +17,7 @@ class MyPriQueue(object):
         return (pri, d)
 
 
-GRAPH_SIZE = 5976
+GRAPH_SIZE = 10000
 BUCKET_SIZE = 1
 
 buckets = deque()
@@ -48,13 +48,24 @@ def inspect():
   #Figure of vertex degrees.
   nodeMapping = {}
   degrees = {}
+  relSet = {}
   for (src, dst, rel) in edges:
 
-    if src not in degrees: degrees[src] = 0
-    degrees[src] = degrees[src] + 1
+    try: relSet[src]
+    except: relSet[src] = set()
+
+    try: relSet[dst]
+    except: relSet[dst] = set()
+
+    relSet[src].add(dst)
+    relSet[dst].add(src)
 
     pair = (src, dst)
     relation[ (src, dst) ] = relMap[rel]
+
+  
+  for (vertex, neighSet) in relSet.items():
+    degrees[vertex] = len(neighSet)
 
 
   # Sort vertex degrees.
@@ -64,15 +75,9 @@ def inspect():
 
   degreeRanking.sort(key = lambda (degree, vertex): degree, reverse = True)
 
-  top = degreeRanking[0]
-
   # Load balance sorted vertices into N number of buckets.
   counter = 1
   for (ranking, vertex) in degreeRanking:
-
-    if counter >= (GRAPH_SIZE):
-      assert ranking == 1
-      continue
 
     #if ranking == 1: continue
 
@@ -88,29 +93,26 @@ def inspect():
     counter = counter + 1
 
 
-  buckets2 = []
+  filteredBuckets = []
   while(True):
     try:
       (pri, d) = q.get()
-      buckets2.append(d)
+      filteredBuckets.append(d)
     except: break
 
 
   reverseMapping = {}
   bucketList = []
-  for bucket in buckets2:
+  for bucket in filteredBuckets:
     bucketList = bucketList + bucket
 
   counter = 1
   for vertex in bucketList:
 
-    if counter > (GRAPH_SIZE):
-      break
-
-    #reverseMapping[counter] = vertex
-    reverseMapping[vertex] = vertex
-    #odeMapping[vertex] = counter
-    nodeMapping[vertex] = vertex
+    reverseMapping[counter] = vertex
+    #reverseMapping[vertex] = vertex
+    nodeMapping[vertex] = counter
+    #nodeMapping[vertex] = vertex
     counter = counter + 1
 
 
@@ -153,8 +155,8 @@ def dot():
   print '}'
 
 
-def parse(filename = 'simple_bigger_map'):
-#def parse(filename = '100-graph'):
+#def parse(filename = 'simple_bigger_map'):
+def parse(filename = 'edited_graph_cyclops.txt'):
   with open(filename) as f:
     lines = f.readlines()
   
