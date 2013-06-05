@@ -28,7 +28,7 @@ int Vertex::get_export(graph_t graph, vertex_t to_vertex) {
 
   return loop_free(graph, to_vertex);
 
-  return 1;
+  //return 1;
 }
 
 
@@ -66,8 +66,9 @@ bool Vertex::loop_free(graph_t& graph_, vertex_t new_vertex) {
   vertex_t current_vertex = id_;
   std::stringstream ss;
   ss << new_vertex <<  " ";
-
+  auto count = 0;
   while(true) {
+    count++;
     auto& current = graph_[current_vertex];
 
     ss << current_vertex <<  " ";
@@ -75,6 +76,7 @@ bool Vertex::loop_free(graph_t& graph_, vertex_t new_vertex) {
     if (current_vertex == Vertex::UNDEFINED) return true;
     if (current_vertex == DESTINATION_VERTEX) return true;
     if (vertex_set.find(current_vertex) != vertex_set.end() ) break;
+    BOOST_ASSERT(count < 20);
 
     vertex_set.insert(current_vertex);
     current_vertex = current.next_hop_;

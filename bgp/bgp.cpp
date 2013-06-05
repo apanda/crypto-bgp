@@ -221,11 +221,6 @@ void BGPProcess::process_neighbors_mpc(const vertex_t affected_vertex,
     auto export_pol = offered.get_export(graph_, affected_vertex);
     auto pref_export = pref * export_pol;
 
-    if (export_pol == 1) {
-      if (!offered.loop_free(graph_, affected_vertex)) {
-      }
-    }
-
     prefs.push_back( pref_pair_t(neigh, pref) );
     compute_local.push_back( pref_pair_t(neigh, pref_export) );
   }
