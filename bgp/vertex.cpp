@@ -76,7 +76,8 @@ bool Vertex::loop_free(graph_t& graph_, vertex_t new_vertex) {
     current_vertex = current.next_hop_;
   }
 
-  std::cout << ss.str() << std::endl;
+  ss << std::endl;
+  std::cout << ss.str();
   return false;
 }
 
