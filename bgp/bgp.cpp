@@ -218,10 +218,10 @@ void BGPProcess::process_neighbors_mpc(const vertex_t affected_vertex,
     Vertex& offered = graph_[neigh];
 
     auto pref = affected.preference_[neigh];
-    auto export_pol = offered.get_export(affected_vertex);
+    auto export_pol = offered.get_export(graph_, affected_vertex);
     auto pref_export = pref * export_pol;
 
-    if (pref_export) {
+    if (export_pol == 1) {
       if (!offered.loop_free(graph_, affected_vertex)) {
       }
     }
@@ -328,7 +328,7 @@ void BGPProcess::for0(const vertex_t affected_vertex,
       prefs_ptr);
 
   vlm[val_key] = pref.first;
-  vlm[pol_key] = offered.get_export(affected_vertex);
+  vlm[pol_key] = offered.get_export(graph_, affected_vertex);
 
   comp_peer_->execute(circut, affected_vertex);
 }
