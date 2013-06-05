@@ -188,10 +188,6 @@ void BGPProcess::process_neighbors_mpc(const vertex_t affected_vertex,
     shared_ptr<tbb::concurrent_unordered_set<vertex_t> > new_changed_set_ptr,
     shared_ptr<pair<size_t, size_t> > counts_ptr) {
 
-  if (affected_vertex == 2976) {
-    std::cout << 2976 << std::endl;
-  }
-
   tbb::concurrent_unordered_set<vertex_t>& changed_set = *changed_set_ptr;
 
   shared_ptr<vector<vertex_t> > intersection_ptr(new vector<vertex_t>);
@@ -223,7 +219,6 @@ void BGPProcess::process_neighbors_mpc(const vertex_t affected_vertex,
 
     auto pref = affected.preference_[neigh];
     auto pref_export = pref * offered.get_export(affected_vertex) ;
-
 
     if (!offered.loop_free(graph_, affected_vertex)) {
       pref = 0;
