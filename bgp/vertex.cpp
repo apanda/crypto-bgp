@@ -12,7 +12,7 @@ Vertex::Vertex() :
 }
 
 
-int Vertex::get_export(const graph_t$& graph, vertex_t to_vertex) {
+int Vertex::get_export(const graph_t& graph, vertex_t to_vertex) {
 
   BOOST_ASSERT( relationship_.find(next_hop_) != relationship_.end() );
   BOOST_ASSERT( relationship_.find(to_vertex) != relationship_.end() );
@@ -26,9 +26,9 @@ int Vertex::get_export(const graph_t$& graph, vertex_t to_vertex) {
     }
   }
 
-  //return loop_free(graph, to_vertex);
+  return loop_free(graph, to_vertex);
 
-  return 1;
+  //return 1;
 }
 
 
