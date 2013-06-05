@@ -223,8 +223,6 @@ void BGPProcess::process_neighbors_mpc(const vertex_t affected_vertex,
 
     if (pref_export) {
       if (!offered.loop_free(graph_, affected_vertex)) {
-        pref = 0;
-        pref_export = 0;
       }
     }
 
