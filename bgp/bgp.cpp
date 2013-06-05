@@ -244,10 +244,6 @@ void BGPProcess::process_neighbors_mpc(const vertex_t affected_vertex,
       boost::bind(&pref_pair_t::second, _1)
           < boost::bind(&pref_pair_t::second, _2));
 
-  if (affected_vertex == 2976) {
-    std::cout << compute_local.size() << std::endl;
-  }
-
   BOOST_ASSERT(prefs.size() != 0);
 
   affected.new_next_hop_ = affected.next_hop_;

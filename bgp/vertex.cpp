@@ -26,10 +26,6 @@ int Vertex::get_export(vertex_t to_vertex) {
     }
   }
 
-  if (to_vertex == next_hop_) {
-    return 0;
-  }
-
   return 1;
 }
 
@@ -58,6 +54,8 @@ int64_t Vertex::current_next_hop_preference(graph_t& graph) {
   if (next_hop_ == UNDEFINED) return 0;
   return preference_[graph[next_hop_].id_];
 }
+
+
 
 bool Vertex::loop_free(graph_t& graph_, vertex_t new_vertex) {
   set<vertex_t> vertex_set;
