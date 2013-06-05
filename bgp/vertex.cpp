@@ -26,9 +26,9 @@ int Vertex::get_export(graph_t graph, vertex_t to_vertex) {
     }
   }
 
-  return loop_free(graph, to_vertex);
+  //return loop_free(graph, to_vertex);
 
-  //return 1;
+  return 1;
 }
 
 
