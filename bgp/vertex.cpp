@@ -12,7 +12,7 @@ Vertex::Vertex() :
 }
 
 
-int Vertex::get_export(graph_t graph, vertex_t to_vertex) {
+int Vertex::get_export(const graph_t$& graph, vertex_t to_vertex) {
 
   BOOST_ASSERT( relationship_.find(next_hop_) != relationship_.end() );
   BOOST_ASSERT( relationship_.find(to_vertex) != relationship_.end() );

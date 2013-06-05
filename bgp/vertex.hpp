@@ -41,7 +41,7 @@ public:
   bool loop_free(graph_t& graph, vertex_t v);
   int64_t current_next_hop_preference(graph_t& graph);
 
-  int get_export(graph_t graph, vertex_t to_vertex);
+  int get_export(const graph_t& graph, vertex_t to_vertex);
 
   typedef boost::mutex mutex_t;
   typedef boost::lock_guard<mutex_t> lock_t;
