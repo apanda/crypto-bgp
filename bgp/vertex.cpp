@@ -26,6 +26,10 @@ int Vertex::get_export(vertex_t to_vertex) {
     }
   }
 
+  if (to_vertex == next_hop_) {
+    return 0;
+  }
+
   return 1;
 }
 
