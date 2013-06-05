@@ -64,7 +64,6 @@ bool Vertex::loop_free(graph_t& graph_, vertex_t new_vertex) {
   ss << new_vertex <<  " ";
 
   while(true) {
-    vertex_set.insert(current_vertex);
     auto& current = graph_[current_vertex];
 
     ss << current_vertex <<  " ";
@@ -73,6 +72,7 @@ bool Vertex::loop_free(graph_t& graph_, vertex_t new_vertex) {
     if (current_vertex == DESTINATION_VERTEX) return true;
     if (vertex_set.find(current_vertex) != vertex_set.end() ) break;
 
+    vertex_set.insert(current_vertex);
     current_vertex = current.next_hop_;
   }
 
