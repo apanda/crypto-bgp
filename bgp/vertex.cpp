@@ -59,7 +59,7 @@ int64_t Vertex::current_next_hop_preference(graph_t& graph) {
 
 
 
-bool Vertex::loop_free(graph_t& graph_, vertex_t new_vertex) {
+bool Vertex::loop_free(const graph_t& graph_, vertex_t new_vertex) {
   set<vertex_t> vertex_set;
   vertex_set.insert(new_vertex);
 

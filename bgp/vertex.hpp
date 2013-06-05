@@ -38,7 +38,7 @@ public:
   void set_neighbors(graph_t& graph);
   void set_next_hop(graph_t& graph, vertex_t vertex);
   bool in_as_path(graph_t& graph, vertex_t vertex);
-  bool loop_free(graph_t& graph, vertex_t v);
+  bool loop_free(const graph_t& graph, vertex_t v);
   int64_t current_next_hop_preference(graph_t& graph);
 
   int get_export(const graph_t& graph, vertex_t to_vertex);
