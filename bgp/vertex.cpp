@@ -57,14 +57,17 @@ int64_t Vertex::current_next_hop_preference(graph_t& graph) {
 
 bool Vertex::loop_free(graph_t& graph_, vertex_t new_vertex) {
   set<vertex_t> vertex_set;
-  //vertex_set.insert(new_vertex);
+  vertex_set.insert(new_vertex);
 
   vertex_t current_vertex = id_;
   std::stringstream ss;
+  ss << new_vertex <<  " ";
 
   while(true) {
     vertex_set.insert(current_vertex);
     auto& current = graph_[current_vertex];
+
+    ss << current_vertex <<  " ";
 
     if (current_vertex == Vertex::UNDEFINED) return true;
     if (current_vertex == DESTINATION_VERTEX) return true;
