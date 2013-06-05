@@ -7,7 +7,7 @@ const vertex_t Vertex::UNDEFINED  = 9999999;
 
 Vertex::Vertex() :
     mutex_(new mutex_t),
-    id_(0), next_hop_(UNDEFINED) {
+    id_(0), next_hop_(UNDEFINED), new_next_hop_(next_hop_) {
 
 }
 
@@ -26,9 +26,7 @@ int Vertex::get_export(const graph_t& graph, vertex_t to_vertex) {
     }
   }
 
-  return loop_free(graph, to_vertex);
-
-  //return 1;
+  return 1;
 }
 
 
