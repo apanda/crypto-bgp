@@ -25,6 +25,8 @@ q = MyPriQueue()
 relation = {}
 relMap = {}
 
+undirectedG = set()
+
 relMap['p2c'] = 2
 relMap['p2p'] = 1
 relMap['c2p'] = 0
@@ -50,6 +52,10 @@ def inspect():
   degrees = {}
   relSet = {}
   for (src, dst, rel) in edges:
+
+    sortedE = [src, dst]
+    sortedE.sort()
+    undirectedG.add( tuple(sortedE) )
 
     try: relSet[src]
     except: relSet[src] = set()
@@ -109,10 +115,10 @@ def inspect():
   counter = 1
   for vertex in bucketList:
 
-    #reverseMapping[counter] = vertex
-    reverseMapping[vertex] = vertex
-    #nodeMapping[vertex] = counter
-    nodeMapping[vertex] = vertex
+    reverseMapping[counter] = vertex
+    #reverseMapping[vertex] = vertex
+    nodeMapping[vertex] = counter
+    #nodeMapping[vertex] = vertex
     counter = counter + 1
 
 
@@ -138,25 +144,24 @@ def inspect():
   nnn.sort(key = lambda (src, dst, rel): rel)
   nnn.sort(key = lambda (src, dst, rel): src)
 
-  #print 'Translated destination:', nodeMapping['2']
+  #print 'Translated destination:', reverseMapping['41101']
+  print 'Reverse translation:', reverseMapping[2]
+  print 'Reverse translation:', reverseMapping[3227]
+  print 'Reverse translation:', reverseMapping[5123]
+  print 'Reverse translation:', reverseMapping[200]
 
   for (src, dst, rel) in nnn:
     line = '%s %s %s' %(src, dst, rel)
     print line
 
+  #print 'graph G {'
+  #for (src, dst) in undirectedG:
+  #  print '  %s -- %s;' % (src, dst)
+  #print '}'
 
 
-
-def dot():
-  edges = parse()
-  print 'graph G {'
-  for edge in edges:
-    print edge[0], '--', edge[1], ';'
-  print '}'
-
-
-def parse(filename = 'simple_map'):
-#def parse(filename = 'edited_graph_cyclops.txt'):
+#def parse(filename = 'simple_map'):
+def parse(filename = 'edited_graph_cyclops.txt'):
   with open(filename) as f:
     lines = f.readlines()
   

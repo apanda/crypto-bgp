@@ -9,6 +9,7 @@ sys.path.append(os.path.join(
   'execo-2.0',
   'src' ))
 
+DST = 3596
 
 import execo
 import boto
@@ -38,7 +39,6 @@ AMI = 'ami-6d224804'
 INSTANCES_FILE = "instances.dat"
 INSTANCES_TYPE = 'm3.2xlarge'
 SECURITY_GROUPS = ['vjeko']
-DST = 3227
 
 def loadInstances(connection):
     instances = []

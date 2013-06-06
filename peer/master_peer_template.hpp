@@ -91,6 +91,10 @@ void MasterPeer::publish(Session* session, vector<update_vertex_t>& nodes, size_
         s->write_impl(data.first, data.second, s->socket_);
       }
 
+      if (node_set_.empty()) {
+        LOG4CXX_INFO(logger_, "Last iteration.");
+      }
+
       node_set_.clear();
     }
 
