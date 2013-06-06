@@ -39,6 +39,7 @@ void BGPProcess::init(graph_t& graph) {
 
 }
 
+
 void BGPProcess::start(graph_t& graph) {
 
   vertex_t dst_vertex = DESTINATION_VERTEX;
