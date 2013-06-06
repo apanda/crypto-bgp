@@ -97,21 +97,21 @@ typedef string symbol_t;
 
 class update_vertex_t {
 public:
-  uint16_t vertex;
-  uint16_t next_hop;
 
   template <typename Archive>
   void serialize(Archive& ar, const unsigned int version)
   {
-    ar & vertex;
-    ar & next_hop;
+    ar & vertex_;
+    ar & next_hop_;
   }
 
+  uint16_t vertex_;
+  uint16_t next_hop_;
 };
 
 inline bool operator<(const update_vertex_t& lhs, const update_vertex_t& rhs)
 {
-  return lhs.vertex < rhs.vertex;
+  return lhs.vertex_ < rhs.vertex_;
 }
 
 struct sync_init {

@@ -43,7 +43,7 @@ void MasterPeer::publish(Session* session, sync_init si) {
   auto& m = sync_response_.hostname_mappings_[si.id_];
 
   for(auto v: si.nodes_) {
-     m[v.vertex] = si.hostname_;
+     m[v.vertex_] = si.hostname_;
   }
 
   vertex_count_ += si.nodes_.size();

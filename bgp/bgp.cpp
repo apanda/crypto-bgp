@@ -136,8 +136,8 @@ void BGPProcess::next_iteration_finish(const vertex_t dst_vertex,
 
     affected.next_hop_ = affected.new_next_hop_;
 
-    update.vertex = vertex;
-    update.next_hop = affected.next_hop_;
+    update.vertex_ = vertex;
+    update.next_hop_ = affected.next_hop_;
 
     nodes.push_back(update);
   }
@@ -149,12 +149,12 @@ void BGPProcess::next_iteration_finish(const vertex_t dst_vertex,
 
   for(size_t i = 0; i < master_->size_; i++) {
     auto update = master_->array_[i];
-    auto vertex = update.vertex;
+    auto vertex = update.vertex_;
 
     //BOOST_ASSERT(new_changed_set.find(vertex) != new_changed_set.end());
 
     Vertex& affected = graph_[vertex];
-    affected.next_hop_ = update.next_hop;
+    affected.next_hop_ = update.next_hop_;
 
     new_changed_set.insert(vertex);
   }

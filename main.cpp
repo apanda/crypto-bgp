@@ -121,7 +121,10 @@ void run_mpc() {
   LOG4CXX_INFO(mainLogger, "All clients have been started.");
 
   vector<update_vertex_t> nodes;
-  nodes.push_back(update_vertex_t(DESTINATION_VERTEX, DESTINATION_VERTEX));
+  update_vertex_t update;
+  update.vertex_ = DESTINATION_VERTEX;
+  update.next_hop_ = DESTINATION_VERTEX;
+  nodes.push_back(update);
 
   for(auto& cp: comp_peer_seq) {
     if (COMP_PEER_IDS.find(cp->id_) == COMP_PEER_IDS.end()) continue;
