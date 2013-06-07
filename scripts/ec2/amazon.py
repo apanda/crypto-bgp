@@ -240,7 +240,7 @@ def delegate(instances, graphSize, master, dst):
   for command in commands:
     for i in xrange(peerSize):
       idNum  = i + 1
-      idStr = ' --id %d > result' %(idNum)
+      idStr = ' --id %d >> result' %(idNum)
       allCommands.append( command + idStr )
 
   return allCommands
@@ -297,10 +297,11 @@ def main():
       graphSize = int( sys.argv[2] )
       argc = len(sys.argv)
       master = sys.argv[3]
-      dst = int(sys.argv[4])
-      runningInstances = loadInstances(conn)
-      commands = delegate( runningInstances, graphSize, master, dst )
-      zipExecute(runningInstances, commands)
+      for i in range(4, argc):
+        dst = int(sys.argv[i])
+        runningInstances = loadInstances(conn)
+        commands = delegate( runningInstances, graphSize, master, dst )
+        zipExecute(runningInstances, commands)
 
     else:
     	  print "ERROR: unknown command:",sys.argv[1];
