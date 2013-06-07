@@ -58,7 +58,8 @@ bool measure_time() {
   const auto t2 = clock_t::now();
   const auto duration = duration_cast<milliseconds>(t2 - t1).count();
 
-  LOG4CXX_INFO(mainLogger, "The execution took " << duration << " ms.");
+  LOG4CXX_INFO(mainLogger, "The execution took " << duration << " ms " <<
+      "for the destination " << DESTINATION_VERTEX << ".");
 
   io.stop();
 
