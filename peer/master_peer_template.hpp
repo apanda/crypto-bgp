@@ -99,8 +99,10 @@ void MasterPeer::publish(Session* session, vector<update_vertex_t>& nodes, size_
         }
 
         master_server_->sessions_.clear();
+        all_sessions_.clear();
         started_ = false;
         peers_synchronized_ = 0;
+        vertex_count_ = 0;
       }
 
       node_set_.clear();
