@@ -28,6 +28,8 @@ public:
       io_service& io);
   ~MasterPeer();
 
+  void clear_state();
+
   void publish(Session* session, sync_init si);
   void publish(Session* session, vector<update_vertex_t>& nodes, size_t id = 0);
 
