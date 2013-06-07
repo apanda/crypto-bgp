@@ -168,7 +168,7 @@ void BGPProcess::next_iteration_finish(const vertex_t dst_vertex,
   }
 
   if (new_changed_set.empty()) {
-    print_result();
+    //print_result();
     end_();
     return;
   }
@@ -719,14 +719,14 @@ void BGPProcess::print_result() {
   auto last = iter.second;
   auto current = iter.first;
 
-  LOG4CXX_FATAL(comp_peer_->logger_, "digraph G {");
+  LOG4CXX_INFO(comp_peer_->logger_, "digraph G {");
 
   for (; current != last; ++current) {
     const auto& current_vertex = *current;
     Vertex& vertex = graph_[current_vertex];
-    LOG4CXX_FATAL(comp_peer_->logger_, vertex.id_ << " -> " << vertex.next_hop_);
+    LOG4CXX_INFO(comp_peer_->logger_, vertex.id_ << " -> " << vertex.next_hop_);
   }
 
-  LOG4CXX_FATAL(comp_peer_->logger_, "}");
+  LOG4CXX_INFO(comp_peer_->logger_, "}");
 
 }

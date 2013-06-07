@@ -9,8 +9,6 @@ sys.path.append(os.path.join(
   'execo-2.0',
   'src' ))
 
-DST = 3596
-
 import execo
 import boto
 import pickle
@@ -201,13 +199,15 @@ def execCommandRange(instances, command, startid, endid,
 
 def zipExecute(instances, commands):
   pairs = zip(instances, commands)
+  remotes = []
   for (instance, command) in pairs:
-    execCommand([instance], command, async = True)
+    remotes.append( execCommand([instance], command, async = True) )
     print instance, ' -- ', command
 
+  remotes.pop().wait()
 
 
-def delegate(instances, graphSize, master):
+def delegate(instances, graphSize, master, dst):
   peerSize = 3
   count = len(instances)
   assert (count % 3 == 0)
@@ -217,6 +217,7 @@ def delegate(instances, graphSize, master):
   partitionVertexSize = graphSize / partitionSize
 
   MASTER = master
+  DST = dst
   THREADS = 16
   WHOAMI = '`/sbin/ifconfig eth0 | grep \'inet addr:\' | cut -d: -f2 | \
   awk \'{ print $1}\' `'
@@ -294,9 +295,11 @@ def main():
 
     elif sys.argv[1] == 'smirc':
       graphSize = int( sys.argv[2] )
+      argc = len(sys.argv)
       master = sys.argv[3]
+      dst = int(sys.argv[4])
       runningInstances = loadInstances(conn)
-      commands = delegate( runningInstances, graphSize, master )
+      commands = delegate( runningInstances, graphSize, master, dst )
       zipExecute(runningInstances, commands)
 
     else:
