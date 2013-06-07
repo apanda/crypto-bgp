@@ -92,7 +92,15 @@ void MasterPeer::publish(Session* session, vector<update_vertex_t>& nodes, size_
       }
 
       if (node_set_.empty()) {
-        LOG4CXX_INFO(logger_, "Last iteration.");
+        LOG4CXX_INFO(logger_, "Last iteration, clearning up the state...");
+
+        for(Session* s: master_server_->sessions_) {
+          s->socket_.close();
+        }
+
+        master_server_->sessions_.clear();
+        started_ = false;
+        peers_synchronized_ = 0;
       }
 
       node_set_.clear();
