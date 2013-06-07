@@ -145,10 +145,14 @@ def inspect():
   nnn.sort(key = lambda (src, dst, rel): src)
 
   #print 'Translated destination:', reverseMapping['41101']
-  print 'Reverse translation:', reverseMapping[2]
-  print 'Reverse translation:', reverseMapping[3227]
-  print 'Reverse translation:', reverseMapping[5123]
-  print 'Reverse translation:', reverseMapping[200]
+  #experiment = [80, 3227, 1111, 12, 1327, 5200, 156, 952,
+  #1635, 3424, 35, 1328, 5954, 153, 3186, 4]
+  sample = [7575, 2, 14742, 8492, 29944, 22186, 8342, 7902, 24, 38284, 
+  8928, 5432, 5504, 8708, 22243, 174]
+
+  for vertex in sample:
+    print nodeMapping[str(vertex)],
+  print ''
 
   for (src, dst, rel) in nnn:
     line = '%s %s %s' %(src, dst, rel)
