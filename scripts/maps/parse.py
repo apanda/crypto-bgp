@@ -17,8 +17,8 @@ class MyPriQueue(object):
         return (pri, d)
 
 
-GRAPH_SIZE = 10000
-BUCKET_SIZE = 1
+GRAPH_SIZE = 6119
+BUCKET_SIZE = 40
 
 buckets = deque()
 q = MyPriQueue()
@@ -114,6 +114,8 @@ def inspect():
 
   counter = 1
   for vertex in bucketList:
+
+    if counter > GRAPH_SIZE: continue
 
     reverseMapping[counter] = vertex
     #reverseMapping[vertex] = vertex
