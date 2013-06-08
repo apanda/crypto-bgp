@@ -8,7 +8,7 @@
 #include <algorithm>
 
 BGPProcess::BGPProcess(string path, CompPeer<3> * comp_peer, io_service& io) :
-    graph_(GRAPH_SIZE), comp_peer_(comp_peer), io_service_(io) {
+  graph_(GRAPH_SIZE), comp_peer_(comp_peer), io_service_(io) {
 
   load_graph(path, graph_);
   init(graph_);
@@ -188,6 +188,9 @@ void BGPProcess::process_neighbors_mpc(const vertex_t affected_vertex,
     shared_ptr<tbb::concurrent_unordered_set<vertex_t> > changed_set_ptr,
     shared_ptr<tbb::concurrent_unordered_set<vertex_t> > new_changed_set_ptr,
     shared_ptr<pair<size_t, size_t> > counts_ptr) {
+
+  auto timer = boost::timer::cpu_timer();
+  timer_vector_[affected_vertex] = timer;
 
   tbb::concurrent_unordered_set<vertex_t>& changed_set = *changed_set_ptr;
 
@@ -598,10 +601,20 @@ void BGPProcess::for_final(const vertex_t affected_vertex,
 
   affected.couter_map_.clear();
 
+  auto& timer = timer_vector_[affected_vertex];
+  timer.stop();
+
+
   m_.lock();
   count++;
 
   if (count == all_count) {
+
+    for (auto& p: timer_vector_) {
+      LOG4CXX_INFO(comp_peer_->logger_, "Vertex " << p.first << " "
+          << p.second.elapsed().wall);
+    }
+
     m_.unlock();
     continuation_();
   }

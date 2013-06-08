@@ -15,7 +15,9 @@
 #include <boost/graph/adjacency_list.hpp>
 #include <boost/graph/adjacency_matrix.hpp>
 #include <boost/graph/graphviz.hpp>
+#include <boost/timer/timer.hpp>
 
+#include <tbb/concurrent_unordered_map.h>
 #include <tbb/concurrent_unordered_set.h>
 #include <tbb/concurrent_vector.h>
 
@@ -147,6 +149,8 @@ public:
   void print_state(graph_t& graph);
   void print_result();
 
+  std::unordered_map<vertex_t, int64_t> accumulator_;
+  tbb::concurrent_unordered_map<vertex_t, boost::timer::cpu_timer> timer_vector_;
   graph_t graph_;
   CompPeer<3>* comp_peer_;
   shared_ptr<boost::barrier> bp_;

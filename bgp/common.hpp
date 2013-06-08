@@ -5,6 +5,7 @@
 #include <boost/graph/adjacency_list.hpp>
 #include <boost/graph/adjacency_matrix.hpp>
 #include <boost/graph/graphviz.hpp>
+#include <boost/timer/timer.hpp>
 
 #include <iostream>
 #include <vector>
@@ -14,6 +15,7 @@
 
 using boost::adjacency_list;
 using boost::graph_traits;
+using boost::timer::cpu_timer;
 
 using std::string;
 using std::vector;
