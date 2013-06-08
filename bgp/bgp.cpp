@@ -604,7 +604,6 @@ void BGPProcess::for_final(const vertex_t affected_vertex,
   auto& timer = timer_vector_[affected_vertex];
   timer.stop();
 
-
   m_.lock();
   count++;
 
@@ -615,9 +614,12 @@ void BGPProcess::for_final(const vertex_t affected_vertex,
           << p.second.elapsed().wall);
     }
 
+    timer_vector_.clear();
     m_.unlock();
     continuation_();
   }
+
+  timer_vector_.clear();
   m_.unlock();
 
 }
