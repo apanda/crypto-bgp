@@ -619,7 +619,6 @@ void BGPProcess::for_final(const vertex_t affected_vertex,
     continuation_();
   }
 
-  timer_vector_.clear();
   m_.unlock();
 
 }
