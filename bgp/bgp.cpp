@@ -87,6 +87,8 @@ void BGPProcess::next_iteration_start(const vertex_t dst_vertex,
   }
 
   if (batch.empty()) {
+
+    LOG4CXX_INFO(comp_peer_->logger_, "batch.empty()");
     next_iteration_finish(dst_vertex, new_changed_set_ptr);
   } else {
     next_iteration_continue(dst_vertex, batch_ptr, affected_set_ptr,
@@ -101,6 +103,9 @@ void BGPProcess::next_iteration_continue(const vertex_t dst_vertex,
     shared_ptr<set<vertex_t> > affected_set_ptr,
     shared_ptr<tbb::concurrent_unordered_set<vertex_t> > changed_set_ptr,
     shared_ptr<tbb::concurrent_unordered_set<vertex_t> > new_changed_set_ptr) {
+
+
+  LOG4CXX_INFO(comp_peer_->logger_, "next_iteration_continue");
 
   continuation_ = boost::bind(&BGPProcess::next_iteration_finish, this,
       dst_vertex, new_changed_set_ptr);
@@ -170,6 +175,7 @@ void BGPProcess::next_iteration_finish(const vertex_t dst_vertex,
   }
 
   if (new_changed_set.empty()) {
+    LOG4CXX_INFO(comp_peer_->logger_, "end_");
     end_();
     return;
   }
