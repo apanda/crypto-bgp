@@ -168,7 +168,6 @@ void BGPProcess::next_iteration_finish(const vertex_t dst_vertex,
   }
 
   if (new_changed_set.empty()) {
-    //print_result();
     end_();
     return;
   }
@@ -201,8 +200,8 @@ void BGPProcess::process_neighbors_mpc(const vertex_t affected_vertex,
   auto ch = vector<vertex_t>(changed_set.begin(), changed_set.end());
   std::sort(ch.begin(), ch.end());
 
-  shared_ptr<deque<pref_pair_t> > prefs_ptr(new deque<pref_pair_t>);
-  std::deque<pref_pair_t>& prefs = *prefs_ptr;
+  shared_ptr<tbb::concurrent_vector<pref_pair_t> > prefs_ptr(new tbb::concurrent_vector<pref_pair_t>);
+  tbb::concurrent_vector<pref_pair_t>& prefs = *prefs_ptr;
 
   std::deque<pref_pair_t> compute_local;
 
@@ -259,13 +258,20 @@ void BGPProcess::process_neighbors_mpc(const vertex_t affected_vertex,
   vlm["eql0"] = 1;
   vlm["neq0"] = 0;
 
-  shared_ptr<size_t> local_counts_ptr(new size_t);
-  size_t& local_count = *local_counts_ptr;
-  local_count = 0;
+  l_total_ = prefs.size();
 
-  for0(
-      affected_vertex, new_changed_set_ptr,
-      counts_ptr, local_counts_ptr, prefs_ptr);
+  int counter = 0;
+  for(auto& pref: prefs) {
+
+    counter++;
+    shared_ptr<size_t> local_counts_ptr(new size_t);
+    size_t& local_count = *local_counts_ptr;
+    local_count = counter;
+
+    for0(
+        affected_vertex, new_changed_set_ptr,
+        counts_ptr, local_counts_ptr, prefs_ptr);
+  }
 
 }
 
@@ -275,24 +281,13 @@ void BGPProcess::for0(const vertex_t affected_vertex,
     shared_ptr<tbb::concurrent_unordered_set<vertex_t> > new_changed_set_ptr,
     shared_ptr<pair<size_t, size_t> > counts_ptr,
     shared_ptr<size_t> local_counts_ptr,
-    shared_ptr<deque<pref_pair_t> > prefs_ptr) {
+    shared_ptr<tbb::concurrent_vector<pref_pair_t> > prefs_ptr) {
 
-  deque<pref_pair_t>& prefs = *prefs_ptr;
-
-  if (prefs.empty()) {
-
-    for_distribute(
-        affected_vertex, new_changed_set_ptr, counts_ptr,
-        local_counts_ptr, prefs_ptr);
-
-    return;
-  }
+  tbb::concurrent_vector<pref_pair_t>& prefs = *prefs_ptr;
 
   size_t& local_count = *local_counts_ptr;
-  local_count++;
 
   const auto pref = prefs.front();
-  prefs.pop_front();
 
   LOG4CXX_DEBUG(comp_peer_->logger_,
       "Preference: " << affected_vertex << " | " << pref.first << " | " << pref.second);
@@ -335,7 +330,7 @@ void BGPProcess::for1(const vertex_t affected_vertex,
     shared_ptr<tbb::concurrent_unordered_set<vertex_t> > new_changed_set_ptr,
     shared_ptr<pair<size_t, size_t> > counts_ptr,
     shared_ptr<size_t> local_counts_ptr,
-    shared_ptr<deque<pref_pair_t> > prefs_ptr) {
+    shared_ptr<tbb::concurrent_vector<pref_pair_t> > prefs_ptr) {
 
   size_t& local_count = *local_counts_ptr;
 
@@ -383,7 +378,7 @@ void BGPProcess::for2(const vertex_t affected_vertex,
     shared_ptr<tbb::concurrent_unordered_set<vertex_t> > new_changed_set_ptr,
     shared_ptr<pair<size_t, size_t> > counts_ptr,
     shared_ptr<size_t> local_counts_ptr,
-    shared_ptr<deque<pref_pair_t> > prefs_ptr) {
+    shared_ptr<tbb::concurrent_vector<pref_pair_t> > prefs_ptr) {
 
   size_t& local_count = *local_counts_ptr;
 
@@ -431,7 +426,7 @@ void BGPProcess::for3(const vertex_t affected_vertex,
     shared_ptr<tbb::concurrent_unordered_set<vertex_t> > new_changed_set_ptr,
     shared_ptr<pair<size_t, size_t> > counts_ptr,
     shared_ptr<size_t> local_counts_ptr,
-    shared_ptr<deque<pref_pair_t> > prefs_ptr) {
+    shared_ptr<tbb::concurrent_vector<pref_pair_t> > prefs_ptr) {
 
   size_t& local_count = *local_counts_ptr;
 
@@ -479,7 +474,7 @@ void BGPProcess::for_add(const vertex_t affected_vertex,
     shared_ptr<tbb::concurrent_unordered_set<vertex_t> > new_changed_set_ptr,
     shared_ptr<pair<size_t, size_t> > counts_ptr,
     shared_ptr<size_t> local_counts_ptr,
-    shared_ptr<deque<pref_pair_t> > prefs_ptr) {
+    shared_ptr<tbb::concurrent_vector<pref_pair_t> > prefs_ptr) {
 
   size_t& local_count = *local_counts_ptr;
 
@@ -512,8 +507,19 @@ void BGPProcess::for_add(const vertex_t affected_vertex,
   //LOG4CXX_INFO(comp_peer_->logger_, "for3: " << affected_vertex << " | " << vlm[for3_key]);
 
   vlm["result"] = vlm["result"] + vlm[final_key];
-  for0(affected_vertex, new_changed_set_ptr, counts_ptr, local_counts_ptr,
-      prefs_ptr);
+
+
+  m_.lock();
+  l_++;
+  if (l_ == l_total_) {
+    m_.unlock();
+    continuation_();
+    return;
+  }
+  m_.unlock();
+
+  //for0(affected_vertex, new_changed_set_ptr, counts_ptr, local_counts_ptr,
+  //    prefs_ptr);
 }
 
 
@@ -522,7 +528,7 @@ void BGPProcess::for_distribute(const vertex_t affected_vertex,
     shared_ptr<tbb::concurrent_unordered_set<vertex_t> > new_changed_set_ptr,
     shared_ptr<pair<size_t, size_t> > counts_ptr,
     shared_ptr<size_t> local_counts_ptr,
-    shared_ptr<deque<pref_pair_t> > prefs_ptr) {
+    shared_ptr<tbb::concurrent_vector<pref_pair_t> > prefs_ptr) {
 
   size_t& local_count = *local_counts_ptr;
 
@@ -573,7 +579,7 @@ void BGPProcess::for_final(const vertex_t affected_vertex,
     shared_ptr<tbb::concurrent_unordered_set<vertex_t> > new_changed_set_ptr,
     shared_ptr<pair<size_t, size_t> > counts_ptr,
     shared_ptr<size_t> local_counts_ptr,
-    shared_ptr<deque<pref_pair_t> > prefs_ptr) {
+    shared_ptr<tbb::concurrent_vector<pref_pair_t> > prefs_ptr) {
 
   size_t& count = counts_ptr->first;
   size_t& all_count = counts_ptr->second;
@@ -604,6 +610,7 @@ void BGPProcess::for_final(const vertex_t affected_vertex,
   if (count == all_count) {
     m_.unlock();
     continuation_();
+    return;
   }
   m_.unlock();
 
