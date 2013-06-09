@@ -296,6 +296,7 @@ def main():
     elif sys.argv[1] == 'smirc':
       graphSize = int( sys.argv[2] )
       argc = len(sys.argv)
+      print argc
       master = sys.argv[3]
       for i in range(4, argc):
         dst = int(sys.argv[i])
