@@ -125,6 +125,8 @@ void BGPProcess::next_iteration_continue(const vertex_t dst_vertex,
 void BGPProcess::next_iteration_finish(const vertex_t dst_vertex,
     shared_ptr<tbb::concurrent_unordered_set<vertex_t> > new_changed_set_ptr) {
 
+  LOG4CXX_INFO(comp_peer_->logger_, "next_iteration_finish");
+
   tbb::concurrent_unordered_set<vertex_t>& new_changed_set =
       *new_changed_set_ptr;
 
@@ -522,6 +524,8 @@ void BGPProcess::for_add(const vertex_t affected_vertex,
   local.first++;
   if (local.first == local.second) {
 
+    affected.couter_map_.clear();
+
     size_t& count = counts_ptr->first;
     size_t& all_count = counts_ptr->second;
 
@@ -622,17 +626,6 @@ void BGPProcess::for_final(const vertex_t affected_vertex,
         << " -- next hop should be " << affected.new_next_hop_ << " not " << value);
   }
 
-  affected.couter_map_.clear();
-
-  m_.lock();
-  count++;
-
-  if (count == all_count) {
-    m_.unlock();
-    continuation_();
-    return;
-  }
-  m_.unlock();
 
 }
 
