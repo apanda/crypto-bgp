@@ -528,6 +528,7 @@ void BGPProcess::for_add(const vertex_t affected_vertex,
     count++;
 
     if (count == all_count) {
+      LOG4CXX_INFO(comp_peer_->logger_, "count == all_count");
       m_.unlock();
       continuation_();
       return;
