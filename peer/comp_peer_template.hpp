@@ -237,8 +237,8 @@ void CompPeer<Num>::multiply(
   Vertex& vertex = bgp_->graph_[l];
   value_map_t& vlm = vertex.value_map_;
 
-  vlm.at(first);
-  vlm.at(second);
+  //vlm.at(first);
+  //vlm.at(second);
 
   const string key = recombination_key + "_" + lexical_cast<string>(id_);
   const int64_t result = vlm[first] * vlm[second];
