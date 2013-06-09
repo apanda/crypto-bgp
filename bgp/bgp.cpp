@@ -267,21 +267,17 @@ void BGPProcess::process_neighbors_mpc(const vertex_t affected_vertex,
   vlm["eql0"] = 1;
   vlm["neq0"] = 0;
 
-  l_ = 0;
-  l_total_ = prefs.size();
-
   shared_ptr<pair<size_t, size_t> > local_counts_ptr(new pair<size_t, size_t>);
   auto& local = *local_counts_ptr;
+
   local.first = 0;
   local.second = prefs.size();
 
-  int counter = 0;
-  for(auto& pref: prefs) {
+  for(auto i = 1; i <= prefs.size(); i++) {
 
-    counter++;
     shared_ptr<size_t> index_ptr(new size_t);
     size_t& index = *index_ptr;
-    index = counter;
+    index = i;
 
     for0(
         affected_vertex, new_changed_set_ptr,
@@ -303,7 +299,7 @@ void BGPProcess::for0(const vertex_t affected_vertex,
 
   auto& index = *index_ptr;
 
-  const auto pref = prefs[index];
+  const auto pref = prefs[index - 1];
 
   LOG4CXX_INFO(comp_peer_->logger_, "for0");
 
