@@ -196,7 +196,6 @@ void BGPProcess::process_neighbors_mpc(const vertex_t affected_vertex,
     shared_ptr<tbb::concurrent_unordered_set<vertex_t> > new_changed_set_ptr,
     shared_ptr<pair<size_t, size_t> > counts_ptr) {
 
-  LOG4CXX_INFO(comp_peer_->logger_, "process_neighbors_mpc");
 
   tbb::concurrent_unordered_set<vertex_t>& changed_set = *changed_set_ptr;
 
@@ -275,6 +274,9 @@ void BGPProcess::process_neighbors_mpc(const vertex_t affected_vertex,
   auto& local = *local_counts_ptr;
   local.first = 0;
   local.second = prefs.size();
+
+
+  LOG4CXX_INFO(comp_peer_->logger_, "process_neighbors_mpc");
 
   int counter = 0;
   for(auto& pref: prefs) {
