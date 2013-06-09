@@ -334,7 +334,7 @@ void BGPProcess::for0(const vertex_t affected_vertex,
   //vlm[pol_key] = offered.get_export(graph_, affected_vertex);
   vlm[pol_key] = 1;
 
-  LOG4CXX_INFO(comp_peer_->logger_, "for0" << affected_vertex);
+  LOG4CXX_INFO(comp_peer_->logger_, "for0 " << affected_vertex);
 
   comp_peer_->execute(circut, affected_vertex);
 }
