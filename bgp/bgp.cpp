@@ -301,8 +301,6 @@ void BGPProcess::for0(const vertex_t affected_vertex,
 
   const auto pref = prefs[index - 1];
 
-  LOG4CXX_INFO(comp_peer_->logger_, "for0");
-
   LOG4CXX_DEBUG(comp_peer_->logger_,
       "Preference: " << affected_vertex << " | " << pref.first << " | " << pref.second);
 
