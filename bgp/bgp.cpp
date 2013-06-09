@@ -258,6 +258,7 @@ void BGPProcess::process_neighbors_mpc(const vertex_t affected_vertex,
   vlm["eql0"] = 1;
   vlm["neq0"] = 0;
 
+  l_ = 0;
   l_total_ = prefs.size();
 
   int counter = 0;
