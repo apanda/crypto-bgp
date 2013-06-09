@@ -337,7 +337,8 @@ void BGPProcess::for0(const vertex_t affected_vertex,
       prefs_ptr);
 
   vlm[val_key] = pref.first;
-  vlm[pol_key] = offered.get_export(graph_, affected_vertex);
+  //vlm[pol_key] = offered.get_export(graph_, affected_vertex);
+  vlm[pol_key] = 1;
 
   comp_peer_->execute(circut, affected_vertex);
 }
