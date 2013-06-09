@@ -261,17 +261,22 @@ void BGPProcess::process_neighbors_mpc(const vertex_t affected_vertex,
   l_ = 0;
   l_total_ = prefs.size();
 
+  shared_ptr<pair<size_t, size_t> > local_counts_ptr(new pair<size_t, size_t>);
+  auto& local = *local_counts_ptr;
+  local.first = 0;
+  local.second = prefs.size();
+
   int counter = 0;
   for(auto& pref: prefs) {
 
     counter++;
-    shared_ptr<size_t> local_counts_ptr(new size_t);
-    size_t& local_count = *local_counts_ptr;
-    local_count = counter;
+    shared_ptr<size_t> index_ptr(new size_t);
+    size_t& index = *index_ptr;
+    index = counter;
 
     for0(
         affected_vertex, new_changed_set_ptr,
-        counts_ptr, local_counts_ptr, prefs_ptr);
+        counts_ptr, local_counts_ptr, index_ptr, prefs_ptr);
   }
 
 }
@@ -281,12 +286,13 @@ void BGPProcess::process_neighbors_mpc(const vertex_t affected_vertex,
 void BGPProcess::for0(const vertex_t affected_vertex,
     shared_ptr<tbb::concurrent_unordered_set<vertex_t> > new_changed_set_ptr,
     shared_ptr<pair<size_t, size_t> > counts_ptr,
-    shared_ptr<size_t> local_counts_ptr,
+    shared_ptr<pair<size_t, size_t> > local_counts_ptr,
+    shared_ptr<size_t> index_ptr,
     shared_ptr<tbb::concurrent_vector<pref_pair_t> > prefs_ptr) {
 
   tbb::concurrent_vector<pref_pair_t>& prefs = *prefs_ptr;
 
-  size_t& local_count = *local_counts_ptr;
+  auto& index = *index_ptr;
 
   const auto pref = prefs.front();
 
@@ -299,8 +305,8 @@ void BGPProcess::for0(const vertex_t affected_vertex,
   const vertex_t offered_vertex = pref.first;
   Vertex& offered = graph_[offered_vertex];
 
-  const string key = lexical_cast<string>(local_count);
-  const string prev_key = lexical_cast<string>(local_count - 1);
+  const string key = lexical_cast<string>(index);
+  const string prev_key = lexical_cast<string>(index - 1);
 
   string pol_key = "pol" + key;
   string val_key = "val" + key;
@@ -316,7 +322,7 @@ void BGPProcess::for0(const vertex_t affected_vertex,
       new boost::function<void()>);
 
   *(affected.sig_bgp_next[final_key]) = boost::bind(&BGPProcess::for1, this,
-      affected_vertex, new_changed_set_ptr, counts_ptr, local_counts_ptr,
+      affected_vertex, new_changed_set_ptr, counts_ptr, local_counts_ptr, index_ptr,
       prefs_ptr);
 
   vlm[val_key] = pref.first;
@@ -330,16 +336,16 @@ void BGPProcess::for0(const vertex_t affected_vertex,
 void BGPProcess::for1(const vertex_t affected_vertex,
     shared_ptr<tbb::concurrent_unordered_set<vertex_t> > new_changed_set_ptr,
     shared_ptr<pair<size_t, size_t> > counts_ptr,
-    shared_ptr<size_t> local_counts_ptr,
+    shared_ptr<pair<size_t, size_t> > local_counts_ptr,
+    shared_ptr<size_t> index_ptr,
     shared_ptr<tbb::concurrent_vector<pref_pair_t> > prefs_ptr) {
 
-  size_t& local_count = *local_counts_ptr;
+  auto& index = *index_ptr;
+  const string key = lexical_cast<string>(index);
+  const string prev_key = lexical_cast<string>(index - 1);
 
   Vertex& affected = graph_[affected_vertex];
   auto& vlm = affected.value_map_;
-
-  const string key = lexical_cast<string>(local_count);
-  const string prev_key = lexical_cast<string>(local_count - 1);
 
   string pol_key = "pol" + key;
   string val_key = "val" + key;
@@ -361,7 +367,7 @@ void BGPProcess::for1(const vertex_t affected_vertex,
       new boost::function<void()>);
 
   *(affected.sig_bgp_next[final_key]) = boost::bind(&BGPProcess::for2, this,
-      affected_vertex, new_changed_set_ptr, counts_ptr, local_counts_ptr,
+      affected_vertex, new_changed_set_ptr, counts_ptr, local_counts_ptr, index_ptr,
       prefs_ptr);
 
   vlm[eql_key] = 1 - vlm[for0_key];
@@ -378,16 +384,16 @@ void BGPProcess::for1(const vertex_t affected_vertex,
 void BGPProcess::for2(const vertex_t affected_vertex,
     shared_ptr<tbb::concurrent_unordered_set<vertex_t> > new_changed_set_ptr,
     shared_ptr<pair<size_t, size_t> > counts_ptr,
-    shared_ptr<size_t> local_counts_ptr,
+    shared_ptr<pair<size_t, size_t> > local_counts_ptr,
+    shared_ptr<size_t> index_ptr,
     shared_ptr<tbb::concurrent_vector<pref_pair_t> > prefs_ptr) {
 
-  size_t& local_count = *local_counts_ptr;
+  auto& index = *index_ptr;
+  const string key = lexical_cast<string>(index);
+  const string prev_key = lexical_cast<string>(index - 1);
 
   Vertex& affected = graph_[affected_vertex];
   auto& vlm = affected.value_map_;
-
-  const string key = lexical_cast<string>(local_count);
-  const string prev_key = lexical_cast<string>(local_count - 1);
 
   string pol_key = "pol" + key;
   string eql_key = "eql" + key;
@@ -411,7 +417,7 @@ void BGPProcess::for2(const vertex_t affected_vertex,
       new boost::function<void()>);
 
   *(affected.sig_bgp_next[final_key]) = boost::bind(&BGPProcess::for3, this,
-      affected_vertex, new_changed_set_ptr, counts_ptr, local_counts_ptr,
+      affected_vertex, new_changed_set_ptr, counts_ptr, local_counts_ptr, index_ptr,
       prefs_ptr);
 
   vlm[acc_key] = vlm[for1_key];
@@ -426,16 +432,16 @@ void BGPProcess::for2(const vertex_t affected_vertex,
 void BGPProcess::for3(const vertex_t affected_vertex,
     shared_ptr<tbb::concurrent_unordered_set<vertex_t> > new_changed_set_ptr,
     shared_ptr<pair<size_t, size_t> > counts_ptr,
-    shared_ptr<size_t> local_counts_ptr,
+    shared_ptr<pair<size_t, size_t> > local_counts_ptr,
+    shared_ptr<size_t> index_ptr,
     shared_ptr<tbb::concurrent_vector<pref_pair_t> > prefs_ptr) {
 
-  size_t& local_count = *local_counts_ptr;
+  auto& index = *index_ptr;
+  const string key = lexical_cast<string>(index);
+  const string prev_key = lexical_cast<string>(index - 1);
 
   Vertex& affected = graph_[affected_vertex];
   //auto& vlm = affected.value_map_;
-
-  const string key = lexical_cast<string>(local_count);
-  const string prev_key = lexical_cast<string>(local_count - 1);
 
   string eql_key = "eql" + key;
   string neq_key = "neq" + key;
@@ -461,7 +467,7 @@ void BGPProcess::for3(const vertex_t affected_vertex,
       new boost::function<void()>);
 
   *(affected.sig_bgp_next[final_key]) = boost::bind(&BGPProcess::for_add, this,
-      affected_vertex, new_changed_set_ptr, counts_ptr, local_counts_ptr,
+      affected_vertex, new_changed_set_ptr, counts_ptr, local_counts_ptr, index_ptr,
       prefs_ptr);
 
   //LOG4CXX_INFO(comp_peer_->logger_, "for2: " << affected_vertex << " | " << vlm[for2_key]);
@@ -474,16 +480,16 @@ void BGPProcess::for3(const vertex_t affected_vertex,
 void BGPProcess::for_add(const vertex_t affected_vertex,
     shared_ptr<tbb::concurrent_unordered_set<vertex_t> > new_changed_set_ptr,
     shared_ptr<pair<size_t, size_t> > counts_ptr,
-    shared_ptr<size_t> local_counts_ptr,
+    shared_ptr<pair<size_t, size_t> > local_counts_ptr,
+    shared_ptr<size_t> index_ptr,
     shared_ptr<tbb::concurrent_vector<pref_pair_t> > prefs_ptr) {
 
-  size_t& local_count = *local_counts_ptr;
+  auto& index = *index_ptr;
+  const string key = lexical_cast<string>(index);
+  const string prev_key = lexical_cast<string>(index - 1);
 
   Vertex& affected = graph_[affected_vertex];
   auto& vlm = affected.value_map_;
-
-  const string key = lexical_cast<string>(local_count);
-  const string prev_key = lexical_cast<string>(local_count - 1);
 
   string eql_key = "eql" + key;
   string neq_key = "neq" + key;
@@ -509,15 +515,26 @@ void BGPProcess::for_add(const vertex_t affected_vertex,
 
   vlm["result"] = vlm["result"] + vlm[final_key];
 
+  auto& local = *local_counts_ptr;
 
   m_.lock();
-  l_++;
-  LOG4CXX_INFO(comp_peer_->logger_, l_ << " | " << l_total_);
-  if (l_ == l_total_) {
-    m_.unlock();
-    continuation_();
-    return;
+
+  local.first++;
+  if (local.first == local.second) {
+
+    size_t& count = counts_ptr->first;
+    size_t& all_count = counts_ptr->second;
+
+    count++;
+
+    if (count == all_count) {
+      m_.unlock();
+      continuation_();
+      return;
+    }
+
   }
+
   m_.unlock();
 
   //for0(affected_vertex, new_changed_set_ptr, counts_ptr, local_counts_ptr,
