@@ -428,7 +428,7 @@ void BGPProcess::for2(const vertex_t affected_vertex,
 
   vlm[acc_key] = vlm[for1_key];
 
-  //LOG4CXX_INFO(comp_peer_->logger_, "for1: " << affected_vertex << " | " << vlm[for1_key]);
+  LOG4CXX_INFO(comp_peer_->logger_, "for1: " << affected_vertex);
 
   comp_peer_->execute(circut, affected_vertex);
 }
