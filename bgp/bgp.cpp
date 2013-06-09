@@ -275,9 +275,6 @@ void BGPProcess::process_neighbors_mpc(const vertex_t affected_vertex,
   local.first = 0;
   local.second = prefs.size();
 
-
-  LOG4CXX_INFO(comp_peer_->logger_, "process_neighbors_mpc");
-
   int counter = 0;
   for(auto& pref: prefs) {
 
@@ -306,7 +303,9 @@ void BGPProcess::for0(const vertex_t affected_vertex,
 
   auto& index = *index_ptr;
 
-  const auto pref = prefs.front();
+  const auto pref = prefs[index];
+
+  LOG4CXX_INFO(comp_peer_->logger_, "for0");
 
   LOG4CXX_DEBUG(comp_peer_->logger_,
       "Preference: " << affected_vertex << " | " << pref.first << " | " << pref.second);
