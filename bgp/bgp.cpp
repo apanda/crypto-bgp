@@ -511,6 +511,7 @@ void BGPProcess::for_add(const vertex_t affected_vertex,
 
   m_.lock();
   l_++;
+  LOG4CXX_INFO(comp_peer_->logger_, l_ << " | " << l_total_);
   if (l_ == l_total_) {
     m_.unlock();
     continuation_();
