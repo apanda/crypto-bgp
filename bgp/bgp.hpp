@@ -168,7 +168,8 @@ public:
   boost::function<void()> end_;
 
   tbb::concurrent_queue< boost::function<void()> > work_queue_;
-  std::vector< boost::function<void()> > tmp_vector_;
+  vector< boost::function<void()> > tmp_vector_;
+  std::list< vector< boost::function<void()> > > tmp_vector2_;
 
 };
 

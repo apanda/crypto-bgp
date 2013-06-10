@@ -122,11 +122,20 @@ void BGPProcess::next_iteration_continue(const vertex_t dst_vertex,
     process_neighbors_mpc(vertex, changed_set_ptr, new_changed_set_ptr,
         counts_ptr);
   }
-  std::srand ( unsigned ( 4225 ) );
-  std::random_shuffle ( tmp_vector_.begin(), tmp_vector_.end());
 
-  for(auto f: tmp_vector_) {
-    work_queue_.push(f);
+
+  while(!tmp_vector2_.empty()) {
+    for (auto it = tmp_vector2_.begin(); it != tmp_vector2_.end(); ++it) {
+
+      auto& vec = *it;
+      if(vec.empty()) {
+        it = tmp_vector2_.erase(it);
+        continue;
+      }
+
+      work_queue_.push( vec.back() );
+      vec.pop_back();
+    }
   }
 
   int counter = 0;
@@ -289,6 +298,8 @@ void BGPProcess::process_neighbors_mpc(const vertex_t affected_vertex,
   local.first = 0;
   local.second = prefs.size();
 
+  vector<function<void()> > vec;
+
   for(auto i = 1; i <= prefs.size(); i++) {
     shared_ptr<size_t> index_ptr(new size_t);
     size_t& index = *index_ptr;
@@ -299,9 +310,10 @@ void BGPProcess::process_neighbors_mpc(const vertex_t affected_vertex,
         prefs_ptr);
 
     //io_service_.post(f);
-    tmp_vector_.push_back(f);
+    vec.push_back(f);
   }
 
+  tmp_vector2_.push_back(vec);
 
 }
 
