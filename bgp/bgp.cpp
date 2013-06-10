@@ -249,22 +249,12 @@ void BGPProcess::process_neighbors_mpc(const vertex_t affected_vertex,
 
     auto pref = affected.preference_[neigh];
     //auto export_pol = offered.get_export(graph_, affected_vertex);
-    auto pref_export = pref * export_pol;
+    //auto pref_export = pref * export_pol;
 
     prefs.push_back( pref_pair_t(neigh, pref) );
-    compute_local.push_back( pref_pair_t(neigh, pref_export) );
+    //compute_local.push_back( pref_pair_t(neigh, pref_export) );
   }
-
-  pref_pair_t zero(0, 0);
-  compute_local.erase(
-      std::remove_if(compute_local.begin(), compute_local.end(),
-          [zero](pref_pair_t n) { return zero.second == n.second; } ),
-          compute_local.end());
-
-  std::sort(compute_local.begin(), compute_local.end(),
-      boost::bind(&pref_pair_t::second, _1)
-          > boost::bind(&pref_pair_t::second, _2));
-
+/*
   std::sort(prefs.begin(), prefs.end(),
       boost::bind(&pref_pair_t::second, _1)
           > boost::bind(&pref_pair_t::second, _2));
@@ -282,7 +272,7 @@ void BGPProcess::process_neighbors_mpc(const vertex_t affected_vertex,
       new_changed_set.insert(affected_vertex);
     }
   }
-
+*/
   vlm["result"] = 0;
   vlm["acc0"] = 1;
   vlm["eql0"] = 1;
