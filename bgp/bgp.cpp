@@ -105,6 +105,8 @@ void BGPProcess::next_iteration_continue(const vertex_t dst_vertex,
     shared_ptr<tbb::concurrent_unordered_set<vertex_t> > new_changed_set_ptr) {
 
 
+
+
   continuation_ = boost::bind(&BGPProcess::next_iteration_finish, this,
       dst_vertex, new_changed_set_ptr);
 
@@ -134,6 +136,10 @@ void BGPProcess::next_iteration_continue(const vertex_t dst_vertex,
       work_queue_.push( vec.back() );
       vec.pop_back();
     }
+  }
+
+  for(auto f: tmp_vector_) {
+    work_queue_.push(f);
   }
 
   int counter = 0;
