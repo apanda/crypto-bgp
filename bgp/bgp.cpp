@@ -116,6 +116,8 @@ void BGPProcess::next_iteration_continue(const vertex_t dst_vertex,
   counts_ptr->first = 0;
   counts_ptr->second = batch.size();
 
+  std::sort(batch.begin(), batch.end());
+
   for (auto& vertex : batch) {
 
     io_service_.post(
