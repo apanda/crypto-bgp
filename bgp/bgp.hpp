@@ -17,6 +17,7 @@
 #include <boost/graph/graphviz.hpp>
 
 #include <tbb/concurrent_unordered_set.h>
+#include <tbb/concurrent_queue.h>
 #include <tbb/concurrent_vector.h>
 
 template<size_t >
@@ -167,7 +168,7 @@ public:
   boost::function<void()> continuation_;
   boost::function<void()> end_;
 
-
+  tbb::concurrent_queue< boost::function<void()> > work_queue_;
 
 };
 
