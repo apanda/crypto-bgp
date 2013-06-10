@@ -58,8 +58,7 @@ bool measure_time() {
   const auto t2 = clock_t::now();
   const auto duration = duration_cast<milliseconds>(t2 - t1).count();
 
-  LOG4CXX_INFO(mainLogger, "The execution took " << duration << " ms " <<
-      "for the destination " << DESTINATION_VERTEX << ".");
+  LOG4CXX_INFO(mainLogger, "The execution took " << duration << " ms.");
 
   io.stop();
 
@@ -122,11 +121,6 @@ void run_mpc() {
   LOG4CXX_INFO(mainLogger, "All clients have been started.");
 
   vector<update_vertex_t> nodes;
-  update_vertex_t update;
-  update.vertex_ = DESTINATION_VERTEX;
-  update.next_hop_ = DESTINATION_VERTEX;
-  nodes.push_back(update);
-
   for(auto& cp: comp_peer_seq) {
     if (COMP_PEER_IDS.find(cp->id_) == COMP_PEER_IDS.end()) continue;
     LOG4CXX_INFO(mainLogger, "master->sync(nodes)");
@@ -167,10 +161,8 @@ int main(int argc, char *argv[]) {
       ("threads", po::value<size_t>(), "total number of threads")
       ("master-host", po::value<string>(), "master address")
       ("whoami", po::value<string>(), "out address")
-      ("start", po::value<size_t>(), "staring vertex")
-      ("end", po::value<size_t>(), "ending vertex")
+      ("degree", po::value<size_t>(), "in-degree")
       ("id", po::value<vector<int>>()->multitoken(), "computational peer id")
-      ("dst", po::value<size_t>(), "destination vertex")
   ;
 
   po::variables_map vm;
@@ -189,12 +181,8 @@ int main(int argc, char *argv[]) {
     THREAD_COUNT = vm["threads"].as<size_t>();
   }
 
-  if (vm.count("start")) {
-    VERTEX_START = vm["start"].as<size_t>();
-  }
-
-  if (vm.count("end")) {
-    VERTEX_END = vm["end"].as<size_t>();
+  if (vm.count("degree")) {
+    GRAPH_SIZE = vm["degree"].as<size_t>() + 2;
   }
 
   if (vm.count("id")) {
@@ -211,12 +199,6 @@ int main(int argc, char *argv[]) {
   if (vm.count("whoami")) {
     WHOAMI = vm["whoami"].as<string>();
   }
-
-  if (vm.count("dst")) {
-    DESTINATION_VERTEX = vm["dst"].as<size_t>();
-  }
-
-  GRAPH_SIZE = BGPProcess::get_graph_size("scripts/dot.dot") + 1;
 
   if (vm.count("master")) {
     run_master();
