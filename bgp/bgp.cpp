@@ -120,11 +120,10 @@ void BGPProcess::next_iteration_continue(const vertex_t dst_vertex,
 
   for (auto& vertex : batch) {
 
-    LOG4CXX_INFO(comp_peer_->logger_, "next_iteration_continue " << vertex);
+    //LOG4CXX_INFO(comp_peer_->logger_, "next_iteration_continue " << vertex);
 
-    io_service_.post(
-        boost::bind(&BGPProcess::process_neighbors_mpc, this, vertex,
-            changed_set_ptr, new_changed_set_ptr, counts_ptr));
+    process_neighbors_mpc(vertex, changed_set_ptr, new_changed_set_ptr,
+        counts_ptr);
   }
 
 }
