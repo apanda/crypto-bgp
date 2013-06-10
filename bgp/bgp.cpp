@@ -126,6 +126,16 @@ void BGPProcess::next_iteration_continue(const vertex_t dst_vertex,
         counts_ptr);
   }
 
+
+  int counter = 0;
+  while (true) {
+    if(work_queue_.empty()) break;
+    if(counter > 200) break;
+
+    boost::function<void()> f;
+    bool popped = work_queue_.try_pop(f);
+    if(popped) io_service_.post(f);
+  }
 }
 
 
@@ -286,18 +296,7 @@ void BGPProcess::process_neighbors_mpc(const vertex_t affected_vertex,
         prefs_ptr);
 
     //io_service_.post(f);
-    affected.work_queue_.push(f);
-  }
-
-  int counter = 0;
-  while (true) {
-    if(affected.work_queue_.empty()) break;
-    if(counter > 20) break;
-    if(counter > prefs.size()) break;
-
-    boost::function<void()> f;
-    bool popped = affected.work_queue_.try_pop(f);
-    if(popped) io_service_.post(f);
+    work_queue_.push(f);
   }
 
 
