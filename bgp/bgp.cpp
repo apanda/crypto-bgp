@@ -115,14 +115,12 @@ void BGPProcess::next_iteration_continue(const vertex_t dst_vertex,
 
   std::sort(batch.begin(), batch.end());
 
-  std::cout << "for" << std::endl;;
 
   for (auto& vertex : batch) {
     process_neighbors_mpc(vertex, changed_set_ptr, new_changed_set_ptr,
         counts_ptr);
   }
 
-  std::cout << "tmp_vector2_ " << tmp_vector2_.size() << std::endl;;
   while(!tmp_vector2_.empty()) {
     for (auto it = tmp_vector2_.begin(); it != tmp_vector2_.end(); ++it) {
 
