@@ -348,8 +348,6 @@ void BGPProcess::for0(const vertex_t affected_vertex,
   //vlm[pol_key] = offered.get_export(graph_, affected_vertex);
   vlm[pol_key] = 1;
 
-  LOG4CXX_INFO(comp_peer_->logger_, "for0 " << affected_vertex);
-
   comp_peer_->execute(circut, affected_vertex);
 }
 
@@ -540,9 +538,6 @@ void BGPProcess::for_add(const vertex_t affected_vertex,
   m_.lock();
 
   local.first++;
-
-
-  LOG4CXX_INFO(comp_peer_->logger_, "local.first == " << local.first);
 
   if (local.first == local.second) {
 
