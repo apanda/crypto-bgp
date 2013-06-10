@@ -130,7 +130,7 @@ void BGPProcess::next_iteration_continue(const vertex_t dst_vertex,
   int counter = 0;
   while (true) {
     if(work_queue_.empty()) break;
-    if(counter > 200) break;
+    if(counter > 20) break;
 
     boost::function<void()> f;
     bool popped = work_queue_.try_pop(f);
