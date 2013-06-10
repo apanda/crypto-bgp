@@ -283,7 +283,7 @@ void BGPProcess::process_neighbors_mpc(const vertex_t affected_vertex,
         prefs_ptr);
 
     //io_service_.post(f);
-    //affected.work_queue_.push(f);
+    affected.work_queue_.push(f);
   }
 
   int counter = 0;
