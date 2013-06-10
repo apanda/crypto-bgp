@@ -132,6 +132,7 @@ void BGPProcess::next_iteration_continue(const vertex_t dst_vertex,
     boost::function<void()> f;
     bool popped = work_queue_.try_pop(f);
     if(popped) io_service_.post(f);
+    counter++;
   }
 }
 
