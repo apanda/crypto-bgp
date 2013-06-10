@@ -85,6 +85,7 @@ public:
   tbb::concurrent_unordered_map<string, shared_ptr<boost::function<void()> > > sig_bgp_next;
 
   tbb::concurrent_queue< boost::asio::mutable_buffer > data_queue;
+  tbb::concurrent_queue< boost::function<void()> > work_queue_;
 
   static const vertex_t UNDEFINED;
 };

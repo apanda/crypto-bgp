@@ -274,15 +274,27 @@ void BGPProcess::process_neighbors_mpc(const vertex_t affected_vertex,
   local.second = prefs.size();
 
   for(auto i = 1; i <= prefs.size(); i++) {
-
     shared_ptr<size_t> index_ptr(new size_t);
     size_t& index = *index_ptr;
     index = i;
 
-    for0(
-        affected_vertex, new_changed_set_ptr,
-        counts_ptr, local_counts_ptr, index_ptr, prefs_ptr);
+    auto f = boost::bind(&BGPProcess::for0, this,
+        affected_vertex, new_changed_set_ptr, counts_ptr, local_counts_ptr, index_ptr,
+        prefs_ptr);
+
+    io_service_.post(f);
+    //affected.work_queue_.push(f);
   }
+/*
+  counter = 0;
+  while (true) {
+    if(affected.work_queue_.empty()) break;
+    if(counter > 200) break;
+    boost::function<void()> f;
+    bool popped = affected.work_queue_.try_pop(f);
+    f();
+  }
+  */
 
 }
 
