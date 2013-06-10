@@ -138,10 +138,6 @@ void BGPProcess::next_iteration_continue(const vertex_t dst_vertex,
     }
   }
 
-  for(auto f: tmp_vector_) {
-    work_queue_.push(f);
-  }
-
   int counter = 0;
   while (true) {
     if(work_queue_.empty()) break;
