@@ -105,7 +105,7 @@ void BGPProcess::next_iteration_continue(const vertex_t dst_vertex,
     shared_ptr<tbb::concurrent_unordered_set<vertex_t> > new_changed_set_ptr) {
 
 
-  LOG4CXX_INFO(comp_peer_->logger_, "next_iteration_continue");
+
 
   continuation_ = boost::bind(&BGPProcess::next_iteration_finish, this,
       dst_vertex, new_changed_set_ptr);
@@ -119,6 +119,8 @@ void BGPProcess::next_iteration_continue(const vertex_t dst_vertex,
   std::sort(batch.begin(), batch.end());
 
   for (auto& vertex : batch) {
+
+    LOG4CXX_INFO(comp_peer_->logger_, "next_iteration_continue " << vertex);
 
     io_service_.post(
         boost::bind(&BGPProcess::process_neighbors_mpc, this, vertex,
