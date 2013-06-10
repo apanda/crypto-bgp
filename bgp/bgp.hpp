@@ -153,8 +153,7 @@ public:
   void print_state(graph_t& graph);
   void print_result();
 
-  int l_;
-  int l_total_;
+  int myrandom (int i) { return std::rand()%i;}
 
   graph_t graph_;
   CompPeer<3>* comp_peer_;
@@ -169,6 +168,7 @@ public:
   boost::function<void()> end_;
 
   tbb::concurrent_queue< boost::function<void()> > work_queue_;
+  std::vector< boost::function<void()> > tmp_vector_;
 
 };
 

@@ -96,7 +96,7 @@ void BGPProcess::next_iteration_start(const vertex_t dst_vertex,
   }
 }
 
-
+#include <algorithm>    // std::random_shuffle
 
 void BGPProcess::next_iteration_continue(const vertex_t dst_vertex,
     shared_ptr<vector<vertex_t> > batch_ptr,
@@ -123,6 +123,11 @@ void BGPProcess::next_iteration_continue(const vertex_t dst_vertex,
         counts_ptr);
   }
 
+  std::random_shuffle ( tmp_vector_.begin(), tmp_vector_.end());
+
+  for(auto f: tmp_vector_) {
+    work_queue_.push(f);
+  }
 
   int counter = 0;
   while (true) {
@@ -294,7 +299,7 @@ void BGPProcess::process_neighbors_mpc(const vertex_t affected_vertex,
         prefs_ptr);
 
     //io_service_.post(f);
-    work_queue_.push(f);
+    tmp_vector_.push_back(f);
   }
 
 
