@@ -565,7 +565,7 @@ void BGPProcess::for_add(const vertex_t affected_vertex,
   }
 
   boost::function<void()> f;
-  bool popped = affected.work_queue_.try_pop(f);
+  bool popped = work_queue_.try_pop(f);
   if(popped) io_service_.post(f);
 
   m_.unlock();
