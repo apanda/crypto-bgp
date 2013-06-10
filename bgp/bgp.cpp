@@ -122,7 +122,7 @@ void BGPProcess::next_iteration_continue(const vertex_t dst_vertex,
     process_neighbors_mpc(vertex, changed_set_ptr, new_changed_set_ptr,
         counts_ptr);
   }
-  std::srand ( unsigned ( 4225 ) ) );
+  std::srand ( unsigned ( 4225 ) );
   std::random_shuffle ( tmp_vector_.begin(), tmp_vector_.end());
 
   for(auto f: tmp_vector_) {
