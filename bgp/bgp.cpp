@@ -119,9 +119,6 @@ void BGPProcess::next_iteration_continue(const vertex_t dst_vertex,
   std::sort(batch.begin(), batch.end());
 
   for (auto& vertex : batch) {
-
-    //LOG4CXX_INFO(comp_peer_->logger_, "next_iteration_continue " << vertex);
-
     process_neighbors_mpc(vertex, changed_set_ptr, new_changed_set_ptr,
         counts_ptr);
   }
@@ -130,7 +127,7 @@ void BGPProcess::next_iteration_continue(const vertex_t dst_vertex,
   int counter = 0;
   while (true) {
     if(work_queue_.empty()) break;
-    if(counter > 20) break;
+    if(counter > 4) break;
 
     boost::function<void()> f;
     bool popped = work_queue_.try_pop(f);
