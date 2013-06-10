@@ -96,16 +96,13 @@ void BGPProcess::next_iteration_start(const vertex_t dst_vertex,
   }
 }
 
-#include <algorithm>    // std::random_shuffle
+
 
 void BGPProcess::next_iteration_continue(const vertex_t dst_vertex,
     shared_ptr<vector<vertex_t> > batch_ptr,
     shared_ptr<set<vertex_t> > affected_set_ptr,
     shared_ptr<tbb::concurrent_unordered_set<vertex_t> > changed_set_ptr,
     shared_ptr<tbb::concurrent_unordered_set<vertex_t> > new_changed_set_ptr) {
-
-
-
 
   continuation_ = boost::bind(&BGPProcess::next_iteration_finish, this,
       dst_vertex, new_changed_set_ptr);
@@ -122,7 +119,6 @@ void BGPProcess::next_iteration_continue(const vertex_t dst_vertex,
     process_neighbors_mpc(vertex, changed_set_ptr, new_changed_set_ptr,
         counts_ptr);
   }
-
 
   while(!tmp_vector2_.empty()) {
     for (auto it = tmp_vector2_.begin(); it != tmp_vector2_.end(); ++it) {
