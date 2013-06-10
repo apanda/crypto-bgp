@@ -120,6 +120,7 @@ void BGPProcess::next_iteration_continue(const vertex_t dst_vertex,
         counts_ptr);
   }
 
+  std::cout << "tmp_vector2_ " << tmp_vector2_.size();
   while(!tmp_vector2_.empty()) {
     for (auto it = tmp_vector2_.begin(); it != tmp_vector2_.end(); ++it) {
 
