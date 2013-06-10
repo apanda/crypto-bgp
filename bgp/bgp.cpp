@@ -290,9 +290,11 @@ void BGPProcess::process_neighbors_mpc(const vertex_t affected_vertex,
   while (true) {
     if(affected.work_queue_.empty()) break;
     if(counter > 200) break;
+    if(counter > prefs.size()) break;
+
     boost::function<void()> f;
     bool popped = affected.work_queue_.try_pop(f);
-    io_service_.post(f);
+    if(popped) io_service_.post(f);
   }
 
 
@@ -559,6 +561,10 @@ void BGPProcess::for_add(const vertex_t affected_vertex,
       continuation_();
       return;
     }
+
+    boost::function<void()> f;
+    bool popped = affected.work_queue_.try_pop(f);
+    if(popped) io_service_.post(f);
 
   }
 
