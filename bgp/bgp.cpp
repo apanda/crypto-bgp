@@ -326,8 +326,6 @@ void BGPProcess::for0(const vertex_t affected_vertex,
     shared_ptr<tbb::concurrent_vector<pref_pair_t> > prefs_ptr) {
 
   tbb::concurrent_vector<pref_pair_t>& prefs = *prefs_ptr;
-  LOG4CXX_INFO(comp_peer_->logger_,
-        "FOR0");
   auto& index = *index_ptr;
 
   const auto pref = prefs[index - 1];
