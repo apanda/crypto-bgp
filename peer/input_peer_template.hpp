@@ -102,6 +102,7 @@ void InputPeer::lsb(
 
 
 
+
 template<class CompPeerSeq>
 vector<update_vertex_t> InputPeer::start_listeners(CompPeerSeq& comp_peers, graph_t& input_graph) {
 
@@ -114,12 +115,9 @@ vector<update_vertex_t> InputPeer::start_listeners(CompPeerSeq& comp_peers, grap
   for (; current != last; ++current) {
     const auto& current_vertex = *current;
 
-    if (current_vertex < VERTEX_START) continue;
-    if (current_vertex > VERTEX_END) continue;
-
     update_vertex_t update;
-    update.vertex_ = current_vertex;
-    update.next_hop_ = Vertex::UNDEFINED;
+    update.vertex = current_vertex;
+    update.next_hop = Vertex::UNDEFINED;
     nodes.push_back(update);
 
     for(size_t i = 0; i < COMP_PEER_NUM; i++) {
@@ -142,6 +140,8 @@ vector<update_vertex_t> InputPeer::start_listeners(CompPeerSeq& comp_peers, grap
 
   return nodes;
 }
+
+
 
 
 
