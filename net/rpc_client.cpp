@@ -37,10 +37,10 @@ RPCClient::RPCClient(
   boost::asio::connect(socket_, iterator);
   socket_.set_option(tcp::no_delay(true));
 
-  write_loop();
-
   char* data = new char[length_];
   read_impl(data, length_, socket_);
+
+  write_loop();
 }
 
 
