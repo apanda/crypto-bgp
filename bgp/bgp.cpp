@@ -154,14 +154,8 @@ void BGPProcess::next_iteration_finish(const vertex_t dst_vertex,
   LOG4CXX_INFO(comp_peer_->logger_, "next_iteration_finish");
 
   io_service_.stop();
-  exit(0);
-
-  tbb::concurrent_unordered_set<vertex_t>& new_changed_set =
-      *new_changed_set_ptr;
 
   vector<update_vertex_t> nodes;
-
-  new_changed_set.clear();
 
   end_();
 
