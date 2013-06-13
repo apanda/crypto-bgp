@@ -171,6 +171,7 @@ void RPCClient::publish(string key,  int64_t value, vertex_t vertex) {
 
 void RPCClient::new_write(char* data) {
 
+  boost::lock_guard<boost::mutex> lock(zzz_);
   buffer_queue_.push(data);
 
 };
@@ -192,7 +193,7 @@ void RPCClient::write_loop() {
   boost::lock_guard<boost::mutex> lock(zzz_);
 
   int counter = 0;
-  while (buffer_queue_.try_pop(data)) {
+  while (buffer_queue_.pop(data)) {
     data_vec.push_back(data);
   }
 
