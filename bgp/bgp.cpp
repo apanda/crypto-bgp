@@ -153,49 +153,21 @@ void BGPProcess::next_iteration_finish(const vertex_t dst_vertex,
 
   LOG4CXX_INFO(comp_peer_->logger_, "next_iteration_finish");
 
+  exit(0);
+
   tbb::concurrent_unordered_set<vertex_t>& new_changed_set =
       *new_changed_set_ptr;
 
   vector<update_vertex_t> nodes;
 
-  for (const vertex_t vertex : new_changed_set) {
-    update_vertex_t update;
-    Vertex& affected = graph_[vertex];
-
-    affected.next_hop_ = affected.new_next_hop_;
-
-    update.vertex_ = vertex;
-    update.next_hop_ = affected.next_hop_;
-
-    nodes.push_back(update);
-  }
-
   new_changed_set.clear();
+
+  end_();
 
   master_->sync(nodes);
   master_->barrier_->wait();
 
-  for(size_t i = 0; i < master_->size_; i++) {
-    auto update = master_->array_[i];
-    auto vertex = update.vertex_;
 
-    //BOOST_ASSERT(new_changed_set.find(vertex) != new_changed_set.end());
-
-    Vertex& affected = graph_[vertex];
-    affected.next_hop_ = update.next_hop_;
-
-    new_changed_set.insert(vertex);
-  }
-
-  shared_ptr<set<vertex_t> > new_affected_set_ptr(new set<vertex_t>);
-  set<vertex_t>& new_affected_set = *new_affected_set_ptr;
-
-  for (const vertex_t vertex : new_changed_set) {
-    auto neighbors = adjacent_vertices(vertex, graph_);
-    new_affected_set.insert(neighbors.first, neighbors.second);
-  }
-
-  end_();
 }
 
 
