@@ -49,11 +49,18 @@ public:
       const boost::system::error_code& error,
       size_t bytes_transferred);
 
+  void new_write(char* data);
+  void write_loop();
+
   void init(sync_init& si);
   void sync(vector<update_vertex_t>& nodes);
 
   boost::barrier* barrier_;
   boost::mutex m_;
+
+  tbb::concurrent_queue<char*> buffer_queue_;
+
+  io_service& io_service_;
 
   sync_response::hostname_mappings_t* hm_;
   uint32_t size_;

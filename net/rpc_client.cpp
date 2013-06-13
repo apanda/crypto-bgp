@@ -20,11 +20,12 @@ class Peer;
 
 
 RPCClient::RPCClient(
-    io_service& io_service,
+    io_service& io,
     string hostname,
     int64_t port) :
+        io_service_(io),
         barrier_(new boost::barrier(COMP_PEER_NUM + 1)),
-        socket_(io_service), resolver_(io_service), strand_(io_service) {
+        socket_(io), resolver_(io), strand_(io) {
 
   const string service = lexical_cast<string>(port);
 
@@ -35,6 +36,8 @@ RPCClient::RPCClient(
 
   boost::asio::connect(socket_, iterator);
   socket_.set_option(tcp::no_delay(true));
+
+  write_loop();
 
   char* data = new char[length_];
   read_impl(data, length_, socket_);
@@ -149,11 +152,14 @@ void RPCClient::publish(string key,  int64_t value, vertex_t vertex) {
   LOG4CXX_TRACE(logger_, "Sending value: " << key << ": " << value << " (" << vertex << ")");
 
 
+  new_write(data);
+
+  /*
   boost::unique_lock<boost::mutex> lock(m_);
   boost::asio::write(socket_, boost::asio::buffer(data, length_));
   delete data;
 
-  /*
+
   boost::asio::async_write(socket_,
       boost::asio::buffer(data, length_),
       boost::bind(&RPCClient::handle_write, this, data,
@@ -161,6 +167,29 @@ void RPCClient::publish(string key,  int64_t value, vertex_t vertex) {
           boost::asio::placeholders::bytes_transferred));
             */
 }
+
+
+void RPCClient::new_write(char* data) {
+
+  buffer_queue_.push(data);
+
+};
+
+void RPCClient::write_loop() {
+
+  auto f = boost::bind(&RPCClient::write_loop, this);
+
+  char* data;
+  bool has = buffer_queue_.try_pop(data);
+  if (has) {
+    boost::unique_lock<boost::mutex> lock(m_);
+    boost::asio::write(socket_, boost::asio::buffer(data, length_));
+    delete data;
+  }
+
+  io_service_.post(f);
+
+};
 
 
 
