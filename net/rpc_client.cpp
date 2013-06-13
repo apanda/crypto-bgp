@@ -191,9 +191,9 @@ void RPCClient::write_loop() {
 
   int counter = 0;
   while (buffer_queue_.try_pop(data)) {
-    counter++;
+    //counter++;
     data_vec.push_back(data);
-    if (counter > 10) continue;
+    //if (counter > 10) continue;
   }
 
   size_t size = data_vec.size();
@@ -207,7 +207,7 @@ void RPCClient::write_loop() {
     }
 
     boost::unique_lock<boost::mutex> lock(m_);
-    boost::asio::write(socket_, boost::asio::buffer(new_data, length_));
+    boost::asio::write(socket_, boost::asio::buffer(new_data, length_*size));
   }
 
 
