@@ -187,10 +187,7 @@ void RPCClient::write_loop() {
   }
 
   size_t size = data_vec.size();
-  if (size > 0) {
-
-    std::cout << "size > 0" << std::endl;
-
+  if (size) {
     char* new_data = new char[length_ * size];
     for(auto i = 0; i < size; i++) {
       memcpy(new_data + length_ * i, data_vec[i], length_);
@@ -201,7 +198,11 @@ void RPCClient::write_loop() {
     delete data;
   }
 
-  write_loop();
+
+
+
+  //boost::this_thread::sleep_for(boost::chrono::microseconds(1));
+  io_service_.post(f);
 
 };
 
