@@ -191,9 +191,7 @@ void RPCClient::write_loop() {
 
   int counter = 0;
   while (buffer_queue_.try_pop(data)) {
-    //counter++;
     data_vec.push_back(data);
-    //if (counter > 10) continue;
   }
 
   size_t size = data_vec.size();
@@ -212,7 +210,7 @@ void RPCClient::write_loop() {
 
 
 
-  //boost::this_thread::sleep_for(boost::chrono::microseconds(1));
+  boost::this_thread::sleep_for(boost::chrono::microseconds(10));
   io_service_.post(f);
 
 };
