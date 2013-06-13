@@ -193,8 +193,9 @@ void RPCClient::write_loop() {
   boost::lock_guard<boost::mutex> lock(zzz_);
 
   int counter = 0;
-  while (buffer_queue_.pop(data)) {
-    data_vec.push_back(data);
+  while (!buffer_queue_.empty()) {
+    data_vec.push_back(buffer_queue_.front());
+    buffer_queue_.pop();
   }
 
   size_t size = data_vec.size();
