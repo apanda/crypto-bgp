@@ -181,13 +181,14 @@ void RPCClient::write_loop() {
 
   vector<char*> data_vec;
   char* data;
-
+  /*
   if (buffer_queue_.try_pop(data)) {
     boost::unique_lock<boost::mutex> lock(m_);
     boost::asio::write(socket_, boost::asio::buffer(data, length_));
     delete data;
   }
-/*
+*/
+
   while (buffer_queue_.try_pop(data)) {
     data_vec.push_back(data);
   }
@@ -195,7 +196,7 @@ void RPCClient::write_loop() {
   size_t size = data_vec.size();
   if (size) {
 
-    std::cout << "size > 0" << std::endl;
+    std::cout << "size == " << size  << std::endl;
 
     char* new_data = new char[length_ * size];
     for(auto i = 0; i < size; i++) {
@@ -203,12 +204,10 @@ void RPCClient::write_loop() {
     }
 
     boost::unique_lock<boost::mutex> lock(m_);
-    boost::asio::write(socket_, boost::asio::buffer(data, length_));
-    delete data;
+    boost::asio::write(socket_, boost::asio::buffer(new_data, length_));
   }
 
 
-*/
 
   //boost::this_thread::sleep_for(boost::chrono::microseconds(1));
   io_service_.post(f);
