@@ -182,6 +182,12 @@ void RPCClient::write_loop() {
   vector<char*> data_vec;
   char* data;
 
+  if (buffer_queue_.try_pop(data)) {
+    boost::unique_lock<boost::mutex> lock(m_);
+    boost::asio::write(socket_, boost::asio::buffer(data, length_));
+    delete data;
+  }
+/*
   while (buffer_queue_.try_pop(data)) {
     data_vec.push_back(data);
   }
@@ -202,7 +208,7 @@ void RPCClient::write_loop() {
   }
 
 
-
+*/
 
   //boost::this_thread::sleep_for(boost::chrono::microseconds(1));
   io_service_.post(f);
