@@ -179,16 +179,26 @@ void RPCClient::write_loop() {
 
   auto f = boost::bind(&RPCClient::write_loop, this);
 
+  vector<char*> data_vec;
   char* data;
-  bool has = buffer_queue_.try_pop(data);
-  if (has) {
+
+  while (buffer_queue_.try_pop(data)) {
+    data_vec.push_back(data);
+  }
+
+  size_t size = data_vec.size();
+  if (size) {
+    char* new_data = new char[length_ * size];
+    for(auto i = 0; i < size; i++) {
+      memcpy(new_data + length_ * i, data_vec[i], length_);
+    }
+
     boost::unique_lock<boost::mutex> lock(m_);
     boost::asio::write(socket_, boost::asio::buffer(data, length_));
     delete data;
   }
 
-  boost::this_thread::sleep_for(boost::chrono::microseconds(1));
-  io_service_.post(f);
+  write_loop();
 
 };
 
