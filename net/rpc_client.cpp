@@ -40,7 +40,7 @@ RPCClient::RPCClient(
   char* data = new char[length_];
   read_impl(data, length_, socket_);
 
-  write_loop();
+  //write_loop();
 }
 
 
@@ -152,14 +152,14 @@ void RPCClient::publish(string key,  int64_t value, vertex_t vertex) {
   LOG4CXX_TRACE(logger_, "Sending value: " << key << ": " << value << " (" << vertex << ")");
 
 
-  new_write(data);
+  //new_write(data);
 
-  /*
+
   boost::unique_lock<boost::mutex> lock(m_);
   boost::asio::write(socket_, boost::asio::buffer(data, length_));
   delete data;
 
-
+  /*
   boost::asio::async_write(socket_,
       boost::asio::buffer(data, length_),
       boost::bind(&RPCClient::handle_write, this, data,
