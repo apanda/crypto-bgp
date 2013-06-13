@@ -214,9 +214,8 @@ void RPCClient::write_loop() {
 
   zzz_.unlock();
 
-  boost::this_thread::sleep_for(boost::chrono::milliseconds(1));
-  io_service_.post(f);
-
+  boost::asio::deadline_timer t(io, boost::posix_time::milliseconds(10));
+  t.async_wait(f);
 };
 
 
