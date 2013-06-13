@@ -195,13 +195,7 @@ void BGPProcess::next_iteration_finish(const vertex_t dst_vertex,
     new_affected_set.insert(neighbors.first, neighbors.second);
   }
 
-  if (new_changed_set.empty()) {
-    LOG4CXX_INFO(comp_peer_->logger_, "end_");
-    end_();
-    return;
-  }
-
-  next_iteration_start(dst_vertex, new_affected_set_ptr, new_changed_set_ptr);
+  end_();
 }
 
 
