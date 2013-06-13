@@ -210,7 +210,7 @@ void RPCClient::write_loop() {
 
 
 
-  boost::this_thread::sleep_for(boost::chrono::microseconds(10));
+  boost::this_thread::sleep_for(boost::chrono::microseconds(100));
   io_service_.post(f);
 
 };
