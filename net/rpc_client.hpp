@@ -58,7 +58,9 @@ public:
   boost::barrier* barrier_;
   boost::mutex m_;
 
-  tbb::concurrent_queue<char*> buffer_queue_;
+  boost::mutex zzz_;
+
+  std::queue<char*> buffer_queue_;
 
   io_service& io_service_;
 

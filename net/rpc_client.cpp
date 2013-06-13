@@ -189,6 +189,8 @@ void RPCClient::write_loop() {
   }
 */
 
+  boost::lock_guard<boost::mutex> lock(zzz_);
+
   int counter = 0;
   while (buffer_queue_.try_pop(data)) {
     data_vec.push_back(data);
