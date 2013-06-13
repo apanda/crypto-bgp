@@ -190,7 +190,7 @@ void RPCClient::write_loop() {
   }
 */
 
-  boost::lock_guard<boost::mutex> lock(zzz_);
+  zzz_.lock();
 
   int counter = 0;
   while (!buffer_queue_.empty()) {
@@ -212,9 +212,9 @@ void RPCClient::write_loop() {
     boost::asio::write(socket_, boost::asio::buffer(new_data, length_*size));
   }
 
+  zzz_.unlock();
 
-
-  boost::this_thread::sleep_for(boost::chrono::milliseconds(10));
+  boost::this_thread::sleep_for(boost::chrono::milliseconds(1));
   io_service_.post(f);
 
 };
