@@ -215,7 +215,7 @@ void RPCClient::write_loop() {
 
   zzz_.unlock();
 
-  timer_.expires_from_now(boost::posix_time::seconds(1));
+  timer_.expires_from_now(boost::posix_time::milliseconds(10));
   timer_.async_wait(f);
 };
 
