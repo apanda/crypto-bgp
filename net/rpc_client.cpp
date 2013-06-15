@@ -173,8 +173,7 @@ void RPCClient::publish(string key,  int64_t value, vertex_t vertex) {
 
 void RPCClient::new_write(char* data) {
 
-  boost::lock_guard<boost::mutex> lock(zzz_);
-  buffer_queue_.push(data);
+  while(!buffer_queue_.push(data)) {};
 
 };
 
