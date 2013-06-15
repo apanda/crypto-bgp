@@ -207,7 +207,7 @@ void RPCClient::write_loop() {
       memcpy(new_data + length_ * i, data_vec[i], length_);
     }
 
-    boost::unique_lock<boost::mutex> lock(m_);
+    //boost::unique_lock<boost::mutex> lock(m_);
     boost::asio::write(socket_, boost::asio::buffer(new_data, length_*size));
   }
 
