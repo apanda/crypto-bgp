@@ -183,13 +183,6 @@ void RPCClient::write_loop() {
 
   vector<char*> data_vec;
   char* data;
-  /*
-  if (buffer_queue_.try_pop(data)) {
-    boost::unique_lock<boost::mutex> lock(m_);
-    boost::asio::write(socket_, boost::asio::buffer(data, length_));
-    delete data;
-  }
-*/
 
   int counter = 0;
   while (!buffer_queue_.empty()) {
@@ -207,7 +200,6 @@ void RPCClient::write_loop() {
       memcpy(new_data + length_ * i, data_vec[i], length_);
     }
 
-    //boost::unique_lock<boost::mutex> lock(m_);
     boost::asio::write(socket_, boost::asio::buffer(new_data, length_*size));
   }
 
