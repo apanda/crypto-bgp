@@ -194,7 +194,7 @@ void RPCClient::write_loop() {
   int counter = 0;
   while (!buffer_queue_.empty()) {
     char* element;
-    auto popped = buffer_queue_.try_pop(element);
+    auto popped = buffer_queue_.pop(element);
     if (!popped) break;
     data_vec.push_back(element);
   }
