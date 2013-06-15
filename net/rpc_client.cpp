@@ -24,6 +24,7 @@ RPCClient::RPCClient(
     string hostname,
     int64_t port) :
         io_service_(io),
+        timer_(io),
         barrier_(new boost::barrier(COMP_PEER_NUM + 1)),
         socket_(io), resolver_(io), strand_(io) {
 
@@ -214,8 +215,8 @@ void RPCClient::write_loop() {
 
   zzz_.unlock();
 
-  boost::asio::deadline_timer t(io_service_, boost::posix_time::seconds(1));
-  t.async_wait(f);
+  timer_.expires_from_now(boost::posix_time::seconds(1));
+  timer_.async_wait(f);
 };
 
 

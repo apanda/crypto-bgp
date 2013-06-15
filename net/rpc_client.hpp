@@ -59,6 +59,7 @@ public:
   boost::mutex m_;
 
   boost::mutex zzz_;
+  boost::asio::deadline_timer timer_;
 
   std::queue<char*> buffer_queue_;
 
