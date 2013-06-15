@@ -61,7 +61,7 @@ public:
   boost::mutex zzz_;
   boost::asio::deadline_timer timer_;
 
-  std::queue<char*> buffer_queue_;
+  tbb::concurrent_queue<char*> buffer_queue_;
 
   io_service& io_service_;
 

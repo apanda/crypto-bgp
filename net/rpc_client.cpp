@@ -191,12 +191,12 @@ void RPCClient::write_loop() {
   }
 */
 
-  zzz_.lock();
-
   int counter = 0;
   while (!buffer_queue_.empty()) {
-    data_vec.push_back(buffer_queue_.front());
-    buffer_queue_.pop();
+    char* element;
+    auto popped = buffer_queue_.try_pop(element);
+    if (!popped) break;
+    data_vec.push_back(element);
   }
 
   size_t size = data_vec.size();
@@ -210,8 +210,6 @@ void RPCClient::write_loop() {
     boost::unique_lock<boost::mutex> lock(m_);
     boost::asio::write(socket_, boost::asio::buffer(new_data, length_*size));
   }
-
-  zzz_.unlock();
 
   timer_.expires_from_now(boost::posix_time::milliseconds(10));
   timer_.async_wait(f);
