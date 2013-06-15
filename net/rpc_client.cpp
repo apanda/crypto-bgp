@@ -24,6 +24,7 @@ RPCClient::RPCClient(
     string hostname,
     int64_t port) :
         io_service_(io),
+        buffer_queue_(1000),
         timer_(io),
         barrier_(new boost::barrier(COMP_PEER_NUM + 1)),
         socket_(io), resolver_(io), strand_(io) {
