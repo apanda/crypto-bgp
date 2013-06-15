@@ -162,6 +162,7 @@ int main(int argc, char *argv[]) {
       ("master-host", po::value<string>(), "master address")
       ("whoami", po::value<string>(), "out address")
       ("degree", po::value<size_t>(), "in-degree")
+      ("timer", po::value<size_t>(), "timer interval")
       ("id", po::value<vector<int>>()->multitoken(), "computational peer id")
   ;
 
