@@ -10,7 +10,6 @@
 #include <boost/graph/adjacency_list.hpp>
 #include <boost/asio.hpp>
 #include <boost/bind.hpp>
-#include <boost/lockfree/queue.hpp>
 
 class Peer;
 
@@ -62,7 +61,8 @@ public:
   boost::mutex zzz_;
   boost::asio::deadline_timer timer_;
 
-  boost::lockfree::queue<char*> buffer_queue_;
+  //boost::lockfree::queue<char*> buffer_queue_;
+  tbb::concurrent_queue<char*> buffer_queue_;
 
   io_service& io_service_;
 
