@@ -200,6 +200,10 @@ int main(int argc, char *argv[]) {
     WHOAMI = vm["whoami"].as<string>();
   }
 
+  if (vm.count("timer")) {
+    TIMER = vm["timer"].as<size_t>();
+  }
+
   if (vm.count("master")) {
     run_master();
     return 0;

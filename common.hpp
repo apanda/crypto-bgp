@@ -27,10 +27,7 @@
 const size_t COMP_PEER_NUM = 3;
 
 extern size_t THREAD_COUNT;
-extern size_t TASK_COUNT;
-
-extern size_t VERTEX_START;
-extern size_t VERTEX_END;
+extern size_t TIMER;
 
 extern size_t MAX_BATCH;
 extern size_t GRAPH_SIZE;

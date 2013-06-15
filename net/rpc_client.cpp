@@ -202,8 +202,6 @@ void RPCClient::write_loop() {
   size_t size = data_vec.size();
   if (size) {
 
-    std::cout << "size == " << size  << std::endl;
-
     char* new_data = new char[length_ * size];
     for(auto i = 0; i < size; i++) {
       memcpy(new_data + length_ * i, data_vec[i], length_);

@@ -2,10 +2,7 @@
 #include "common.hpp"
 
 size_t THREAD_COUNT = 1;
-size_t TASK_COUNT = 1;
-
-size_t VERTEX_START = 0;
-size_t VERTEX_END = 0;
+size_t TIMER = 10;
 
 size_t MAX_BATCH = 30;
 size_t GRAPH_SIZE = 101;
