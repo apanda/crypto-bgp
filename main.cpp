@@ -131,8 +131,6 @@ void run_mpc() {
 
   LOG4CXX_INFO(mainLogger, "Master has raised the barrier.");
 
-  sleep(1);
-
   master->barrier_ = new boost::barrier(COMP_PEER_IDS.size() + 1);
 
   functor_t f2 = boost::bind(measure_time);
