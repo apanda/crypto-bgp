@@ -22,6 +22,7 @@ public:
   void start();
 
   void write_impl(char* data, size_t length, tcp::socket& socket);
+  void read_impl(char* data, size_t length, tcp::socket& socket);
 
   void handle_write(
       char* data,

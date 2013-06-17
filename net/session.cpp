@@ -20,13 +20,13 @@ void Session::start()  {
 
   socket_.set_option(tcp::no_delay(true));
 
-  char* data = new char[length_];
+  char* data = new char[buf_length_];
 
-  boost::asio::async_read(socket_, boost::asio::buffer(data, length_),
+
+  socket_.async_read_some(boost::asio::buffer(data, length_),
         boost::bind(&Session::handle_read, this, data,
             boost::asio::placeholders::error,
-            boost::asio::placeholders::bytes_transferred)
-  );
+            boost::asio::placeholders::bytes_transferred));
 }
 
 
@@ -53,11 +53,6 @@ void Session::handle_msg(
 
   peer_->publish(msg, value, vertex);
 
-  boost::asio::async_read(socket_, boost::asio::buffer(data, length_),
-        boost::bind(&Session::handle_read, this, data,
-            boost::asio::placeholders::error,
-            boost::asio::placeholders::bytes_transferred)
-        );
 }
 
 
@@ -82,11 +77,6 @@ void Session::handle_init(
 
   peer_->publish(this, si);
 
-  boost::asio::async_read(socket_, boost::asio::buffer(data, length_),
-        boost::bind(&Session::handle_read, this, data,
-            boost::asio::placeholders::error,
-            boost::asio::placeholders::bytes_transferred)
-  );
 }
 
 
@@ -94,7 +84,7 @@ void Session::handle_init(
 void Session::handle_sync(
     char* data,
     const boost::system::error_code& error,
-    size_t bytes_transferred) {
+    size_t size) {
 
   char* new_data = new char[length_];
 
@@ -104,7 +94,6 @@ void Session::handle_sync(
             boost::asio::placeholders::bytes_transferred)
       );
 
-  uint32_t& size =  *((uint32_t*) (data + sizeof(uint32_t)));
   std::vector<update_vertex_t> nodes;
 
   update_vertex_t* array = (update_vertex_t*) (data + sizeof(uint32_t) * 2);
@@ -123,63 +112,43 @@ void Session::handle_read(
     const boost::system::error_code& error,
     size_t bytes_transferred) {
 
-   if (!error) {
-
-     if (bytes_transferred == length_) {
-
-       uint32_t& command =  *((uint32_t*) data);
-
-       if(command == CMD_TYPE::MSG) {
-
-         handle_msg(data, error, bytes_transferred);
-
-       } else if (command == CMD_TYPE::SYNC) {
-
-         uint32_t& size =  *((uint32_t*) (data + sizeof(uint32_t)));
-
-         if (size > length_) {
-
-           char* new_data = new char[size];
-           memcpy(new_data, data, length_);
-
-           boost::asio::async_read(socket_, boost::asio::buffer(new_data + length_, size - length_),
-              boost::bind(&Session::handle_sync, this, new_data,
-                  boost::asio::placeholders::error,
-                  boost::asio::placeholders::bytes_transferred));
-
-         } else {
-           handle_sync(data, error, bytes_transferred);
-         }
-
-       } else if (command == CMD_TYPE::INIT) {
-
-         uint32_t& size =  *((uint32_t*) (data + sizeof(uint32_t)));
-
-         if (size > length_) {
-
-           char* new_data = new char[size];
-           memcpy(new_data, data, length_);
-
-           boost::asio::async_read(socket_, boost::asio::buffer(new_data + length_, size - length_),
-              boost::bind(&Session::handle_init, this, new_data,
-                  boost::asio::placeholders::error,
-                  boost::asio::placeholders::bytes_transferred));
-
-         } else {
-           handle_init(data, error, bytes_transferred);
-         }
-
-       } else {
-         LOG4CXX_FATAL(peer_->logger_, "Unknown command: " << command);
-         throw std::runtime_error("invalid command");
-       }
-
-     }
-
-
-   } else {
+   if (error) {
      delete this;
    }
+
+   if (bytes_transferred < length_) {
+     BOOST_ASSERT_MSG(false, "bytes_transferred < length_");
+   }
+
+   auto offset = 0;
+   do {
+
+     data = data + offset;
+
+     const uint32_t& command =  *((uint32_t*) data);
+     const uint32_t& size =  *((uint32_t*) (data + sizeof(uint32_t)));
+
+     if(command == CMD_TYPE::MSG) {
+       handle_msg(data, error, size);
+
+     } else if (command == CMD_TYPE::SYNC) {
+       handle_sync(data, error, size);
+
+     } else if (command == CMD_TYPE::INIT) {
+         handle_init(data, error, size);
+     } else {
+       LOG4CXX_FATAL(peer_->logger_, "Unknown command: " << command);
+       throw std::runtime_error("invalid command");
+     }
+
+     offset += size;
+
+   } while (offset < bytes_transferred);
+
+   socket_.async_read_some(boost::asio::buffer(data, length_),
+         boost::bind(&Session::handle_read, this, data,
+             boost::asio::placeholders::error,
+             boost::asio::placeholders::bytes_transferred));
 
 }
 
@@ -209,6 +178,7 @@ void Session::sync_response(struct sync_response& sr){
 
   write_impl(data, length, socket_);
 }
+
 
 
 pair<char*, size_t> Session::contruct_notification(vector<update_vertex_t>& nodes) {
@@ -262,12 +232,15 @@ void Session::notify(vector<vertex_t>& nodes) {
 
 
 void Session::write_impl(char* data, size_t length, tcp::socket& socket) {
-
   boost::asio::async_write(socket,
       boost::asio::buffer(data, length),
       boost::bind(&Session::handle_write, this, data,
           boost::asio::placeholders::error,
           boost::asio::placeholders::bytes_transferred));
+}
+
+
+void Session::read_impl(char* data, size_t length, tcp::socket& socket) {
 }
 
 
