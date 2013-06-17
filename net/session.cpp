@@ -22,8 +22,7 @@ void Session::start()  {
 
   char* data = new char[buf_length_];
 
-
-  socket_.async_read_some(boost::asio::buffer(data, length_),
+  socket_.async_read_some(boost::asio::buffer(data, buf_length_),
         boost::bind(&Session::handle_read, this, data,
             boost::asio::placeholders::error,
             boost::asio::placeholders::bytes_transferred));
@@ -145,7 +144,7 @@ void Session::handle_read(
 
    } while (offset < bytes_transferred);
 
-   socket_.async_read_some(boost::asio::buffer(data, length_),
+   socket_.async_read_some(boost::asio::buffer(data, buf_length_),
          boost::bind(&Session::handle_read, this, data,
              boost::asio::placeholders::error,
              boost::asio::placeholders::bytes_transferred));
