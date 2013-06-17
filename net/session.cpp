@@ -115,10 +115,6 @@ void Session::handle_read(
      delete this;
    }
 
-   if (bytes_transferred < length_) {
-     BOOST_ASSERT_MSG(false, "bytes_transferred < length_");
-   }
-
    auto offset = 0;
    do {
 
