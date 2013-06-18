@@ -126,6 +126,8 @@ void Session::handle_read(
      return;
    }
 
+   bytes_transferred += where;
+
    uint32_t offset = 0;
    do {
 
