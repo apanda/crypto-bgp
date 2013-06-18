@@ -123,6 +123,8 @@ void Session::handle_read(
      const uint32_t& command =  *((uint32_t*) data);
      const uint32_t& size =  *((uint32_t*) (data + sizeof(uint32_t)));
 
+     BOOST_ASSERT_MSG((bytes_transferred - offset) >= size, "(bytes_transferred - offset) >= size");
+
      if(command == CMD_TYPE::MSG) {
        handle_msg(data, error, size);
 
