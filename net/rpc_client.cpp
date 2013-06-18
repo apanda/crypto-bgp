@@ -67,8 +67,6 @@ void RPCClient::init(sync_init& si) {
   size_t real_length = sizeof(uint32_t)*3 + archive_stream.str().size();
   size_t length = real_length;
 
-  if (length < length_) length = length_;
-
   char* data = new char[length];
 
   uint32_t& command = *((uint32_t*) data);
@@ -82,10 +80,10 @@ void RPCClient::init(sync_init& si) {
 
   boost::asio::async_write(socket_,
       boost::asio::buffer(data, length),
-      strand_.wrap(
       boost::bind(&RPCClient::handle_write, this, data,
           boost::asio::placeholders::error,
-          boost::asio::placeholders::bytes_transferred)));
+          boost::asio::placeholders::bytes_transferred)
+  );
 }
 
 
@@ -133,7 +131,7 @@ void RPCClient::publish(string key,  int64_t value, vertex_t vertex) {
   uint32_t& size =  *((uint32_t*) (data + sizeof(uint32_t)));
 
   //command = CMD_TYPE::MSG;
-  command = 999;
+  command = length_;
   size = length_;
 
   BOOST_ASSERT(key.length() < (msg_ - sizeof(vertex_t) - sizeof(int64_t)));
