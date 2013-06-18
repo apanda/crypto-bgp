@@ -115,12 +115,14 @@ void Session::handle_read(
 
      LOG4CXX_FATAL(peer_->logger_, "bytes_transferred == 0");
 
+     sleep(1);
+
      socket_.async_read_some(boost::asio::buffer(data + where, buf_length_),
            boost::bind(&Session::handle_read, this, data, where,
                boost::asio::placeholders::error,
                boost::asio::placeholders::bytes_transferred));
 
-     sleep(1);
+
      return;
    }
 
@@ -139,12 +141,14 @@ void Session::handle_read(
 
        memmove(start, current, chunk_size);
 
+       sleep(1);
+
        socket_.async_read_some(boost::asio::buffer(start + chunk_size, buf_length_ - chunk_size),
              boost::bind(&Session::handle_read, this, data, chunk_size,
                  boost::asio::placeholders::error,
                  boost::asio::placeholders::bytes_transferred));
 
-       sleep(1);
+
        return;
      }
 
