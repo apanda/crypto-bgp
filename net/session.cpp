@@ -131,6 +131,8 @@ void Session::handle_read(
 
      if(chunk_size < size) {
 
+       LOG4CXX_FATAL(peer_->logger_, "chunk_size < size ");
+
        memmove(data, data + offset, chunk_size);
 
        socket_.async_read_some(boost::asio::buffer(data + offset, buf_length_ - chunk_size),
