@@ -192,9 +192,8 @@ void RPCClient::write_loop() {
   }
 
   size_t size = data_vec.size();
+  char* new_data = new char[length_ * size];
   if (size) {
-
-    char* new_data = new char[length_ * size];
     for(auto i = 0; i < size; i++) {
       memcpy(new_data + length_ * i, data_vec[i], length_);
     }
@@ -202,6 +201,14 @@ void RPCClient::write_loop() {
     LOG4CXX_INFO(logger_, "Sending: " << size << " messages of size " << length_*size);
     boost::unique_lock<boost::mutex> lock(m_);
     boost::asio::write(socket_, boost::asio::buffer(new_data, length_*size));
+  }
+
+
+  for(auto i = 0; i < size; i++) {
+    char * d = new_data + length_ * i;
+    uint32_t& command =  *( (uint32_t*) ((void*) d));
+    uint32_t& size =  *((uint32_t*) ((void*) (d + sizeof(uint32_t))));
+    BOOST_ASSERT(command == CMD_TYPE::MSG);
   }
 
   timer_.expires_from_now(boost::posix_time::milliseconds(TIMER));
