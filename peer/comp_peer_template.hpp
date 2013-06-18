@@ -50,8 +50,7 @@ void CompPeer<Num>::publish(std::string key, int64_t value, vertex_t v) {
   Vertex& vertex = bgp_->graph_[v];
   string rkey = key.substr(0, key.size() - 2);
 
-  LOG4CXX_TRACE(logger_, " Acquired lock... " << v << ": " << rkey);
-
+  LOG4CXX_INFO(logger_, " Acquired lock... " << v << ": " << rkey);
 
   value_map_t& vlm = vertex.value_map_;
 
