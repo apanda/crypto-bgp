@@ -125,7 +125,7 @@ void RPCClient::sync(vector<update_vertex_t>& nodes) {
 void RPCClient::publish(string key,  int64_t value, vertex_t vertex) {
 
   char* data = new char[length_];
-  char* msg = data + cmd_;
+  char* msg = data + cmd_ + 4;
 
   uint32_t& command =  *( (uint32_t*) ((void*) data));
   uint32_t& size =  *( (uint32_t*) ((void*) (data + sizeof(uint32_t))));
