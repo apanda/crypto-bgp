@@ -139,6 +139,10 @@ void Session::handle_read(
 
        LOG4CXX_FATAL(peer_->logger_, "chunk_size < size ");
 
+       LOG4CXX_FATAL(peer_->logger_, "transfered "
+           << bytes_transferred << " offset " << offset
+           << " size " << size << " command " << command);
+
        memmove(start, current, chunk_size);
 
        sleep(1);
