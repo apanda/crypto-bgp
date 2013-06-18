@@ -52,6 +52,7 @@ static array<string, COMP_PEER_NUM> COMP_PEER_HOSTS;
 enum {
   msg_ = 256 + 8 + 8,
   cmd_ = sizeof(uint32_t),
+  size_ = sizeof(uint32_t),
   length_ = cmd_ + msg_,
   buf_length_ = length_ * 200
 };

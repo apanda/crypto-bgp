@@ -35,7 +35,7 @@ void Session::handle_msg(
     const boost::system::error_code& error,
     size_t bytes_transferred) {
 
-  char* msg = data + cmd_;
+  char* msg = data + cmd_ + 4;
 
   int64_t value;
   vertex_t vertex;
