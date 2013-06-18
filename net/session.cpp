@@ -177,6 +177,8 @@ void Session::handle_read(
 
    } while (offset < bytes_transferred);
 
+   sleep(1);
+
    socket_.async_read_some(boost::asio::buffer(data, buf_length_),
          boost::bind(&Session::handle_read, this, data, 0,
              boost::asio::placeholders::error,
