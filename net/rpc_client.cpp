@@ -108,7 +108,6 @@ void RPCClient::sync(vector<update_vertex_t>& nodes) {
 
   boost::unique_lock<boost::mutex> lock(m_);
   boost::asio::write(socket_, boost::asio::buffer(data, length));
-  delete data;
 
   /*
   boost::asio::async_write(socket_,
@@ -159,7 +158,6 @@ void RPCClient::publish(string key,  int64_t value, vertex_t vertex) {
   /*
   boost::unique_lock<boost::mutex> lock(m_);
   boost::asio::write(socket_, boost::asio::buffer(data, length_));
-  delete data;
 
   boost::asio::async_write(socket_,
       boost::asio::buffer(data, length_),
@@ -338,6 +336,4 @@ void RPCClient::handle_write(
       char* data,
       const boost::system::error_code& error,
       size_t bytes_transferred) {
-
-  delete data;
 }
