@@ -502,6 +502,8 @@ void BGPProcess::for_add(const vertex_t affected_vertex,
 
   local.first++;
 
+  LOG4CXX_INFO(comp_peer_->logger_, "  local.first == " <<   local.first);
+
   if (local.first == local.second) {
 
     affected.couter_map_.clear();
