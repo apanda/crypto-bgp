@@ -134,7 +134,7 @@ void RPCClient::publish(string key,  int64_t value, vertex_t vertex) {
 
   //command = CMD_TYPE::MSG;
   command = 999;
-  size = 276;
+  size = length_;
 
   BOOST_ASSERT(key.length() < (msg_ - sizeof(vertex_t) - sizeof(int64_t)));
 
