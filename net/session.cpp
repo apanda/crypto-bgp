@@ -113,7 +113,7 @@ void Session::handle_read(
 
    if (bytes_transferred == 0) {
 
-     LOG4CXX_FATAL(peer_->logger_, "bytes_transferred == 0");
+     LOG4CXX_FATAL(peer_->logger_, "bytes_transferred == 0 " << where);
 
      sleep(1);
 
