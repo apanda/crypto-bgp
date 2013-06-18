@@ -153,7 +153,7 @@ void Session::handle_read(
          handle_init(current, error, size);
      } else {
 
-       hexdump(current, length_);
+       hexdump(current, size);
 
        LOG4CXX_FATAL(peer_->logger_, "Unknown command: " << command);
        throw std::runtime_error("invalid command");
