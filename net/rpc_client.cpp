@@ -200,6 +200,7 @@ void RPCClient::write_loop() {
     }
 
     LOG4CXX_INFO(logger_, "Sending: " << size << " messages of size " << length_*size);
+    boost::unique_lock<boost::mutex> lock(m_);
     boost::asio::write(socket_, boost::asio::buffer(new_data, length_*size));
   }
 
