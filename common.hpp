@@ -53,6 +53,8 @@ enum {
   msg_ = 256 + 8 + 8,
   cmd_ = sizeof(uint32_t),
   size_ = sizeof(uint32_t),
+  vertex_ = sizeof(uint64_t),
+  value_ = sizeof(uint64_t),
   length_ = cmd_ + msg_ + size_,
   buf_length_ = length_ * 200
 };
