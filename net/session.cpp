@@ -116,10 +116,12 @@ void Session::handle_read(
      const uint32_t& size =  *((uint32_t*) (data + sizeof(uint32_t)));
 
      const uint32_t chunk_size = bytes_transferred - offset;
+
+     LOG4CXX_FATAL(peer_->logger_, "transfered "
+         << bytes_transferred << " offset " << offset
+         << " size " << size << " command " << command);
+
      if(chunk_size < size) {
-       LOG4CXX_FATAL(peer_->logger_, "transfered "
-           << bytes_transferred << " offset " << offset
-           << " size " << size << " command " << command);
 
        memmove(data, data + offset, chunk_size);
 
