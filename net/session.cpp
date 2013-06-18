@@ -117,7 +117,8 @@ void Session::handle_read(
 
      auto chunk_size = bytes_transferred - offset;
      if(chunk_size < size) {
-       LOG4CXX_FATAL(peer_->logger_, "Incomplete message of size: " << size);
+       LOG4CXX_FATAL(peer_->logger_, "Incomplete message of size: "
+           << bytes_transferred << " " << offset << " " << size);
 
        memmove(data, data + offset, chunk_size);
 
