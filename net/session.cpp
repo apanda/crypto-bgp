@@ -55,6 +55,14 @@ void Session::handle_msg(
 }
 
 
+void Session::read_impl(char* data, size_t total_length, size_t  offset ) {
+  socket_.async_read_some(boost::asio::buffer(start + offset, total_length - offset),
+        boost::bind(&Session::handle_read, this, data, offset,
+            boost::asio::placeholders::error,
+            boost::asio::placeholders::bytes_transferred));
+}
+
+
 
 void Session::handle_init(
     char* data,
@@ -99,83 +107,63 @@ void Session::handle_sync(
 
 
 void Session::handle_read(
-    char* data,
-    size_t where,
+    char* start,
+    size_t continue_offset,
     const boost::system::error_code& error,
     size_t bytes_transferred) {
 
-  char* start = data;
-  char* current = data;
+  bytes_transferred += continue_offset;
+  char* current = start;
 
    if (error) {
      delete this;
    }
 
    if (bytes_transferred == 0) {
-
-     socket_.async_read_some(boost::asio::buffer(data + where, buf_length_ - where),
-           boost::bind(&Session::handle_read, this, data, where,
-               boost::asio::placeholders::error,
-               boost::asio::placeholders::bytes_transferred));
-
-
+     read_impl(start, buf_length_, continue_offset);
      return;
    }
 
-   bytes_transferred += where;
-
    uint32_t offset = 0;
+
    do {
-
      uint32_t& command =  *( (uint32_t*) ((void*) current));
-     uint32_t& size =  *((uint32_t*) ((void*) (current + sizeof(uint32_t))));
+     uint32_t& message_size =  *((uint32_t*) ((void*) (current + sizeof(uint32_t))));
 
-     const uint32_t chunk_size = bytes_transferred - offset;
+     const auto chunk_size = bytes_transferred - offset;
 
-
-     if(chunk_size < size) {
-
+     if(chunk_size < message_size) {
        memmove(start, current, chunk_size);
-
-       socket_.async_read_some(boost::asio::buffer(start + chunk_size, buf_length_ - chunk_size),
-             boost::bind(&Session::handle_read, this, data, chunk_size,
-                 boost::asio::placeholders::error,
-                 boost::asio::placeholders::bytes_transferred));
-
-
+       read_impl(start, buf_length_, chunk_size);
        return;
      }
 
      if(command == CMD_TYPE::MSG) {
-       handle_msg(current, error, size);
+       handle_msg(current, error, message_size);
 
      } else if (command == CMD_TYPE::SYNC) {
-       handle_sync(current, error, size);
+       handle_sync(current, error, message_size);
 
      } else if (command == CMD_TYPE::INIT) {
-         handle_init(current, error, size);
+         handle_init(current, error, message_size);
      } else {
 
        LOG4CXX_FATAL(peer_->logger_, "transfered "
            << bytes_transferred << " offset " << offset
-           << " size " << size << " command " << command);
+           << " size " << message_size << " command " << command);
 
-       hexdump(current, size);
+       hexdump(current, message_size);
 
        LOG4CXX_FATAL(peer_->logger_, "Unknown command: " << command);
        throw std::runtime_error("invalid command");
      }
 
-     current = current + size;
-     offset += size;
+     current = current + message_size;
+     offset += message_size;
 
    } while (offset < bytes_transferred);
 
-   socket_.async_read_some(boost::asio::buffer(data, buf_length_),
-         boost::bind(&Session::handle_read, this, data, 0,
-             boost::asio::placeholders::error,
-             boost::asio::placeholders::bytes_transferred));
-
+   read_impl(start, buf_length_, 0);
 }
 
 
@@ -264,11 +252,6 @@ void Session::write_impl(char* data, size_t length, tcp::socket& socket) {
           boost::asio::placeholders::error,
           boost::asio::placeholders::bytes_transferred));
 }
-
-
-void Session::read_impl(char* data, size_t length, tcp::socket& socket) {
-}
-
 
 
 void Session::handle_write(
