@@ -112,8 +112,8 @@ void Session::handle_read(
 
      data = data + offset;
 
-     const uint32_t& command =  *((uint32_t*) data);
-     const uint32_t& size =  *((uint32_t*) (data + sizeof(uint32_t)));
+     uint32_t& command =  *( (uint32_t*) ((void*) data));
+     uint32_t& size =  *((uint32_t*) ((void*) (data + sizeof(uint32_t))));
 
      const uint32_t chunk_size = bytes_transferred - offset;
 

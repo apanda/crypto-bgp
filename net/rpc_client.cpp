@@ -127,8 +127,8 @@ void RPCClient::publish(string key,  int64_t value, vertex_t vertex) {
   char* data = new char[length_];
   char* msg = data + cmd_;
 
-  uint32_t& command = (uint32_t) *((void*) data);
-  uint32_t& size = (uint32_t) *((void*) (data + sizeof(uint32_t)));
+  uint32_t& command =  *( (uint32_t*) ((void*) data));
+  uint32_t& size =  *( (uint32_t*) ((void*) (data + sizeof(uint32_t))));
 
   //command = CMD_TYPE::MSG;
   command = length_;
@@ -218,11 +218,11 @@ void RPCClient::handle_read(
   if (!error) {
 
     if (bytes_transferred == length_) {
-      uint32_t& command = (uint32_t) *((void*) data);
+      uint32_t& command =  *( (uint32_t*) ((void*) data));
 
       if (command == CMD_TYPE::SYNC) {
 
-        uint32_t& size = (uint32_t) *((void*) (data + sizeof(uint32_t)));
+        uint32_t& size =  *( (uint32_t*) ((void*) (data + sizeof(uint32_t))));
 
         if (size > length_) {
 
