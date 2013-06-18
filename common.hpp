@@ -57,9 +57,9 @@ enum {
 };
 
 enum CMD_TYPE {
-  MSG = 0,
-  SYNC = 1,
-  INIT = 2
+  MSG = 1,
+  SYNC = 2,
+  INIT = 3
 };
 
 typedef int64_t share_t;
