@@ -128,10 +128,6 @@ void Session::handle_read(
 
      if(chunk_size < size) {
 
-       LOG4CXX_FATAL(peer_->logger_, "transfered "
-           << bytes_transferred << " offset " << offset
-           << " size " << size << " command " << command);
-
        LOG4CXX_FATAL(peer_->logger_, "chunk_size < size ");
 
        memmove(start, current, chunk_size);
@@ -152,6 +148,10 @@ void Session::handle_read(
      } else if (command == CMD_TYPE::INIT) {
          handle_init(current, error, size);
      } else {
+
+       LOG4CXX_FATAL(peer_->logger_, "transfered "
+           << bytes_transferred << " offset " << offset
+           << " size " << size << " command " << command);
 
        hexdump(current, size);
 
