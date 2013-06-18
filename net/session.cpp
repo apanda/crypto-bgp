@@ -123,7 +123,16 @@ void Session::handle_read(
      const uint32_t& command =  *((uint32_t*) data);
      const uint32_t& size =  *((uint32_t*) (data + sizeof(uint32_t)));
 
-     BOOST_ASSERT_MSG((bytes_transferred - offset) >= size, "(bytes_transferred - offset) >= size");
+     auto chunk_size = bytes_transferred - offset;
+     if(chunk_size < size) {
+       memmove(data, data + offset, chunk_size);
+
+       socket_.async_read_some(boost::asio::buffer(data + offset, buf_length_ - chunk_size),
+             boost::bind(&Session::handle_read, this, data,
+                 boost::asio::placeholders::error,
+                 boost::asio::placeholders::bytes_transferred));
+       return;
+     }
 
      if(command == CMD_TYPE::MSG) {
        handle_msg(data, error, size);
