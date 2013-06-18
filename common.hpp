@@ -56,7 +56,7 @@ enum {
   vertex_ = sizeof(uint64_t),
   value_ = sizeof(uint64_t),
   length_ = cmd_ + msg_ + size_,
-  buf_length_ = length_ * 200
+  buf_length_ = length_ * 1024
 };
 
 enum CMD_TYPE {
