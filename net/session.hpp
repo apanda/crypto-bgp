@@ -36,6 +36,7 @@ public:
 
   void handle_read(
       char* data,
+      size_t where,
       const boost::system::error_code& error,
       size_t bytes_transferred);
 
