@@ -50,7 +50,7 @@ static set<int> COMP_PEER_IDS;
 static array<string, COMP_PEER_NUM> COMP_PEER_HOSTS;
 
 enum {
-  msg_ = 232 + 8 + 8,
+  msg_ = 104 + 8 + 8,
   cmd_ = sizeof(uint32_t),
   size_ = sizeof(uint32_t),
   vertex_ = sizeof(uint64_t),
