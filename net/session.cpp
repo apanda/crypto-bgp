@@ -134,8 +134,6 @@ void Session::handle_read(
 
        LOG4CXX_FATAL(peer_->logger_, "chunk_size < size ");
 
-       hexdump(current, size);
-
        memmove(start, current, chunk_size);
 
        socket_.async_read_some(boost::asio::buffer(start + chunk_size, buf_length_ - chunk_size),
