@@ -107,7 +107,7 @@ void Session::handle_read(
      delete this;
    }
 
-   auto offset = 0;
+   uint32_t offset = 0;
    do {
 
      data = data + offset;
@@ -115,7 +115,7 @@ void Session::handle_read(
      const uint32_t& command =  *((uint32_t*) data);
      const uint32_t& size =  *((uint32_t*) (data + sizeof(uint32_t)));
 
-     auto chunk_size = bytes_transferred - offset;
+     const uint32_t chunk_size = bytes_transferred - offset;
      if(chunk_size < size) {
        LOG4CXX_FATAL(peer_->logger_, "transfered "
            << bytes_transferred << " offset " << offset
