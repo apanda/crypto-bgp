@@ -199,6 +199,7 @@ void RPCClient::write_loop() {
       memcpy(new_data + length_ * i, data_vec[i], length_);
     }
 
+    LOG4CXX_INFO(logger_, "Sending: " << size << " messages of size " << length_*size);
     boost::asio::write(socket_, boost::asio::buffer(new_data, length_*size));
   }
 
