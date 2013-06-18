@@ -95,8 +95,6 @@ void RPCClient::sync(vector<update_vertex_t>& nodes) {
   size_t real_length = sizeof(uint32_t) + sizeof(uint32_t) + nodes.size() * sizeof(update_vertex_t);
   size_t length = real_length;
 
-  if (length < length_) length = length_;
-
   char* data = new char[length];
 
   uint32_t& command =  *((uint32_t*) data);
@@ -104,7 +102,7 @@ void RPCClient::sync(vector<update_vertex_t>& nodes) {
   update_vertex_t* array = (update_vertex_t*) (data + sizeof(uint32_t)*2);
 
   command = CMD_TYPE::SYNC;
-  size = real_length;
+  size = length;
 
   for(size_t i = 0; i < nodes.size(); i++) {
     array[i] = nodes[i];
