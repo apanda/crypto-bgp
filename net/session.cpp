@@ -108,7 +108,10 @@ void Session::handle_read(
    }
 
    if (bytes_transferred == 0) {
-     break;
+     socket_.async_read_some(boost::asio::buffer(data + offset, buf_length_ - chunk_size),
+           boost::bind(&Session::handle_read, this, data,
+               boost::asio::placeholders::error,
+               boost::asio::placeholders::bytes_transferred));
    }
 
    uint32_t offset = 0;
