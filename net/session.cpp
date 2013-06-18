@@ -126,7 +126,7 @@ void Session::handle_read(
      const uint32_t chunk_size = bytes_transferred - offset;
 
 
-     if(chunk_size < size) {
+     if(chunk_size < length_) {
 
        LOG4CXX_FATAL(peer_->logger_, "transfered "
            << bytes_transferred << " offset " << offset
@@ -153,7 +153,7 @@ void Session::handle_read(
          handle_init(current, error, size);
      } else {
 
-       hexdump(data, length_);
+       hexdump(current, length_);
 
        LOG4CXX_FATAL(peer_->logger_, "Unknown command: " << command);
        throw std::runtime_error("invalid command");
