@@ -204,7 +204,7 @@ void RPCClient::write_loop() {
     boost::asio::write(socket_, boost::asio::buffer(new_data, length_*size));
   }
 
-  timer_.expires_from_now(boost::posix_time::milliseconds(10));
+  timer_.expires_from_now(boost::posix_time::milliseconds(TIMER));
   timer_.async_wait(f);
 };
 
