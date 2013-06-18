@@ -151,6 +151,9 @@ void Session::handle_read(
      } else if (command == CMD_TYPE::INIT) {
          handle_init(data, error, size);
      } else {
+
+       hexdump(data, length_);
+
        LOG4CXX_FATAL(peer_->logger_, "Unknown command: " << command);
        throw std::runtime_error("invalid command");
      }
