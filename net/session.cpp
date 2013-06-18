@@ -112,6 +112,7 @@ void Session::handle_read(
            boost::bind(&Session::handle_read, this, data,
                boost::asio::placeholders::error,
                boost::asio::placeholders::bytes_transferred));
+     return;
    }
 
    uint32_t offset = 0;
