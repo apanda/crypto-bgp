@@ -113,8 +113,6 @@ void Session::handle_read(
 
    if (bytes_transferred == 0) {
 
-     LOG4CXX_FATAL(peer_->logger_, "bytes_transferred == 0 " << where);
-
      socket_.async_read_some(boost::asio::buffer(data + where, buf_length_ - where),
            boost::bind(&Session::handle_read, this, data, where,
                boost::asio::placeholders::error,
@@ -136,12 +134,6 @@ void Session::handle_read(
 
 
      if(chunk_size < size) {
-
-       LOG4CXX_FATAL(peer_->logger_, "chunk_size < size ");
-
-       LOG4CXX_FATAL(peer_->logger_, "transfered "
-           << bytes_transferred << " offset " << offset
-           << " size " << size << " command " << command);
 
        memmove(start, current, chunk_size);
 
