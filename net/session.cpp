@@ -122,11 +122,12 @@ void Session::handle_read(
 
      const uint32_t chunk_size = bytes_transferred - offset;
 
-     LOG4CXX_FATAL(peer_->logger_, "transfered "
-         << bytes_transferred << " offset " << offset
-         << " size " << size << " command " << command);
 
      if(chunk_size < size) {
+
+       LOG4CXX_FATAL(peer_->logger_, "transfered "
+           << bytes_transferred << " offset " << offset
+           << " size " << size << " command " << command);
 
        LOG4CXX_FATAL(peer_->logger_, "chunk_size < size ");
 
