@@ -103,6 +103,9 @@ void Session::handle_read(
     const boost::system::error_code& error,
     size_t bytes_transferred) {
 
+  char* start = data;
+  char* current = data;
+
    if (error) {
      delete this;
    }
@@ -117,8 +120,8 @@ void Session::handle_read(
    uint32_t offset = 0;
    do {
 
-     uint32_t& command =  *( (uint32_t*) ((void*) data));
-     uint32_t& size =  *((uint32_t*) ((void*) (data + sizeof(uint32_t))));
+     uint32_t& command =  *( (uint32_t*) ((void*) current));
+     uint32_t& size =  *((uint32_t*) ((void*) (current + sizeof(uint32_t))));
 
      const uint32_t chunk_size = bytes_transferred - offset;
 
@@ -131,7 +134,7 @@ void Session::handle_read(
 
        LOG4CXX_FATAL(peer_->logger_, "chunk_size < size ");
 
-       memmove(data, data + offset, chunk_size);
+       memmove(start, current, chunk_size);
 
        socket_.async_read_some(boost::asio::buffer(data + offset, buf_length_ - chunk_size),
              boost::bind(&Session::handle_read, this, data,
@@ -141,13 +144,13 @@ void Session::handle_read(
      }
 
      if(command == CMD_TYPE::MSG) {
-       handle_msg(data, error, size);
+       handle_msg(current, error, size);
 
      } else if (command == CMD_TYPE::SYNC) {
-       handle_sync(data, error, size);
+       handle_sync(current, error, size);
 
      } else if (command == CMD_TYPE::INIT) {
-         handle_init(data, error, size);
+         handle_init(current, error, size);
      } else {
 
        hexdump(data, length_);
@@ -156,7 +159,7 @@ void Session::handle_read(
        throw std::runtime_error("invalid command");
      }
 
-     data = data + size;
+     current = current + size;
      offset += size;
 
    } while (offset < bytes_transferred);
