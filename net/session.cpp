@@ -55,9 +55,9 @@ void Session::handle_msg(
 }
 
 
-void Session::read_impl(char* data, size_t total_length, size_t  offset ) {
+void Session::read_impl(char* start, size_t total_length, size_t  offset ) {
   socket_.async_read_some(boost::asio::buffer(start + offset, total_length - offset),
-        boost::bind(&Session::handle_read, this, data, offset,
+        boost::bind(&Session::handle_read, this, start, offset,
             boost::asio::placeholders::error,
             boost::asio::placeholders::bytes_transferred));
 }
@@ -114,6 +114,10 @@ void Session::handle_read(
 
   bytes_transferred += continue_offset;
   char* current = start;
+
+  LOG4CXX_INFO(peer_->logger_,
+      "Received: " << (bytes_transferred/length_) <<
+      " messages of size " << bytes_transferred);
 
    if (error) {
      delete this;
